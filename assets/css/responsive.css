@@ -53,8 +53,8 @@ img, video, iframe { max-width: 100%; height: auto; }
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(3px);
+    background: rgba(0,0,0,0.7); /* Slightly darker to compensate for removing blur */
+    backdrop-filter: none; /* Removed to fix Android/Chromium text rendering blur bug */
     z-index: 1050;
     opacity: 0;
     transition: opacity 0.3s;
@@ -84,8 +84,8 @@ img, video, iframe { max-width: 100%; height: auto; }
         top: 0; right: 0;
         height: 100vh;
         width: 280px;
-        background: rgba(15,15,15,0.97);
-        backdrop-filter: blur(20px);
+        background: #0d1f0d; /* SnailShutter brand dark green */
+        backdrop-filter: none; /* Removed to prevent text blurring on mobile devices */
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
