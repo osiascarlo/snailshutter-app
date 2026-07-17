@@ -1,6 +1,7 @@
 class Auth {
     constructor() {
         this.currentUser = null;
+        this.backButtonInterceptorInitialized = false;
         this.init();
     }
 
@@ -228,6 +229,10 @@ class Auth {
         const isDashboardHome = path.endsWith('/dashboard.html');
         
         if (isDashboardHome) {
+            if (this.backButtonInterceptorInitialized) {
+                return;
+            }
+            this.backButtonInterceptorInitialized = true;
             console.log('Auth.js: Initializing back-button navigation interceptor...');
             
             // Push a history state to intercept the next back navigation
