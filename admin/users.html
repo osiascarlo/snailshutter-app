@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Management | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .user-actions .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .user-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .user-status.active {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .user-status.inactive {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .user-status.pending {
+            background: var(--color-warning);
+            color: white;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-primary);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .filter-section {
+            background: var(--color-bg-glass);
+            border: var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .user-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 8000;
+            opacity: 0;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .user-modal-overlay.show {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            opacity: 1;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            animation: scaleIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .user-modal-wrapper {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        @keyframes userModalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .modal-header h3 {
+            color: #212529;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .close {
+            color: #6c757d;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f8f9fa;
+        }
+
+        .close:hover {
+            color: #dc3545;
+            background: #fff;
+            transform: rotate(90deg);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #ffffff;
+            color: #212529;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            text-align: left;
+        }
+
+        .flex {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--green-500) 0%, var(--green-700) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--green-600) 0%, var(--green-800) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            transform: translateY(-2px);
+        }
+
+        select.form-control {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            padding-right: 2.5rem;
+            appearance: none;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css">
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter"
+                        >
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Admin</div>
+                    <a href="/admin/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+                    </a>
+                    <a href="/admin/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar"></i></span> All Bookings
+                    </a>
+                    <a href="/admin/calendar.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                    </a>
+                    <a href="/admin/gallery.html" class="sidebar-link"><span class="icon"><i class="fas fa-images"></i></span> Photo Gallery</a>
+                    <a href="/admin/analytics.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
+                    </a>
+                    <a href="/admin/users.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-users"></i></span> Users
+                    </a>
+                    <a href="/admin/services.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-camera"></i></span> Services
+                    </a>
+                    <a href="/admin/settings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-cog"></i></span> Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="avatar" data-user-initial></div>
+                    <div class="sidebar-user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role" data-user-role></div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <h1>Users Management — Welcome, <span data-user-name></span>!</h1>
+                <p>Manage access levels, roles, and status for all studio members.</p>
+            </div>
+
+            <div class="content-body">
+                <div id="alertContainer"></div>
+
+                <!-- Add User Button -->
+                <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+                    <a href="#" onclick="openAddUserModal()" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </a>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-controls">
+                        <div class="form-group">
+                            <label>Search Users</label>
+                            <input type="text" id="searchInput" class="form-control"
+                                placeholder="Search by name or email...">
+                        </div>
+                        <div class="form-group">
+                            <label>Role Filter</label>
+                            <select id="roleFilter" class="form-control">
+                                <option value="">All Roles</option>
+                                <option value="admin">Admin</option>
+                                <option value="staff">Staff</option>
+                                <option value="client">Client</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status Filter</label>
+                            <select id="statusFilter" class="form-control">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="resetFilters()">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Bookings</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be rendered by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="user-modal-overlay">
+        <div class="user-modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New User</h3>
+                <span class="close" onclick="closeUserModal()">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="firstName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="lastName" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="role" class="form-control" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="staff">Staff</option>
+                            <option value="client">Client</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="status" class="form-control" required>
+                            <option value="">Select Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-control"
+                        placeholder="Leave blank to keep current password">
+                </div>
+                <div class="form-group">
+                    <label>Phone (Optional)</label>
+                    <input type="tel" id="phone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/auth-middleware.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js"></script>
+    <script>
+        // Initialize admin dashboard with authentication
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!auth.requireAuth('admin')) return;
+
+            // Initialize users loading
+            loadUsers();
+            setupEventListeners();
+        });
+
+        // Users data
+        let users = [];
+        let filteredUsers = [];
+
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', filterUsers);
+            document.getElementById('roleFilter').addEventListener('change', filterUsers);
+            document.getElementById('statusFilter').addEventListener('change', filterUsers);
+
+            // Form submission
+            document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
+
+            // Logout functionality
+            const logoutLink = document.querySelector('[data-logout]');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    auth.logout();
+                });
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                console.log('Loading users...');
+                console.log('API available:', typeof api);
+                console.log('getUsers available:', typeof api.getUsers);
+
+                if (!api || !api.getUsers) {
+                    console.error('API or getUsers not available');
+                    showAlert('API not loaded properly', 'error');
+                    return;
+                }
+
+                const response = await api.getUsers();
+                console.log('API response:', response);
+
+                if (response.success) {
+                    users = response.users || response.data || [];
+                    filteredUsers = [...users];
+                    console.log('Users loaded successfully:', users.length, 'users');
+                    renderUsers();
+                } else {
+                    console.error('API response failed:', response);
+                    showAlert(response.error || 'Failed to load users', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showAlert('Failed to load users: ' + error.message, 'error');
+            }
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No users found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredUsers.map(user => {
+                const names = (user.full_name || '').split(' ');
+                const firstName = names[0] || '';
+                const lastName = names.slice(1).join(' ') || '';
+                const formatName = user.full_name || 'Unknown User';
+                const initials = (firstName.charAt(0) + (lastName.charAt(0) || '')).toUpperCase() || 'U';
+                const status = user.status || 'active';
+
+                return `
+                <tr>
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar">${initials}</div>
+                            <div>
+                                <div style="font-weight: 600;">${formatName}</div>
+                                <div style="font-size: 0.8rem; color: var(--color-text-muted);">${user.phone || 'No phone'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${user.email}</td>
+                    <td>
+                        <span style="padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; background: ${getRoleColor(user.role)}; color: white;">
+                            ${(user.role || '').charAt(0).toUpperCase() + (user.role || '').slice(1)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="user-status ${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                    </td>
+                    <td>${formatDate(user.created_at)}</td>
+                    <td>${user.booking_count || 0}</td>
+                    <td>
+                        <div class="user-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editUser(${user.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="toggleUserStatus(${user.id})">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function getRoleColor(role) {
+            const colors = {
+                admin: 'var(--color-danger)',
+                staff: 'var(--color-warning)',
+                client: 'var(--color-primary)'
+            };
+            return colors[role] || 'var(--color-secondary)';
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredUsers = users.filter(user => {
+                const matchesSearch = (user.full_name || '').toLowerCase().includes(searchTerm) ||
+                    (user.email || '').toLowerCase().includes(searchTerm);
+                const matchesRole = !roleFilter || user.role === roleFilter;
+                const matchesStatus = !statusFilter || (user.status || 'active') === statusFilter;
+
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+
+            renderUsers();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('roleFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            filteredUsers = [...users];
+            renderUsers();
+        }
+
+        function openAddUserModal() {
+            const modal = document.getElementById('userModal');
+            document.getElementById('modalTitle').textContent = 'Add New User';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('password').required = true;
+            
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            const modal = document.getElementById('userModal');
+            document.getElementById('modalTitle').textContent = 'Edit User';
+            
+            document.getElementById('userId').value = user.id;
+            document.getElementById('firstName').value = user.first_name || '';
+            document.getElementById('lastName').value = user.last_name || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('role').value = user.role || '';
+            document.getElementById('status').value = user.status || 'active';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('notes').value = user.notes || '';
+            document.getElementById('password').value = '';
+            document.getElementById('password').required = false;
+
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeUserModal() {
+            const modalOverlay = document.getElementById('userModal');
+            if (modalOverlay) {
+                modalOverlay.classList.remove('show');
+                const content = modalOverlay.querySelector('.user-modal-content');
+                if (content) content.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    modalOverlay.style.display = 'none';
+                }, 300);
+            }
+            document.getElementById('userForm').reset();
+        }
+
+        async function handleUserSubmit(e) {
+            e.preventDefault();
+
+            const userId = document.getElementById('userId').value;
+            const userData = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                role: document.getElementById('role').value,
+                status: document.getElementById('status').value,
+                phone: document.getElementById('phone').value,
+                notes: document.getElementById('notes').value
+            };
+
+            const password = document.getElementById('password').value;
+            if (password) {
+                userData.password = password;
+            }
+
+            try {
+                let response;
+                if (userId) {
+                    response = await api.updateUser(userId, userData);
+                } else {
+                    response = await api.createUser(userData);
+                }
+
+                if (response.success) {
+                    showAlert(userId ? 'User updated successfully!' : 'User created successfully!', 'success');
+                    closeUserModal();
+                    loadUsers();
+                } else {
+                    showAlert(response.message || 'Operation failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving user:', error);
+                showAlert('Operation failed', 'error');
+            }
+        }
+
+        async function toggleUserStatus(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            const newStatus = user.status === 'active' ? 'inactive' : 'active';
+            const action = newStatus === 'active' ? 'activate' : 'deactivate';
+
+            const confirmed = await showConfirm({
+                title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
+                message: `Are you sure you want to ${action} this user?`,
+                confirmText: 'Confirm',
+                type: action === 'deactivate' ? 'danger' : 'confirm'
+            });
+
+            if (!confirmed) return;
+
+            try {
+                const response = await api.updateUser(userId, { status: newStatus });
+                if (response.success) {
+                    showAlert(`User ${action}d successfully!`, 'success');
+                    loadUsers();
+                } else {
+                    showAlert(response.message || 'Operation failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating user status:', error);
+                showAlert('Operation failed', 'error');
+            }
+        }
+
+        async function deleteUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            const displayName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'this user';
+            const confirmed = await showConfirm({
+                title: 'Delete User',
+                message: `Are you sure you want to delete <strong>${displayName}</strong>? This action cannot be undone.`,
+                confirmText: 'Delete',
+                type: 'danger'
+            });
+
+            if (!confirmed) return;
+
+            try {
+                const response = await api.deleteUser(userId);
+                if (response.success) {
+                    showAlert('User deleted successfully!', 'success');
+                    loadUsers();
+                } else {
+                    showAlert(response.message || 'Operation failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showAlert('Operation failed', 'error');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('userModal');
+            if (event.target === modal) {
+                closeUserModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeUserModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

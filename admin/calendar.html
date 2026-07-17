@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .calendar-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-border-soft);
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-border-soft);
+        }
+
+        .calendar-month {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-text);
+            font-family: var(--font-body);
+        }
+
+        .calendar-nav-btn {
+            background: none;
+            border: 1px solid var(--color-primary);
+            color: var(--color-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e5e7eb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background: #f9fafb;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            background: white;
+            padding: 1rem;
+            min-height: 80px;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .calendar-day:hover {
+            background: #fef3c7;
+        }
+
+        .calendar-day.other-month {
+            color: #d1d5db;
+            background: #f9fafb;
+        }
+
+        .calendar-day.today {
+            background: var(--color-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.has-booking {
+            background: rgba(220, 38, 38, 0.05);
+            border: 2px solid var(--color-danger);
+        }
+
+        .calendar-day.completed-booking {
+            background: rgba(124, 58, 237, 0.05);
+            border: 2px solid var(--color-completed);
+        }
+
+        .booking-indicator {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--color-danger);
+            border-radius: 50%;
+        }
+
+        .completed-indicator {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--color-completed);
+            border-radius: 50%;
+        }
+
+        .calendar-legend {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .welcome-message {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            opacity: 0.8;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 550px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--color-border-soft);
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--color-border-soft);
+            background: var(--color-bg-soft);
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin: 0;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.75rem;
+            font-weight: 300;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            color: var(--color-danger);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .booking-detail-card {
+            border: 1px solid var(--color-border-soft);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            background: var(--color-bg-soft);
+            transition: all 0.2s ease;
+        }
+
+        .booking-detail-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .booking-detail-card:hover {
+            box-shadow: var(--shadow-sm);
+            border-color: var(--color-primary-light);
+        }
+
+        .booking-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .booking-detail-service {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--color-text);
+        }
+
+        .booking-detail-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            text-transform: capitalize;
+        }
+
+        .booking-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--color-text-soft);
+        }
+
+        .booking-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .booking-detail-item i {
+            color: var(--color-primary);
+            width: 16px;
+            text-align: center;
+        }
+
+        .booking-detail-notes {
+            grid-column: span 2;
+            background: white;
+            padding: 0.75rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border-soft);
+            margin-top: 0.25rem;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        /* Hover style for days with bookings */
+        .calendar-day.has-booking:hover,
+        .calendar-day.completed-booking:hover {
+            background: rgba(46, 125, 50, 0.08) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css">
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter" >
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Admin</div>
+                    <a href="/admin/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+                    </a>
+                    <a href="/admin/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar"></i></span> All Bookings
+                    </a>
+                    <a href="/admin/calendar.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                    </a>
+                    <a href="/admin/gallery.html" class="sidebar-link"><span class="icon"><i class="fas fa-images"></i></span> Photo Gallery</a>
+                    <a href="/admin/analytics.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
+                    </a>
+                    <a href="/admin/users.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-users"></i></span> Users
+                    </a>
+                    <a href="/admin/services.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-camera"></i></span> Services
+                    </a>
+                    <a href="/admin/settings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-cog"></i></span> Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role">Administrator</div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <h1>Studio Calendar — Welcome, <span data-user-name></span>!</h1>
+                <p>View all studio bookings and schedule in an interactive calendar format.</p>
+            </div>
+
+            <div class="content-body">
+                <!-- Calendar Container -->
+                <div class="calendar-container">
+                    <!-- Calendar Navigation -->
+                    <div class="calendar-nav">
+                        <button class="calendar-nav-btn" onclick="previousMonth()">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="calendar-month" id="currentMonth">March 2024</div>
+                        <button class="calendar-nav-btn" onclick="nextMonth()">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be generated by JavaScript -->
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: var(--color-danger);"></div>
+                            <span>Has Bookings</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: var(--color-completed);"></div>
+                            <span>Completed Bookings</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: var(--color-primary);"></div>
+                            <span>Today</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Booking Details Modal -->
+    <div id="bookingDetailsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Bookings for <span id="selectedDateText"></span></h3>
+                <button class="modal-close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBookingsList">
+                <!-- Dynamically populated bookings -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Required API Scripts -->
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js"></script>
+
+    <script>
+        // Admin calendar functionality
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+        }
+
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let loadedBookings = []; // Global store for modal access
+
+        // Escape HTML to prevent XSS from user-supplied data
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Helper to get local YYYY-MM-DD date string
+        function getLocalDateString(dateInput) {
+            if (!dateInput) return '';
+            const d = new Date(dateInput);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            updateCalendar();
+        }
+
+        async function updateCalendar() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            // Update month display
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            // Fetch actual bookings from the database
+            let bookings = [];
+            try {
+                const response = await api.getCalendar(currentMonth + 1, currentYear);
+                if (response && response.success) {
+                    bookings = response.bookings || [];
+                    loadedBookings = bookings; // Store globally for modal access
+                }
+            } catch (error) {
+                console.error('Error fetching calendar bookings:', error);
+            }
+
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // Generate calendar grid
+            const calendarGrid = document.getElementById('calendarGrid');
+            let html = '';
+
+            // Day headers
+            dayNames.forEach(day => {
+                html += `<div class="calendar-day-header">${day}</div>`;
+            });
+
+            // Empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                html += '<div class="calendar-day other-month"></div>';
+            }
+
+            // Days of month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Filter actual bookings for this day
+                const dayBookings = bookings.filter(booking => {
+                    return getLocalDateString(booking.booking_date) === dateStr && booking.status !== 'cancelled';
+                });
+                
+                const hasBooking = dayBookings.length > 0;
+                const isCompleted = hasBooking && dayBookings.every(b => b.status === 'completed');
+                const isToday = currentDate.getDate() === day && currentDate.getMonth() === currentMonth && currentDate.getFullYear() === currentYear;
+
+                let classes = 'calendar-day';
+                if (isToday) classes += ' today';
+                if (hasBooking) {
+                    if (isCompleted) {
+                        classes += ' completed-booking';
+                    } else {
+                        classes += ' has-booking';
+                    }
+                }
+
+                // Add tooltips with booking descriptions
+                let titleAttr = '';
+                if (hasBooking) {
+                    const bookingLines = dayBookings.map(b => {
+                        const time = b.start_time.substring(0, 5);
+                        const statusTag = b.status === 'completed' ? ' [Completed]' : '';
+                        return `• ${time} - ${escapeHtml(b.service_name)} (${escapeHtml(b.client_name)})${statusTag}`;
+                    }).join('\n');
+                    titleAttr = `title="Bookings:\n${bookingLines}"`;
+                }
+
+                let indicatorHtml = '';
+                if (hasBooking) {
+                    if (isCompleted) {
+                        indicatorHtml = '<div class="completed-indicator"></div>';
+                    } else {
+                        indicatorHtml = '<div class="booking-indicator"></div>';
+                    }
+                }
+
+                let onclickAttr = '';
+                if (hasBooking) {
+                    onclickAttr = `onclick="showBookingDetails('${dateStr}')" style="cursor: pointer;"`;
+                }
+
+                html += `
+                    <div class="${classes}" ${titleAttr} ${onclickAttr}>
+                        ${day}
+                        ${indicatorHtml}
+                    </div>
+                `;
+            }
+
+            calendarGrid.innerHTML = html;
+        }
+
+        // Initialize admin calendar page
+        document.addEventListener('DOMContentLoaded', async function () {
+            console.log('Admin calendar page loaded');
+
+            // Check if user is logged in and is admin
+            if (!auth.requireAuth('admin')) return;
+
+            // Handle logout
+            document.querySelector('[data-logout]').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.logout();
+            });
+
+            const user = auth.currentUser;
+            console.log('User logged in:', user);
+
+            // Update UI
+            document.querySelectorAll('[data-user-name]').forEach(el => {
+                el.textContent = user.name;
+            });
+
+            // Update calendar
+            updateCalendar();
+        });
+
+        // Modal Controllers
+        function showBookingDetails(dateStr) {
+            const dayBookings = loadedBookings.filter(booking => {
+                return getLocalDateString(booking.booking_date) === dateStr && booking.status !== 'cancelled';
+            });
+
+            if (dayBookings.length === 0) return;
+
+            // Format date for title
+            const dateParts = dateStr.split('-');
+            const dateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+            const formattedDate = dateObj.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            document.getElementById('selectedDateText').textContent = formattedDate;
+
+            const listContainer = document.getElementById('modalBookingsList');
+            listContainer.innerHTML = '';
+
+            dayBookings.forEach(b => {
+                const card = document.createElement('div');
+                card.className = 'booking-detail-card';
+
+                // Status Badge CSS Class
+                let statusClass = 'status-pending';
+                if (b.status === 'confirmed') statusClass = 'status-confirmed';
+                if (b.status === 'completed') statusClass = 'status-completed';
+                if (b.status === 'cancelled') statusClass = 'status-cancelled';
+
+                // Payment Status Badge Class
+                let payClass = 'payment-unpaid';
+                if (b.payment_status === 'paid') payClass = 'payment-paid';
+                if (b.payment_status === 'pending') payClass = 'payment-pending';
+
+                // Format Price
+                const priceFormatted = new Intl.NumberFormat('en-PH', {
+                    style: 'currency',
+                    currency: 'PHP'
+                }).format(b.total_price || 0);
+
+                // Format downpayment
+                const dpFormatted = new Intl.NumberFormat('en-PH', {
+                    style: 'currency',
+                    currency: 'PHP'
+                }).format(b.downpayment_amount || 0);
+
+                // Format Time (e.g. 09:00:00 to 09:00 AM)
+                const formatTime = (timeStr) => {
+                    if (!timeStr) return '';
+                    const [hours, minutes] = timeStr.split(':');
+                    const hr = parseInt(hours);
+                    const ampm = hr >= 12 ? 'PM' : 'AM';
+                    const displayHr = hr % 12 || 12;
+                    return `${displayHr}:${minutes} ${ampm}`;
+                };
+
+                const timeDisplay = `${formatTime(b.start_time)} - ${formatTime(b.end_time)}`;
+
+                card.innerHTML = `
+                    <div class="booking-detail-header">
+                        <div class="booking-detail-service">${escapeHtml(b.service_name)}</div>
+                        <div class="booking-detail-status ${statusClass}">${escapeHtml(b.status)}</div>
+                    </div>
+                    <div class="booking-detail-grid">
+                        <div class="booking-detail-item">
+                            <i class="fas fa-user"></i>
+                            <span><strong>Client:</strong> ${escapeHtml(b.client_name)}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-clock"></i>
+                            <span><strong>Time:</strong> ${timeDisplay}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-coins"></i>
+                            <span><strong>Total Price:</strong> ${priceFormatted}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-credit-card"></i>
+                            <span><strong>Payment:</strong> <span class="booking-detail-status ${payClass}" style="font-size:0.75rem; padding:0.1rem 0.4rem;">${b.payment_status || 'unpaid'}</span></span>
+                        </div>
+                        ${b.downpayment_amount > 0 ? `
+                        <div class="booking-detail-item" style="grid-column: span 2;">
+                            <i class="fas fa-receipt"></i>
+                            <span><strong>Downpayment:</strong> ${dpFormatted}</span>
+                        </div>
+                        ` : ''}
+                        ${b.notes ? `
+                        <div class="booking-detail-notes">
+                            <strong>Notes:</strong> ${escapeHtml(b.notes)}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+
+            // Show Modal
+            const modal = document.getElementById('bookingDetailsModal');
+            modal.style.display = 'flex';
+            // Force reflow
+            modal.offsetHeight;
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('bookingDetailsModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 200);
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('bookingDetailsModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close modal on escape key
+        window.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

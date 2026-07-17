@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SnailShutter - Mindful Photography Studio. Professional photography services for portraits, events, and more.">
+    <title>SnailShutter | Mindful Photography</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ── Category Filter Tabs ── */
+        .services-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 0 auto 3.5rem;
+            max-width: 1200px;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        .filter-btn {
+            padding: 0.6rem 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.6);
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+        .filter-btn:hover {
+            border-color: var(--color-primary, #16a34a);
+            color: var(--color-primary, #16a34a);
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+        .filter-btn.active {
+            background: var(--color-primary, #16a34a);
+            border-color: var(--color-primary, #16a34a);
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.2);
+        }
+
+        /* ── Services Grid Override (3-col) ── */
+        #servicesGrid.services-grid,
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ── Service Card ── */
+        .service-card {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.65);
+            border-radius: var(--radius-xl, 24px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            backdrop-filter: blur(20px);
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+        }
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px rgba(46, 125, 50, 0.08), 0 0 0 1px rgba(132, 232, 146, 0.2);
+            border-color: rgba(132, 232, 146, 0.3);
+        }
+        .service-card-image {
+            position: relative;
+            height: 240px;
+            overflow: hidden;
+        }
+        .service-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .service-card:hover .service-card-image img {
+            transform: scale(1.08);
+        }
+
+        /* Camera viewfinder HUD overlay on card hover */
+        .service-card-image::before {
+            content: '';
+            position: absolute;
+            inset: 15px;
+            border: 1px solid rgba(132, 232, 146, 0.3);
+            pointer-events: none;
+            z-index: 2;
+            border-radius: var(--radius-md, 12px);
+            opacity: 0;
+            transform: scale(1.08);
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            background: 
+                linear-gradient(to right, #2e7d32 2px, transparent 2px) 0 0,
+                linear-gradient(to bottom, #2e7d32 2px, transparent 2px) 0 0,
+                linear-gradient(to left, #2e7d32 2px, transparent 2px) 100% 0,
+                linear-gradient(to bottom, #2e7d32 2px, transparent 2px) 100% 0,
+                linear-gradient(to right, #2e7d32 2px, transparent 2px) 0 100%,
+                linear-gradient(to top, #2e7d32 2px, transparent 2px) 0 100%,
+                linear-gradient(to left, #2e7d32 2px, transparent 2px) 100% 100%,
+                linear-gradient(to top, #2e7d32 2px, transparent 2px) 100% 100%;
+            background-size: 12px 12px;
+            background-repeat: no-repeat;
+        }
+        .service-card:hover .service-card-image::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .category-badge {
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--color-primary-dark, #1b5e20);
+            padding: 0.4rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            backdrop-filter: blur(8px);
+            z-index: 2;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .service-card-content {
+            padding: 2.25rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .service-card-content h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+            font-family: var(--font-body);
+        }
+        .service-card-content p {
+            font-size: 0.88rem;
+            color: #64748b;
+            line-height: 1.6;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .service-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 1.25rem;
+            margin-top: auto;
+        }
+        .service-price {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--color-primary, #2e7d32);
+            font-family: var(--font-display);
+        }
+        .service-duration {
+            font-size: 0.82rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* ── Service Detail Modal ── */
+        .svc-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 15, 25, 0.3);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .svc-modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .svc-modal {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(35px);
+            border-radius: var(--radius-xl, 24px);
+            max-width: 520px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            transform: scale(0.95) translateY(15px);
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.1);
+        }
+        .svc-modal-overlay.open .svc-modal {
+            transform: scale(1) translateY(0);
+        }
+        .svc-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            color: #475569;
+            border-radius: 50%;
+            width: 2.25rem;
+            height: 2.25rem;
+            font-size: 1.25rem;
+            cursor: pointer;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-base);
+        }
+        .svc-modal-close:hover { 
+            background: #fee2e2; 
+            color: #ef4444; 
+            transform: rotate(90deg); 
+        }
+        .svc-modal-image {
+            position: relative;
+            height: 260px;
+            overflow: hidden;
+        }
+        .svc-modal-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .svc-modal-badge {
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--color-primary-dark, #1b5e20);
+            padding: 0.4rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            backdrop-filter: blur(8px);
+            z-index: 2;
+        }
+        .svc-modal-body {
+            padding: 2.5rem;
+        }
+        .svc-modal-body h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-family: var(--font-body);
+        }
+        .svc-modal-desc {
+            font-size: 0.92rem;
+            color: #475569;
+            line-height: 1.75;
+            margin-bottom: 2rem;
+            white-space: pre-wrap;
+        }
+        .svc-modal-meta {
+            display: flex;
+            gap: 2.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 1.5rem;
+        }
+        .svc-modal-stat { display: flex; flex-direction: column; gap: 0.3rem; }
+        .svc-stat-label { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; }
+        .svc-stat-value { font-size: 1.05rem; font-weight: 700; color: #1e293b; }
+        .svc-stat-value.price { color: var(--color-primary, #2e7d32); font-size: 1.4rem; font-family: var(--font-display); }
+
+        /* ── Camera Shutter Transition ── */
+        .camera-shutter-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+        }
+        .shutter-blade {
+            flex: 1;
+            background: #080a10;
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.85, 0, 0.15, 1);
+            position: relative;
+        }
+        .shutter-blade-top {
+            transform-origin: top;
+            border-bottom: 1px solid rgba(132, 232, 146, 0.15);
+        }
+        .shutter-blade-bottom {
+            transform-origin: bottom;
+            border-top: 1px solid rgba(132, 232, 146, 0.15);
+        }
+        .camera-shutter-transition.active .shutter-blade {
+            transform: scaleY(1);
+            pointer-events: all;
+        }
+        
+        .camera-flash {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            opacity: 0;
+            z-index: 10001;
+            pointer-events: none;
+            transition: opacity 0.08s ease-out;
+        }
+        .camera-flash.flash {
+            opacity: 1;
+        }
+
+        .services-shader-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .services-vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent 40%, rgba(248, 250, 252, 0.7) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .services-vignette::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+            opacity: 0.35;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            z-index: 1;
+            animation: filmNoise 0.5s steps(10) infinite;
+        }
+        @keyframes filmNoise {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-1%, -1%); }
+            30% { transform: translate(1%, -2%); }
+            50% { transform: translate(-2%, 1%); }
+            70% { transform: translate(2%, 2%); }
+            90% { transform: translate(-1%, 3%); }
+        }
+
+        .landing-services {
+            background: #f8fafc; /* Sleek high-key light studio grey-white */
+            padding: 8rem 0;
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid rgba(0, 0, 0, 0.03);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        .landing-services .section-header h2 {
+            color: #1e293b;
+        }
+        .landing-services .section-header p {
+            color: #64748b;
+        }
+
+        @media (max-width: 640px) {
+            .services-grid { grid-template-columns: 1fr; }
+            .services-filters { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.5rem; }
+            .service-card-image { height: 200px; }
+            .service-card-content { padding: 1.5rem; }
+            .svc-modal-image { height: 200px; }
+            .svc-modal-body { padding: 1.5rem; }
+        }
+
+        /* ── Photography Background HUD Elements ── */
+        .services-photo-hud {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        /* Rotating Aperture Blades Blueprint */
+        .photo-hud-aperture {
+            position: absolute;
+            top: 15%;
+            right: 5%;
+            width: 320px;
+            height: 320px;
+            border: 1px dashed rgba(46, 125, 50, 0.1);
+            border-radius: 50%;
+            animation: rotateAperture 40s linear infinite;
+            opacity: 0.7;
+        }
+        .photo-hud-aperture::before {
+            content: '';
+            position: absolute;
+            inset: 40px;
+            border: 1px double rgba(46, 125, 50, 0.08);
+            border-radius: 50%;
+            background: repeating-conic-gradient(
+                from 0deg,
+                rgba(46, 125, 50, 0.03) 0deg 15deg,
+                transparent 15deg 45deg
+            );
+        }
+        @keyframes rotateAperture {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Autofocus brackets blinking */
+        .photo-hud-autofocus {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 1.5px solid rgba(46, 125, 50, 0.15);
+            border-radius: 4px;
+            opacity: 0;
+            animation: blinkAutofocus 6s infinite ease-in-out;
+        }
+        .photo-hud-autofocus-1 { top: 25%; left: 8%; animation-delay: 0s; }
+        .photo-hud-autofocus-2 { bottom: 20%; right: 10%; animation-delay: 2s; }
+        .photo-hud-autofocus-3 { top: 60%; left: 15%; animation-delay: 4s; }
+
+        .photo-hud-autofocus::before, .photo-hud-autofocus::after {
+            content: '';
+            position: absolute;
+            background: rgba(46, 125, 50, 0.15);
+        }
+        .photo-hud-autofocus::before {
+            width: 10px;
+            height: 1.5px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .photo-hud-autofocus::after {
+            width: 1.5px;
+            height: 10px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes blinkAutofocus {
+            0%, 100% { opacity: 0; transform: scale(0.9); border-color: rgba(46, 125, 50, 0.15); }
+            10%, 40% { opacity: 0.6; transform: scale(1); border-color: rgba(46, 125, 50, 0.3); }
+            12%, 14%, 16% { opacity: 0.9; border-color: #16a34a; }
+            13%, 15% { opacity: 0.4; }
+            45% { opacity: 0; transform: scale(1.05); }
+        }
+
+        /* Floating Telemetry readout data */
+        .photo-hud-telemetry {
+            position: absolute;
+            font-family: monospace;
+            font-size: 0.72rem;
+            color: rgba(46, 125, 50, 0.3);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            user-select: none;
+            opacity: 0.6;
+            animation: floatTelemetry 12s infinite ease-in-out;
+        }
+        .photo-hud-telemetry-1 { top: 12%; left: 4%; }
+        .photo-hud-telemetry-2 { bottom: 12%; left: 6%; animation-delay: 3s; }
+        .photo-hud-telemetry-3 { top: 40%; right: 4%; animation-delay: 6s; }
+
+        @keyframes floatTelemetry {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); color: rgba(22, 163, 74, 0.4); }
+        }
+
+        /* Viewfinder frame lines overlay */
+        .photo-hud-grid {
+            position: absolute;
+            inset: 30px;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            pointer-events: none;
+        }
+        .photo-hud-grid::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                linear-gradient(to right, rgba(46, 125, 50, 0.2) 2px, transparent 2px) 0 0,
+                linear-gradient(to bottom, rgba(46, 125, 50, 0.2) 2px, transparent 2px) 0 0,
+                linear-gradient(to left, rgba(46, 125, 50, 0.2) 2px, transparent 2px) 100% 0,
+                linear-gradient(to bottom, rgba(46, 125, 50, 0.2) 2px, transparent 2px) 100% 0,
+                linear-gradient(to right, rgba(46, 125, 50, 0.2) 2px, transparent 2px) 0 100%,
+                linear-gradient(to top, rgba(46, 125, 50, 0.2) 2px, transparent 2px) 0 100%,
+                linear-gradient(to left, rgba(46, 125, 50, 0.2) 2px, transparent 2px) 100% 100%,
+                linear-gradient(to top, rgba(46, 125, 50, 0.2) 2px, transparent 2px) 100% 100%;
+            background-size: 15px 15px;
+            background-repeat: no-repeat;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile nav overlay -->
+    <div class="nav-mobile-overlay" id="navOverlay"></div>
+
+    <!-- Navbar -->
+    <nav class="landing-nav" id="landingNav">
+        <a href="#" class="nav-logo">
+            <img src="/assets/images/logo.png" alt="SnailShutter">
+        </a>
+        <div class="nav-links" id="navLinks">
+            <a href="#services" onclick="closeNav()">Services</a>
+            <a href="#about" onclick="closeNav()">About</a>
+            <a href="/auth/register.html" class="btn btn-sm btn-nav-signup">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+            <a href="/auth/login.html" class="btn btn-primary btn-sm">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+        <!-- Hamburger button (visible on mobile/tablet) -->
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-media">
+            <img src="/assets/images/hero.png" id="heroStaticImage" alt="SnailShutter Creative Studio">
+            <canvas id="heroCanvas"></canvas>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge reveal">
+                <i class="fas fa-camera"></i> Mindful Photography Studio
+            </div>
+            <h1 class="reveal delay-1">Capture Your Most <span>Mindful Moments</span></h1>
+            <p class="reveal delay-2">Crafting timeless imagery with patience, care, and a professional eye. From high-fashion debuts to intimate wedding celebrations.</p>
+
+            
+            <div class="reveal delay-3" style="margin-top:3.5rem; display:flex; gap:2.5rem; opacity:0.8; font-size:0.85rem;">
+                <div class="flex items-center gap-1"><i class="fas fa-check-circle text-accent"></i> Professional Studio</div>
+                <div class="flex items-center gap-1"><i class="fas fa-check-circle text-accent"></i> Fast Turnaround</div>
+                <div class="flex items-center gap-1"><i class="fas fa-check-circle text-accent"></i> Satisfaction Guaranteed</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visit Our Studio / Location Section -->
+    <section class="studio-location-section" id="location">
+        <div class="studio-spotlight" id="studioSpotlight"></div>
+        <div class="studio-lens-hud"></div>
+        <canvas class="studio-bokeh-canvas" id="studioBokehCanvas"></canvas>
+        <div class="studio-location-container">
+            <!-- Top Section: Header -->
+            <div class="studio-header reveal">
+                <div class="studio-info-badge">
+                    <i class="fas fa-map-marker-alt"></i> Our Location
+                </div>
+                <h2>Visit Our <span class="text-accent">Studio</span></h2>
+                <p class="studio-info-desc">Come see where the magic happens. Our studio is equipped with professional lighting, backdrops, and a creative atmosphere to bring your vision to life.</p>
+            </div>
+
+            <!-- Bottom Section: Content Grid -->
+            <div class="studio-content-grid">
+                <!-- Left: Studio Details & Directions -->
+                <div class="studio-info reveal">
+                    <div class="studio-details">
+                        <div class="studio-detail-item">
+                            <div class="studio-detail-icon">
+                                <i class="fas fa-location-dot"></i>
+                            </div>
+                            <div class="studio-detail-text">
+                                <span class="studio-detail-label">Address</span>
+                                <span class="studio-detail-value" id="locAddress">EJR Business Center 2, Poblacion,<br>Alaminos City, Pangasinan, Philippines</span>
+                            </div>
+                        </div>
+
+                        <div class="studio-detail-item">
+                            <div class="studio-detail-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="studio-detail-text">
+                                <span class="studio-detail-label">Phone</span>
+                                <span class="studio-detail-value" id="locPhone">+63 912 345 6789</span>
+                            </div>
+                        </div>
+
+                        <div class="studio-detail-item">
+                            <div class="studio-detail-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="studio-detail-text">
+                                <span class="studio-detail-label">Email</span>
+                                <span class="studio-detail-value" id="locEmail">snailshutterstudio@gmail.com</span>
+                            </div>
+                        </div>
+
+                        <div class="studio-detail-item">
+                            <div class="studio-detail-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="studio-detail-text">
+                                <span class="studio-detail-label">Studio Hours</span>
+                                <span class="studio-detail-value" id="locHours">Mon – Sat, 9:00 AM – 6:00 PM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=Snailshutter+Alaminos+Photography+Studio" target="_blank" rel="noopener noreferrer" class="btn btn-studio-directions" id="locDirectionsLink">
+                        <i class="fas fa-diamond-turn-right"></i> Get Directions
+                    </a>
+                </div>
+
+                <!-- Right Column: Embedded Map -->
+                <div class="studio-map-wrap reveal delay-1">
+                    <iframe
+                        id="locMapIframe"
+                        src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d958.1126989311325!2d119.9756506!3d16.1456869!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3393dd09643fcad5%3A0x24a5ac354149095!2sSnailshutter%20Alaminos%20Photography%20Studio!5e0!3m2!1sen!2sph!4v1782822704080!5m2!1sen!2sph"
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="SnailShutter Studio Location - EJR Business Center 2, Alaminos City">
+                    </iframe>
+                    <div class="studio-map-overlay-label">
+                        <i class="fas fa-camera"></i> SnailShutter Studio
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="landing-services" id="services">
+        <canvas class="services-shader-canvas" id="servicesShaderCanvas"></canvas>
+        <div class="services-vignette"></div>
+
+        <!-- Photography Background HUD Elements -->
+        <div class="services-photo-hud">
+            <div class="photo-hud-grid"></div>
+            <div class="photo-hud-aperture"></div>
+            <div class="photo-hud-autofocus photo-hud-autofocus-1"></div>
+            <div class="photo-hud-autofocus photo-hud-autofocus-2"></div>
+            <div class="photo-hud-autofocus photo-hud-autofocus-3"></div>
+            <div class="photo-hud-telemetry photo-hud-telemetry-1">[ ISO 100 ] [ F/2.8 ] [ 1/250s ] [ RAW ]</div>
+            <div class="photo-hud-telemetry photo-hud-telemetry-2">[ AF-C ] [ EV -0.3 ] [ MF ]</div>
+            <div class="photo-hud-telemetry photo-hud-telemetry-3">[ 50mm ] [ f/1.4 ] [ 95% ] [ Rec ]</div>
+        </div>
+        <div class="section-header reveal">
+            <h2>Our Premium <span class="text-accent">Services</span></h2>
+            <p>Thoughtfully curated photography packages designed to preserve your most cherished memories with artistic excellence.</p>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="services-filters reveal" id="servicesFilters" style="display:none;">
+            <button class="filter-btn active" data-filter="all">All Packages</button>
+        </div>
+
+        <!-- Services Grid -->
+        <div class="services-grid" id="servicesGrid">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Load More -->
+        <div style="text-align:center; margin-top:2.5rem;" id="loadMoreWrap" class="reveal" style="display:none;">
+            <button id="loadMoreBtn" class="btn btn-secondary btn-lg" onclick="showMoreServices()">
+                View All Packages <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <div style="max-width:1200px;margin:0 auto;padding:0 2rem;">
+        <div class="cta-section">
+            <h2>Ready to Create Memories?</h2>
+            <p>Book your mindful photography session today and let us capture your story beautifully.</p>
+            <a href="/auth/register.html" class="btn btn-white btn-lg" data-role="unauthenticated">
+                <i class="fas fa-arrow-right"></i> Get Started
+            </a>
+            <a href="/client/book.html" class="btn btn-white btn-lg" data-role="authenticated" style="display:none">
+                <i class="fas fa-arrow-right"></i> Book Now
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <p>© 2026 SnailShutter Photography. All rights reserved.</p>
+    </footer>
+
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/hero-shader.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script>
+        let allServices = [];
+        let activeFilter = 'all';
+        let showingAll = false;
+        const PAGE_SIZE = 6;
+
+        function renderServiceCards(services) {
+            const servicesGrid = document.getElementById('servicesGrid');
+            const loadMoreWrap = document.getElementById('loadMoreWrap');
+
+            const visible = showingAll ? services : services.slice(0, PAGE_SIZE);
+
+            servicesGrid.innerHTML = visible.map((service, index) => `
+                <div class="service-card reveal" style="transition-delay: ${0.07 * (index % 3)}s; cursor:pointer;" onclick="openServiceModal(${service.id})">
+                    <div class="service-card-image">
+                        <span class="category-badge">${service.category || 'General'}</span>
+                        <img src="${service.image_url || '/assets/images/services/photobooth.png'}" alt="${service.name}" loading="lazy">
+                    </div>
+                    <div class="service-card-content">
+                        <h3>${service.name}</h3>
+                        <p title="${service.description || ''}">${service.description || 'Professional photography session tailored to your needs.'}</p>
+                        <div class="service-meta">
+                            <span class="service-price">₱${parseFloat(service.price).toLocaleString()}</span>
+                            <span class="service-duration"><i class="far fa-clock"></i> ${service.duration_minutes > 0 ? `${service.duration_minutes} min` : 'Custom'}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Show/hide load more
+            if (services.length > PAGE_SIZE) {
+                loadMoreWrap.style.display = 'block';
+                const btn = document.getElementById('loadMoreBtn');
+                if (showingAll) {
+                    btn.innerHTML = 'Show Less <i class="fas fa-chevron-up"></i>';
+                } else {
+                    btn.innerHTML = `View All ${services.length} Packages <i class="fas fa-chevron-down"></i>`;
+                }
+            } else {
+                loadMoreWrap.style.display = 'none';
+            }
+
+            observeReveals();
+        }
+
+        function applyFilter(filter) {
+            activeFilter = filter;
+            showingAll = false;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+            const filtered = filter === 'all' ? allServices : allServices.filter(s => (s.category || 'General') === filter);
+            renderServiceCards(filtered);
+        }
+
+        function showMoreServices() {
+            showingAll = !showingAll;
+            const filtered = activeFilter === 'all' ? allServices : allServices.filter(s => (s.category || 'General') === activeFilter);
+            renderServiceCards(filtered);
+        }
+
+        function openServiceModal(serviceId) {
+            const service = allServices.find(s => s.id === serviceId);
+            if (!service) return;
+
+            const shutter = document.getElementById('cameraShutter');
+            const flash = document.getElementById('cameraFlash');
+
+            if (shutter && flash) {
+                // Snap shutter closed
+                shutter.classList.add('active');
+
+                setTimeout(() => {
+                    // Update content while shutter is closed
+                    document.getElementById('modalImage').src = service.image_url || '/assets/images/services/photobooth.png';
+                    document.getElementById('modalImage').alt = service.name;
+                    document.getElementById('modalCategory').textContent = service.category || 'General';
+                    document.getElementById('modalTitle').textContent = service.name;
+                    document.getElementById('modalDescription').textContent = service.description || 'Professional photography session tailored to your needs.';
+                    document.getElementById('modalPrice').textContent = '₱' + parseFloat(service.price).toLocaleString();
+                    document.getElementById('modalDuration').innerHTML = '<i class="far fa-clock"></i> ' + (service.duration_minutes > 0 ? service.duration_minutes + ' min' : 'Custom');
+                    const bookBtn = document.getElementById('modalBookBtn');
+                    bookBtn.href = (window.auth && window.auth.isLoggedIn()) ? '/client/book.html' : '/auth/register.html';
+                    
+                    // Show modal
+                    document.getElementById('serviceModal').classList.add('open');
+                    document.body.style.overflow = 'hidden';
+
+                    // Trigger flash overlay
+                    flash.classList.add('flash');
+                    setTimeout(() => {
+                        flash.classList.remove('flash');
+                    }, 80);
+
+                    // Re-open shutter blades
+                    setTimeout(() => {
+                        shutter.classList.remove('active');
+                    }, 100);
+                }, 300);
+            } else {
+                // Fallback
+                document.getElementById('modalImage').src = service.image_url || '/assets/images/services/photobooth.png';
+                document.getElementById('modalImage').alt = service.name;
+                document.getElementById('modalCategory').textContent = service.category || 'General';
+                document.getElementById('modalTitle').textContent = service.name;
+                document.getElementById('modalDescription').textContent = service.description || 'Professional photography session tailored to your needs.';
+                document.getElementById('modalPrice').textContent = '₱' + parseFloat(service.price).toLocaleString();
+                document.getElementById('modalDuration').innerHTML = '<i class="far fa-clock"></i> ' + (service.duration_minutes > 0 ? service.duration_minutes + ' min' : 'Custom');
+                const bookBtn = document.getElementById('modalBookBtn');
+                bookBtn.href = (window.auth && window.auth.isLoggedIn()) ? '/client/book.html' : '/auth/register.html';
+                document.getElementById('serviceModal').classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeServiceModal() {
+            document.getElementById('serviceModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function initServicesShader() {
+            const canvas = document.getElementById('servicesShaderCanvas');
+            const section = document.getElementById('services');
+            if (!canvas || !section) return;
+
+            const ctx = canvas.getContext('2d');
+            let width = (canvas.width = section.clientWidth);
+            let height = (canvas.height = section.clientHeight);
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = section.clientWidth;
+                height = canvas.height = section.clientHeight;
+            });
+
+            // Colorful floating lens flare elements
+            const flares = [];
+            const flareCount = 6;
+            const colors = [
+                'rgba(132, 232, 146, 0.08)', // soft mint green
+                'rgba(251, 191, 36, 0.06)',  // amber / warm sun leak
+                'rgba(14, 165, 233, 0.06)',  // light blue sky reflection
+                'rgba(244, 63, 94, 0.05)',   // rose pink flare
+                'rgba(168, 85, 247, 0.05)'   // violet prism flare
+            ];
+
+            for (let i = 0; i < flareCount; i++) {
+                flares.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 250 + 150,
+                    color: colors[i % colors.length],
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4
+                });
+            }
+
+            // Mouse interaction position
+            let mouse = { x: -1000, y: -1000 };
+            section.addEventListener('mousemove', (e) => {
+                const rect = section.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+            section.addEventListener('mouseleave', () => {
+                mouse.x = -1000;
+                mouse.y = -1000;
+            });
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+
+                // Draw Grid overlay
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.015)';
+                ctx.lineWidth = 1;
+                const gridSize = 60;
+                for (let x = 0; x < width; x += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < height; y += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+
+                flares.forEach(f => {
+                    f.x += f.vx;
+                    f.y += f.vy;
+
+                    // Bounce boundaries
+                    if (f.x < -100 || f.x > width + 100) f.vx *= -1;
+                    if (f.y < -100 || f.y > height + 100) f.vy *= -1;
+
+                    // Subtle mouse push
+                    const dx = mouse.x - f.x;
+                    const dy = mouse.y - f.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 400) {
+                        const force = (400 - dist) / 400 * 0.15;
+                        f.x -= (dx / dist) * force;
+                        f.y -= (dy / dist) * force;
+                    }
+
+                    // Draw flare circle
+                    ctx.beginPath();
+                    const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius);
+                    grad.addColorStop(0, f.color);
+                    grad.addColorStop(1, 'transparent');
+                    ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                });
+
+                // Draw Camera Lens flare ghosting elements along light source axis (mouse vector)
+                if (mouse.x !== -1000) {
+                    const centerX = width / 2;
+                    const centerY = height / 2;
+                    const dx = centerX - mouse.x;
+                    const dy = centerY - mouse.y;
+
+                    const ghostPositions = [0.35, 0.75, -0.2, -0.45, 1.15];
+                    const ghostColors = [
+                        'rgba(132, 232, 146, 0.05)', // Mint green ghost
+                        'rgba(251, 191, 36, 0.04)',  // Amber ghost
+                        'rgba(14, 165, 233, 0.04)',  // Cyan ghost
+                        'rgba(244, 63, 94, 0.03)',   // Rose pink ghost
+                        'rgba(168, 85, 247, 0.04)'   // Violet prism ghost
+                    ];
+
+                    ghostPositions.forEach((mult, index) => {
+                        const gx = centerX + dx * mult;
+                        const gy = centerY + dy * mult;
+                        const radius = Math.abs(50 + mult * 35);
+                        
+                        ctx.beginPath();
+                        ctx.arc(gx, gy, radius, 0, Math.PI * 2);
+                        ctx.fillStyle = ghostColors[index % ghostColors.length];
+                        ctx.fill();
+
+                        // Soft halo edge
+                        ctx.strokeStyle = ghostColors[index % ghostColors.length].replace('0.', '0.12');
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    });
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            draw();
+        }
+
+        async function loadServices() {
+            const servicesGrid = document.getElementById('servicesGrid');
+            const filtersContainer = document.getElementById('servicesFilters');
+            try {
+                const response = await api.getServices();
+                if (response.success && response.data && response.data.length > 0) {
+                    allServices = response.data.filter(s => s.is_active == 1);
+
+                    // Build category filter tabs
+                    const cats = ['All Packages', ...new Set(allServices.map(s => s.category || 'General'))];
+                    filtersContainer.innerHTML = cats.map(c => `
+                        <button class="filter-btn ${c === 'All Packages' ? 'active' : ''}" data-filter="${c === 'All Packages' ? 'all' : c}" onclick="applyFilter('${c === 'All Packages' ? 'all' : c.replace(/'/g, "\\'")}')">
+                            ${c}
+                        </button>
+                    `).join('');
+                    filtersContainer.style.display = 'flex';
+
+                    renderServiceCards(allServices);
+                } else {
+                    filtersContainer.style.display = 'none';
+                    servicesGrid.innerHTML = `
+                        <div class="empty-state" style="grid-column:1/-1;">
+                            <div class="empty-icon">📷</div>
+                            <h3>No Services Available</h3>
+                            <p>Please check back later for our photography services.</p>
+                        </div>`;
+                }
+            } catch (error) {
+                console.error('Failed to load services:', error);
+                servicesGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <div class="empty-icon">📷</div>
+                        <h3>Unable to Load Services</h3>
+                        <p>Please refresh the page to try again.</p>
+                    </div>`;
+            }
+        }
+
+        // Scroll Reveal Observer
+        function observeReveals() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        // Navbar Scroll Handler
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('landingNav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // ── Hamburger Menu ──────────────────────────────────
+        const navToggle  = document.getElementById('navToggle');
+        const navLinks   = document.getElementById('navLinks');
+        const navOverlay = document.getElementById('navOverlay');
+
+        function openNav() {
+            navToggle.classList.add('open');
+            navLinks.classList.add('open');
+            navOverlay.classList.add('open');
+            navToggle.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNav() {
+            navToggle.classList.remove('open');
+            navLinks.classList.remove('open');
+            navOverlay.classList.remove('open');
+            navToggle.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.contains('open') ? closeNav() : openNav();
+        });
+
+        navOverlay.addEventListener('click', closeNav);
+
+        // Close drawer on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeNav();
+        });
+
+        // Close drawer on resize to desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 900) closeNav();
+        });
+
+        async function loadLocationSettings() {
+            try {
+                const response = await api.getPublicSettings();
+                if (response.success && response.settings) {
+                    const s = response.settings;
+                    if (s.studioAddress) document.getElementById('locAddress').innerHTML = s.studioAddress.replace(/\n/g, '<br>');
+                    if (s.studioPhone) document.getElementById('locPhone').textContent = s.studioPhone;
+                    if (s.studioEmail) document.getElementById('locEmail').textContent = s.studioEmail;
+                    if (s.studioHours) document.getElementById('locHours').textContent = s.studioHours;
+                    if (s.studioDirectionsLink) document.getElementById('locDirectionsLink').href = s.studioDirectionsLink;
+                    if (s.studioMapEmbed) document.getElementById('locMapIframe').src = s.studioMapEmbed;
+                }
+            } catch (err) {
+                console.error('Failed to load location settings:', err);
+            }
+        }
+
+        function initStudioEffects() {
+            const locationSec = document.getElementById('location');
+            const spotlight = document.getElementById('studioSpotlight');
+            const canvas = document.getElementById('studioBokehCanvas');
+            if (!locationSec || !spotlight || !canvas) return;
+
+            // 1. Mouse Spotlight Tracker
+            locationSec.addEventListener('mousemove', function (e) {
+                const rect = locationSec.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                spotlight.style.left = x + 'px';
+                spotlight.style.top = y + 'px';
+            });
+
+            // 2. Canvas Floating Bokeh Particles
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const particleCount = 20;
+
+            function resizeCanvas() {
+                canvas.width = locationSec.clientWidth;
+                canvas.height = locationSec.clientHeight;
+            }
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Initialize particles
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height + canvas.height,
+                    radius: Math.random() * 6 + 2,
+                    opacity: Math.random() * 0.25 + 0.08,
+                    speed: Math.random() * 0.5 + 0.15,
+                    wobbleSpeed: Math.random() * 0.01 + 0.005
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    p.y -= p.speed;
+                    p.x += Math.sin(p.y * p.wobbleSpeed) * 0.3;
+
+                    // Reset particle when it leaves top
+                    if (p.y < -20) {
+                        p.y = canvas.height + 20;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(132, 232, 146, ${p.opacity})`;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = 'rgba(132, 232, 146, 0.3)';
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadServices();
+            loadLocationSettings();
+            observeReveals();
+            initStudioEffects();
+            initServicesShader();
+        });
+    </script>
+
+    <!-- Service Detail Modal -->
+    <div id="serviceModal" class="svc-modal-overlay" onclick="if(event.target===this)closeServiceModal()">
+        <div class="svc-modal">
+            <button class="svc-modal-close" onclick="closeServiceModal()">&times;</button>
+            <div class="svc-modal-image">
+                <img id="modalImage" src="" alt="">
+                <span id="modalCategory" class="svc-modal-badge"></span>
+            </div>
+            <div class="svc-modal-body">
+                <h2 id="modalTitle"></h2>
+                <p id="modalDescription" class="svc-modal-desc"></p>
+                <div class="svc-modal-meta">
+                    <div class="svc-modal-stat">
+                        <span class="svc-stat-label">Price</span>
+                        <span id="modalPrice" class="svc-stat-value price"></span>
+                    </div>
+                    <div class="svc-modal-stat">
+                        <span class="svc-stat-label">Duration</span>
+                        <span id="modalDuration" class="svc-stat-value"></span>
+                    </div>
+                </div>
+                <a id="modalBookBtn" href="/auth/register.html" class="btn btn-primary btn-lg" style="width:100%;text-align:center;margin-top:1.5rem;">
+                    <i class="fas fa-camera"></i> Book This Package
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Shutter Click-Flash Transition Overlay -->
+    <div class="camera-shutter-transition" id="cameraShutter">
+        <div class="shutter-blade shutter-blade-top"></div>
+        <div class="shutter-blade shutter-blade-bottom"></div>
+    </div>
+    <div class="camera-flash" id="cameraFlash"></div>
+</body>
+
+</html>

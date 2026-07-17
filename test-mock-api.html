@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 10px 5px; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Mock API Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Check Mock API Loading</h2>
+        <button onclick="checkMockAPI()">Check Mock API</button>
+        <div id="mockResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Direct Login</h2>
+        <button onclick="testDirectLogin()">Test Admin Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test Auth Login</h2>
+        <button onclick="testAuthLogin()">Test Auth Login</button>
+        <div id="authResult" class="result"></div>
+    </div>
+
+    <script src="/assets/js/mock-api.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script>
+        function checkMockAPI() {
+            const result = document.getElementById('mockResult');
+            result.innerHTML = '';
+            
+            try {
+                console.log('Testing mock API...');
+                console.log('mockAPI:', typeof mockAPI);
+                console.log('api:', typeof api);
+                console.log('auth:', typeof auth);
+                
+                if (typeof mockAPI !== 'undefined') {
+                    result.innerHTML = '<div class="success">✅ Mock API loaded. Users: ' + mockAPI.users.length + '</div>';
+                    console.log('Mock API users:', mockAPI.users);
+                } else {
+                    result.innerHTML = '<div class="error">❌ Mock API NOT loaded</div>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="error">❌ Error: ' + error.message + '</div>';
+                console.error('Mock API check error:', error);
+            }
+        }
+        
+        async function testDirectLogin() {
+            const result = document.getElementById('loginResult');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                console.log('Testing direct mock API login...');
+                const loginResult = await mockAPI.login('admin@studio.com', 'admin123');
+                console.log('Direct login result:', loginResult);
+                
+                if (loginResult.success) {
+                    result.innerHTML = '<div class="success">✅ Direct login successful! User: ' + loginResult.data.name + '</div>';
+                } else {
+                    result.innerHTML = '<div class="error">❌ Direct login failed: ' + loginResult.error + '</div>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="error">❌ Direct login error: ' + error.message + '</div>';
+                console.error('Direct login error:', error);
+            }
+        }
+        
+        async function testAuthLogin() {
+            const result = document.getElementById('authResult');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                console.log('Testing auth login...');
+                const authResult = await auth.login('admin@studio.com', 'admin123');
+                console.log('Auth login result:', authResult);
+                
+                if (authResult.success) {
+                    result.innerHTML = '<div class="success">✅ Auth login successful! User: ' + authResult.data.name + '</div>';
+                } else {
+                    result.innerHTML = '<div class="error">❌ Auth login failed: ' + authResult.error + '</div>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="error">❌ Auth login error: ' + error.message + '</div>';
+                console.error('Auth login error:', error);
+            }
+        }
+        
+        // Auto-run mock API check
+        window.addEventListener('load', function() {
+            console.log('Test page loaded, checking mock API...');
+            checkMockAPI();
+        });
+    </script>
+</body>
+</html>

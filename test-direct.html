@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Mock Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 10px 5px; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        input { padding: 8px; margin: 5px 0; width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>Direct Mock API Test (Self-Contained)</h1>
+    
+    <div class="test-section">
+        <h2>Admin Credentials</h2>
+        <input type="email" id="email" placeholder="admin@studio.com" style="width: 300px;">
+        <br>
+        <input type="password" id="password" placeholder="admin123" style="width: 300px;">
+        <br><br>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="result" class="result"></div>
+    </div>
+    
+    <script>
+        // Inline mock API - completely self-contained
+        const users = [
+            {
+                id: 1,
+                email: 'admin@studio.com',
+                password: 'admin123',
+                name: 'Admin User',
+                role: 'admin'
+            }
+        ];
+        
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            console.log('='.repeat(50));
+            console.log('DIRECT MOCK TEST');
+            console.log('='.repeat(50));
+            console.log('Email:', email);
+            console.log('Password:', password);
+            console.log('Users in database:', users.length);
+            
+            // Direct user lookup
+            const user = users.find(u => u.email === email && u.password === password);
+            console.log('Found user:', user ? 'YES' : 'NO');
+            
+            if (user) {
+                console.log('User details:', { id: user.id, email: user.email, name: user.name, role: user.role });
+                resultDiv.innerHTML = '<div class="success">✅ SUCCESS: Login works! User: ' + user.name + ' (' + user.role + ')</div>';
+            } else {
+                console.log('Login failed - checking credentials...');
+                resultDiv.innerHTML = '<div class="error">❌ FAILED: Invalid credentials</div>';
+            }
+        }
+        
+        // Auto-test on load
+        window.addEventListener('load', function() {
+            console.log('Direct mock test page loaded');
+            testLogin();
+        });
+    </script>
+</body>
+</html>

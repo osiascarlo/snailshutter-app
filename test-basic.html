@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Test</title>
+</head>
+<body>
+    <h1>Basic JavaScript Test</h1>
+    
+    <button onclick="testBasic()">Click to Test</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        function testBasic() {
+            console.log('Basic test started');
+            
+            // Test 1: String comparison
+            const email = 'admin@studio.com';
+            const password = 'admin123';
+            const test1 = (email === 'admin@studio.com' && password === 'admin123');
+            console.log('Test 1 - String comparison:', test1);
+            
+            // Test 2: DOM manipulation
+            document.getElementById('result').innerHTML = 'Test 1: ' + (test1 ? 'PASS' : 'FAIL');
+            
+            // Test 3: Alert function
+            try {
+                alert('JavaScript is working!');
+                console.log('Test 3 - Alert function: PASS');
+            } catch(e) {
+                console.log('Test 3 - Alert function: FAIL', e);
+            }
+            
+            // Test 4: Console logging
+            console.log('Test 4 - Console logging: PASS');
+            
+            document.getElementById('result').innerHTML += '<br>Test 2: ' + (test1 ? 'PASS' : 'FAIL') + '<br>All tests completed!';
+        }
+        
+        // Auto-run on load
+        window.onload = function() {
+            console.log('Page loaded, running basic test...');
+            testBasic();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page</title>
+</head>
+<body>
+    <h1>Server Test Page</h1>
+    <p>If you can see this page, the server is working!</p>
+    <p>Current time: <span id="time"></span></p>
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        // Test API call
+        fetch('/api/test')
+            .then(response => response.json())
+            .then(data => console.log('API Response:', data))
+            .catch(error => console.error('API Error:', error));
+    </script>
+</body>
+</html>

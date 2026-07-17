@@ -1,0 +1,57 @@
+<!-- Shared Sidebar Component -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <a href="/client/dashboard.html" class="sidebar-logo">
+            <img src="../assets/images/logo.png" alt="SnailShutter" >
+        </a>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Main</div>
+            <a href="/client/dashboard.html" class="sidebar-link" id="nav-dashboard">
+                <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
+            </a>
+            <a href="/client/book.html" class="sidebar-link" id="nav-book">
+                <span class="icon"><i class="fas fa-plus-circle"></i></span> Book Session
+            </a>
+            <a href="/client/bookings.html" class="sidebar-link" id="nav-bookings">
+                <span class="icon"><i class="fas fa-history"></i></span> My Bookings
+            </a>
+        </div>
+
+        <div class="sidebar-section" style="margin-top:auto;">
+            <div class="sidebar-section-title">Account</div>
+            <a href="#" class="sidebar-link" id="nav-logout" onclick="auth.logout(); return false;">
+                <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<script>
+    // Set active navigation based on current page
+    function setActiveNavigation() {
+        const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+        const navLinks = {
+            'dashboard': 'nav-dashboard',
+            'book': 'nav-book',
+            'calendar': 'nav-calendar',
+            'bookings': 'nav-bookings'
+        };
+
+        // Remove all active classes
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // Add active class to current page
+        const activeId = navLinks[currentPage];
+        if (activeId) {
+            document.getElementById(activeId)?.classList.add('active');
+        }
+    }
+
+    // Initialize active navigation when DOM is loaded
+    document.addEventListener('DOMContentLoaded', setActiveNavigation);
+</script>

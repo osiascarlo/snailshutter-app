@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .booking-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--color-border-soft);
+        }
+        
+        .bookings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .booking-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .booking-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-primary);
+        }
+
+        .booking-card i {
+            width: 20px;
+            color: var(--color-primary);
+            margin-right: 0.5rem;
+        }
+
+        .booking-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            width: fit-content;
+        }
+
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-confirmed { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #b91c1c; }
+
+        .status-badge.payment-paid { background: #d1fae5; color: #065f46; }
+        .status-badge.payment-pending { background: #fef3c7; color: #92400e; }
+        .status-badge.payment-unpaid { background: #fee2e2; color: #b91c1c; }
+
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-complete { background: #7c3aed; color: white; }
+        .btn-complete:hover { background: #6d28d9; }
+        .btn-uncomplete { background: #f59e0b; color: white; }
+        .btn-uncomplete:hover { background: #d97706; }
+
+        .booking-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            font-size: 1.1rem;
+        }
+
+        .section-title .count {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            margin-left: auto;
+        }
+
+        .section-title.status-pending { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
+        .section-title.status-confirmed { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+        .section-title.status-completed { background: #f3e8ff; color: #6b21a8; border-left: 4px solid #7c3aed; }
+        .section-title.status-cancelled { background: #fee2e2; color: #b91c1c; border-left: 4px solid #ef4444; }
+
+        .empty-section-message {
+            color: var(--color-text-muted);
+            font-style: italic;
+            font-size: 0.9rem;
+            padding: 1.5rem;
+            background: var(--color-bg-soft);
+            border-radius: var(--radius-sm);
+            border: 1px dashed var(--color-border);
+            text-align: center;
+        }
+
+        .filter-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border-soft);
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--color-text-soft);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            background: var(--color-bg-soft);
+            color: var(--color-text-soft);
+            border: 1px solid var(--color-border);
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .filter-pill:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .filter-pill.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* ── Mobile Responsive ── */
+        @media (max-width: 768px) {
+            .filter-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+                padding: 0.875rem 1rem;
+            }
+            .filter-pills {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap;
+                scrollbar-width: none;
+                gap: 0.375rem;
+            }
+            .filter-pills::-webkit-scrollbar { display: none; }
+            .filter-pill {
+                white-space: nowrap;
+                flex-shrink: 0;
+                padding: 0.4rem 1rem;
+                font-size: 0.8rem;
+            }
+            .modal-overlay .modal {
+                max-width: 100% !important;
+                border-radius: 16px 16px 0 0;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-height: 92vh;
+                margin: 0;
+            }
+            .modal-overlay {
+                align-items: flex-end;
+            }
+            .modal-overlay .modal .modal-body {
+                padding: 1.25rem 1.25rem !important;
+            }
+            .modal-overlay .modal .modal-footer {
+                padding: 1rem 1.25rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bookings-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .booking-card {
+                padding: 1rem;
+            }
+            .section-title {
+                font-size: 1.05rem;
+                padding: 0.6rem 0.875rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css">
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter" >
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Admin</div>
+                    <a href="/admin/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+                    </a>
+                    <a href="/admin/bookings.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-calendar"></i></span> All Bookings
+                    </a>
+                    <a href="/admin/calendar.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                    </a>
+                    <a href="/admin/gallery.html" class="sidebar-link"><span class="icon"><i class="fas fa-images"></i></span> Photo Gallery</a>
+                    <a href="/admin/analytics.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
+                    </a>
+                    <a href="/admin/users.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-users"></i></span> Users
+                    </a>
+                    <a href="/admin/services.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-camera"></i></span> Services
+                    </a>
+                    <a href="/admin/settings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-cog"></i></span> Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role">Administrator</div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <h1>All Bookings — Welcome, <span data-user-name></span>!</h1>
+                <p>View and manage all photography bookings across the studio.</p>
+            </div>
+
+            <div class="content-body">
+                <!-- Filter Controls -->
+                <div class="filter-container" style="display: none;">
+                    <span class="filter-label"><i class="fas fa-filter"></i> Filter Status:</span>
+                    <div class="filter-pills">
+                        <button class="filter-pill active" data-filter="all">All</button>
+                        <button class="filter-pill" data-filter="pending">Pending</button>
+                        <button class="filter-pill" data-filter="confirmed">Confirmed</button>
+                        <button class="filter-pill" data-filter="completed">Completed</button>
+                        <button class="filter-pill" data-filter="cancelled">Cancelled</button>
+                    </div>
+                </div>
+
+                <!-- Status Sections -->
+                <div class="booking-section" id="section-pending">
+                    <h2 class="section-title status-pending"><i class="fas fa-hourglass-half"></i> Pending Bookings <span class="count">0</span></h2>
+                    <div class="bookings-grid" id="grid-pending"></div>
+                </div>
+
+                <div class="booking-section" id="section-confirmed">
+                    <h2 class="section-title status-confirmed"><i class="fas fa-check-circle"></i> Confirmed Bookings <span class="count">0</span></h2>
+                    <div class="bookings-grid" id="grid-confirmed"></div>
+                </div>
+
+                <div class="booking-section" id="section-completed">
+                    <h2 class="section-title status-completed"><i class="fas fa-flag-checkered"></i> Completed Bookings <span class="count">0</span></h2>
+                    <div class="bookings-grid" id="grid-completed"></div>
+                </div>
+
+                <div class="booking-section" id="section-cancelled">
+                    <h2 class="section-title status-cancelled"><i class="fas fa-times-circle"></i> Cancelled Bookings <span class="count">0</span></h2>
+                    <div class="bookings-grid" id="grid-cancelled"></div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display:none;">
+                    <div class="empty-icon">📷</div>
+                    <h3>No Bookings Found</h3>
+                    <p>No photography bookings have been made yet.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js"></script>
+
+    <script>
+        // Helper to check for target booking to scroll and highlight
+        const highlightBooking = () => {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#booking-')) {
+                const cardId = hash.substring(1);
+                const targetCard = document.getElementById(cardId);
+                if (targetCard) {
+                    setTimeout(() => {
+                        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        targetCard.classList.remove('highlight-pulse');
+                        void targetCard.offsetWidth; // trigger reflow to restart animation
+                        targetCard.classList.add('highlight-pulse');
+                    }, 300);
+                }
+            }
+        };
+
+        async function loadBookings(shouldHighlight = true) {
+            try {
+                const response = await api.getBookings();
+                const bookings = response.data || [];
+                window.currentBookings = bookings;
+                const emptyState = document.getElementById('emptyState');
+
+                const filterContainer = document.querySelector('.filter-container');
+                if (!bookings || bookings.length === 0) {
+                    document.querySelectorAll('.booking-section').forEach(s => s.style.display = 'none');
+                    if (filterContainer) filterContainer.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    if (filterContainer) filterContainer.style.display = 'flex';
+                    emptyState.style.display = 'none';
+
+                    // Group bookings by status
+                    const pending = bookings.filter(b => b.status === 'pending');
+                    const confirmed = bookings.filter(b => b.status === 'confirmed');
+                    const completed = bookings.filter(b => b.status === 'completed');
+                    const cancelled = bookings.filter(b => b.status === 'cancelled');
+
+                    // Helper to render grid content
+                    function renderGrid(gridId, sectionId, list) {
+                        const grid = document.getElementById(gridId);
+                        const section = document.getElementById(sectionId);
+                        
+                        // Update count in section title
+                        section.querySelector('.count').textContent = list.length;
+
+                        if (list.length === 0) {
+                            grid.innerHTML = '<div class="empty-section-message">No bookings in this category</div>';
+                        } else {
+                            grid.innerHTML = list.map(booking => `
+                                <div class="booking-card" id="booking-${booking.id}" onclick="openBookingDetailsModal(${booking.id})">
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+                                        <div style="font-weight:700; color:var(--color-primary); font-size:1.05rem; line-height:1.2; word-break:break-word;">
+                                            #${booking.id} - ${booking.service_name}
+                                        </div>
+                                        <span class="status-badge payment-${(booking.payment_status || 'unpaid').toLowerCase()}" style="font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:20px; font-weight:bold; white-space:nowrap; display:inline-block;">
+                                            ${(booking.payment_status || 'unpaid').toUpperCase()}
+                                        </span>
+                                    </div>
+                                    
+                                    <div style="font-size:0.9rem; color:var(--color-text-soft); display:flex; flex-direction:column; gap:0.3rem; margin-top:0.4rem;">
+                                        <div><i class="fas fa-calendar-alt"></i> ${new Date(booking.booking_date).toLocaleDateString()} at ${booking.start_time}</div>
+                                        <div><i class="fas fa-user"></i> Client: <strong>${booking.client_name}</strong></div>
+                                    </div>
+                                    
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--color-border-soft);">
+                                        <span class="booking-status status-${booking.status}" style="margin:0; font-size:0.8rem; padding:0.2rem 0.6rem; border-radius:50px; font-weight:600;">
+                                            ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                                        </span>
+                                        <span style="font-size:0.8rem; color:var(--color-primary); font-weight:600; display:flex; align-items:center; gap:0.25rem;">
+                                            Details <i class="fas fa-arrow-right" style="font-size:0.75rem; width:auto; color:inherit; margin:0;"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            `).join('');
+                        }
+                    }
+
+                    renderGrid('grid-pending', 'section-pending', pending);
+                    renderGrid('grid-confirmed', 'section-confirmed', confirmed);
+                    renderGrid('grid-completed', 'section-completed', completed);
+                    renderGrid('grid-cancelled', 'section-cancelled', cancelled);
+
+                    if (shouldHighlight) {
+                        highlightBooking();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                showAlert('Failed to load bookings');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Check auth
+            if (!auth.requireAuth('admin')) return;
+
+            // Handle logout
+            document.querySelector('[data-logout]').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.logout();
+            });
+
+            // Update UI
+            document.querySelectorAll('[data-user-name]').forEach(el => {
+                el.textContent = auth.getUserName();
+            });
+
+            // Load bookings
+            await loadBookings(true);
+
+            // Watch hashchange
+            window.addEventListener('hashchange', highlightBooking);
+
+            // Listen to SSE new booking events
+            window.addEventListener('newBookingReceived', (e) => {
+                console.log('[Bookings Page] Live booking update received:', e.detail);
+                loadBookings(false); // reload grid from database in real-time
+            });
+
+            // Add filter event listeners
+            const filterPills = document.querySelectorAll('.filter-pill');
+            filterPills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    filterPills.forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+
+                    const filterValue = pill.getAttribute('data-filter');
+
+                    document.querySelectorAll('.booking-section').forEach(section => {
+                        const sectionId = section.getAttribute('id');
+                        const status = sectionId.replace('section-', '');
+                        
+                        if (filterValue === 'all' || filterValue === status) {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+
+        async function updateStatus(bookingId, action) {
+            let title = `${action.charAt(0).toUpperCase() + action.slice(1)} Booking`;
+            let message = `Are you sure you want to ${action} this booking?`;
+            
+            if (action === 'uncomplete') {
+                title = 'Undo Booking Completion';
+                message = 'Are you sure you want to undo completion and mark this booking as confirmed?';
+            }
+
+            const confirmed = await showConfirm({
+                title: title,
+                message: message,
+                confirmText: 'Confirm',
+                type: action === 'cancel' ? 'danger' : 'confirm'
+            });
+
+            if (!confirmed) return;
+
+            try {
+                const response = await api.updateBooking(bookingId, action);
+                if (response.success) {
+                    let actionPast;
+                    if (action === 'cancel') actionPast = 'cancelled';
+                    else if (action === 'confirm') actionPast = 'confirmed';
+                    else if (action === 'uncomplete') actionPast = 'reverted to confirmed';
+                    else actionPast = 'completed';
+
+                    showAlert(`Booking ${actionPast} successfully`, 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showAlert(response.error || `Failed to update booking status`, 'error');
+                }
+            } catch (error) {
+                console.error(`Error updating status:`, error);
+                showAlert('Network error occurred', 'error');
+            }
+        }
+
+        function openBookingDetailsModal(bookingId) {
+            // Prevent overlay creation if one is already open
+            if (document.getElementById('bookingDetailsModal')) return;
+
+            const booking = (window.currentBookings || []).find(b => b.id === bookingId);
+            if (!booking) return;
+
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.id = 'bookingDetailsModal';
+
+            const statusCap = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+            const payStatusCap = (booking.payment_status || 'unpaid').toUpperCase();
+            
+            // Build actions HTML
+            let actionsHtml = '';
+            if (booking.status === 'pending') {
+                actionsHtml += `
+                    <button onclick="triggerUpdateStatus(${booking.id}, 'confirm')" class="btn btn-success" style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;">
+                        <i class="fas fa-check"></i> Confirm
+                    </button>
+                `;
+            }
+            if (booking.status === 'confirmed') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const bookingDate = new Date(booking.booking_date);
+                bookingDate.setHours(0, 0, 0, 0);
+
+                if (today >= bookingDate) {
+                    actionsHtml += `
+                        <button onclick="triggerUpdateStatus(${booking.id}, 'complete')" class="btn btn-complete" style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;">
+                            <i class="fas fa-check-double"></i> Complete
+                        </button>
+                    `;
+                } else {
+                    actionsHtml += `
+                        <button class="btn btn-complete" disabled title="Clickable only when the booking day arrives (${bookingDate.toLocaleDateString()})" style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600; opacity: 0.5; cursor: not-allowed;">
+                            <i class="fas fa-check-double"></i> Complete
+                        </button>
+                    `;
+                }
+            }
+            if (booking.status === 'completed') {
+                actionsHtml += `
+                    <button onclick="triggerUpdateStatus(${booking.id}, 'uncomplete')" class="btn btn-uncomplete" style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;">
+                        <i class="fas fa-undo"></i> Undo Complete
+                    </button>
+                `;
+            }
+            if (booking.status !== 'cancelled' && booking.status !== 'completed') {
+                actionsHtml += `
+                    <button onclick="triggerUpdateStatus(${booking.id}, 'cancel')" class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;">
+                        <i class="fas fa-times"></i> Cancel Booking
+                    </button>
+                `;
+            }
+
+            overlay.innerHTML = `
+                <div class="modal" style="max-width: 580px;">
+                    <div class="modal-header">
+                        <h3 style="font-weight: 700; color: var(--color-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                            <i class="fas fa-info-circle"></i> Booking Details #${booking.id}
+                        </h3>
+                        <button class="modal-close" onclick="closeBookingDetailsModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem 1.75rem;">
+                        
+                        <!-- Top Service Row -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border-soft); padding-bottom: 0.75rem; gap: 1rem;">
+                            <div>
+                                <h2 style="font-size: 1.3rem; font-weight: 700; margin: 0; line-height: 1.2;">${booking.service_name}</h2>
+                            </div>
+                            <span class="booking-status status-${booking.status}" style="margin: 0; font-size: 0.85rem; padding: 0.3rem 0.8rem; border-radius: 50px; white-space: nowrap;">
+                                ${statusCap}
+                            </span>
+                        </div>
+
+                        <!-- Grid Info -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 1rem; font-size: 0.95rem;">
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Client Name</label>
+                                <div style="font-weight: 600; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fas fa-user" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${booking.client_name}
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Photographer</label>
+                                <div style="font-weight: 600; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fas fa-user-tie" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${booking.staff_name || 'TBD'}
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Date & Time</label>
+                                <div style="font-weight: 600; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fas fa-calendar" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${new Date(booking.booking_date).toLocaleDateString()}
+                                </div>
+                                <div style="font-weight: 600; margin-top: 0.1rem; font-size: 0.9rem; color: var(--color-text-soft); padding-left: 1.3rem;">at ${booking.start_time}</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Downpayment Amount</label>
+                                <div style="font-weight: 700; color: var(--color-primary); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fas fa-wallet" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ₱${Number(booking.downpayment_amount || 0).toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Status Section -->
+                        <div style="background: var(--color-bg-soft); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-soft); display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+                            <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-soft); display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fas fa-money-check-alt" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> Payment Status:
+                            </span>
+                            <span class="status-badge payment-${(booking.payment_status || 'unpaid').toLowerCase()}" style="font-size: 0.8rem; padding: 0.25rem 0.75rem; border-radius: 50px; font-weight: 700;">
+                                ${payStatusCap}
+                            </span>
+                        </div>
+
+                        <!-- Proof of Payment Receipt -->
+                        ${booking.proof_of_payment ? `
+                            <div style="border-top: 1px solid var(--color-border-soft); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+                                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--color-text); display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fas fa-image" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> Proof of Payment / Receipt:
+                                </h4>
+                                <div style="display: flex; justify-content: center; background: #f3f4f6; border-radius: 8px; padding: 0.5rem; border: 1px solid var(--color-border-soft);">
+                                    <a href="${booking.proof_of_payment}" target="_blank" title="Click to view full size receipt">
+                                        <img src="${booking.proof_of_payment}" alt="Receipt" style="max-height: 250px; max-width: 100%; object-fit: contain; border-radius: 6px; box-shadow: var(--shadow-sm); cursor: zoom-in;">
+                                    </a>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                    </div>
+                    <div class="modal-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; padding: 1.25rem 1.75rem;">
+                        ${actionsHtml}
+                        <button class="btn btn-secondary" onclick="closeBookingDetailsModal()" style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;">Close</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            
+            // Force reflow for fade-in animations
+            overlay.offsetHeight;
+            overlay.classList.add('active');
+
+            // Close modal when clicking background overlay
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    closeBookingDetailsModal();
+                }
+            });
+        }
+
+        function closeBookingDetailsModal() {
+            const overlay = document.getElementById('bookingDetailsModal');
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.remove();
+                }, 200);
+            }
+        }
+
+        async function triggerUpdateStatus(bookingId, action) {
+            // Close the modal before prompting so the confirm dialog is not hidden behind the details modal
+            closeBookingDetailsModal();
+            // Call the existing updateStatus function
+            await updateStatus(bookingId, action);
+        }
+    </script>
+</body>
+
+</html>

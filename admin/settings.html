@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .settings-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .settings-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .settings-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .welcome-message {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            opacity: 0.8;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css">
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter" >
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Admin</div>
+                    <a href="/admin/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+                    </a>
+                    <a href="/admin/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar"></i></span> All Bookings
+                    </a>
+                    <a href="/admin/calendar.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                    </a>
+                    <a href="/admin/gallery.html" class="sidebar-link"><span class="icon"><i class="fas fa-images"></i></span> Photo Gallery</a>
+                    <a href="/admin/analytics.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
+                    </a>
+                    <a href="/admin/users.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-users"></i></span> Users
+                    </a>
+                    <a href="/admin/services.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-camera"></i></span> Services
+                    </a>
+                    <a href="/admin/settings.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-cog"></i></span> Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role">Administrator</div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <h1>Studio Settings — Welcome, <span data-user-name></span>!</h1>
+                <p>Configure your photography studio settings, preferences, and studio information.</p>
+            </div>
+
+            <div class="content-body">
+                <div id="successMessage" class="success-message" style="display:none;">
+                    <i class="fas fa-check-circle"></i> Settings saved successfully!
+                </div>
+
+                <div class="settings-grid">
+                    <!-- General Settings -->
+                    <div class="settings-card">
+                        <div class="settings-title">
+                            <i class="fas fa-cog"></i> General Settings
+                        </div>
+
+                        <form id="generalSettings">
+                            <div class="form-group">
+                                <label class="form-label">Studio Name</label>
+                                <input type="text" class="form-control" id="studioName" value="SnailShutter">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Studio Email</label>
+                                <input type="email" class="form-control" id="studioEmail"
+                                    value="contact@snailshutter.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Studio Phone</label>
+                                <input type="tel" class="form-control" id="studioPhone" value="+63 912 3456789">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Studio Address</label>
+                                <textarea class="form-control" id="studioAddress"
+                                    rows="3">123 Photography Street, Studio City, 12345</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Studio Hours</label>
+                                <input type="text" class="form-control" id="studioHours" placeholder="e.g. Mon – Sat, 9:00 AM – 6:00 PM">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Google Maps Embed URL (iframe src)</label>
+                                <textarea class="form-control" id="studioMapEmbed" rows="3" placeholder="Paste the Google Maps iframe src here..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Get Directions Link</label>
+                                <input type="url" class="form-control" id="studioDirectionsLink" placeholder="e.g. https://www.google.com/maps/dir/?api=1&destination=...">
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div class="settings-card">
+                        <div class="settings-title">
+                            <i class="fas fa-bell"></i> Notification Settings
+                        </div>
+
+                        <form id="notificationSettings">
+                            <div class="form-group">
+                                <label class="form-label">Email Notifications</label>
+                                <select class="form-control" id="emailNotifications">
+                                    <option value="all">All notifications</option>
+                                    <option value="important">Important only</option>
+                                    <option value="none">Disabled</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Booking Reminders</label>
+                                <select class="form-control" id="bookingReminders">
+                                    <option value="24">24 hours before</option>
+                                    <option value="48">48 hours before</option>
+                                    <option value="72">72 hours before</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Maintenance Mode</label>
+                                <select class="form-control" id="maintenanceMode">
+                                    <option value="normal">Normal</option>
+                                    <option value="maintenance">Maintenance</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Appearance Settings -->
+                    <div class="settings-card">
+                        <div class="settings-title">
+                            <i class="fas fa-palette"></i> Appearance Settings
+                        </div>
+
+                        <form id="appearanceSettings">
+                            <div class="form-group">
+                                <label class="form-label">Theme Color</label>
+                                <select class="form-control" id="themeColor">
+                                    <option value="blue">Blue</option>
+                                    <option value="green">Green</option>
+                                    <option value="purple">Purple</option>
+                                    <option value="red">Red</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Time Zone</label>
+                                <select class="form-control" id="timeZone">
+                                    <option value="UTC+8">UTC+8 (Philippines)</option>
+                                    <option value="UTC+0">UTC+0 (London)</option>
+                                    <option value="UTC-5">UTC-5 (New York)</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Payment Settings -->
+                    <div class="settings-card">
+                        <div class="settings-title">
+                            <i class="fas fa-wallet"></i> Payment Settings
+                        </div>
+
+                        <form id="paymentSettings">
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight: 700;">GCash QR Code Image</label>
+                                <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                                    <div style="width: 100px; text-align: center; flex-shrink: 0;">
+                                        <img id="gcashQrPreview" src="/assets/images/gcash_qr.png" alt="GCash QR" style="width: 100%; border-radius: 8px; border: 1px solid #d1d5db; background: white; padding: 4px; box-shadow: var(--shadow-sm);">
+                                    </div>
+                                    <div style="flex: 1; min-width: 200px;">
+                                        <p style="font-size: 0.82rem; color: var(--color-text-soft); margin-top: 0; margin-bottom: 0.75rem; line-height: 1.4;">
+                                            This GCash QR Code is shown to clients in Step 4 of the booking process for downpayment verification.
+                                        </p>
+                                        <input type="file" id="gcashQrFile" class="form-control" accept="image/*" style="background: white;">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="button" onclick="saveSettings()" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Required API Scripts -->
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js"></script>
+
+    <script>
+        // Admin settings functionality
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+        }
+
+        async function saveSettings() {
+            console.log('Saving settings...');
+
+            const btn = document.querySelector('button[onclick="saveSettings()"]');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const formData = new FormData();
+            formData.append('studioName', document.getElementById('studioName').value);
+            formData.append('studioEmail', document.getElementById('studioEmail').value);
+            formData.append('studioPhone', document.getElementById('studioPhone').value);
+            formData.append('studioAddress', document.getElementById('studioAddress').value);
+            formData.append('studioHours', document.getElementById('studioHours').value);
+            formData.append('studioMapEmbed', document.getElementById('studioMapEmbed').value);
+            formData.append('studioDirectionsLink', document.getElementById('studioDirectionsLink').value);
+            
+            formData.append('emailNotifications', document.getElementById('emailNotifications').value);
+            formData.append('bookingReminders', document.getElementById('bookingReminders').value);
+            formData.append('maintenanceMode', document.getElementById('maintenanceMode').value);
+            
+            formData.append('themeColor', document.getElementById('themeColor').value);
+            formData.append('timeZone', document.getElementById('timeZone').value);
+
+            const fileInput = document.getElementById('gcashQrFile');
+            if (fileInput.files && fileInput.files.length > 0) {
+                formData.append('gcashQr', fileInput.files[0]);
+            }
+
+            try {
+                const response = await api.saveSettings(formData);
+                if (response.success) {
+                    // Update preview if a new image was selected locally
+                    if (fileInput.files && fileInput.files.length > 0) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            document.getElementById('gcashQrPreview').src = e.target.result;
+                        };
+                        reader.readAsDataURL(fileInput.files[0]);
+                    }
+                    
+                    const successMessage = document.getElementById('successMessage');
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                } else {
+                    alert(response.error || 'Failed to save settings');
+                }
+            } catch (error) {
+                console.error('Save settings error:', error);
+                alert('An error occurred while saving settings');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+
+        // Initialize admin settings page
+        document.addEventListener('DOMContentLoaded', async function () {
+            console.log('Admin settings page loaded');
+
+            // Check if user is logged in and is admin
+            if (!auth.requireAuth('admin')) return;
+
+            // Handle logout
+            document.querySelector('[data-logout]').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.logout();
+            });
+
+            const user = auth.currentUser;
+            console.log('User logged in:', user);
+
+            // Update UI
+            document.querySelectorAll('[data-user-name]').forEach(el => {
+                el.textContent = user.name;
+            });
+
+            // Load settings from backend
+            try {
+                const response = await api.getSettings();
+                if (response.success && response.settings) {
+                    const s = response.settings;
+                    if (s.studioName) document.getElementById('studioName').value = s.studioName;
+                    if (s.studioEmail) document.getElementById('studioEmail').value = s.studioEmail;
+                    if (s.studioPhone) document.getElementById('studioPhone').value = s.studioPhone;
+                    if (s.studioAddress) document.getElementById('studioAddress').value = s.studioAddress;
+                    if (s.studioHours) document.getElementById('studioHours').value = s.studioHours;
+                    if (s.studioMapEmbed) document.getElementById('studioMapEmbed').value = s.studioMapEmbed;
+                    if (s.studioDirectionsLink) document.getElementById('studioDirectionsLink').value = s.studioDirectionsLink;
+                    
+                    if (s.emailNotifications) document.getElementById('emailNotifications').value = s.emailNotifications;
+                    if (s.bookingReminders) document.getElementById('bookingReminders').value = s.bookingReminders;
+                    if (s.maintenanceMode) document.getElementById('maintenanceMode').value = s.maintenanceMode;
+                    
+                    if (s.themeColor) document.getElementById('themeColor').value = s.themeColor;
+                    if (s.timeZone) document.getElementById('timeZone').value = s.timeZone;
+                    
+                    if (s.gcashQr) document.getElementById('gcashQrPreview').src = s.gcashQr;
+                }
+            } catch (err) {
+                console.error('Failed to load settings:', err);
+            }
+        });
+    </script>
+</body>
+
+</html>

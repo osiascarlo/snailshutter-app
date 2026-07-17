@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .status-badge.payment-paid { background: #d1fae5; color: #065f46; }
+        .status-badge.payment-pending { background: #fef3c7; color: #92400e; }
+        .status-badge.payment-unpaid { background: #fee2e2; color: #b91c1c; }
+    </style>
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css">
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/client/dashboard.html" class="sidebar-logo">
+                    <img src="../assets/images/logo.png" alt="SnailShutter"
+                        style="height:80px;max-width:100%;object-fit:contain;margin-left:-10px;">
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/client/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
+                    </a>
+                    <a href="/client/book.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-plus-circle"></i></span> Book Session
+                    </a>
+                    <a href="/client/bookings.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-history"></i></span> My Bookings
+                    </a>
+                    <a href="/client/settings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
+                    </a>
+                </div>
+                <div class="sidebar-section" style="margin-top:auto;">
+                    <div class="sidebar-section-title">Account</div>
+                    <a href="#" class="sidebar-link" data-logout>
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <h1>My Bookings</h1>
+                <p>Track your photography sessions, view history, and manage upcoming appointments.</p>
+            </div>
+
+            <div class="content-body">
+                <div id="alertContainer"></div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Booking History (<span id="bookingCount">…</span>)</h3>
+                    </div>
+                    <div id="bookingsContainer">
+                        <div class="spinner" style="margin:2rem auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!auth.requireAuth('client')) return;
+
+            const logoutLink = document.querySelector('[data-logout]');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    auth.logout();
+                });
+            }
+
+            await loadBookings();
+
+            // Show success message if redirected from booking flow
+            const params = new URLSearchParams(window.location.search);
+            const msg = params.get('success');
+            if (msg) showAlert(msg, 'success');
+        });
+
+        async function loadBookings() {
+            const container = document.getElementById('bookingsContainer');
+            try {
+                const response = await api.getBookings();
+                const bookings = (response.data || response.bookings || []);
+                document.getElementById('bookingCount').textContent = bookings.length;
+
+                if (bookings.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding:3rem;">
+                            <div class="empty-icon"><i class="fas fa-calendar-times"></i></div>
+                            <h3>No Bookings Yet</h3>
+                            <p>You haven't booked any sessions yet. Ready to capture some memories?</p>
+                            <a href="/client/book.html" class="btn btn-primary" style="margin-top:1rem;">
+                                <i class="fas fa-plus-circle"></i> Book a Session
+                            </a>
+                        </div>`;
+                    return;
+                }
+
+                const rows = bookings.map((b, i) => {
+                    const date = new Date(b.booking_date).toLocaleDateString('en-US',
+                        { month: 'numeric', day: 'numeric', year: 'numeric' });
+                    const start = formatTime(b.start_time);
+                    const end = formatTime(b.end_time);
+                    const status = (b.status || 'pending').toLowerCase();
+                    const canCancel = status === 'pending' || status === 'confirmed';
+                    const price = b.total_price ? '&#8369;' + Number(b.total_price).toLocaleString() : '—';
+                    const downpayment = b.downpayment_amount ? '&#8369;' + Number(b.downpayment_amount).toLocaleString() : '—';
+                    const payStatus = (b.payment_status || 'unpaid').toLowerCase();
+
+                    return `<tr>
+                        <td>#${i + 1}</td>
+                        <td style="font-weight:500;">${b.service_name || b.service || '—'}</td>
+                        <td>${date}</td>
+                        <td>${start} – ${end}</td>
+                        <td>${price}</td>
+                        <td style="font-weight:600; color:var(--color-primary);">${downpayment}</td>
+                        <td><span class="status-badge payment-${payStatus}">${cap(payStatus)}</span></td>
+                        <td><span class="status-badge status-${status}">${cap(status)}</span></td>
+                        <td>
+                            ${b.google_drive_link ? `
+                                <a href="${b.google_drive_link}" target="_blank" class="btn btn-sm" style="display:inline-flex; align-items:center; gap:0.25rem; background:#10b981; border-color:#10b981; color:white; font-weight:600; text-decoration:none;">
+                                    <i class="fab fa-google-drive"></i> View Photos
+                                </a>
+                            ` : (canCancel
+                                ? `<button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">
+                                        <i class="fas fa-times"></i> Cancel
+                                   </button>`
+                                : `<span style="color:var(--color-text-muted);font-size:0.8rem;">—</span>`)}
+                        </td>
+                    </tr>`;
+                }).join('');
+
+                container.innerHTML = `
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th><th>Service</th><th>Date</th><th>Time</th>
+                                    <th>Price</th><th>Downpayment</th><th>Payment</th><th>Status</th><th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>`;
+
+            } catch (err) {
+                console.error('Failed to load bookings:', err);
+                container.innerHTML = `
+                    <div class="empty-state" style="padding:2rem;">
+                        <div class="empty-icon"><i class="fas fa-exclamation-circle"></i></div>
+                        <h3>Failed to Load Bookings</h3>
+                        <p>Please refresh the page to try again.</p>
+                    </div>`;
+                document.getElementById('bookingCount').textContent = '0';
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (typeof showConfirm === 'function') {
+                const ok = await showConfirm({
+                    title: 'Cancel Booking',
+                    message: 'Are you sure you want to cancel this booking?',
+                    confirmText: 'Yes, Cancel',
+                    cancelText: 'Keep it',
+                    type: 'danger'
+                });
+                if (!ok) return;
+            }
+            try {
+                const res = await api.updateBooking(bookingId, 'cancel');
+                if (res.success) {
+                    showAlert('Booking cancelled successfully.', 'success');
+                    await loadBookings();
+                } else {
+                    showAlert(res.error || 'Failed to cancel booking.', 'error');
+                }
+            } catch (err) {
+                showAlert('Network error. Please try again.', 'error');
+            }
+        }
+
+        function formatTime(t) {
+            if (!t) return '—';
+            const [h, m] = t.split(':');
+            let hr = parseInt(h);
+            const ap = hr >= 12 ? 'PM' : 'AM';
+            hr = hr % 12 || 12;
+            return `${hr}:${m} ${ap}`;
+        }
+
+        function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>

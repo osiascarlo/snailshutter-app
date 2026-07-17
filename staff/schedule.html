@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Schedule | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .schedule-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid var(--color-border-soft);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .schedule-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-primary-soft);
+        }
+
+        .schedule-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--color-primary);
+        }
+
+        .schedule-date {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .schedule-time {
+            font-weight: 500;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            background: var(--color-primary-soft);
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .schedule-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            color: var(--color-text-muted);
+            font-size: 0.95rem;
+        }
+
+        .schedule-details i {
+            width: 20px;
+            color: var(--color-primary);
+            opacity: 0.7;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--color-text-muted);
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border-soft);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.2;
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css">
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/staff/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter" >
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Staff</div>
+                    <a href="/staff/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+                    </a>
+                    <a href="/staff/schedule.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-calendar-week"></i></span> My Schedule
+                    </a>
+                    <a href="/staff/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-camera"></i></span> My Bookings
+                    </a>
+                    <a href="/staff/gallery.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-images"></i></span> Gallery
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role">Staff Member</div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <h1>My Schedule — Welcome, <span data-user-name></span>!</h1>
+                <p>View your upcoming photography assignments and manage your schedule.</p>
+            </div>
+
+            <div class="content-body">
+                <!-- Schedule Grid -->
+                <div class="schedule-grid" id="scheduleGrid">
+                    <!-- Schedule items will be loaded here by JavaScript -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display:none;">
+                    <div class="empty-icon">📅</div>
+                    <h3>No Upcoming Assignments</h3>
+                    <p>You have no photography sessions scheduled for the upcoming period.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Required API Scripts -->
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+        }
+
+        async function updateSchedule() {
+            const scheduleGrid = document.getElementById('scheduleGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            try {
+                // Show spinner
+                scheduleGrid.innerHTML = '<div class="spinner"></div>';
+
+                const response = await api.getBookings();
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to load bookings');
+                }
+
+                const bookings = response.data || [];
+
+                // Filter by logged-in staff id and ignore cancelled sessions
+                const myAssignments = bookings.filter(b => b.staff_id === auth.currentUser.id && b.status !== 'cancelled');
+
+                // Sort chronologically (closest first)
+                myAssignments.sort((a, b) => {
+                    const dateA = new Date(a.booking_date.split('T')[0] + 'T' + a.start_time);
+                    const dateB = new Date(b.booking_date.split('T')[0] + 'T' + b.start_time);
+                    return dateA - dateB;
+                });
+
+                if (myAssignments.length === 0) {
+                    scheduleGrid.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    scheduleGrid.style.display = 'grid';
+                    emptyState.style.display = 'none';
+
+                    scheduleGrid.innerHTML = myAssignments.map(item => {
+                        const dateObj = new Date(item.booking_date.split('T')[0] + 'T00:00:00');
+                        const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
+
+                        const timeRange = `${formatTime(item.start_time)} - ${formatTime(item.end_time)}`;
+
+                        return `
+                            <div class="schedule-card">
+                                <div class="schedule-date">
+                                    <i class="fas fa-calendar-day"></i> ${formattedDate}
+                                </div>
+                                <div class="schedule-time">
+                                    <i class="fas fa-clock"></i> ${timeRange}
+                                </div>
+                                <div class="schedule-details">
+                                    <div><i class="fas fa-camera"></i> <strong>Service:</strong> ${item.service_name}</div>
+                                    <div><i class="fas fa-user"></i> <strong>Client:</strong> ${item.client_name}</div>
+                                    <div style="margin-top: 0.75rem;">
+                                        <span class="status-badge status-${item.status}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+                scheduleGrid.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.innerHTML = `
+                    <div class="empty-icon" style="color: var(--color-danger);">⚠️</div>
+                    <h3>Error Loading Schedule</h3>
+                    <p>${error.message || 'Failed to fetch schedule. Please try again.'}</p>
+                `;
+            }
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            const parts = timeStr.split(':');
+            let hour = parseInt(parts[0]);
+            const minute = parts[1];
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            hour = hour % 12 || 12;
+            return `${hour}:${minute} ${ampm}`;
+        }
+
+        // Initialize staff schedule page
+        document.addEventListener('DOMContentLoaded', async function () {
+            console.log('Staff schedule page loaded');
+
+            // Check if user is logged in and is staff
+            if (!auth.requireAuth('staff')) return;
+
+            // Handle logout
+            document.querySelector('[data-logout]').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.logout();
+            });
+
+            const user = auth.currentUser;
+            console.log('User logged in:', user);
+
+            // Update UI
+            document.querySelectorAll('[data-user-name]').forEach(el => {
+                el.textContent = user.name;
+            });
+
+            // Update schedule
+            updateSchedule();
+        });
+    </script>
+</body>
+
+</html>

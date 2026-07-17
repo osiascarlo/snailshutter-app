@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Login Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input { padding: 10px; margin: 5px; width: 200px; }
+        button { padding: 10px 20px; margin: 10px; }
+        .result { padding: 10px; margin: 10px 0; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Ultra Simple Login Test</h1>
+    
+    <form onsubmit="return testLogin(event)">
+        <div>
+            <label>Email: 
+            <input type="email" id="email" value="admin@studio.com">
+        </div>
+        <div>
+            <label>Password: 
+            <input type="password" id="password" value="admin123">
+        </div>
+        <button type="submit">Test Login</button>
+    </form>
+    
+    <div id="result" class="result"></div>
+    
+    <script>
+        function testLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const result = document.getElementById('result');
+            
+            // Simple hardcoded check
+            if (email === 'admin@studio.com' && password === 'admin123') {
+                result.innerHTML = '<span class="success">✅ SUCCESS: Login works!</span>';
+                result.className = 'success';
+                console.log('LOGIN SUCCESSFUL');
+            } else {
+                result.innerHTML = '<span class="error">❌ FAILED: Wrong credentials</span>';
+                result.className = 'error';
+                console.log('LOGIN FAILED');
+            }
+            
+            return false;
+        }
+    </script>
+</body>
+</html>

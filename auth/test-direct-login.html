@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Fresh Login Test</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-form-box">
+            <div class="auth-header">
+                <h2>Direct Fresh Login Test</h2>
+                <p>Testing fresh login page directly</p>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <div style="background: #f0f0f0; padding: 15px; margin: 15px 0; border-radius: 8px;">
+                <h4>Debug Info:</h4>
+                <p><strong>Current URL:</strong> <span id="currentUrl"></span></p>
+                <p><strong>Referrer:</strong> <span id="referrer"></span></p>
+                <p><strong>Timestamp:</strong> <span id="timestamp"></span></p>
+                <p><strong>Session Storage:</strong> <span id="sessionStorage"></span></p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" value="admin@studio.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" value="admin123" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-full btn-lg" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Test Login
+                </button>
+            </form>
+            
+            <div class="form-footer">
+                <a href="/index.html">← Back to Landing Page</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('='.repeat(50));
+        console.log('DIRECT FRESH LOGIN TEST PAGE');
+        console.log('='.repeat(50));
+        
+        // Update debug info
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('referrer').textContent = document.referrer || 'None';
+        document.getElementById('timestamp').textContent = new Date().toISOString();
+        document.getElementById('sessionStorage').textContent = sessionStorage.getItem('currentUser') || 'None';
+        
+        // Working login system
+        const users = [
+            {
+                id: 1,
+                email: 'admin@studio.com',
+                password: 'admin123',
+                name: 'Admin User',
+                role: 'admin'
+            }
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Direct test page loaded successfully');
+            
+            const loginForm = document.getElementById('loginForm');
+            const alertContainer = document.getElementById('alertContainer');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Clear form
+            document.getElementById('email').value = 'admin@studio.com';
+            document.getElementById('password').value = 'admin123';
+            alertContainer.innerHTML = '';
+            
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                console.log('='.repeat(50));
+                console.log('DIRECT TEST LOGIN SUBMISSION');
+                console.log('='.repeat(50));
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                console.log('Email:', email);
+                console.log('Password:', password);
+                
+                alertContainer.innerHTML = '';
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+                
+                setTimeout(function() {
+                    try {
+                        const user = users.find(u => u.email === email && u.password === password);
+                        console.log('Found user:', user ? 'YES' : 'NO');
+                        
+                        if (user) {
+                            console.log('SUCCESS: Direct test login successful');
+                            alertContainer.innerHTML = '<div class="alert alert-success">✅ Direct test login successful!</div>';
+                            
+                            const userData = {
+                                id: user.id,
+                                email: user.email,
+                                name: user.name,
+                                role: user.role
+                            };
+                            sessionStorage.setItem('currentUser', JSON.stringify(userData));
+                            console.log('User stored in session:', userData);
+                            
+                            setTimeout(() => {
+                                console.log('Redirecting to simple dashboard...');
+                                window.location.href = '/client/dashboard-simple.html';
+                            }, 1000);
+                        } else {
+                            console.log('FAILED: Invalid credentials');
+                            alertContainer.innerHTML = '<div class="alert alert-error">❌ Invalid credentials</div>';
+                        }
+                    } catch (error) {
+                        console.error('Direct test error:', error);
+                        alertContainer.innerHTML = '<div class="alert alert-error">Error: ' + error.message + '</div>';
+                    } finally {
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Test Login';
+                    }
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

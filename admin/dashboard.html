@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter">
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/admin/dashboard.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
+                    </a>
+                    <a href="/admin/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar"></i></span> All Bookings
+                    </a>
+                    <a href="/admin/calendar.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                    </a>
+                    <a href="/admin/gallery.html" class="sidebar-link"><span class="icon"><i
+                                class="fas fa-images"></i></span> Photo Gallery</a>
+                    <a href="/admin/analytics.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
+                    </a>
+                    <a href="/admin/users.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-users"></i></span> Users
+                    </a>
+                    <a href="/admin/services.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-camera"></i></span> Services
+                    </a>
+                    <a href="/admin/settings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-cog"></i></span> Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="avatar" data-user-initial></div>
+                    <div class="sidebar-user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role" data-user-role></div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Cinematic Hero -->
+            <div class="page-hero">
+                <div class="hero-particles"></div>
+
+                <div class="hero-greeting">
+                    <span class="hero-greeting-icon">☀️</span>
+                    <span class="hero-greeting-text">Good Morning</span>
+                </div>
+                <h1>Welcome back, <span data-user-name></span>!</h1>
+                <p>Manage your photography studio and monitor business performance.</p>
+                <div class="hero-actions">
+                    <a href="/admin/bookings.html" class="hero-action-btn shutter-click">
+                        <i class="fas fa-calendar-plus"></i> View Bookings
+                    </a>
+                    <a href="/admin/analytics.html" class="hero-action-btn">
+                        <i class="fas fa-chart-line"></i> View Reports
+                    </a>
+                    <a href="/admin/gallery.html" class="hero-action-btn">
+                        <i class="fas fa-images"></i> Gallery
+                    </a>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <!-- Stats will be rendered by JavaScript -->
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section-header">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                </div>
+                <div class="quick-actions-grid">
+                    <a href="/admin/bookings.html" class="quick-action-card stagger-in">
+                        <div class="quick-action-icon"><i class="fas fa-calendar-check"></i></div>
+                        <h4>Manage Bookings</h4>
+                        <p>Review & approve sessions</p>
+                    </a>
+                    <a href="/admin/users.html" class="quick-action-card stagger-in">
+                        <div class="quick-action-icon"><i class="fas fa-user-plus"></i></div>
+                        <h4>Manage Users</h4>
+                        <p>Clients, staff & roles</p>
+                    </a>
+                    <a href="/admin/services.html" class="quick-action-card stagger-in">
+                        <div class="quick-action-icon"><i class="fas fa-camera-retro"></i></div>
+                        <h4>Services</h4>
+                        <p>Packages & pricing</p>
+                    </a>
+                    <a href="/admin/settings.html" class="quick-action-card stagger-in">
+                        <div class="quick-action-icon"><i class="fas fa-sliders-h"></i></div>
+                        <h4>Settings</h4>
+                        <p>Studio configuration</p>
+                    </a>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="premium-activity">
+                    <div class="premium-activity-header">
+                        <h3><i class="fas fa-stream"></i> Recent Activity</h3>
+                        <a href="/admin/bookings.html" class="btn btn-secondary btn-sm">View All</a>
+                    </div>
+                    <div class="timeline-list" id="recentActivity">
+                        <div class="empty-state">
+                            <div class="empty-icon">📸</div>
+                            <h3>No recent activity</h3>
+                            <p>Booking activities and system events will appear here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Check auth
+            if (!auth.requireAuth('admin')) return;
+
+            // Wait for auth init to complete
+            await auth.init();
+            const user = auth.currentUser;
+
+            if (!user) return;
+
+            // Update UI
+            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name);
+            document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = 'Administrator');
+            document.querySelectorAll('[data-user-initial]').forEach(el => el.textContent = (user.name || 'A').charAt(0).toUpperCase());
+
+            // Logout
+            const logoutBtn = document.querySelector('[data-logout]');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    auth.logout();
+                });
+            }
+
+            // Load Data
+            try {
+                // Load Bookings for stats
+                const bookings = await api.getBookings();
+                const bookingList = bookings.data || [];
+                const totalBookings = bookingList.length;
+                const pending = bookingList.filter(b => b.status === 'pending').length;
+                const confirmed = bookingList.filter(b => b.status === 'confirmed').length;
+                const completed = bookingList.filter(b => b.status === 'completed').length;
+
+                // Load Users — returns response.users
+                const usersResp = await api.getUsers();
+                const userList = usersResp.users || usersResp.data || [];
+                const totalUsers = userList.length;
+
+                // Load Services
+                const services = await api.getServices();
+                const serviceList = services.data || [];
+                const activeServices = serviceList.length;
+
+
+
+                // Update Stats with count-up data attributes
+                const statsGrid = document.querySelector('.stats-grid');
+                if (statsGrid) {
+                    statsGrid.innerHTML = `
+                        <div class="stat-card stagger-in">
+                            <div class="stat-icon primary"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="stat-card-info">
+                                <div class="stat-value" data-count="${totalBookings}">0</div>
+                                <div class="stat-label">Total Bookings</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stagger-in">
+                            <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
+                            <div class="stat-card-info">
+                                <div class="stat-value" data-count="${pending}">0</div>
+                                <div class="stat-label">Pending</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stagger-in">
+                            <div class="stat-icon info"><i class="fas fa-users"></i></div>
+                            <div class="stat-card-info">
+                                <div class="stat-value" data-count="${totalUsers}">0</div>
+                                <div class="stat-label">Total Users</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stagger-in">
+                            <div class="stat-icon success"><i class="fas fa-camera"></i></div>
+                            <div class="stat-card-info">
+                                <div class="stat-value" data-count="${activeServices}">0</div>
+                                <div class="stat-label">Services</div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Re-init count-up for dynamically added elements
+                    DashboardPremium.initCountUp();
+                }
+
+                // Update Recent Activity with premium timeline
+                const activityContainer = document.getElementById('recentActivity');
+                if (activityContainer && bookingList.length > 0) {
+                    activityContainer.innerHTML = bookingList.slice(0, 6).map((b, i) => {
+                        const dotClass = DashboardPremium.getStatusDotClass(b.status);
+                        const relTime = DashboardPremium.relativeTime(b.booking_date);
+                        const fmtDate = DashboardPremium.formatDate(b.booking_date);
+                        return `
+                            <div class="timeline-item stagger-in" style="animation-delay: ${i * 0.08}s;">
+                                <div class="timeline-dot-wrap">
+                                    <div class="timeline-dot ${dotClass}"></div>
+                                    ${i < bookingList.slice(0, 6).length - 1 ? '<div class="timeline-line"></div>' : ''}
+                                </div>
+                                <div class="timeline-content">
+                                    <strong>${b.client_name || 'Client'}</strong>
+                                    <p>Booked <strong>${b.service_name}</strong> — ${fmtDate}</p>
+                                </div>
+                                <div class="timeline-time">${relTime}</div>
+                            </div>
+                        `;
+                    }).join('');
+                } else if (activityContainer) {
+                    activityContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📸</div>
+                            <h3>No recent activity</h3>
+                            <p>Booking activities and system events will appear here.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading admin dashboard:', error);
+            }
+        });
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>

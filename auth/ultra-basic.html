@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ultra Basic Test</title>
+</head>
+<body>
+    <h1>Ultra Basic Login Test</h1>
+    
+    <div>
+        <p>Email: admin@studio.com</p>
+        <p>Password: admin123</p>
+        <button onclick="testBasicLogin()">Click to Login</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <script>
+        console.log('ULTRA BASIC TEST PAGE LOADED');
+        
+        function testBasicLogin() {
+            console.log('='.repeat(50));
+            console.log('ULTRA BASIC LOGIN TEST');
+            console.log('='.repeat(50));
+            
+            const result = document.getElementById('result');
+            
+            // Hardcoded test
+            const email = 'admin@studio.com';
+            const password = 'admin123';
+            
+            console.log('Testing with:', email, password);
+            
+            // Simple check
+            if (email === 'admin@studio.com' && password === 'admin123') {
+                console.log('SUCCESS: Basic login works');
+                result.innerHTML = '<p style="color:green;">✅ SUCCESS: Basic login works!</p>';
+                
+                // Store in session
+                const userData = {
+                    id: 1,
+                    email: email,
+                    name: 'Admin User',
+                    role: 'admin'
+                };
+                sessionStorage.setItem('currentUser', JSON.stringify(userData));
+                console.log('User stored:', userData);
+                
+                // Test redirect
+                setTimeout(() => {
+                    console.log('Testing redirect to simple dashboard...');
+                    window.location.href = '/client/dashboard-simple.html';
+                }, 1000);
+            } else {
+                console.log('FAILED: Basic login failed');
+                result.innerHTML = '<p style="color:red;">❌ FAILED: Basic login failed</p>';
+            }
+        }
+        
+        // Auto-test on load
+        window.onload = function() {
+            console.log('Ultra basic page fully loaded');
+            result.innerHTML = '<p>Ready to test. Click the button above.</p>';
+        };
+    </script>
+</body>
+</html>

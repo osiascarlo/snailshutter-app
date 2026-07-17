@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test | LensCraft Studio</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a2e; color: #f5f0eb; }
+        .test-section { margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px; }
+        .result { margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 4px; }
+        .success { border-left: 4px solid #4ecdc4; }
+        .error { border-left: 4px solid #fc5c65; }
+        button { padding: 10px 20px; margin: 5px; background: #d4a574; color: #1a1a2e; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #b8895a; }
+        pre { background: #000; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>API Test Page</h1>
+    <p>This page tests the converted frontend API endpoints.</p>
+
+    <div class="test-section">
+        <h2>Services API Test</h2>
+        <button onclick="testServices()">Test Services API</button>
+        <div id="servicesResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Authentication Test</h2>
+        <button onclick="testSession()">Test Session</button>
+        <div id="sessionResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Bookings API Test</h2>
+        <button onclick="testBookings()">Test Bookings API</button>
+        <div id="bookingsResult"></div>
+    </div>
+
+    <script src="/ACTIVITIES/CAPSTONE2/assets/js/api.js"></script>
+    <script>
+        async function testServices() {
+            const resultDiv = document.getElementById('servicesResult');
+            resultDiv.innerHTML = '<div class="result">Testing...</div>';
+            
+            try {
+                const response = await api.getServices();
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <strong>✓ Services API Working</strong><br>
+                        Found ${response.data.length} services
+                    </div>
+                    <pre>${JSON.stringify(response, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <strong>✗ Services API Failed</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testSession() {
+            const resultDiv = document.getElementById('sessionResult');
+            resultDiv.innerHTML = '<div class="result">Testing...</div>';
+            
+            try {
+                const response = await api.getSession();
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <strong>✓ Session API Working</strong><br>
+                        User logged in: ${response.success ? 'Yes' : 'No'}
+                    </div>
+                    <pre>${JSON.stringify(response, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <strong>✗ Session API Failed</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testBookings() {
+            const resultDiv = document.getElementById('bookingsResult');
+            resultDiv.innerHTML = '<div class="result">Testing...</div>';
+            
+            try {
+                const response = await api.getBookings();
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <strong>✓ Bookings API Working</strong><br>
+                        Found ${response.data.length} bookings
+                    </div>
+                    <pre>${JSON.stringify(response, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <strong>✗ Bookings API Failed</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

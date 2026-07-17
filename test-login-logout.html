@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Logout Test</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-form-box">
+            <div class="auth-header">
+                <h2>Login/Logout Test</h2>
+                <p>Test login, logout, and re-login flow</p>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <div id="loginSection">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="admin@studio.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="admin123" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full btn-lg" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+            </div>
+            
+            <div id="logoutSection" style="display: none;">
+                <h3>Welcome, <span id="userName"></span>!</h3>
+                <p>You are logged in as <span id="userRole"></span></p>
+                <button onclick="testLogout()" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+                <button onclick="testRelogin()" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> Test Re-login
+                </button>
+            </div>
+            
+            <div class="form-footer">
+                <button onclick="clearAllData()" class="btn btn-warning">
+                    <i class="fas fa-trash"></i> Clear All Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Working login system with logout/re-login testing
+        const users = [
+            {
+                id: 1,
+                email: 'admin@studio.com',
+                password: 'admin123',
+                name: 'Admin User',
+                role: 'admin'
+            }
+        ];
+        
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 3000);
+        }
+        
+        function updateUI() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            const loginSection = document.getElementById('loginSection');
+            const logoutSection = document.getElementById('logoutSection');
+            
+            console.log('Current user in session:', currentUser);
+            
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                loginSection.style.display = 'none';
+                logoutSection.style.display = 'block';
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('userRole').textContent = user.role;
+                console.log('User logged in:', user.name);
+            } else {
+                loginSection.style.display = 'block';
+                logoutSection.style.display = 'none';
+                console.log('No user logged in');
+            }
+        }
+        
+        function testLogin(email, password) {
+            console.log('='.repeat(50));
+            console.log('TEST LOGIN');
+            console.log('='.repeat(50));
+            console.log('Email:', email);
+            console.log('Password:', password);
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            console.log('Found user:', user ? 'YES' : 'NO');
+            
+            if (user) {
+                const userData = {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role
+                };
+                sessionStorage.setItem('currentUser', JSON.stringify(userData));
+                console.log('User stored in session:', userData);
+                showAlert('Login successful!', 'success');
+                updateUI();
+            } else {
+                console.log('Login failed - invalid credentials');
+                showAlert('Invalid credentials', 'error');
+            }
+        }
+        
+        function testLogout() {
+            console.log('='.repeat(50));
+            console.log('TEST LOGOUT');
+            console.log('='.repeat(50));
+            
+            const currentUser = sessionStorage.getItem('currentUser');
+            console.log('User before logout:', currentUser);
+            
+            sessionStorage.removeItem('currentUser');
+            console.log('SessionStorage cleared');
+            console.log('User after logout:', sessionStorage.getItem('currentUser'));
+            
+            showAlert('Logged out successfully!', 'success');
+            updateUI();
+        }
+        
+        function testRelogin() {
+            console.log('='.repeat(50));
+            console.log('TEST RE-LOGIN');
+            console.log('='.repeat(50));
+            
+            // Clear form
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            
+            // Show login section
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('logoutSection').style.display = 'none';
+            
+            showAlert('Please login again to test re-login flow', 'info');
+        }
+        
+        function clearAllData() {
+            console.log('Clearing all data...');
+            sessionStorage.clear();
+            localStorage.clear();
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            showAlert('All data cleared!', 'success');
+            updateUI();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Login/Logout test page loaded');
+            
+            // Update UI based on current session
+            updateUI();
+            
+            // Handle login form submission
+            document.getElementById('loginForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                testLogin(email, password);
+            });
+        });
+    </script>
+</body>
+</html>

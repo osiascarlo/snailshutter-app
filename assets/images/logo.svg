@@ -1,0 +1,28 @@
+<svg width="200" height="40" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Snail body - smooth rounded green shape facing left -->
+  <ellipse cx="10" cy="20" rx="6" ry="4" fill="#7AA52B"/>
+  <path d="M4,20 Q2,18 0,20 Q-2,22 0,24 Q2,25 4,24" fill="#7AA52B"/>
+  
+  <!-- Two thin antennae extending upward -->
+  <path d="M8,17 L7,14" stroke="#7AA52B" stroke-width="1" stroke-linecap="round"/>
+  <path d="M10,17 L11,14" stroke="#7AA52B" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="7" cy="14" r="0.8" fill="#7AA52B"/>
+  <circle cx="11" cy="14" r="0.8" fill="#7AA52B"/>
+  
+  <!-- Shell - black 6-blade camera shutter aperture -->
+  <g transform="translate(18, 20)">
+    <!-- Black circular outer edge -->
+    <circle cx="0" cy="0" r="10" fill="#000000"/>
+    
+    <!-- 6 curved shutter blades -->
+    <path d="M0,-6 L3,-3 L3,3 L0,6 L-3,3 L-3,-3 Z" fill="#1a1a1a"/>
+    <path d="M0,-6 L-3,-3 L-3,3 L0,6 L3,3 L3,-3 Z" fill="#0a0a0a"/>
+    
+    <!-- Center aperture hole -->
+    <circle cx="0" cy="0" r="1.5" fill="#000000"/>
+  </g>
+  
+  <!-- Typography: snailshutter in geometric sans-serif -->
+  <text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="500" fill="#7AA52B">snail</text>
+  <text x="78" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="500" fill="#000000">shutter</text>
+</svg>

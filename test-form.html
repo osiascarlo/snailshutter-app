@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Input Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input { padding: 10px; margin: 5px; width: 300px; }
+        button { padding: 10px 20px; margin: 10px; }
+        .result { padding: 10px; margin: 10px 0; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Form Input Value Test</h1>
+    
+    <form id="testForm">
+        <div>
+            <label>Email: 
+            <input type="email" id="email" value="admin@studio.com">
+        </div>
+        <div>
+            <label>Password: 
+            <input type="password" id="password" value="admin123">
+        </div>
+        <button type="button" onclick="testFormValues()">Test Form Values</button>
+    </form>
+    
+    <div id="result" class="result"></div>
+    
+    <script>
+        function testFormValues() {
+            console.log('Testing form values...');
+            
+            // Get input elements
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const resultDiv = document.getElementById('result');
+            
+            // Test 1: Elements exist
+            const elementsExist = emailInput && passwordInput;
+            console.log('Elements exist:', elementsExist);
+            
+            // Test 2: Get values
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            console.log('Email value:', email);
+            console.log('Password value:', password);
+            console.log('Email type:', typeof email);
+            console.log('Password type:', typeof password);
+            
+            // Test 3: Check for extra spaces
+            const emailTrimmed = email.trim();
+            const passwordTrimmed = password.trim();
+            console.log('Email trimmed:', emailTrimmed);
+            console.log('Password trimmed:', passwordTrimmed);
+            console.log('Has extra spaces:', email !== emailTrimmed || password !== passwordTrimmed);
+            
+            // Test 4: Comparison
+            const emailMatch = emailTrimmed === 'admin@studio.com';
+            const passwordMatch = passwordTrimmed === 'admin123';
+            const bothMatch = emailMatch && passwordMatch;
+            console.log('Email matches:', emailMatch);
+            console.log('Password matches:', passwordMatch);
+            console.log('Both match:', bothMatch);
+            
+            // Display results
+            resultDiv.innerHTML = `
+                <h3>Test Results:</h3>
+                <p><strong>Elements exist:</strong> ${elementsExist ? 'YES' : 'NO'}</p>
+                <p><strong>Email value:</strong> "${email}"</p>
+                <p><strong>Password value:</strong> "${password}"</p>
+                <p><strong>Email trimmed:</strong> "${emailTrimmed}"</p>
+                <p><strong>Password trimmed:</strong> "${passwordTrimmed}"</p>
+                <p><strong>Email matches:</strong> ${emailMatch ? 'YES' : 'NO'}</p>
+                <p><strong>Password matches:</strong> ${passwordMatch ? 'YES' : 'NO'}</p>
+                <p><strong>Both match:</strong> ${bothMatch ? 'YES' : 'NO'}</p>
+                <p><strong>Final Result:</strong> ${bothMatch ? '<span style="color:green">✅ SUCCESS</span>' : '<span style="color:red">❌ FAILED</span>'}</p>
+            `;
+        }
+        
+        // Auto-test on load
+        window.onload = function() {
+            console.log('Form test page loaded');
+            testFormValues();
+        };
+    </script>
+</body>
+</html>

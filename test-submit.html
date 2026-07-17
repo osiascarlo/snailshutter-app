@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Submission Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input { padding: 10px; margin: 5px; width: 300px; }
+        button { padding: 10px 20px; margin: 10px; }
+        .result { padding: 10px; margin: 10px 0; background: #f0f0f0; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Form Submission Event Test</h1>
+    
+    <form id="loginForm">
+        <div>
+            <label>Email: 
+            <input type="email" id="email" value="admin@studio.com">
+        </div>
+        <div>
+            <label>Password: 
+            <input type="password" id="password" value="admin123">
+        </div>
+        <button type="submit">Submit Form</button>
+    </form>
+    
+    <div id="result" class="result"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Form submission test page loaded');
+            
+            const loginForm = document.getElementById('loginForm');
+            const resultDiv = document.getElementById('result');
+            
+            // Test 1: Form element exists
+            console.log('Form element found:', loginForm !== null);
+            
+            // Test 2: Add event listener
+            loginForm.addEventListener('submit', function(event) {
+                console.log('='.repeat(50));
+                console.log('FORM SUBMISSION EVENT FIRED!');
+                console.log('='.repeat(50));
+                
+                // Prevent default
+                event.preventDefault();
+                console.log('Default prevented');
+                
+                // Get values
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                console.log('Email:', email);
+                console.log('Password:', password);
+                
+                // Test credentials
+                const isValid = (email === 'admin@studio.com' && password === 'admin123');
+                console.log('Credentials valid:', isValid);
+                
+                // Update result
+                if (isValid) {
+                    resultDiv.innerHTML = '<span class="success">✅ SUCCESS: Form submission works! Login successful.</span>';
+                    console.log('LOGIN SUCCESSFUL');
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ FAILED: Invalid credentials</span>';
+                    console.log('LOGIN FAILED');
+                }
+                
+                return false;
+            });
+            
+            console.log('Event listener attached');
+            resultDiv.innerHTML = 'Form ready. Click "Submit Form" to test.';
+        });
+    </script>
+</body>
+</html>

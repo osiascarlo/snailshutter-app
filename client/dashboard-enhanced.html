@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+        }
+    </style>
+
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--color-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--color-text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .welcome-message {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/index.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter" >
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/client/dashboard-simple.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
+                    </a>
+                    <a href="/client/book.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-plus-circle"></i></span> Book Session
+                    </a>
+                    <a href="/client/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-history"></i></span> My Bookings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role" data-user-role></div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <h1>Customer Dashboard — Welcome back, <span data-user-name></span>!</h1>
+                <p>Manage your photography sessions and monitor your booking history.</p>
+            </div>
+
+            <div class="content-body">
+                <!-- Quick Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <div class="stat-value" id="totalBookings">0</div>
+                            <div class="stat-label">Total Bookings</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <div class="stat-value" id="upcomingBookings">0</div>
+                            <div class="stat-label">Upcoming</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <div class="stat-value" id="completedBookings">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon info">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <div class="stat-value" id="totalSessions">0</div>
+                            <div class="stat-label">Photo Sessions</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="/client/book.html" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h3>Book Session</h3>
+                        <p>Schedule a new photography session</p>
+                    </a>
+
+                    <a href="/client/bookings.html" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h3>View Bookings</h3>
+                        <p>See your booking history</p>
+                    </a>
+
+                    <a href="#" onclick="showProfile()" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3>My Profile</h3>
+                        <p>Update your information</p>
+                    </a>
+
+                    <a href="#" onclick="showSettings()" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h3>Settings</h3>
+                        <p>Manage your preferences</p>
+                    </a>
+                </div>
+
+                <!-- Recent Bookings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Recent Bookings</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentBookings">
+                            <div class="empty-state">
+                                <div class="empty-icon">📷</div>
+                                <h3>No bookings yet</h3>
+                                <p>Book your first photography session to get started!</p>
+                                <a href="/client/book.html" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle"></i> Book Your First Session
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Required API Scripts -->
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/main.js"></script>
+
+    <script>
+        // Enhanced dashboard functionality
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+        }
+
+        function showProfile() {
+            alert('Profile feature coming soon! This would show user profile details and editing options.');
+        }
+
+        function showSettings() {
+            alert('Settings feature coming soon! This would show user preferences and account settings.');
+        }
+
+        function updateStats() {
+            // Mock data for demonstration
+            const mockBookings = [
+                { id: 1, service: 'Portrait Session', date: '2024-03-15', status: 'upcoming' },
+                { id: 2, service: 'Event Photography', date: '2024-02-28', status: 'completed' },
+                { id: 3, service: 'Family Photoshoot', date: '2024-01-20', status: 'completed' }
+            ];
+
+            const totalBookings = mockBookings.length;
+            const upcomingBookings = mockBookings.filter(b => b.status === 'upcoming').length;
+            const completedBookings = mockBookings.filter(b => b.status === 'completed').length;
+            const totalSessions = totalBookings;
+
+            // Update stats with animation
+            animateValue('totalBookings', 0, totalBookings, 1000);
+            animateValue('upcomingBookings', 0, upcomingBookings, 1000);
+            animateValue('completedBookings', 0, completedBookings, 1000);
+            animateValue('totalSessions', 0, totalSessions, 1000);
+
+            // Update recent bookings
+            updateRecentBookings(mockBookings);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    element.textContent = end;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.round(current);
+                }
+            }, 16);
+        }
+
+        function updateRecentBookings(bookings) {
+            const container = document.getElementById('recentBookings');
+
+            if (bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📷</div>
+                        <h3>No bookings yet</h3>
+                        <p>Book your first photography session to get started!</p>
+                        <a href="/client/book.html" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> Book Your First Session
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            const recentBookingsHtml = bookings.slice(0, 3).map(booking => `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <div class="booking-date">
+                            <i class="fas fa-calendar"></i> ${new Date(booking.date).toLocaleDateString()}
+                        </div>
+                        <span class="booking-status status-${booking.status}">
+                            ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                        </span>
+                    </div>
+                    <div class="booking-service">${booking.service}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = recentBookingsHtml;
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async function () {
+            console.log('Enhanced dashboard loaded');
+
+            // Check if user is logged in
+            if (!auth.requireAuth('client')) return;
+
+            // Handle logout
+            document.querySelector('[data-logout]').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.logout();
+            });
+
+            const user = auth.currentUser;
+            console.log('User logged in:', user);
+
+            // Update UI
+            document.querySelectorAll('[data-user-name]').forEach(el => {
+                el.textContent = user.name;
+            });
+            document.querySelectorAll('[data-user-role]').forEach(el => {
+                el.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+            });
+
+            // Update stats and bookings
+            updateStats();
+        });
+    </script>
+</body>
+
+</html>

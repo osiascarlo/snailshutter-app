@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Server Redirect Test</title>
+</head>
+<body>
+    <h1>Server Redirect Test</h1>
+    <p>If you're seeing this page, the server is not redirecting automatically.</p>
+    <p>Current URL: <span id="current-url"></span></p>
+    <p>Time: <span id="time"></span></p>
+    
+    <script>
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        
+        // Monitor for any redirects
+        let redirectCount = 0;
+        const originalLocationHref = Object.getOwnPropertyDescriptor(window.location, 'href');
+        
+        Object.defineProperty(window.location, 'href', {
+            set: function(value) {
+                redirectCount++;
+                console.log('🔍 REDIRECT DETECTED:', value);
+                console.log('🔍 CALL STACK:', new Error().stack);
+                alert('REDIRECT DETECTED: ' + value);
+                return originalLocationHref.set.call(this, value);
+            },
+            get: function() {
+                return originalLocationHref.get.call(this);
+            }
+        });
+        
+        console.log('Test page loaded - monitoring for redirects...');
+    </script>
+</body>
+</html>

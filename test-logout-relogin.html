@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logout/Re-login Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; }
+        .result { padding: 10px; margin: 10px 0; background: #f0f0f0; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Logout/Re-login Cycle Test</h1>
+    
+    <div id="currentState" class="result">
+        <p>Current session: <span id="sessionInfo">Checking...</span></p>
+    </div>
+    
+    <div>
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="testLogout()">Test Logout</button>
+        <button onclick="testRelogin()">Test Re-Login</button>
+        <button onclick="forceClear()">Force Clear All</button>
+    </div>
+    
+    <div id="result" class="result"></div>
+    
+    <script>
+        console.log('LOGOUT/RE-LOGIN TEST PAGE LOADED');
+        
+        function updateSessionInfo() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            document.getElementById('sessionInfo').textContent = currentUser ? 'LOGGED IN' : 'LOGGED OUT';
+            console.log('Session updated:', currentUser ? 'LOGGED IN' : 'LOGGED OUT');
+        }
+        
+        function testLogin() {
+            console.log('='.repeat(50));
+            console.log('TEST LOGIN');
+            console.log('='.repeat(50));
+            
+            const result = document.getElementById('result');
+            
+            // Clear session first
+            sessionStorage.removeItem('currentUser');
+            console.log('Cleared existing session');
+            
+            // Create new session
+            const userData = {
+                id: 1,
+                email: 'admin@studio.com',
+                name: 'Admin User',
+                role: 'admin'
+            };
+            
+            sessionStorage.setItem('currentUser', JSON.stringify(userData));
+            console.log('Stored new user:', userData);
+            
+            result.innerHTML = '<p class="success">✅ Login successful! User stored.</p>';
+            updateSessionInfo();
+        }
+        
+        function testLogout() {
+            console.log('='.repeat(50));
+            console.log('TEST LOGOUT');
+            console.log('='.repeat(50));
+            
+            const result = document.getElementById('result');
+            
+            const beforeLogout = sessionStorage.getItem('currentUser');
+            console.log('Before logout:', beforeLogout);
+            
+            // Clear session
+            sessionStorage.removeItem('currentUser');
+            
+            // Also try to clear everything
+            sessionStorage.clear();
+            localStorage.clear();
+            
+            const afterLogout = sessionStorage.getItem('currentUser');
+            console.log('After logout:', afterLogout);
+            console.log('SessionStorage keys after clear:', Object.keys(sessionStorage));
+            
+            result.innerHTML = '<p class="success">✅ Logout successful! Session cleared.</p>';
+            updateSessionInfo();
+        }
+        
+        function testRelogin() {
+            console.log('='.repeat(50));
+            console.log('TEST RE-LOGIN');
+            console.log('='.repeat(50));
+            
+            const result = document.getElementById('result');
+            
+            // Check current state
+            const currentSession = sessionStorage.getItem('currentUser');
+            console.log('Current session before re-login:', currentSession);
+            
+            if (currentSession) {
+                result.innerHTML = '<p class="error">❌ User still logged in! Clear session first.</p>';
+                return;
+            }
+            
+            // Force complete clear first
+            sessionStorage.clear();
+            localStorage.clear();
+            console.log('Force cleared all storage');
+            
+            // Wait a moment then login
+            setTimeout(() => {
+                const userData = {
+                    id: 1,
+                    email: 'admin@studio.com',
+                    name: 'Admin User',
+                    role: 'admin'
+                };
+                
+                sessionStorage.setItem('currentUser', JSON.stringify(userData));
+                console.log('Re-login stored user:', userData);
+                
+                const verifySession = sessionStorage.getItem('currentUser');
+                console.log('Verify re-login session:', verifySession);
+                
+                if (verifySession) {
+                    result.innerHTML = '<p class="success">✅ Re-login successful!</p>';
+                } else {
+                    result.innerHTML = '<p class="error">❌ Re-login failed - session not stored!</p>';
+                }
+                
+                updateSessionInfo();
+            }, 100);
+        }
+        
+        function forceClear() {
+            console.log('='.repeat(50));
+            console.log('FORCE CLEAR ALL');
+            console.log('='.repeat(50));
+            
+            sessionStorage.clear();
+            localStorage.clear();
+            
+            // Clear any potential browser storage issues
+            if (window.caches) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+            
+            console.log('All storage cleared');
+            document.getElementById('result').innerHTML = '<p class="success">✅ All data force cleared!</p>';
+            updateSessionInfo();
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            console.log('Logout/re-login test page loaded');
+            updateSessionInfo();
+        });
+    </script>
+</body>
+</html>

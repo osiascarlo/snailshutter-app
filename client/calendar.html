@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Calendar | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .calendar-container {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .calendar-main {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border-soft);
+        }
+
+        .calendar-sidebar {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            height: fit-content;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border-soft);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-border-soft);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .calendar-nav button {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-weight: 600;
+            color: var(--color-primary);
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .calendar-day.today {
+            background: var(--color-secondary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.other-month {
+            color: var(--color-text-muted);
+            background: transparent;
+            cursor: not-allowed;
+        }
+
+        .calendar-day.disabled {
+            color: var(--color-text-muted);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .calendar-day.has-bookings {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .calendar-day.completed-bookings {
+            background: var(--color-completed);
+            color: white;
+        }
+
+        .calendar-day.conflict {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .calendar-day.selected {
+            background: var(--color-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .booking-indicator {
+            position: absolute;
+            bottom: 2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-success);
+        }
+
+        .completed-indicator {
+            position: absolute;
+            bottom: 2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-completed);
+        }
+
+        .conflict-indicator {
+            position: absolute;
+            bottom: 2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-danger);
+        }
+
+        .time-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .time-slot {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .time-slot:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .time-slot.available {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .time-slot.booked {
+            background: var(--color-danger);
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .time-slot.conflict {
+            background: var(--color-warning);
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .time-slot.selected {
+            background: var(--color-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .event-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--color-bg-card);
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .event-item.conflict {
+            border-left-color: var(--color-danger);
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .event-time {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        .event-service {
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .conflict-warning {
+            background: var(--color-danger);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .conflict-warning.show {
+            display: block;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-container {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-grid {
+                gap: 0.1rem;
+            }
+
+            .calendar-day {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css">
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/client/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter"
+                        >
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/client/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
+                    </a>
+                    <a href="/client/book.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar-plus"></i></span> Book Session
+                    </a>
+                    <a href="/client/calendar.html" class="sidebar-link active">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Event Calendar
+                    </a>
+                    <a href="/client/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-history"></i></span> My Bookings
+                    </a>
+                    <a href="/client/settings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
+                    </a>
+                </div>
+
+                <div class="sidebar-section" style="margin-top:auto;">
+                    <div class="sidebar-section-title">Account</div>
+                    <a href="#" class="sidebar-link" data-logout>
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <h1>Event Calendar</h1>
+                <p>Browse upcoming slots and session availability in our interactive calendar.</p>
+            </div>
+
+            <div class="content-body">
+                <div id="alertContainer"></div>
+
+                <div class="conflict-warning" id="conflictWarning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="conflictMessage">Booking conflict detected! This time slot is already booked.</span>
+                </div>
+
+                <div class="calendar-container">
+                    <div class="calendar-main">
+                        <div class="calendar-header">
+                            <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <h3 id="currentMonth">March 2026</h3>
+                            <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Calendar will be rendered here -->
+                        </div>
+
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--color-success);"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--color-danger);"></div>
+                                <span>Booked</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--color-warning);"></div>
+                                <span>Conflict</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--color-secondary);"></div>
+                                <span>Today</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calendar-sidebar">
+                        <h4 style="display:flex;align-items:center;gap:0.5rem;">
+                            <i class="fas fa-clock"></i> Time Slots
+                            <span id="calLiveBadge" class="live-badge" style="display:none;font-size:0.65rem;">
+                                <span class="live-dot"></span> LIVE
+                            </span>
+                        </h4>
+                        <div id="selectedDateInfo" style="margin-bottom: 1rem; color: var(--color-text-muted);">
+                            Select a date to view time slots
+                        </div>
+
+                        <div id="timeSlotsContainer" class="time-slots-grid">
+                            <!-- Time slots will be rendered here -->
+                        </div>
+
+                        <h4 style="margin-top: 2rem;"><i class="fas fa-list"></i> Events</h4>
+                        <div id="eventsList" class="event-list">
+                            <!-- Events will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/auth-middleware.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js"></script>
+    <script>
+        // Calendar State
+        let currentDate = new Date();
+        let selectedDate = null;
+        let currentBookings = [];
+        let calendarEvents = [];
+
+        // Initialize calendar
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!auth.requireAuth('client')) return;
+
+            // Handle logout
+            const logoutLink = document.querySelector('[data-logout]');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    auth.logout();
+                });
+            }
+
+            renderCalendar();
+            loadAllBookings();
+        });
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthHeader = document.getElementById('currentMonth');
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const today = new Date();
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const prevMonthDays = new Date(year, month, 0).getDate();
+
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+
+            monthHeader.textContent = `${monthNames[month]} ${year}`;
+
+            let calendarHTML = '';
+
+            // Add weekday headers
+            const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            weekdays.forEach(day => {
+                calendarHTML += `<div class="calendar-weekday">${day}</div>`;
+            });
+
+            // Add previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = prevMonthDays - i;
+                calendarHTML += `<div class="calendar-day other-month">${day}</div>`;
+            }
+
+            // Add current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const date = new Date(dateStr);
+                const isToday = date.toDateString() === today.toDateString();
+                const isPast = date < today;
+
+                let classes = 'calendar-day';
+                let indicator = '';
+
+                if (isToday) classes += ' today';
+                if (isPast) classes += ' disabled';
+
+                // Check for bookings on this date
+                const dayBookings = getBookingsForDate(dateStr);
+                if (dayBookings.length > 0) {
+                    const isAllCompleted = dayBookings.every(b => b.status === 'completed');
+                    const hasConflicts = dayBookings.some(b => b.has_conflict);
+                    if (isAllCompleted) {
+                        classes += ' completed-bookings';
+                        indicator = '<div class="completed-indicator"></div>';
+                    } else if (hasConflicts) {
+                        classes += ' conflict';
+                        indicator = '<div class="conflict-indicator"></div>';
+                    } else {
+                        classes += ' has-bookings';
+                        indicator = '<div class="booking-indicator"></div>';
+                    }
+                }
+
+                if (selectedDate && dateStr === selectedDate) {
+                    classes += ' selected';
+                }
+
+                calendarHTML += `
+                    <div class="${classes}" onclick="selectDate('${dateStr}')" ${isPast ? 'style="cursor: not-allowed;"' : ''}>
+                        ${day}
+                        ${indicator}
+                    </div>
+                `;
+            }
+
+            // Add next month days to complete grid
+            const totalCells = firstDay + daysInMonth;
+            const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let day = 1; day <= remainingCells; day++) {
+                calendarHTML += `<div class="calendar-day other-month">${day}</div>`;
+            }
+
+            grid.innerHTML = calendarHTML;
+        }
+
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            renderCalendar();
+        }
+
+        function selectDate(dateStr) {
+            const date = new Date(dateStr);
+            const today = new Date();
+
+            if (date < today) {
+                showAlert('Cannot select past dates', 'warning');
+                return;
+            }
+
+            selectedDate = dateStr;
+            renderCalendar();
+            loadTimeSlots(dateStr);
+            updateSelectedDateInfo(dateStr);
+            loadEventsForDate(dateStr);
+        }
+
+        function updateSelectedDateInfo(dateStr) {
+            const info = document.getElementById('selectedDateInfo');
+            const date = new Date(dateStr);
+            const formatted = date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            info.innerHTML = `<strong>${formatted}</strong>`;
+        }
+
+        function loadAllBookings() {
+            api.getBookings().then(response => {
+                if (response.success) {
+                    allBookings = response.data;
+                    organizeBookingsByDate();
+                    renderCalendar();
+                }
+            }).catch(error => {
+                console.error('Error loading bookings:', error);
+            });
+        }
+
+        function getLocalDateString(dateInput) {
+            if (!dateInput) return '';
+            const d = new Date(dateInput);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function organizeBookingsByDate() {
+            calendarEvents = {};
+            allBookings.forEach(booking => {
+                if (booking.status === 'cancelled') return;
+                const date = getLocalDateString(booking.booking_date);
+                if (!calendarEvents[date]) {
+                    calendarEvents[date] = [];
+                }
+                calendarEvents[date].push(booking);
+            });
+        }
+
+        function getBookingsForDate(dateStr) {
+            return calendarEvents[dateStr] || [];
+        }
+
+        function loadTimeSlots(dateStr) {
+            const container = document.getElementById('timeSlotsContainer');
+            container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+
+            // For demo, we'll use the 18th Birthday Package (ID: 1)
+            api.checkTimeSlots(dateStr, 1).then(response => {
+                if (response.success) {
+                    renderTimeSlots(response.available_slots || [], response.booked_slots || []);
+                } else {
+                    container.innerHTML = '<div class="empty-state">No time slots available</div>';
+                }
+            }).catch(error => {
+                console.error('Error loading time slots:', error);
+                container.innerHTML = '<div class="empty-state">Error loading time slots</div>';
+            });
+        }
+
+        function renderTimeSlots(availableSlots, bookedSlots) {
+            const container = document.getElementById('timeSlotsContainer');
+            container.innerHTML = '';
+
+            // Normalize time format to HH:MM (e.g. '09:00:00' to '09:00')
+            function normalizeTime(t) {
+                if (!t) return '';
+                const parts = t.split(':');
+                return `${parts[0]}:${parts[1]}`;
+            }
+
+            // Get client's own bookings for the selected date
+            const myBookingsOnDate = selectedDate ? getBookingsForDate(selectedDate) : [];
+
+            // Generate time slots based on database configurations or default list
+            const slotsToRender = (availableSlots && availableSlots.length > 0) ? availableSlots : [
+                { start_time: '10:00:00', end_time: '11:00:00', slot_label: '10:00 AM - 11:00 AM' },
+                { start_time: '11:00:00', end_time: '12:00:00', slot_label: '11:00 AM - 12:00 PM' },
+                { start_time: '14:00:00', end_time: '15:00:00', slot_label: '2:00 PM - 3:00 PM' },
+                { start_time: '15:00:00', end_time: '16:00:00', slot_label: '3:00 PM - 4:00 PM' },
+                { start_time: '16:00:00', end_time: '17:00:00', slot_label: '4:00 PM - 5:00 PM' },
+                { start_time: '17:00:00', end_time: '18:00:00', slot_label: '5:00 PM - 6:00 PM' },
+                { start_time: '18:00:00', end_time: '19:00:00', slot_label: '6:00 PM - 7:00 PM' }
+            ];
+
+            slotsToRender.forEach(slot => {
+                const slotStartTime = normalizeTime(slot.start_time);
+                const label = slot.slot_label || slot.label || `${slotStartTime} - ${normalizeTime(slot.end_time)}`;
+
+                // Is it booked in general by anyone?
+                const isBooked = bookedSlots.some(t => normalizeTime(t) === slotStartTime);
+
+                // Is it booked by the current client themselves (conflict)?
+                const isMyBooking = myBookingsOnDate.some(b => normalizeTime(b.start_time) === slotStartTime);
+
+                let classes = 'time-slot';
+                let status = '';
+
+                if (isMyBooking) {
+                    classes += ' conflict';
+                    status = 'Conflict';
+                } else if (isBooked) {
+                    classes += ' booked';
+                    status = 'Booked';
+                } else {
+                    classes += ' available';
+                    status = 'Available';
+                }
+
+                const slotDiv = document.createElement('div');
+                slotDiv.className = classes;
+                slotDiv.innerHTML = `
+                    <div>${label}</div>
+                    <div style="font-size: 0.7rem; margin-top: 0.25rem;">${status}</div>
+                `;
+
+                if (!isMyBooking && !isBooked) {
+                    slotDiv.onclick = function () {
+                        bookTimeSlot(slot);
+                    };
+                }
+
+                container.appendChild(slotDiv);
+            });
+        }
+
+        function bookTimeSlot(slot) {
+            if (!selectedDate) {
+                showAlert('Please select a date first', 'warning');
+                return;
+            }
+
+            // Normalize time helper
+            function normalizeTime(t) {
+                if (!t) return '';
+                const parts = t.split(':');
+                return `${parts[0]}:${parts[1]}`;
+            }
+
+            // Check for conflicts
+            const dayBookings = getBookingsForDate(selectedDate);
+            const hasConflict = dayBookings.some(booking =>
+                normalizeTime(booking.start_time) === normalizeTime(slot.start_time)
+            );
+
+            if (hasConflict) {
+                showConflictWarning(slot);
+                return;
+            }
+
+            // Proceed with booking
+            window.location.href = `/client/book.html?service=1&date=${selectedDate}&time=${slot.start_time}`;
+        }
+
+        function showConflictWarning(slot) {
+            const warning = document.getElementById('conflictWarning');
+            const message = document.getElementById('conflictMessage');
+
+            const label = slot.slot_label || slot.label || slot.start_time;
+            message.textContent = `Time slot ${label} is already booked. Please select a different time.`;
+            warning.classList.add('show');
+
+            setTimeout(() => {
+                warning.classList.remove('show');
+            }, 5000);
+        }
+
+        function loadEventsForDate(dateStr) {
+            const container = document.getElementById('eventsList');
+            const events = getBookingsForDate(dateStr);
+
+            if (events.length === 0) {
+                container.innerHTML = '<div class="empty-state">No events scheduled</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            events.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = 'event-item' + (event.has_conflict ? ' conflict' : '');
+                eventDiv.innerHTML = `
+                    <div class="event-time">${event.start_time} - ${event.end_time}</div>
+                    <div class="event-service">${event.service_name || 'Unknown Service'}</div>
+                    <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.25rem;">
+                        ${event.client_name || 'Client'}
+                    </div>
+                `;
+                container.appendChild(eventDiv);
+            });
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        /* ================================================================
+         *  REAL-TIME AVAILABILITY — Calendar SSE Client
+         * ================================================================ */
+        let _calSseSource = null;
+        let _calSseDate   = null;
+
+        /**
+         * Watch a specific date via SSE and refresh calendar indicators
+         * + sidebar slot list whenever availability changes.
+         */
+        function startCalendarStream(dateStr) {
+            if (_calSseSource && _calSseDate === dateStr) return;
+            stopCalendarStream();
+
+            _calSseDate   = dateStr;
+            _calSseSource = new EventSource(`/api/availability/stream?date=${encodeURIComponent(dateStr)}`);
+
+            document.getElementById('calLiveBadge').style.display = 'inline-flex';
+
+            _calSseSource.onmessage = function (event) {
+                try {
+                    const payload = JSON.parse(event.data);
+                    if (payload.date !== _calSseDate) return;
+
+                    // Refresh time-slot grid in sidebar
+                    renderTimeSlots(payload.available_slots, payload.booked_slots);
+
+                    // Update calendarEvents for this date
+                    // (we do a full reload so indicators stay in sync)
+                    loadAllBookings();
+                } catch (e) {
+                    console.warn('[CalSSE] parse error', e);
+                }
+            };
+
+            _calSseSource.onerror = function () {
+                document.getElementById('calLiveBadge').style.opacity = '0.4';
+            };
+            _calSseSource.onopen = function () {
+                document.getElementById('calLiveBadge').style.opacity = '1';
+            };
+
+            console.log('[CalSSE] Watching date:', dateStr);
+        }
+
+        function stopCalendarStream() {
+            if (_calSseSource) {
+                _calSseSource.close();
+                _calSseSource = null;
+                _calSseDate   = null;
+            }
+            const badge = document.getElementById('calLiveBadge');
+            if (badge) badge.style.display = 'none';
+        }
+
+        /* Wrap selectDate to open/close SSE streams */
+        const _originalSelectDate = selectDate;
+        selectDate = function (dateStr) {
+            _originalSelectDate(dateStr);
+            startCalendarStream(dateStr);
+        };
+
+        /* Also wrap changeMonth to close stream when month changes */
+        const _originalChangeMonth = changeMonth;
+        changeMonth = function (direction) {
+            stopCalendarStream();
+            _originalChangeMonth(direction);
+        };
+
+        window.addEventListener('beforeunload', stopCalendarStream);
+
+    </script>
+</body>
+
+</html>

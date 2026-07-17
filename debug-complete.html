@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Debug Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .result { padding: 10px; margin: 10px 0; background: #f0f0f0; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Complete Login/Logout Debug Test</h1>
+    
+    <div class="section">
+        <h2>Current State</h2>
+        <button onclick="showCurrentState()">Show Current State</button>
+        <div id="stateResult" class="result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Login Test</h2>
+        <input type="email" id="email" value="admin@studio.com">
+        <input type="password" id="password" value="admin123">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Logout Test</h2>
+        <button onclick="testLogout()">Test Logout</button>
+        <div id="logoutResult" class="result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Re-Login Test</h2>
+        <button onclick="testRelogin()">Test Re-Login</button>
+        <div id="reloginResult" class="result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Force Clear</h2>
+        <button onclick="forceClearAll()">Force Clear All Data</button>
+        <div id="clearResult" class="result"></div>
+    </div>
+
+    <script>
+        const users = [
+            {
+                id: 1,
+                email: 'admin@studio.com',
+                password: 'admin123',
+                name: 'Admin User',
+                role: 'admin'
+            }
+        ];
+        
+        function showCurrentState() {
+            const result = document.getElementById('stateResult');
+            const currentUser = sessionStorage.getItem('currentUser');
+            const localStorageData = localStorage.getItem('currentUser');
+            
+            console.log('='.repeat(50));
+            console.log('CURRENT STATE CHECK');
+            console.log('='.repeat(50));
+            console.log('SessionStorage currentUser:', currentUser);
+            console.log('LocalStorage currentUser:', localStorageData);
+            console.log('SessionStorage keys:', Object.keys(sessionStorage));
+            console.log('LocalStorage keys:', Object.keys(localStorage));
+            
+            result.innerHTML = `
+                <h3>Current State:</h3>
+                <p><strong>SessionStorage currentUser:</strong> ${currentUser || 'NULL'}</p>
+                <p><strong>LocalStorage currentUser:</strong> ${localStorageData || 'NULL'}</p>
+                <p><strong>SessionStorage keys:</strong> ${Object.keys(sessionStorage).join(', ') || 'None'}</p>
+                <p><strong>LocalStorage keys:</strong> ${Object.keys(localStorage).join(', ') || 'None'}</p>
+                <p><strong>Page URL:</strong> ${window.location.href}</p>
+                <p><strong>Referrer:</strong> ${document.referrer || 'None'}</p>
+            `;
+        }
+        
+        function testLogin() {
+            const result = document.getElementById('loginResult');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            console.log('='.repeat(50));
+            console.log('TEST LOGIN');
+            console.log('='.repeat(50));
+            console.log('Email:', email);
+            console.log('Password:', password);
+            
+            // Clear any existing session first
+            sessionStorage.removeItem('currentUser');
+            localStorage.removeItem('currentUser');
+            console.log('Cleared existing session data');
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            console.log('Found user:', user ? 'YES' : 'NO');
+            
+            if (user) {
+                const userData = {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role
+                };
+                
+                // Store in sessionStorage
+                sessionStorage.setItem('currentUser', JSON.stringify(userData));
+                console.log('Stored in sessionStorage:', userData);
+                
+                // Also try localStorage for debugging
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                console.log('Stored in localStorage:', userData);
+                
+                result.innerHTML = '<span class="success">✅ Login successful! User stored in session.</span>';
+                showCurrentState();
+            } else {
+                result.innerHTML = '<span class="error">❌ Login failed - invalid credentials</span>';
+            }
+        }
+        
+        function testLogout() {
+            const result = document.getElementById('logoutResult');
+            
+            console.log('='.repeat(50));
+            console.log('TEST LOGOUT');
+            console.log('='.repeat(50));
+            
+            const beforeSession = sessionStorage.getItem('currentUser');
+            const beforeLocal = localStorage.getItem('currentUser');
+            
+            console.log('Before logout - Session:', beforeSession);
+            console.log('Before logout - Local:', beforeLocal);
+            
+            // Clear both storages
+            sessionStorage.removeItem('currentUser');
+            localStorage.removeItem('currentUser');
+            
+            // Also try to clear everything
+            sessionStorage.clear();
+            localStorage.clear();
+            
+            const afterSession = sessionStorage.getItem('currentUser');
+            const afterLocal = localStorage.getItem('currentUser');
+            
+            console.log('After logout - Session:', afterSession);
+            console.log('After logout - Local:', afterLocal);
+            console.log('SessionStorage after clear:', Object.keys(sessionStorage));
+            console.log('LocalStorage after clear:', Object.keys(localStorage));
+            
+            result.innerHTML = '<span class="success">✅ Logout successful! All data cleared.</span>';
+            showCurrentState();
+        }
+        
+        function testRelogin() {
+            const result = document.getElementById('reloginResult');
+            
+            console.log('='.repeat(50));
+            console.log('TEST RE-LOGIN');
+            console.log('='.repeat(50));
+            
+            // Check current state first
+            const currentSession = sessionStorage.getItem('currentUser');
+            console.log('Current session before re-login:', currentSession);
+            
+            if (currentSession) {
+                result.innerHTML = '<span class="error">❌ User still logged in! Clear session first.</span>';
+                return;
+            }
+            
+            // Use the same login logic
+            testLogin();
+            result.innerHTML = '<span class="success">✅ Re-login test completed. Check login result above.</span>';
+        }
+        
+        function forceClearAll() {
+            const result = document.getElementById('clearResult');
+            
+            console.log('='.repeat(50));
+            console.log('FORCE CLEAR ALL');
+            console.log('='.repeat(50));
+            
+            // Clear everything
+            sessionStorage.clear();
+            localStorage.clear();
+            
+            // Clear form
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            
+            // Clear all results
+            document.querySelectorAll('.result').forEach(el => el.innerHTML = '');
+            
+            console.log('All data cleared');
+            console.log('SessionStorage keys:', Object.keys(sessionStorage));
+            console.log('LocalStorage keys:', Object.keys(localStorage));
+            
+            result.innerHTML = '<span class="success">✅ All data cleared! Fresh start.</span>';
+            showCurrentState();
+        }
+        
+        // Auto-show current state on load
+        window.addEventListener('load', function() {
+            console.log('Debug test page loaded');
+            showCurrentState();
+        });
+    </script>
+</body>
+</html>
