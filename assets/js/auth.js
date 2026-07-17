@@ -14,6 +14,7 @@ class Auth {
                 this.currentUser = JSON.parse(storedUser);
                 console.log('Auth.js: Synchronously restored cached user:', this.currentUser);
                 this.updateUI();
+                this.setupBackButtonInterceptor();
             }
 
             // 2. Verify and sync with backend in the background
@@ -30,6 +31,7 @@ class Auth {
                     console.log('Auth.js: Restored user from API session:', this.currentUser);
                     
                     this.updateUI();
+                    this.setupBackButtonInterceptor();
 
                     // If the role changed (e.g. from admin to client), re-evaluate authorization
                     if (roleChanged) {
@@ -220,24 +222,78 @@ class Auth {
         }
     }
 
+    setupBackButtonInterceptor() {
+        // Only run on dashboard home/landing pages to allow normal navigation on other pages
+        const path = window.location.pathname;
+        const isDashboardHome = path.endsWith('/dashboard.html');
+        
+        if (isDashboardHome) {
+            console.log('Auth.js: Initializing back-button navigation interceptor...');
+            
+            // Push a history state to intercept the next back navigation
+            if (history.state?.page !== 'dashboard-lock') {
+                history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
+            }
+
+            // Flag to prevent popstate listener recursion
+            let isConfirming = false;
+
+            window.addEventListener('popstate', async (event) => {
+                if (isConfirming) return;
+
+                // Check if they are trying to go back (popped the 'dashboard-lock' state)
+                if (this.isLoggedIn() && (!event.state || event.state.page !== 'dashboard-lock')) {
+                    isConfirming = true;
+                    
+                    // Show custom confirmation modal
+                    if (typeof showConfirm === 'function') {
+                        const confirmed = await showConfirm({
+                            title: 'Log Out',
+                            message: 'Are you sure you want to log out of your account?',
+                            confirmText: 'Log Out',
+                            cancelText: 'Stay',
+                            type: 'danger'
+                        });
+
+                        isConfirming = false;
+                        if (confirmed) {
+                            this.logout();
+                        } else {
+                            // User clicked Stay, push the state back onto stack to trap the back button again
+                            history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
+                        }
+                    } else {
+                        // Native confirm fallback
+                        const confirmed = confirm('Are you sure you want to log out of your account?');
+                        isConfirming = false;
+                        if (confirmed) {
+                            this.logout();
+                        } else {
+                            history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     redirectToDashboard() {
         const role = this.getUserRole();
         console.log('Redirecting to dashboard. Role:', role);
         console.log('Current user:', this.currentUser);
 
+        let target = '/index.html';
         if (role === 'admin') {
             console.log('Redirecting to admin dashboard...');
-            window.location.href = '/admin/dashboard.html';
+            target = '/admin/dashboard.html';
         } else if (role === 'staff') {
             console.log('Redirecting to staff dashboard...');
-            window.location.href = '/staff/dashboard.html';
+            target = '/staff/dashboard.html';
         } else if (role === 'client') {
             console.log('Redirecting to client dashboard...');
-            window.location.href = '/client/dashboard.html';
-        } else {
-            console.log('No role found, redirecting to home...');
-            window.location.href = '/index.html';
+            target = '/client/dashboard.html';
         }
+        window.location.replace(target);
     }
 
     redirectToLogin() {
