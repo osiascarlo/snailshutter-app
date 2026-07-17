@@ -246,6 +246,9 @@ class Auth {
             window.addEventListener('popstate', async (event) => {
                 if (isConfirming) return;
 
+                // Prevent duplicate modals if one is already showing in the DOM
+                if (document.querySelector('.modal-overlay')) return;
+
                 // Check if they are trying to go back (popped the 'dashboard-lock' state)
                 if (this.isLoggedIn() && (!event.state || event.state.page !== 'dashboard-lock')) {
                     isConfirming = true;
@@ -269,13 +272,17 @@ class Auth {
                         }
                     } else {
                         // Native confirm fallback
+                        isConfirming = true;
                         const confirmed = confirm('Are you sure you want to log out of your account?');
-                        isConfirming = false;
                         if (confirmed) {
                             this.logout();
                         } else {
                             history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
                         }
+                        // Delay resetting the flag to prevent queued popstate events from triggering another confirm
+                        setTimeout(() => {
+                            isConfirming = false;
+                        }, 500);
                     }
                 }
             });
