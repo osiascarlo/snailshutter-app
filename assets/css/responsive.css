@@ -92,11 +92,17 @@ img, video, iframe { max-width: 100%; height: auto; }
         gap: 0.5rem;
         padding: 6rem 2rem 2rem;
         transform: translateX(100%);
-        transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        visibility: hidden; /* Hide completely from layout & scroll calculations when closed */
+        pointer-events: none;
+        transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), visibility 0.35s;
         z-index: 1060;
         border-left: 1px solid rgba(255,255,255,0.08);
     }
-    .landing-nav .nav-links.open { transform: translateX(0); }
+    .landing-nav .nav-links.open {
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+    }
     .landing-nav .nav-links a:not(.btn) {
         font-size: 1.125rem !important;
         padding: 0.875rem 0;
