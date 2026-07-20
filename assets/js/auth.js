@@ -108,9 +108,9 @@ class Auth {
         }
     }
 
-    async logout() {
+    async logout(force = false) {
         // Show confirmation dialog if the premium modal system is available
-        if (typeof showConfirm === 'function') {
+        if (!force && typeof showConfirm === 'function') {
             const confirmed = await showConfirm({
                 title: 'Log Out',
                 message: 'Are you sure you want to log out of your account?',
@@ -265,7 +265,7 @@ class Auth {
 
                         isConfirming = false;
                         if (confirmed) {
-                            this.logout();
+                            this.logout(true);
                         } else {
                             // User clicked Stay, push the state back onto stack to trap the back button again
                             history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
@@ -275,7 +275,7 @@ class Auth {
                         isConfirming = true;
                         const confirmed = confirm('Are you sure you want to log out of your account?');
                         if (confirmed) {
-                            this.logout();
+                            this.logout(true);
                         } else {
                             history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
                         }
