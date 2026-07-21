@@ -1319,3 +1319,82 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
         display: none;
     }
 }
+
+/* ============================================================
+   ADDITIONAL MOBILE RESPONSIVE FIXES (DASHBOARDS OVERFLOW)
+   ============================================================ */
+@media (max-width: 900px) {
+    body.premium-dashboard .main-content {
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        overflow-x: hidden;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Collapse grids to single column on mobile */
+    body.premium-dashboard .grid-2, 
+    body.premium-dashboard .grid-3, 
+    body.premium-dashboard .grid-4,
+    body.premium-dashboard .stats-grid,
+    body.premium-dashboard .quick-actions-grid, 
+    body.premium-dashboard .actions-grid, 
+    body.premium-dashboard .bookings-grid,
+    body.premium-dashboard .services-grid,
+    body.premium-dashboard .premium-services-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.premium-dashboard .quick-action-card, 
+    body.premium-dashboard .booking-card, 
+    body.premium-dashboard .service-card,
+    body.premium-dashboard .stat-card {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    /* Make horizontal scrolling work for Calendar and Filter Pills */
+    body.premium-dashboard .calendar-container, 
+    body.premium-dashboard .calendar-wrap, 
+    body.premium-dashboard .calendar-card,
+    body.premium-dashboard .table-container,
+    body.premium-dashboard .content-card,
+    body.premium-dashboard .card-body {
+        overflow-x: auto !important;
+        width: 100% !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    body.premium-dashboard .calendar-grid {
+        min-width: 650px !important;
+    }
+
+    body.premium-dashboard .calendar-table,
+    body.premium-dashboard .data-table {
+        min-width: 600px !important;
+    }
+
+    body.premium-dashboard .filter-container, 
+    body.premium-dashboard .filters-container, 
+    body.premium-dashboard .booking-filters, 
+    body.premium-dashboard .filters,
+    body.premium-dashboard .filter-pills {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        scrollbar-width: none !important;
+    }
+
+    body.premium-dashboard .filter-container::-webkit-scrollbar, 
+    body.premium-dashboard .filters-container::-webkit-scrollbar, 
+    body.premium-dashboard .booking-filters::-webkit-scrollbar,
+    body.premium-dashboard .filter-pills::-webkit-scrollbar {
+        display: none !important;
+    }
+}

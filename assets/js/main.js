@@ -137,10 +137,19 @@ function hideLoading(element, originalText) {
 // Navigation and UI helpers
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
+    let overlay = document.getElementById('sidebarOverlay');
     
-    if (sidebar && overlay) {
+    if (sidebar) {
         sidebar.classList.toggle('active');
+        
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'sidebarOverlay';
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', toggleSidebar);
+        }
+        
         overlay.classList.toggle('active');
     }
 }
@@ -153,10 +162,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle sidebar toggle
-    const menuBtn = document.querySelector('.mobile-menu-btn');
-    if (menuBtn) {
-        menuBtn.addEventListener('click', toggleSidebar);
-    }
+    // Commented out to prevent double-triggering with inline onclick handlers in templates
+    // const menuBtn = document.querySelector('.mobile-menu-btn');
+    // if (menuBtn) {
+    //     menuBtn.addEventListener('click', toggleSidebar);
+    // }
 
     // Handle smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
