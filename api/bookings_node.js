@@ -165,8 +165,47 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // Helper functions for time conversion and comparison
-function timeToMinutes(timeStr) {
-    if (!timeStr) return 0;
+function formatTimeStr(timeVal) {
+    if (!timeVal) return '00:00:00';
+    if (timeVal instanceof Date) {
+        const h = String(timeVal.getHours()).padStart(2, '0');
+        const m = String(timeVal.getMinutes()).padStart(2, '0');
+        const s = String(timeVal.getSeconds()).padStart(2, '0');
+        return `${h}:${m}:${s}`;
+    }
+    let timeStr = String(timeVal);
+    
+    // Check if it's a full Date string (e.g. "Wed Jul 22 2026...")
+    if (timeStr.includes(' ') || (timeStr.includes('-') && !timeStr.includes(':'))) {
+        const parsedDate = new Date(timeStr);
+        if (!isNaN(parsedDate.getTime())) {
+            const h = String(parsedDate.getHours()).padStart(2, '0');
+            const m = String(parsedDate.getMinutes()).padStart(2, '0');
+            const s = String(parsedDate.getSeconds()).padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+    }
+
+    const parts = timeStr.split(':');
+    const h = String(parseInt(parts[0]) || 0).padStart(2, '0');
+    const m = String(parseInt(parts[1]) || 0).padStart(2, '0');
+    const s = String(parseInt(parts[2]) || 0).split('.')[0].padStart(2, '0');
+    return `${h}:${m}:${s}`;
+}
+
+function timeToMinutes(timeVal) {
+    if (!timeVal) return 0;
+    if (timeVal instanceof Date) {
+        return timeVal.getHours() * 60 + timeVal.getMinutes();
+    }
+    const timeStr = String(timeVal);
+    // If it is a full Date string format
+    if (timeStr.includes(' ') || (timeStr.includes('-') && !timeStr.includes(':'))) {
+        const parsedDate = new Date(timeStr);
+        if (!isNaN(parsedDate.getTime())) {
+            return parsedDate.getHours() * 60 + parsedDate.getMinutes();
+        }
+    }
     const parts = timeStr.split(':');
     const h = parseInt(parts[0]) || 0;
     const m = parseInt(parts[1]) || 0;
@@ -227,6 +266,17 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
             'SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != "cancelled"',
             [date]
         );
+
+        // Normalize TIME values to HH:MM:SS strings to support driver variations
+        slots.forEach(s => {
+            s.start_time = formatTimeStr(s.start_time);
+            s.end_time = formatTimeStr(s.end_time);
+        });
+
+        bookings.forEach(b => {
+            b.start_time = formatTimeStr(b.start_time);
+            b.end_time = formatTimeStr(b.end_time);
+        });
 
         // Find the absolute closing time from active slots (fallback to 7:00 PM)
         let maxEndTimeStr = '19:00:00';
