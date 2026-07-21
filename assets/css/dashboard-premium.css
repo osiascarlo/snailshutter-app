@@ -1409,4 +1409,38 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
         width: calc(100% - 3rem) !important;
         max-width: 380px !important;
     }
+
+    /* Floating Multi-select Action Bar on Mobile */
+    body.premium-dashboard #multiSelectBar {
+        position: fixed !important;
+        bottom: 1.5rem !important;
+        left: 1.5rem !important;
+        right: 1.5rem !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        border-radius: 16px !important;
+        padding: 1rem 1.25rem !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+        z-index: 1001 !important;
+        margin-top: 0 !important;
+        animation: premiumSlideUp 0.4s var(--premium-ease) !important;
+    }
+
+    /* Prevent clipping of bottom content when floating bar is visible */
+    body.premium-dashboard #servicesContainer {
+        padding-bottom: 90px !important;
+    }
+}
+
+@keyframes premiumSlideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
