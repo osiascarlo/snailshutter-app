@@ -1397,4 +1397,16 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
     body.premium-dashboard .filter-pills::-webkit-scrollbar {
         display: none !important;
     }
+
+    /* Fix confirmation modals stacking context and centering on mobile */
+    body.premium-dashboard .modal-overlay {
+        z-index: 999999 !important;
+        align-items: center !important;
+    }
+
+    body.premium-dashboard .modal-container {
+        margin: 1.5rem !important;
+        width: calc(100% - 3rem) !important;
+        max-width: 380px !important;
+    }
 }
