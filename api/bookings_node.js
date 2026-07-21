@@ -277,7 +277,7 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error('Fetch Time Slots Error:', error);
-        res.status(500).json({ success: false, error: 'Internal Server Error' });
+        res.status(500).json({ success: false, error: 'Internal Server Error: ' + error.message, stack: error.stack });
     }
 });
 
