@@ -3,9 +3,9 @@ const router = express.Router();
 const pool = require('../config/db');
 const { sendEmail } = require('../utils/mailer');
 
-// ── Auth middleware (simple admin check) ──────────────────────────────────
+// ── Auth middleware (admin & staff check) ──────────────────────────────────
 function requireAdmin(req, res, next) {
-    if (req.session && req.session.user_role === 'admin') return next();
+    if (req.session && (req.session.user_role === 'admin' || req.session.user_role === 'staff')) return next();
     if (!req.session || !req.session.user_id) {
         return res.status(401).json({ success: false, error: 'Unauthorized' });
     }

@@ -10,7 +10,22 @@ const { authMiddleware, roleMiddleware } = require('../middleware/auth');
  */
 router.get('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
     try {
-        const [users] = await pool.execute('SELECT id, full_name, email, phone, role, status, notes, created_at FROM users ORDER BY role, full_name');
+        const [users] = await pool.execute(`
+            SELECT 
+                u.id, 
+                u.full_name, 
+                u.email, 
+                u.phone, 
+                u.role, 
+                u.status, 
+                u.notes, 
+                u.created_at,
+                COUNT(DISTINCT b.id) AS booking_count
+            FROM users u
+            LEFT JOIN bookings b ON (u.id = b.client_id OR u.id = b.staff_id)
+            GROUP BY u.id
+            ORDER BY u.role, u.full_name
+        `);
         res.json({ success: true, users: users });
     } catch (error) {
         console.error('Fetch Users Error:', error);
@@ -226,6 +241,19 @@ router.post('/password', authMiddleware, async (req, res) => {
 
     if (!current_password || !new_password) {
         return res.status(400).json({ success: false, error: 'Current and new passwords are required' });
+    }
+
+    // Password requirement check: at least 8 characters, a capital letter, a number, and a special character
+    const isLengthValid = new_password.length >= 8;
+    const isCapitalValid = /[A-Z]/.test(new_password);
+    const isNumberValid = /[0-9]/.test(new_password);
+    const isSpecialValid = /[!@#$%^&*(),.?":{}|<>]/.test(new_password);
+
+    if (!isLengthValid || !isCapitalValid || !isNumberValid || !isSpecialValid) {
+        return res.status(400).json({
+            success: false,
+            error: 'Password must be at least 8 characters, include a capital letter, a number, and a special character.'
+        });
     }
 
     try {

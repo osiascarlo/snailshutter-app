@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
     <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.5">
     <style>
         .calendar-container {
             background: white;
@@ -300,16 +301,85 @@
             font-size: 0.85rem;
         }
 
-        /* Hover style for days with bookings */
-        .calendar-day.has-booking:hover,
-        .calendar-day.completed-booking:hover {
-            background: rgba(46, 125, 50, 0.08) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            z-index: 2;
+        /* ── Mobile Responsive Overrides for Admin Studio Calendar ── */
+        @media (max-width: 768px) {
+            body.premium-dashboard .content-body {
+                padding: 0 0.5rem 1.5rem !important;
+            }
+            .calendar-container {
+                padding: 0.85rem 0.5rem !important;
+                border-radius: 12px !important;
+                margin-bottom: 1rem !important;
+                overflow-x: hidden !important;
+            }
+            .calendar-nav {
+                margin-bottom: 1rem !important;
+                padding-bottom: 0.75rem !important;
+                gap: 0.5rem;
+            }
+            .calendar-month {
+                font-size: 1.1rem !important;
+            }
+            .calendar-nav-btn {
+                padding: 0.35rem 0.65rem !important;
+                font-size: 0.8rem !important;
+            }
+            .calendar-grid {
+                min-width: 0 !important;
+                width: 100% !important;
+                grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+                gap: 1px !important;
+                border-radius: 6px !important;
+            }
+            .calendar-day-header {
+                padding: 0.35rem 0.1rem !important;
+                font-size: 0.65rem !important;
+                text-align: center !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+            }
+            .calendar-day {
+                padding: 0.35rem 0.2rem !important;
+                min-height: 48px !important;
+                font-size: 0.8rem !important;
+            }
+            .booking-indicator,
+            .completed-indicator {
+                width: 5px !important;
+                height: 5px !important;
+                bottom: 3px !important;
+            }
+            .calendar-legend {
+                gap: 0.5rem 1rem !important;
+                margin-top: 1rem !important;
+                padding: 0.75rem !important;
+                flex-wrap: wrap !important;
+                font-size: 0.78rem !important;
+                justify-content: center !important;
+            }
+            .legend-item {
+                font-size: 0.78rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body.premium-dashboard .content-body {
+                padding: 0 0.25rem 1rem !important;
+            }
+            .calendar-container {
+                padding: 0.65rem 0.35rem !important;
+            }
+            .calendar-day-header {
+                font-size: 0.6rem !important;
+                font-weight: 700 !important;
+            }
+            .calendar-day {
+                min-height: 42px !important;
+                font-size: 0.75rem !important;
+            }
         }
     </style>
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.4">
 </head>
 
 <body class="premium-dashboard">
@@ -339,7 +409,9 @@
                     <a href="/admin/calendar.html" class="sidebar-link active">
                         <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
                     </a>
-                    <a href="/admin/gallery.html" class="sidebar-link"><span class="icon"><i class="fas fa-images"></i></span> Photo Gallery</a>
+                    <a href="/admin/gallery.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
+                    </a>
                     <a href="/admin/analytics.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
                     </a>

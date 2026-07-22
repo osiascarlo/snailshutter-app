@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Gallery | SnailShutter Admin</title>
+    <title>Photo Deliveries | SnailShutter Admin</title>
     <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
     <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -339,7 +339,7 @@
                         <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
                     </a>
                     <a href="/admin/gallery.html" class="sidebar-link active">
-                        <span class="icon"><i class="fas fa-images"></i></span> Photo Gallery
+                        <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
                     </a>
                     <a href="/admin/analytics.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics &amp; Reports
@@ -372,7 +372,7 @@
 
         <main class="main-content">
             <div class="page-hero">
-                <h1><i class="fas fa-images" style="color:var(--color-primary);margin-right:0.5rem;"></i> Event Photo Gallery</h1>
+                <h1><i class="fas fa-paper-plane" style="color:var(--color-primary);margin-right:0.5rem;"></i> Photo Deliveries</h1>
                 <p>Manage and assign Google Drive folder links containing finished client photos. Saving a new link sends an email notification to the client automatically.</p>
             </div>
 
@@ -447,9 +447,6 @@
                             <button class="btn btn-primary" id="saveLinkBtn" onclick="saveDriveLink()">
                                 <i class="fas fa-save"></i> Save &amp; Notify Client
                             </button>
-                            <a id="testLinkBtn" href="#" target="_blank" class="btn btn-secondary" style="display:none; align-items:center; gap:0.25rem;">
-                                <i class="fas fa-external-link-alt"></i> Test Open Link
-                            </a>
                         </div>
                     </div>
 
@@ -499,13 +496,39 @@
     // ───────────────────────────────────────────────
     //  Tab switching
     // ───────────────────────────────────────────────
-    function switchTab(tab, btn) {
+    let currentGalleryTab = 'overview';
+
+    function switchTab(tab, btn, fromPopState = false) {
+        if (!btn) {
+            btn = document.querySelector(`.gallery-tab[onclick*="${tab}"]`) || document.querySelectorAll('.gallery-tab')[0];
+        }
         document.querySelectorAll('.gallery-tab').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if (btn) btn.classList.add('active');
         document.getElementById('tab-overview').style.display = tab === 'overview' ? '' : 'none';
         document.getElementById('tab-upload').style.display   = tab === 'upload'   ? '' : 'none';
         if (tab === 'overview') loadOverview();
+
+        if (!fromPopState && currentGalleryTab !== tab) {
+            currentGalleryTab = tab;
+            if (window.history && window.history.pushState) {
+                window.history.pushState({ galleryTab: tab }, '', '#tab-' + tab);
+            }
+        } else {
+            currentGalleryTab = tab;
+        }
     }
+
+    window.addEventListener('popstate', (e) => {
+        let tab = 'overview';
+        if (e.state && e.state.galleryTab) {
+            tab = e.state.galleryTab;
+        } else if (location.hash && location.hash.startsWith('#tab-')) {
+            tab = location.hash.replace('#tab-', '');
+        }
+        if (tab !== currentGalleryTab) {
+            switchTab(tab, null, true);
+        }
+    });
 
     // ───────────────────────────────────────────────
     //  Load bookings for selector
@@ -649,14 +672,12 @@
         const linkCard = document.getElementById('linkCard');
         const selectPrompt = document.getElementById('selectPrompt');
         const driveUrlInput = document.getElementById('driveUrlInput');
-        const testLinkBtn = document.getElementById('testLinkBtn');
 
         if (!id) {
             linkCard.style.display = 'none';
             selectPrompt.style.display = '';
             infoEl.textContent = '';
             driveUrlInput.value = '';
-            testLinkBtn.style.display = 'none';
             return;
         }
 
@@ -666,16 +687,7 @@
         const booking = allBookings.find(b => String(b.id) === String(id));
         if (booking) {
             infoEl.innerHTML = `<i class="fas fa-user" style="color:var(--color-primary);"></i> ${booking.client_name} &nbsp;|&nbsp; <i class="fas fa-camera" style="color:var(--color-primary);"></i> ${booking.service_name}`;
-            
             driveUrlInput.value = booking.google_drive_link || '';
-            
-            if (booking.google_drive_link && booking.google_drive_link.trim() !== '') {
-                testLinkBtn.href = booking.google_drive_link;
-                testLinkBtn.style.display = 'inline-flex';
-            } else {
-                testLinkBtn.href = '#';
-                testLinkBtn.style.display = 'none';
-            }
         }
     }
 
@@ -714,16 +726,6 @@
                 
                 // Refresh list cache
                 await loadBookings();
-                
-                // Update test link button visibility
-                const testLinkBtn = document.getElementById('testLinkBtn');
-                if (link !== '') {
-                    testLinkBtn.href = link;
-                    testLinkBtn.style.display = 'inline-flex';
-                } else {
-                    testLinkBtn.href = '#';
-                    testLinkBtn.style.display = 'none';
-                }
             } else {
                 showAlert(data.error || 'Failed to save link.', 'error');
             }

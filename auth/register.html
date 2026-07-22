@@ -532,11 +532,21 @@
                     console.log('Frontend: API response received:', result);
 
                     if (result.success) {
-                        console.log('Frontend: Registration successful!');
-                        showAlert('Account created successfully! Please login.', 'success');
+                        console.log('Frontend: Registration & verification successful!');
+
+                        // Set current logged in user session locally
+                        const userObj = result.data || {
+                            name: registrationData.fullName,
+                            email: registrationData.email,
+                            role: 'client'
+                        };
+                        auth.currentUser = userObj;
+                        sessionStorage.setItem('currentUser', JSON.stringify(userObj));
+
+                        showAlert('Account created & verified! Logging you in...', 'success');
                         setTimeout(() => {
-                            window.location.href = '/auth/login.html';
-                        }, 2000);
+                            auth.redirectToDashboard();
+                        }, 1000);
                     } else {
                         console.log('Frontend: Registration failed:', result.error);
                         showAlert(result.error || 'Verification failed', 'error');

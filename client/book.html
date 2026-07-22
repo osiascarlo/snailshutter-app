@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
     <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.5">
     <style>
         /* ── Book Service Filter Tabs ── */
         .book-service-filters {
@@ -889,8 +890,135 @@
         .calendar-widget .calendar-nav button:active {
             transform: translateY(0) scale(0.95) !important;
         }
+
+        /* ── Mobile Responsive Adaptiveness for Date & Time Tab ── */
+        @media (max-width: 768px) {
+            body.premium-dashboard .content-body {
+                padding: 0 0.5rem 1.5rem !important;
+            }
+            #step2 {
+                margin: 0 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            #step2 .card-body {
+                padding: 0.5rem 0.25rem !important;
+                overflow-x: hidden !important;
+                box-sizing: border-box !important;
+            }
+            .calendar-booking-container {
+                gap: 1rem !important;
+                margin-top: 0.5rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .calendar-main-section {
+                padding: 0.65rem 0.35rem !important;
+                border-radius: 0.85rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .calendar-sidebar-section {
+                padding: 0.85rem 0.65rem !important;
+                border-radius: 0.85rem !important;
+                min-height: auto !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .calendar-widget {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .calendar-widget .calendar-header {
+                margin-bottom: 0.65rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            .calendar-widget .calendar-header h4 {
+                font-size: 1rem !important;
+            }
+            .calendar-widget .calendar-grid {
+                grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+                gap: 0.2rem !important;
+                margin-top: 0.4rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .calendar-widget .calendar-weekday {
+                font-size: 0.65rem !important;
+                padding: 0.25rem 0 !important;
+                letter-spacing: 0 !important;
+                text-align: center !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                min-width: 0 !important;
+            }
+            .calendar-widget .calendar-day {
+                aspect-ratio: 1 !important;
+                font-size: 0.8rem !important;
+                border-radius: 6px !important;
+                min-height: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .calendar-widget .booking-indicator,
+            .calendar-widget .completed-indicator,
+            .calendar-widget .conflict-indicator {
+                bottom: 2px !important;
+                width: 4px !important;
+                height: 4px !important;
+            }
+            .calendar-sidebar-section .time-slots {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 0.45rem !important;
+                width: 100% !important;
+            }
+            .calendar-sidebar-section .time-slot {
+                padding: 0.6rem 0.25rem !important;
+                font-size: 0.78rem !important;
+                border-radius: 8px !important;
+                min-width: 0 !important;
+            }
+            .calendar-legend {
+                gap: 0.4rem 0.6rem !important;
+                font-size: 0.72rem !important;
+                margin-top: 0.75rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body.premium-dashboard .content-body {
+                padding: 0 0.25rem 1rem !important;
+            }
+            #step2 .card-body {
+                padding: 0.4rem 0.15rem !important;
+            }
+            .calendar-main-section {
+                padding: 0.5rem 0.25rem !important;
+            }
+            .calendar-widget .calendar-grid {
+                gap: 0.12rem !important;
+            }
+            .calendar-widget .calendar-weekday {
+                font-size: 0.6rem !important;
+                font-weight: 800 !important;
+            }
+            .calendar-widget .calendar-day {
+                font-size: 0.75rem !important;
+                border-radius: 5px !important;
+            }
+            .calendar-sidebar-section .time-slots {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 0.35rem !important;
+            }
+            .calendar-sidebar-section .time-slot {
+                font-size: 0.75rem !important;
+                padding: 0.55rem 0.2rem !important;
+            }
+        }
     </style>
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.4">
 </head>
 
 <body class="premium-dashboard">
@@ -1815,7 +1943,20 @@
             }
         }
 
-        function goToStep(step) {
+        let currentBookingStep = 1;
+
+        // Initialize history state on page load
+        if (window.history && window.history.replaceState) {
+            const initialHashStep = (window.location.hash && window.location.hash.startsWith('#step'))
+                ? parseInt(window.location.hash.replace('#step', '')) || 1
+                : 1;
+            currentBookingStep = initialHashStep;
+            window.history.replaceState({ bookingStep: initialHashStep }, '', window.location.pathname + window.location.search + '#step' + initialHashStep);
+        }
+
+        function goToStep(step, fromPopState = false) {
+            step = parseInt(step) || 1;
+
             for (let i = 1; i <= 4; i++) {
                 const stepEl = document.getElementById('step' + i);
                 if (stepEl) {
@@ -1836,7 +1977,7 @@
             if (currentIndEl) {
                 currentIndEl.classList.add('active');
             }
- 
+
             for (let i = 1; i < step; i++) {
                 const indEl = document.getElementById('step' + i + 'indicator');
                 if (indEl) {
@@ -1845,12 +1986,42 @@
                 const line = document.getElementById('line' + i);
                 if (line) line.classList.add('done');
             }
- 
+
             for (let i = step; i <= 3; i++) {
                 const line = document.getElementById('line' + i);
                 if (line) line.classList.remove('done');
             }
+
+            // Update browser history stack
+            if (!fromPopState && currentBookingStep !== step) {
+                if (step < currentBookingStep && window.history.state && window.history.state.bookingStep > step) {
+                    currentBookingStep = step;
+                    window.history.back();
+                    return;
+                }
+                currentBookingStep = step;
+                if (window.history && window.history.pushState) {
+                    window.history.pushState({ bookingStep: step }, '', window.location.pathname + window.location.search + '#step' + step);
+                }
+            } else {
+                currentBookingStep = step;
+            }
         }
+
+        // Listen for browser Back/Forward navigation buttons
+        window.addEventListener('popstate', function (event) {
+            let targetStep = 1;
+            if (event.state && typeof event.state.bookingStep !== 'undefined') {
+                targetStep = parseInt(event.state.bookingStep);
+            } else if (window.location.hash && window.location.hash.startsWith('#step')) {
+                targetStep = parseInt(window.location.hash.replace('#step', '')) || 1;
+            }
+
+            if (targetStep !== currentBookingStep) {
+                goToStep(targetStep, true);
+            }
+        });
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');

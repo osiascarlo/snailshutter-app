@@ -8,12 +8,49 @@
     <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
     <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.5">
     <style>
         .status-badge.payment-paid { background: #d1fae5; color: #065f46; }
         .status-badge.payment-pending { background: #fef3c7; color: #92400e; }
         .status-badge.payment-unpaid { background: #fee2e2; color: #b91c1c; }
+
+        .booking-row-item {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .booking-row-item:hover {
+            background-color: #f8fafc !important;
+        }
+
+        /* Modal backdrop animation */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-container {
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.active .modal-container {
+            transform: scale(1) translateY(0);
+        }
     </style>
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.4">
 </head>
 
 <body class="premium-dashboard">
@@ -66,8 +103,9 @@
                 <div id="alertContainer"></div>
 
                 <div class="content-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-history"></i> Booking History (<span id="bookingCount">…</span>)</h3>
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                        <h3 style="margin:0;"><i class="fas fa-history"></i> Booking History (<span id="bookingCount">…</span>)</h3>
+                        <span style="font-size:0.8rem; color:var(--color-text-muted);"><i class="fas fa-info-circle"></i> Click any booking to view full details</span>
                     </div>
                     <div id="bookingsContainer">
                         <div class="spinner" style="margin:2rem auto;"></div>
@@ -77,11 +115,89 @@
         </main>
     </div>
 
+    <!-- Full Booking Details Modal -->
+    <div id="bookingDetailsModal" class="modal-overlay" onclick="if(event.target === this) closeBookingModal()">
+        <div class="modal-container" style="max-width: 580px; width: 92%; padding: 0; overflow: hidden; border-radius: 20px; background: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+            <div style="background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); color: white; padding: 1.5rem 1.75rem; position: relative;">
+                <button onclick="closeBookingModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+                    <span id="modalBookingId" style="background: rgba(255,255,255,0.2); padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">#1</span>
+                    <span id="modalBookingStatus" class="status-badge" style="text-transform: uppercase; font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.75rem;">Pending</span>
+                </div>
+                <h3 id="modalServiceName" style="margin: 0.4rem 0 0; font-size: 1.3rem; font-weight: 700; color: white; font-family: var(--font-body);">Service Package</h3>
+            </div>
+            
+            <div style="padding: 1.5rem 1.75rem; max-height: 75vh; overflow-y: auto;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+                    <div style="background: #f8fafc; padding: 1rem 1.25rem; border-radius: 14px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="far fa-calendar-alt" style="color: #2e7d32;"></i> Date & Time
+                        </div>
+                        <div id="modalBookingDate" style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">-</div>
+                        <div id="modalBookingTime" style="font-size: 0.85rem; color: #475569; font-weight: 500;">-</div>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 1rem 1.25rem; border-radius: 14px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fas fa-coins" style="color: #2e7d32;"></i> Pricing Breakdown
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.82rem; color: #64748b;">Total Price:</span>
+                            <span id="modalTotalPrice" style="font-size: 0.95rem; font-weight: 700; color: #0f172a;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.82rem; color: #64748b;">Downpayment:</span>
+                            <span id="modalDownpayment" style="font-size: 0.85rem; font-weight: 600; color: #2e7d32;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.82rem; color: #64748b;">Payment Status:</span>
+                            <span id="modalPaymentStatus" class="status-badge" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photos & Link Section -->
+                <div id="modalGallerySection" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem; text-align: center;">
+                    <h4 style="margin: 0 0 0.4rem; color: #065f46; font-size: 0.95rem; font-weight: 700;">📸 Your Photos Are Ready!</h4>
+                    <p style="margin: 0 0 0.85rem; color: #047857; font-size: 0.82rem;">Click below to access your photo gallery on Google Drive.</p>
+                    <a id="modalDriveBtn" href="#" target="_blank" class="btn" style="background: #10b981; color: white; border: none; font-weight: 600; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class="fab fa-google-drive"></i> Open Photo Album
+                    </a>
+                </div>
+
+                <!-- Notes -->
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <div id="modalNotesRow" style="padding: 0.85rem 1rem; background: #f8fafc; border-radius: 10px; font-size: 0.85rem; border: 1px solid #e2e8f0;">
+                        <div style="color: #64748b; font-weight: 600; margin-bottom: 0.3rem;"><i class="fas fa-sticky-note" style="color: #2e7d32; margin-right: 0.4rem;"></i> Special Requests / Notes:</div>
+                        <div id="modalNotesText" style="color: #334155; line-height: 1.4;">No special notes provided.</div>
+                    </div>
+
+                    <div style="padding: 0.75rem 1rem; background: #f8fafc; border-radius: 10px; font-size: 0.82rem; display: flex; justify-content: space-between; color: #64748b; border: 1px solid #e2e8f0;">
+                        <span>Booking Date Created:</span>
+                        <span id="modalCreatedAt" style="font-weight: 500; color: #334155;">-</span>
+                    </div>
+                </div>
+
+                <!-- Modal Action Footer Buttons -->
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center; margin-top: 1rem;">
+                    <div id="modalCancelBtnContainer"></div>
+                    <button onclick="closeBookingModal()" class="btn btn-secondary" style="border-radius: 50px; padding: 0.5rem 1.25rem; font-weight: 600;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/assets/js/api.js"></script>
     <script src="/assets/js/auth.js"></script>
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/dashboard-premium.js"></script>
     <script>
+        let allClientBookings = [];
+
         document.addEventListener('DOMContentLoaded', async function () {
             if (!auth.requireAuth('client')) return;
 
@@ -105,10 +221,10 @@
             const container = document.getElementById('bookingsContainer');
             try {
                 const response = await api.getBookings();
-                const bookings = (response.data || response.bookings || []);
-                document.getElementById('bookingCount').textContent = bookings.length;
+                allClientBookings = (response.data || response.bookings || []);
+                document.getElementById('bookingCount').textContent = allClientBookings.length;
 
-                if (bookings.length === 0) {
+                if (allClientBookings.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state" style="padding:3rem;">
                             <div class="empty-icon"><i class="fas fa-calendar-times"></i></div>
@@ -121,36 +237,25 @@
                     return;
                 }
 
-                const rows = bookings.map((b, i) => {
+                const rows = allClientBookings.map((b, i) => {
                     const date = new Date(b.booking_date).toLocaleDateString('en-US',
-                        { month: 'numeric', day: 'numeric', year: 'numeric' });
+                        { month: 'short', day: 'numeric', year: 'numeric' });
                     const start = formatTime(b.start_time);
                     const end = formatTime(b.end_time);
                     const status = (b.status || 'pending').toLowerCase();
-                    const canCancel = status === 'pending' || status === 'confirmed';
                     const price = b.total_price ? '&#8369;' + Number(b.total_price).toLocaleString() : '—';
-                    const downpayment = b.downpayment_amount ? '&#8369;' + Number(b.downpayment_amount).toLocaleString() : '—';
-                    const payStatus = (b.payment_status || 'unpaid').toLowerCase();
 
-                    return `<tr>
-                        <td>#${i + 1}</td>
-                        <td style="font-weight:500;">${b.service_name || b.service || '—'}</td>
-                        <td>${date}</td>
-                        <td>${start} – ${end}</td>
-                        <td>${price}</td>
-                        <td style="font-weight:600; color:var(--color-primary);">${downpayment}</td>
-                        <td><span class="status-badge payment-${payStatus}">${cap(payStatus)}</span></td>
+                    return `<tr class="booking-row-item" onclick="openBookingModal(${b.id})">
+                        <td style="font-weight:700; color:var(--color-primary, #2e7d32);">#${i + 1}</td>
+                        <td style="font-weight:600; color:#1e293b;">${b.service_name || b.service || '—'}</td>
+                        <td style="white-space:nowrap;">${date}</td>
+                        <td style="white-space:nowrap;">${start} – ${end}</td>
+                        <td style="font-weight:700; color:#0f172a;">${price}</td>
                         <td><span class="status-badge status-${status}">${cap(status)}</span></td>
-                        <td>
-                            ${b.google_drive_link ? `
-                                <a href="${b.google_drive_link}" target="_blank" class="btn btn-sm" style="display:inline-flex; align-items:center; gap:0.25rem; background:#10b981; border-color:#10b981; color:white; font-weight:600; text-decoration:none;">
-                                    <i class="fab fa-google-drive"></i> View Photos
-                                </a>
-                            ` : (canCancel
-                                ? `<button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">
-                                        <i class="fas fa-times"></i> Cancel
-                                   </button>`
-                                : `<span style="color:var(--color-text-muted);font-size:0.8rem;">—</span>`)}
+                        <td onclick="event.stopPropagation();">
+                            <button class="btn btn-sm btn-secondary" onclick="openBookingModal(${b.id})" style="border-radius:50px; font-size:0.78rem; padding:0.35rem 0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:0.35rem;">
+                                <i class="fas fa-eye"></i> Details
+                            </button>
                         </td>
                     </tr>`;
                 }).join('');
@@ -161,7 +266,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th><th>Service</th><th>Date</th><th>Time</th>
-                                    <th>Price</th><th>Downpayment</th><th>Payment</th><th>Status</th><th>Action</th>
+                                    <th>Price</th><th>Status</th><th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>${rows}</tbody>
@@ -178,6 +283,85 @@
                     </div>`;
                 document.getElementById('bookingCount').textContent = '0';
             }
+        }
+
+        function openBookingModal(bookingId) {
+            const booking = allClientBookings.find(b => b.id == bookingId);
+            if (!booking) return;
+
+            const dateObj = new Date(booking.booking_date + 'T00:00:00');
+            const fullDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            const start = formatTime(booking.start_time);
+            const end = formatTime(booking.end_time);
+            const status = (booking.status || 'pending').toLowerCase();
+            const payStatus = (booking.payment_status || 'unpaid').toLowerCase();
+            const price = booking.total_price ? '₱' + Number(booking.total_price).toLocaleString() : '—';
+            const downpayment = booking.downpayment_amount ? '₱' + Number(booking.downpayment_amount).toLocaleString() : '—';
+            const canCancel = status === 'pending' || status === 'confirmed';
+
+            document.getElementById('modalBookingId').textContent = `#${booking.id}`;
+            
+            const statusBadge = document.getElementById('modalBookingStatus');
+            statusBadge.textContent = cap(status);
+            statusBadge.className = `status-badge status-${status}`;
+
+            document.getElementById('modalServiceName').textContent = booking.service_name || booking.service || 'Photography Session';
+            document.getElementById('modalBookingDate').textContent = fullDate;
+            document.getElementById('modalBookingTime').textContent = `${start} – ${end}`;
+            document.getElementById('modalTotalPrice').textContent = price;
+            document.getElementById('modalDownpayment').textContent = downpayment;
+
+            const payBadge = document.getElementById('modalPaymentStatus');
+            payBadge.textContent = cap(payStatus);
+            payBadge.className = `status-badge payment-${payStatus}`;
+
+            // Notes
+            document.getElementById('modalNotesText').textContent = booking.notes || 'No special requests or notes.';
+
+            // Created At
+            if (booking.created_at) {
+                const createdDate = new Date(booking.created_at);
+                document.getElementById('modalCreatedAt').textContent = createdDate.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+            } else {
+                document.getElementById('modalCreatedAt').textContent = '—';
+            }
+
+            // Gallery / Photo link
+            const gallerySection = document.getElementById('modalGallerySection');
+            const driveBtn = document.getElementById('modalDriveBtn');
+            if (booking.google_drive_link) {
+                gallerySection.style.display = 'block';
+                driveBtn.href = booking.google_drive_link;
+            } else {
+                gallerySection.style.display = 'none';
+            }
+
+            // Cancel action
+            const cancelContainer = document.getElementById('modalCancelBtnContainer');
+            if (canCancel) {
+                cancelContainer.innerHTML = `
+                    <button onclick="cancelBookingFromModal(${booking.id})" class="btn btn-danger" style="border-radius: 50px; padding: 0.5rem 1.25rem; font-weight: 600;">
+                        <i class="fas fa-times"></i> Cancel Booking
+                    </button>`;
+            } else {
+                cancelContainer.innerHTML = '';
+            }
+
+            // Show Modal
+            const modal = document.getElementById('bookingDetailsModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('bookingDetailsModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        async function cancelBookingFromModal(bookingId) {
+            closeBookingModal();
+            await cancelBooking(bookingId);
         }
 
         async function cancelBooking(bookingId) {

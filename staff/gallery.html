@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Gallery | SnailShutter</title>
+    <title>Photo Deliveries | SnailShutter Staff</title>
     <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
     <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,7 +31,7 @@
             align-items: center;
         }
 
-        /* ── Booking Selector ── */
+        /* ── Booking Selector & Link Form ── */
         .booking-select-row {
             display: flex;
             align-items: center;
@@ -63,274 +63,58 @@
             cursor: pointer;
         }
 
-        /* ── Upload Zone ── */
-        .upload-zone {
-            border: 2.5px dashed var(--color-border);
+        .drive-link-card {
+            background: white;
+            border: 1px solid var(--color-border-soft);
             border-radius: var(--radius-lg);
-            padding: 3rem 2rem;
-            text-align: center;
-            background: var(--color-bg-soft);
-            cursor: pointer;
-            transition: all 0.25s ease;
-            margin-bottom: 1.75rem;
-            position: relative;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
         }
 
-        .upload-zone.drag-over {
-            border-color: var(--color-primary);
-            background: var(--color-primary-soft);
-        }
-
-        .upload-zone.hidden { display: none; }
-
-        .upload-zone-icon {
-            font-size: 3rem;
-            color: var(--color-text-muted);
-            margin-bottom: 1rem;
-            transition: color 0.2s;
-        }
-
-        .upload-zone.drag-over .upload-zone-icon { color: var(--color-primary); }
-
-        .upload-zone h3 {
-            font-size: 1.1rem;
+        .drive-link-card h3 {
+            font-size: 1.15rem;
             font-weight: 700;
+            margin-bottom: 1rem;
             color: var(--color-text);
-            margin-bottom: 0.4rem;
-        }
-
-        .upload-zone p {
-            font-size: 0.85rem;
-            color: var(--color-text-soft);
-            margin-bottom: 1rem;
-        }
-
-        .upload-zone #fileInput { display: none; }
-
-        /* ── Upload Preview ── */
-        .upload-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .preview-thumb {
-            position: relative;
-            aspect-ratio: 1;
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            background: var(--color-bg-muted);
-        }
-
-        .preview-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .preview-thumb .remove-preview {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: rgba(220, 38, 38, 0.85);
-            border: none;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            color: white;
-            cursor: pointer;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s;
-        }
-
-        .preview-thumb .remove-preview:hover { background: #b91c1c; }
-
-        /* ── Progress Bar ── */
-        .upload-progress {
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        .upload-progress .progress-bar-wrap {
-            background: var(--color-border-soft);
-            border-radius: 999px;
-            height: 8px;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        .upload-progress .progress-bar-fill {
-            height: 100%;
-            background: var(--color-primary);
-            border-radius: 999px;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        /* ── Gallery Grid ── */
-        .gallery-section-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--color-text);
-            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .gallery-section-title .count-badge {
-            background: var(--color-primary-soft);
-            color: var(--color-primary);
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 0.15rem 0.55rem;
-            border-radius: 999px;
-        }
-
-        .photos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-            gap: 1rem;
-        }
-
-        .photo-card {
-            position: relative;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            background: var(--color-bg-muted);
-            box-shadow: var(--shadow-sm);
-            aspect-ratio: 1;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .photo-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .photo-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.3s;
-        }
-
-        .photo-card:hover img { transform: scale(1.05); }
-
-        .photo-card .photo-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0);
+        .drive-link-card .form-group {
             display: flex;
-            align-items: flex-end;
-            padding: 0.6rem;
-            transition: background 0.2s;
-        }
-
-        .photo-card:hover .photo-overlay {
-            background: rgba(0,0,0,0.45);
-        }
-
-        .photo-card .photo-actions {
-            display: flex;
-            gap: 0.4rem;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .photo-card:hover .photo-actions { opacity: 1; }
-
-        .photo-card .photo-actions button {
-            background: rgba(255,255,255,0.92);
-            border: none;
-            border-radius: var(--radius-sm);
-            padding: 0.3rem 0.6rem;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-
-        .photo-card .photo-actions .del-btn {
-            background: rgba(220,38,38,0.9);
-            color: white;
-        }
-
-        .photo-card .photo-actions .del-btn:hover { background: #b91c1c; }
-
-        /* ── Lightbox ── */
-        .lightbox {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.92);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
             flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
         }
 
-        .lightbox.open { display: flex; }
+        .drive-link-card label {
+            font-weight: 600;
+            color: var(--color-text-soft);
+            font-size: 0.9rem;
+        }
 
-        .lightbox img {
-            max-width: 90vw;
-            max-height: 82vh;
+        .drive-link-card input[type="url"] {
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--color-border);
             border-radius: var(--radius-md);
-            object-fit: contain;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+            font-size: 0.95rem;
+            color: var(--color-text);
+            background: var(--color-bg);
+            transition: all 0.2s ease;
+            outline: none;
         }
 
-        .lightbox-close {
-            position: absolute;
-            top: 1.25rem;
-            right: 1.5rem;
-            background: rgba(255,255,255,0.12);
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background 0.15s;
+        .drive-link-card input[type="url"]:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-glow);
         }
 
-        .lightbox-close:hover { background: rgba(255,255,255,0.25); }
-
-        .lightbox-nav {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .lightbox-nav button {
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: white;
-            padding: 0.5rem 1.2rem;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background 0.15s;
-        }
-
-        .lightbox-nav button:hover { background: rgba(255,255,255,0.3); }
-
-        .lightbox-caption {
-            color: rgba(255,255,255,0.65);
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-        }
-
-        /* ── Booking overview cards ── */
+        /* ── Gallery Grid ── */
         .booking-overview-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.25rem;
             margin-bottom: 2rem;
         }
@@ -340,15 +124,16 @@
             border-radius: var(--radius-md);
             border: 1.5px solid var(--color-border-soft);
             padding: 1.25rem;
-            cursor: pointer;
             transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
             box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .booking-overview-card:hover,
-        .booking-overview-card.selected {
+        .booking-overview-card:hover {
             border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px var(--color-primary-glow), var(--shadow-md);
+            box-shadow: var(--shadow-md);
             transform: translateY(-2px);
         }
 
@@ -367,57 +152,44 @@
             letter-spacing: 0.5px;
         }
 
-        .booking-overview-card .photo-count {
-            background: var(--color-primary);
-            color: white;
+        .booking-overview-card .link-status {
             font-size: 0.72rem;
             font-weight: 700;
             border-radius: 999px;
             padding: 0.15rem 0.55rem;
+            text-transform: uppercase;
         }
 
-        .booking-overview-card .photo-count.empty {
-            background: var(--color-bg-muted);
-            color: var(--color-text-muted);
+        .booking-overview-card .link-status.set {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .booking-overview-card .link-status.empty {
+            background: #fee2e2;
+            color: #b91c1c;
         }
 
         .booking-overview-card h4 {
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 700;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.3rem;
+            color: var(--color-text);
         }
 
         .booking-overview-card p {
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             color: var(--color-text-soft);
+            margin-bottom: 0.25rem;
         }
 
-        .booking-overview-card .mini-strip {
+        .booking-overview-card .card-actions {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed var(--color-border-soft);
             display: flex;
-            gap: 3px;
-            margin-top: 0.75rem;
-            height: 48px;
-            border-radius: var(--radius-xs);
-            overflow: hidden;
-        }
-
-        .booking-overview-card .mini-strip img {
-            flex: 1;
-            object-fit: cover;
-            min-width: 0;
-        }
-
-        .booking-overview-card .mini-strip .more-pill {
-            background: rgba(0,0,0,0.55);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.72rem;
-            font-weight: 700;
-            min-width: 40px;
-            padding: 0 6px;
-            flex-shrink: 0;
+            justify-content: space-between;
+            gap: 0.5rem;
         }
 
         /* ── Empty / Loading states ── */
@@ -425,6 +197,7 @@
             text-align: center;
             padding: 3rem 2rem;
             color: var(--color-text-muted);
+            grid-column: 1/-1;
         }
 
         .gallery-empty i { font-size: 3rem; margin-bottom: 1rem; }
@@ -498,8 +271,44 @@
             border-color: var(--color-primary);
             box-shadow: 0 0 0 3px var(--color-primary-glow);
         }
+
+        /* ── Mobile Responsive ── */
+        @media (max-width: 768px) {
+            .booking-select-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            .booking-select-row select {
+                min-width: 0;
+                width: 100%;
+            }
+            .drive-link-card {
+                padding: 1.25rem;
+            }
+            .gallery-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap;
+                scrollbar-width: none;
+            }
+            .gallery-tabs::-webkit-scrollbar { display: none; }
+            .gallery-tab {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .booking-overview-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .drive-link-card {
+                padding: 1rem;
+            }
+        }
     </style>
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.4">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.5">
 </head>
 
 <body class="premium-dashboard">
@@ -521,23 +330,23 @@
                 <div class="sidebar-section">
                     <div class="sidebar-section-title">Staff</div>
                     <a href="/staff/dashboard.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+                        <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
                     </a>
                     <a href="/staff/schedule.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-calendar-week"></i></span> My Schedule
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> My Schedule
                     </a>
                     <a href="/staff/bookings.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-camera"></i></span> My Bookings
+                        <span class="icon"><i class="fas fa-bookmark"></i></span> My Bookings
                     </a>
                     <a href="/staff/gallery.html" class="sidebar-link active">
-                        <span class="icon"><i class="fas fa-images"></i></span> Gallery
+                        <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
                     </a>
                 </div>
             </nav>
 
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <div class="user-avatar"><i class="fas fa-user-tie"></i></div>
+                    <div class="user-avatar"><i class="fas fa-user-tag"></i></div>
                     <div class="user-info">
                         <div class="name" data-user-name></div>
                         <div class="role">Staff Member</div>
@@ -551,8 +360,8 @@
 
         <main class="main-content">
             <div class="page-hero">
-                <h1>Studio Gallery — Welcome, <span data-user-name></span>!</h1>
-                <p>Manage and showcase your photography portfolio and latest works.</p>
+                <h1><i class="fas fa-paper-plane" style="color:var(--color-primary);margin-right:0.5rem;"></i> Photo Deliveries</h1>
+                <p>Manage and assign Google Drive folder links containing finished client photos. Saving a new link sends an email notification to the client automatically.</p>
             </div>
 
             <div class="content-body">
@@ -562,8 +371,8 @@
                     <button class="gallery-tab active" onclick="switchTab('overview', this)">
                         <i class="fas fa-th-large"></i> Booking Overview
                     </button>
-                    <button class="gallery-tab" onclick="switchTab('upload', this)">
-                        <i class="fas fa-cloud-upload-alt"></i> Upload Photos
+                    <button class="gallery-tab" id="manage-tab-btn" onclick="switchTab('upload', this)">
+                        <i class="fab fa-google-drive"></i> Manage Google Drive Link
                     </button>
                 </div>
 
@@ -572,11 +381,8 @@
                 ══════════════════════════════════════════ -->
                 <div id="tab-overview">
                     <div class="gallery-toolbar">
-                        <h2>All Bookings with Photos</h2>
+                        <h2>All Bookings & Photo Links</h2>
                         <div class="toolbar-right">
-                            <button class="btn btn-primary btn-sm" onclick="switchTab('upload', document.querySelectorAll('.gallery-tab')[1])">
-                                <i class="fas fa-plus"></i> Upload Photos
-                            </button>
                             <button class="btn btn-sm" onclick="loadOverview()">
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
@@ -600,7 +406,7 @@
                 </div>
 
                 <!-- ══════════════════════════════════════════
-                     TAB: Upload
+                     TAB: Manage/Upload Link
                 ══════════════════════════════════════════ -->
                 <div id="tab-upload" style="display:none;">
 
@@ -610,69 +416,39 @@
                         <select id="bookingSelect" onchange="onBookingChange()">
                             <option value="">— Choose a booking —</option>
                         </select>
-                        <div id="bookingInfo" style="font-size:0.82rem; color:var(--color-text-soft);"></div>
+                        <div id="bookingInfo" style="font-size:0.82rem; color:var(--color-text-soft); font-weight:600;"></div>
                     </div>
 
-                    <!-- Upload zone -->
-                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
-                         ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-                        <input type="file" id="fileInput" multiple accept="image/*" onchange="handleFileSelect(event)">
-                        <div class="upload-zone-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                        <h3>Drag &amp; drop photos here</h3>
-                        <p>or click to browse — JPG, PNG, WEBP up to 15 MB each</p>
-                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
-                            <i class="fas fa-folder-open"></i> Browse Files
-                        </button>
-                    </div>
-
-                    <!-- Preview thumbnails -->
-                    <div id="previewSection" style="display:none; margin-bottom:1rem;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
-                            <span id="previewCount" style="font-weight:600; font-size:0.9rem;"></span>
-                            <div style="display:flex;gap:0.5rem;">
-                                <button class="btn btn-sm" onclick="clearPreview()">
-                                    <i class="fas fa-times"></i> Clear All
-                                </button>
-                                <button class="btn btn-primary btn-sm" id="uploadBtn" onclick="uploadPhotos()">
-                                    <i class="fas fa-upload"></i> Upload All
-                                </button>
-                            </div>
+                    <!-- Link Form -->
+                    <div class="drive-link-card" id="linkCard" style="display:none;">
+                        <h3><i class="fab fa-google-drive" style="color:#10b981;"></i> Edit Google Drive Link</h3>
+                        
+                        <div class="form-group">
+                            <label for="driveUrlInput">Google Drive Folder Link URL:</label>
+                            <input type="url" id="driveUrlInput" placeholder="https://drive.google.com/drive/folders/..." required>
+                            <span style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">
+                                Client will get notified via email when this link is saved or updated.
+                            </span>
                         </div>
-                        <div class="upload-preview-grid" id="previewGrid"></div>
-                    </div>
 
-                    <!-- Progress -->
-                    <div class="upload-progress" id="uploadProgress">
-                        <span id="progressText" style="font-size:0.85rem; font-weight:600;"></span>
-                        <div class="progress-bar-wrap">
-                            <div class="progress-bar-fill" id="progressFill"></div>
+                        <div style="display:flex; gap:0.75rem;">
+                            <button class="btn btn-primary" id="saveLinkBtn" onclick="saveDriveLink()">
+                                <i class="fas fa-save"></i> Save &amp; Notify Client
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Existing photos for selected booking -->
-                    <div id="existingPhotosSection" style="display:none;">
-                        <div class="gallery-section-title">
-                            <i class="fas fa-images" style="color:var(--color-primary);"></i>
-                            Uploaded Photos
-                            <span class="count-badge" id="existingCount">0</span>
-                        </div>
-                        <div class="photos-grid" id="photosGrid"></div>
+                    <!-- Helper Select Message -->
+                    <div class="gallery-empty" id="selectPrompt">
+                        <i class="fab fa-google-drive" style="opacity: 0.3;"></i>
+                        <h3>No Booking Selected</h3>
+                        <p>Select a booking from the dropdown or click a booking in the Overview tab to assign a Google Drive link.</p>
                     </div>
+
                 </div>
 
             </div>
         </main>
-    </div>
-
-    <!-- ── Lightbox ── -->
-    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
-        <button class="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
-        <img id="lightboxImg" src="" alt="">
-        <div class="lightbox-nav" onclick="event.stopPropagation()">
-            <button onclick="lightboxPrev()"><i class="fas fa-chevron-left"></i> Prev</button>
-            <button onclick="lightboxNext()">Next <i class="fas fa-chevron-right"></i></button>
-        </div>
-        <div class="lightbox-caption" id="lightboxCaption"></div>
     </div>
 
     <!-- Scripts -->
@@ -686,10 +462,6 @@
     //  State
     // ───────────────────────────────────────────────
     let allBookings   = [];
-    let overviewCards = []; // Cache compiled overview cards for search filtering
-    let selectedFiles = [];
-    let currentPhotos = [];
-    let lightboxIdx   = 0;
     let currentBookingId = null;
 
     // ───────────────────────────────────────────────
@@ -712,30 +484,48 @@
     // ───────────────────────────────────────────────
     //  Tab switching
     // ───────────────────────────────────────────────
-    function switchTab(tab, btn) {
+    let currentGalleryTab = 'overview';
+
+    function switchTab(tab, btn, fromPopState = false) {
+        if (!btn) {
+            btn = document.querySelector(`.gallery-tab[onclick*="${tab}"]`) || document.querySelectorAll('.gallery-tab')[0];
+        }
         document.querySelectorAll('.gallery-tab').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if (btn) btn.classList.add('active');
         document.getElementById('tab-overview').style.display = tab === 'overview' ? '' : 'none';
         document.getElementById('tab-upload').style.display   = tab === 'upload'   ? '' : 'none';
         if (tab === 'overview') loadOverview();
+
+        if (!fromPopState && currentGalleryTab !== tab) {
+            currentGalleryTab = tab;
+            if (window.history && window.history.pushState) {
+                window.history.pushState({ galleryTab: tab }, '', '#tab-' + tab);
+            }
+        } else {
+            currentGalleryTab = tab;
+        }
     }
+
+    window.addEventListener('popstate', (e) => {
+        let tab = 'overview';
+        if (e.state && e.state.galleryTab) {
+            tab = e.state.galleryTab;
+        } else if (location.hash && location.hash.startsWith('#tab-')) {
+            tab = location.hash.replace('#tab-', '');
+        }
+        if (tab !== currentGalleryTab) {
+            switchTab(tab, null, true);
+        }
+    });
 
     // ───────────────────────────────────────────────
     //  Load bookings for selector
     // ───────────────────────────────────────────────
     async function loadBookings() {
         try {
-            const res = await api.getBookings();
-            allBookings = (res.data || []);
-
-            // Build demo fallback if DB is unavailable
-            if (!allBookings.length) {
-                allBookings = [
-                    { id: 1, client_name: 'Sample Client',  service_name: 'Portrait Session',  booking_date: '2026-06-20', status: 'completed' },
-                    { id: 2, client_name: 'Maria Santos',   service_name: 'Wedding Coverage',   booking_date: '2026-06-15', status: 'completed' },
-                    { id: 3, client_name: 'Juan dela Cruz', service_name: 'Event Photography',  booking_date: '2026-06-10', status: 'completed' },
-                ];
-            }
+            const res = await fetch('/api/gallery', { credentials: 'include' });
+            const data = await res.json();
+            allBookings = (data.data || []);
 
             const sel = document.getElementById('bookingSelect');
             sel.innerHTML = '<option value="">— Choose a booking —</option>';
@@ -765,33 +555,13 @@
         try {
             const res = await fetch('/api/gallery', { credentials: 'include' });
             const data = await res.json();
+            allBookings = data.data || [];
 
-            const bookingMap = {};
-            allBookings.forEach(b => bookingMap[b.id] = b);
-
-            const bookingsWithPhotos = data.data || [];
-
-            // Also show bookings without photos
-            overviewCards = allBookings.map(b => {
-                const found = bookingsWithPhotos.find(g => String(g.bookingId) === String(b.id));
-                return { booking: b, gallery: found || null };
-            });
-
-            if (!allBookings.length) {
-                grid.innerHTML = `
-                    <div class="gallery-empty" style="grid-column:1/-1;">
-                        <i class="fas fa-calendar-times"></i>
-                        <h3>No bookings found</h3>
-                        <p>Bookings will appear here once created.</p>
-                    </div>`;
-                return;
-            }
-
-            renderOverviewCards(overviewCards);
+            renderOverviewCards(allBookings);
 
         } catch (e) {
             grid.innerHTML = `
-                <div class="gallery-empty" style="grid-column:1/-1;">
+                <div class="gallery-empty">
                     <i class="fas fa-exclamation-circle" style="color:var(--color-danger);"></i>
                     <h3>Failed to load gallery</h3>
                     <p>${e.message}</p>
@@ -799,42 +569,49 @@
         }
     }
 
-    function renderOverviewCards(cards) {
+    function renderOverviewCards(list) {
         const grid = document.getElementById('overviewGrid');
-        if (!cards.length) {
+        if (!list.length) {
             grid.innerHTML = `
-                <div class="gallery-empty" style="grid-column:1/-1;">
+                <div class="gallery-empty">
                     <i class="fas fa-search"></i>
-                    <h3>No matching bookings found</h3>
-                    <p>Try searching for another name, service, or booking number.</p>
+                    <h3>No bookings found</h3>
+                    <p>Bookings will appear here once created.</p>
                 </div>`;
             return;
         }
 
-        grid.innerHTML = cards.map(({ booking, gallery }) => {
-            const photos  = gallery ? gallery.photos : [];
-            const count   = photos.length;
-            const date    = new Date(booking.booking_date).toLocaleDateString();
-            const strip   = photos.slice(0, 4);
-            const hasMore = count > 4;
+        grid.innerHTML = list.map(b => {
+            const hasLink = b.google_drive_link && b.google_drive_link.trim() !== '';
+            const date = new Date(b.booking_date).toLocaleDateString();
 
-            const stripHTML = strip.length
-                ? `<div class="mini-strip">
-                    ${strip.map(p => `<img src="${p.url}" alt="">`).join('')}
-                    ${hasMore ? `<div class="more-pill">+${count - 4}</div>` : ''}
-                   </div>`
-                : `<div class="mini-strip" style="background:var(--color-bg-muted); align-items:center; justify-content:center; color:var(--color-text-muted); font-size:0.75rem; height:48px; border-radius:4px;">No photos yet</div>`;
+            const statusBadge = hasLink 
+                ? `<span class="link-status set">✅ Link Set</span>`
+                : `<span class="link-status empty">❌ No Link</span>`;
 
             return `
-                <div class="booking-overview-card" onclick="openBookingInUpload(${booking.id})">
-                    <div class="card-header">
-                        <span class="bid">Booking #${booking.id}</span>
-                        <span class="photo-count ${count === 0 ? 'empty' : ''}">${count} photo${count !== 1 ? 's' : ''}</span>
+                <div class="booking-overview-card">
+                    <div>
+                        <div class="card-header">
+                            <span class="bid">Booking #${b.id}</span>
+                            ${statusBadge}
+                        </div>
+                        <h4>${b.client_name}</h4>
+                        <p><i class="fas fa-camera" style="width:14px; color:var(--color-primary);"></i> ${b.service_name}</p>
+                        <p><i class="fas fa-calendar" style="width:14px; color:var(--color-primary);"></i> ${date}</p>
+                        ${hasLink ? `<p style="word-break: break-all; font-size: 0.75rem; background: var(--color-bg-soft); padding: 0.35rem 0.5rem; border-radius: 4px; margin-top: 0.5rem; border: 1px solid var(--color-border-soft);"><i class="fab fa-google-drive" style="color: #10b981;"></i> ${b.google_drive_link}</p>` : ''}
                     </div>
-                    <h4>${booking.client_name}</h4>
-                    <p><i class="fas fa-camera" style="width:14px;"></i> ${booking.service_name}</p>
-                    <p><i class="fas fa-calendar" style="width:14px;"></i> ${date}</p>
-                    ${stripHTML}
+                    
+                    <div class="card-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="openBookingInUpload(${b.id})" style="flex:1;">
+                            <i class="fas fa-edit"></i> Edit Link
+                        </button>
+                        ${hasLink ? `
+                            <a href="${b.google_drive_link}" target="_blank" class="btn btn-primary btn-sm" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:0.25rem;">
+                                <i class="fas fa-external-link-alt"></i> Open Drive
+                            </a>
+                        ` : ''}
+                    </div>
                 </div>`;
         }).join('');
     }
@@ -842,25 +619,23 @@
     function filterGalleryBookings() {
         const query = document.getElementById('gallerySearch').value.toLowerCase().trim();
         if (!query) {
-            renderOverviewCards(overviewCards);
+            renderOverviewCards(allBookings);
             return;
         }
 
         const queryTerms = query.split(/\s+/);
 
-        const filtered = overviewCards.filter(({ booking }) => {
-            const clientName = (booking.client_name || '').toLowerCase();
-            const serviceName = (booking.service_name || '').toLowerCase();
-            const bookingId = String(booking.id);
-            const dateStr = new Date(booking.booking_date).toLocaleDateString().toLowerCase();
+        const filtered = allBookings.filter(b => {
+            const clientName = (b.client_name || '').toLowerCase();
+            const serviceName = (b.service_name || '').toLowerCase();
+            const bookingId = String(b.id);
+            const dateStr = new Date(b.booking_date).toLocaleDateString().toLowerCase();
             
-            // Match all search terms against client name, service, date, or booking ID patterns
             return queryTerms.every(term => 
                 clientName.includes(term) || 
                 serviceName.includes(term) || 
                 bookingId.includes(term) || 
                 (`#${bookingId}`).includes(term) ||
-                (`booking #${bookingId}`).includes(term) ||
                 dateStr.includes(term)
             );
         });
@@ -871,277 +646,84 @@
     function openBookingInUpload(bookingId) {
         document.getElementById('bookingSelect').value = bookingId;
         onBookingChange();
-        switchTab('upload', document.querySelectorAll('.gallery-tab')[1]);
+        switchTab('upload', document.getElementById('manage-tab-btn'));
     }
 
     // ───────────────────────────────────────────────
     //  Booking selection change
     // ───────────────────────────────────────────────
-    async function onBookingChange() {
+    function onBookingChange() {
         const id = document.getElementById('bookingSelect').value;
         currentBookingId = id || null;
 
         const infoEl = document.getElementById('bookingInfo');
+        const linkCard = document.getElementById('linkCard');
+        const selectPrompt = document.getElementById('selectPrompt');
+        const driveUrlInput = document.getElementById('driveUrlInput');
+
         if (!id) {
-            document.getElementById('existingPhotosSection').style.display = 'none';
+            linkCard.style.display = 'none';
+            selectPrompt.style.display = '';
             infoEl.textContent = '';
+            driveUrlInput.value = '';
             return;
         }
+
+        linkCard.style.display = '';
+        selectPrompt.style.display = 'none';
 
         const booking = allBookings.find(b => String(b.id) === String(id));
         if (booking) {
-            infoEl.innerHTML = `<i class="fas fa-user"></i> ${booking.client_name} &nbsp;|&nbsp; <i class="fas fa-camera"></i> ${booking.service_name} &nbsp;|&nbsp; <i class="fas fa-calendar"></i> ${new Date(booking.booking_date).toLocaleDateString()}`;
-        }
-
-        await loadExistingPhotos(id);
-    }
-
-    // ───────────────────────────────────────────────
-    //  Load existing photos for a booking
-    // ───────────────────────────────────────────────
-    async function loadExistingPhotos(bookingId) {
-        try {
-            const res  = await fetch(`/api/gallery/${bookingId}`, { credentials: 'include' });
-            const data = await res.json();
-            currentPhotos = data.data || [];
-            renderExistingPhotos();
-        } catch (e) {
-            console.warn('Could not load photos:', e);
-            currentPhotos = [];
-            renderExistingPhotos();
+            infoEl.innerHTML = `<i class="fas fa-user" style="color:var(--color-primary);"></i> ${booking.client_name} &nbsp;|&nbsp; <i class="fas fa-camera" style="color:var(--color-primary);"></i> ${booking.service_name}`;
+            driveUrlInput.value = booking.google_drive_link || '';
         }
     }
 
-    function renderExistingPhotos() {
-        const section = document.getElementById('existingPhotosSection');
-        const grid    = document.getElementById('photosGrid');
-        const countEl = document.getElementById('existingCount');
+    // ───────────────────────────────────────────────
+    //  Save Google Drive Link
+    // ───────────────────────────────────────────────
+    async function saveDriveLink() {
+        if (!currentBookingId) return;
 
-        if (!currentBookingId) { section.style.display = 'none'; return; }
-        section.style.display = '';
-        countEl.textContent   = currentPhotos.length;
+        const saveBtn = document.getElementById('saveLinkBtn');
+        const driveUrlInput = document.getElementById('driveUrlInput');
+        const link = driveUrlInput.value.trim();
 
-        if (currentPhotos.length === 0) {
-            grid.innerHTML = `<div class="gallery-empty" style="grid-column:1/-1; padding:2rem 0;">
-                <i class="fas fa-image"></i>
-                <h3>No photos yet</h3>
-                <p>Upload photos above to get started.</p>
-            </div>`;
+        if (link !== '' && !link.startsWith('http://') && !link.startsWith('https://')) {
+            showAlert('Please enter a valid URL (starting with http:// or https://)', 'error');
             return;
         }
 
-        grid.innerHTML = currentPhotos.map((photo, idx) => `
-            <div class="photo-card" data-idx="${idx}">
-                <img src="${photo.url}" alt="${photo.filename}" loading="lazy">
-                <div class="photo-overlay">
-                    <div class="photo-actions">
-                        <button onclick="event.stopPropagation(); openLightbox(${idx})">
-                            <i class="fas fa-expand"></i>
-                        </button>
-                        <button class="del-btn" onclick="event.stopPropagation(); deletePhoto('${photo.filename}', ${idx})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-
-        // Click on card (not buttons) → lightbox
-        grid.querySelectorAll('.photo-card').forEach(card => {
-            card.addEventListener('click', () => openLightbox(Number(card.dataset.idx)));
-        });
-    }
-
-    // ───────────────────────────────────────────────
-    //  File selection / drag-drop
-    // ───────────────────────────────────────────────
-    function handleFileSelect(e) {
-        addFiles([...e.target.files]);
-        e.target.value = '';
-    }
-
-    // Nav and UI helper
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        
-        if (sidebar && overlay) {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-    }
-
-    function handleDragOver(e) {
-        e.preventDefault();
-        document.getElementById('uploadZone').classList.add('drag-over');
-    }
-
-    function handleDragLeave() {
-        document.getElementById('uploadZone').classList.remove('drag-over');
-    }
-
-    function handleDrop(e) {
-        e.preventDefault();
-        document.getElementById('uploadZone').classList.remove('drag-over');
-        addFiles([...e.dataTransfer.files].filter(f => f.type.startsWith('image/')));
-    }
-
-    function addFiles(files) {
-        if (!currentBookingId) {
-            showAlert('Please select a booking first.', 'error');
-            return;
-        }
-        files.forEach(f => {
-            if (!selectedFiles.find(s => s.name === f.name && s.size === f.size)) {
-                selectedFiles.push(f);
-            }
-        });
-        renderPreviews();
-    }
-
-    function renderPreviews() {
-        const section = document.getElementById('previewSection');
-        const grid    = document.getElementById('previewGrid');
-        const countEl = document.getElementById('previewCount');
-
-        if (!selectedFiles.length) { section.style.display = 'none'; return; }
-        section.style.display = '';
-        countEl.textContent   = `${selectedFiles.length} file(s) ready to upload`;
-
-        grid.innerHTML = selectedFiles.map((f, i) => {
-            const url = URL.createObjectURL(f);
-            return `
-                <div class="preview-thumb">
-                    <img src="${url}" alt="${f.name}">
-                    <button class="remove-preview" onclick="removePreview(${i})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>`;
-        }).join('');
-    }
-
-    function removePreview(idx) {
-        selectedFiles.splice(idx, 1);
-        renderPreviews();
-    }
-
-    function clearPreview() {
-        selectedFiles = [];
-        renderPreviews();
-    }
-
-    // ───────────────────────────────────────────────
-    //  Upload
-    // ───────────────────────────────────────────────
-    async function uploadPhotos() {
-        if (!currentBookingId) { showAlert('Please select a booking first.', 'error'); return; }
-        if (!selectedFiles.length) { showAlert('Please add photos first.', 'error'); return; }
-
-        const progressEl  = document.getElementById('uploadProgress');
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-        const uploadBtn   = document.getElementById('uploadBtn');
-
-        uploadBtn.disabled  = true;
-        progressEl.style.display = '';
-        progressText.textContent  = `Uploading ${selectedFiles.length} photo(s)...`;
-        progressFill.style.width  = '10%';
-
-        const formData = new FormData();
-        selectedFiles.forEach(f => formData.append('photos', f));
+        saveBtn.disabled = true;
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving & Sending Email...';
 
         try {
-            progressFill.style.width = '50%';
-
-            const res  = await fetch(`/api/gallery/${currentBookingId}/upload`, {
+            const res = await fetch(`/api/gallery/${currentBookingId}`, {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ googleDriveLink: link }),
                 credentials: 'include'
             });
+
             const data = await res.json();
-
-            progressFill.style.width = '100%';
-
             if (data.success) {
-                progressText.textContent = `✅ ${data.uploaded.length} photo(s) uploaded!`;
-                selectedFiles = [];
-                renderPreviews();
-                await loadExistingPhotos(currentBookingId);
-                setTimeout(() => { progressEl.style.display = 'none'; }, 2500);
+                showAlert(data.message || 'Google Drive link saved successfully.', 'success');
+                
+                // Refresh list cache
+                await loadBookings();
             } else {
-                progressText.textContent = `❌ ${data.error}`;
+                showAlert(data.error || 'Failed to save link.', 'error');
             }
         } catch (e) {
-            progressText.textContent = `❌ Upload failed: ${e.message}`;
+            showAlert('Error connecting to server.', 'error');
         } finally {
-            uploadBtn.disabled = false;
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
         }
     }
-
-    // ───────────────────────────────────────────────
-    //  Delete photo
-    // ───────────────────────────────────────────────
-    async function deletePhoto(filename, idx) {
-        const ok = await showConfirm({
-            title: 'Delete Photo',
-            message: 'Are you sure you want to permanently delete this photo?',
-            confirmText: 'Delete',
-            type: 'danger'
-        });
-        if (!ok) return;
-
-        try {
-            const res  = await fetch(`/api/gallery/${currentBookingId}/${filename}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-            const data = await res.json();
-            if (data.success) {
-                currentPhotos.splice(idx, 1);
-                renderExistingPhotos();
-                showAlert('Photo deleted.', 'success');
-            } else {
-                showAlert(data.error, 'error');
-            }
-        } catch (e) {
-            showAlert('Failed to delete photo.', 'error');
-        }
-    }
-
-    // ───────────────────────────────────────────────
-    //  Lightbox
-    // ───────────────────────────────────────────────
-    function openLightbox(idx) {
-        lightboxIdx = idx;
-        const lb  = document.getElementById('lightbox');
-        const img = document.getElementById('lightboxImg');
-        const apiCaption = currentPhotos[idx].filename;
-        const cap = document.getElementById('lightboxCaption');
-        img.src   = currentPhotos[idx].url;
-        cap.textContent = `${idx + 1} / ${currentPhotos.length} — ${apiCaption}`;
-        lb.classList.add('open');
-    }
-
-    function closeLightbox() {
-        document.getElementById('lightbox').classList.remove('open');
-    }
-
-    function lightboxPrev() {
-        lightboxIdx = (lightboxIdx - 1 + currentPhotos.length) % currentPhotos.length;
-        openLightbox(lightboxIdx);
-    }
-
-    function lightboxNext() {
-        lightboxIdx = (lightboxIdx + 1) % currentPhotos.length;
-        openLightbox(lightboxIdx);
-    }
-
-    document.addEventListener('keydown', e => {
-        if (!document.getElementById('lightbox').classList.contains('open')) return;
-        if (e.key === 'Escape')      closeLightbox();
-        if (e.key === 'ArrowLeft')   lightboxPrev();
-        if (e.key === 'ArrowRight')  lightboxNext();
-    });
     </script>
 </body>
 

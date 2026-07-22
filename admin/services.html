@@ -166,7 +166,9 @@
                     <a href="/admin/calendar.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
                     </a>
-                    <a href="/admin/gallery.html" class="sidebar-link"><span class="icon"><i class="fas fa-images"></i></span> Photo Gallery</a>
+                    <a href="/admin/gallery.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
+                    </a>
                     <a href="/admin/analytics.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
                     </a>
@@ -336,6 +338,15 @@
         function showServiceModal(service = null) {
             const isEdit = !!service;
             
+            // Build categories dropdown options
+            const defaultCats = ['Self Portrait Studio', 'Portrait', 'Graduation', 'Studio Pre-Shoot', 'Wedding', 'Event', 'Commercial', 'Fashion', 'General'];
+            const existingCats = (loadedServices || []).map(s => s.category).filter(Boolean);
+            const allCatList = Array.from(new Set([...defaultCats, ...existingCats]));
+            const selectedCat = isEdit ? (service.category || 'Self Portrait Studio') : 'Self Portrait Studio';
+            if (selectedCat && !allCatList.includes(selectedCat)) {
+                allCatList.push(selectedCat);
+            }
+
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.id = 'serviceModal';
@@ -355,8 +366,10 @@
                             
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
                                 <div class="form-group">
-                                    <label for="modalServiceCategory" style="display:block; margin-bottom:0.5rem; font-weight:600;">Category</label>
-                                    <input type="text" id="modalServiceCategory" class="form-control" placeholder="e.g. Portrait" value="${isEdit ? escapeHtml(service.category || '') : ''}">
+                                    <label for="modalServiceCategory" style="display:block; margin-bottom:0.5rem; font-weight:600;">Category *</label>
+                                    <select id="modalServiceCategory" class="form-control" style="cursor:pointer;">
+                                        ${allCatList.map(c => `<option value="${escapeHtml(c)}" ${c === selectedCat ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="modalServiceDuration" style="display:block; margin-bottom:0.5rem; font-weight:600;">Duration (mins) *</label>

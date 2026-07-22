@@ -1300,16 +1300,20 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
     }
 
     body.premium-dashboard .mobile-menu-btn {
+        position: fixed !important;
+        top: 1.25rem !important;
+        left: 1rem !important;
+        z-index: 110 !important;
         display: flex;
         align-items: center;
         justify-content: center;
         width: 40px;
         height: 40px;
         border-radius: 10px;
-        background: var(--premium-surface);
-        border: 1px solid var(--premium-border);
-        box-shadow: var(--premium-shadow-sm);
-        color: var(--premium-text);
+        background: var(--premium-surface, #ffffff);
+        border: 1px solid var(--premium-border, #e2e8f0);
+        box-shadow: var(--premium-shadow-sm, 0 4px 6px -1px rgba(0,0,0,0.1));
+        color: var(--premium-text, #1e293b);
         cursor: pointer;
     }
 }
@@ -1369,7 +1373,9 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
     }
 
     body.premium-dashboard .calendar-grid {
-        min-width: 650px !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
     }
 
     body.premium-dashboard .calendar-table,
