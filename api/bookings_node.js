@@ -302,7 +302,7 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
         let bookings = [];
         try {
             const [dbBookings] = await pool.execute(
-                'SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != "cancelled"',
+                "SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != 'cancelled'",
                 [date]
             );
             bookings = dbBookings || [];
@@ -530,12 +530,12 @@ router.put('/', authMiddleware, async (req, res) => {
     try {
         if (action === 'cancel') {
             if (userRole === 'client') {
-                await pool.execute('UPDATE bookings SET status = "cancelled" WHERE id = ? AND client_id = ?', [bookingId, userId]);
+                await pool.execute("UPDATE bookings SET status = 'cancelled' WHERE id = ? AND client_id = ?", [bookingId, userId]);
             } else {
-                await pool.execute('UPDATE bookings SET status = "cancelled" WHERE id = ?', [bookingId]);
+                await pool.execute("UPDATE bookings SET status = 'cancelled' WHERE id = ?", [bookingId]);
             }
         } else if (action === 'confirm' && userRole !== 'client') {
-            await pool.execute('UPDATE bookings SET status = "confirmed", payment_status = "paid" WHERE id = ?', [bookingId]);
+            await pool.execute("UPDATE bookings SET status = 'confirmed', payment_status = 'paid' WHERE id = ?", [bookingId]);
             
             // Get booking and client info for email
             const [info] = await pool.execute(`
@@ -595,9 +595,9 @@ router.put('/', authMiddleware, async (req, res) => {
 
             await pool.execute('UPDATE bookings SET staff_id = ? WHERE id = ?', [staffId, bookingId]);
         } else if (action === 'complete' && userRole !== 'client') {
-            await pool.execute('UPDATE bookings SET status = "completed" WHERE id = ?', [bookingId]);
+            await pool.execute("UPDATE bookings SET status = 'completed' WHERE id = ?", [bookingId]);
         } else if (action === 'uncomplete' && userRole !== 'client') {
-            await pool.execute('UPDATE bookings SET status = "confirmed" WHERE id = ?', [bookingId]);
+            await pool.execute("UPDATE bookings SET status = 'confirmed' WHERE id = ?", [bookingId]);
         } else {
             return res.status(400).json({ success: false, error: 'Invalid action or insufficient permissions' });
         }
