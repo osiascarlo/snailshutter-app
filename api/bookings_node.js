@@ -249,12 +249,12 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
     try {
         // Parse service IDs
         const ids = [];
-        if (service_ids) {
+        if (service_ids && service_ids !== 'undefined' && service_ids !== 'null') {
             String(service_ids).split(',').forEach(id => {
                 const parsed = parseInt(id.trim());
                 if (!isNaN(parsed)) ids.push(parsed);
             });
-        } else if (service_id) {
+        } else if (service_id && service_id !== 'undefined' && service_id !== 'null') {
             const parsed = parseInt(service_id);
             if (!isNaN(parsed)) ids.push(parsed);
         }

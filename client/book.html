@@ -1632,21 +1632,23 @@
 
         async function loadAvailableSlots() {
             if (!selectedDate) return;
-            console.log('Loading time slots for date:', selectedDate, 'service:', selectedService);
             try {
-                const serviceIdsStr = selectedServices.map(s => s.id).join(',');
-                const response = await api.checkTimeSlots(selectedDate, selectedService.id, serviceIdsStr);
+                const sId = selectedService ? selectedService.id : (selectedServices && selectedServices.length > 0 ? selectedServices[0].id : null);
+                const serviceIdsStr = selectedServices && selectedServices.length > 0 ? selectedServices.map(s => s.id).join(',') : (sId ? String(sId) : '');
+                
+                console.log('Loading time slots for date:', selectedDate, 'service:', sId, 'serviceIds:', serviceIdsStr);
+                const response = await api.checkTimeSlots(selectedDate, sId, serviceIdsStr);
                 console.log('Time slots response:', response);
 
                 if (response.success) {
                     timeSlots = response.available_slots || [];
                     renderTimeSlots(response.booked_slots || []);
                 } else {
-                    showAlert(response.message || 'Failed to load time slots', 'error');
+                    showAlert(response.error || response.message || 'Failed to load time slots', 'error');
                 }
             } catch (error) {
                 console.error('Error loading time slots:', error);
-                showAlert('Failed to load time slots', 'error');
+                showAlert(error.message || 'Failed to load time slots', 'error');
             }
         }
 
