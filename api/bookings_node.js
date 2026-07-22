@@ -130,8 +130,8 @@ router.get('/', authMiddleware, async (req, res) => {
 
         // Map booking service names based on service_ids
         bookings.forEach(b => {
-            const idsStr = b.service_ids || b.service_id.toString();
-            const ids = idsStr.split(',').map(idStr => parseInt(idStr.trim()));
+            const idsStr = String(b.service_ids || b.service_id || '');
+            const ids = idsStr.split(',').map(idStr => parseInt(idStr.trim())).filter(id => !isNaN(id));
             const matching = services.filter(s => ids.includes(s.id));
             if (matching.length > 0) {
                 b.service_name = matching.map(s => s.name).join(', ');

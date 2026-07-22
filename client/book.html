@@ -1341,11 +1341,23 @@
             return calendarEvents[dateStr] || [];
         }
 
+        function organizeBookingsByDate() {
+            calendarEvents = {};
+            (allBookings || []).forEach(b => {
+                if (!b.booking_date) return;
+                const dStr = String(b.booking_date).split('T')[0];
+                if (!calendarEvents[dStr]) {
+                    calendarEvents[dStr] = [];
+                }
+                calendarEvents[dStr].push(b);
+            });
+        }
+
         async function loadAllBookings() {
             try {
                 const response = await api.getBookings();
                 if (response.success) {
-                    allBookings = response.data;
+                    allBookings = response.data || [];
                     organizeBookingsByDate();
                     renderCalendar();
                 }
