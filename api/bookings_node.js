@@ -173,6 +173,12 @@ function formatTimeStr(timeVal) {
         const s = String(timeVal.getSeconds()).padStart(2, '0');
         return `${h}:${m}:${s}`;
     }
+    if (typeof timeVal === 'object') {
+        const h = String(timeVal.hours ?? timeVal.hour ?? 0).padStart(2, '0');
+        const m = String(timeVal.minutes ?? timeVal.minute ?? 0).padStart(2, '0');
+        const s = String(timeVal.seconds ?? timeVal.second ?? 0).padStart(2, '0');
+        return `${h}:${m}:${s}`;
+    }
     let timeStr = String(timeVal);
     
     // Check if it's a full Date string (e.g. "Wed Jul 22 2026...")
@@ -197,6 +203,11 @@ function timeToMinutes(timeVal) {
     if (!timeVal) return 0;
     if (timeVal instanceof Date) {
         return timeVal.getHours() * 60 + timeVal.getMinutes();
+    }
+    if (typeof timeVal === 'object') {
+        const h = parseInt(timeVal.hours ?? timeVal.hour ?? 0) || 0;
+        const m = parseInt(timeVal.minutes ?? timeVal.minute ?? 0) || 0;
+        return h * 60 + m;
     }
     const timeStr = String(timeVal);
     // If it is a full Date string format
@@ -239,7 +250,7 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
         // Parse service IDs
         const ids = [];
         if (service_ids) {
-            service_ids.split(',').forEach(id => {
+            String(service_ids).split(',').forEach(id => {
                 const parsed = parseInt(id.trim());
                 if (!isNaN(parsed)) ids.push(parsed);
             });
@@ -250,22 +261,54 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
 
         let totalDuration = 60; // Default to 60 minutes
         if (ids.length > 0) {
-            const placeholders = ids.map(() => '?').join(',');
-            const [dbServices] = await pool.query(
-                `SELECT duration_minutes FROM services WHERE id IN (${placeholders})`,
-                ids
-            );
-            if (dbServices.length > 0) {
-                totalDuration = dbServices.reduce((sum, s) => sum + (s.duration_minutes || 60), 0);
+            try {
+                const placeholders = ids.map(() => '?').join(',');
+                const [dbServices] = await pool.query(
+                    `SELECT duration_minutes FROM services WHERE id IN (${placeholders})`,
+                    ids
+                );
+                if (dbServices && dbServices.length > 0) {
+                    totalDuration = dbServices.reduce((sum, s) => sum + (parseInt(s.duration_minutes) || 60), 0);
+                }
+            } catch (err) {
+                console.error('Error fetching service durations:', err);
+                totalDuration = 60;
             }
         }
 
-        const [slots] = await pool.execute('SELECT * FROM time_slots WHERE is_active = 1 ORDER BY start_time');
-        
-        const [bookings] = await pool.execute(
-            'SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != "cancelled"',
-            [date]
-        );
+        let slots = [];
+        try {
+            const [dbSlots] = await pool.execute('SELECT * FROM time_slots WHERE is_active = 1 ORDER BY start_time');
+            slots = dbSlots || [];
+        } catch (err) {
+            console.error('Error fetching time_slots from DB:', err);
+        }
+
+        // Fallback default slots if time_slots table is empty or errored
+        if (slots.length === 0) {
+            slots = [
+                { id: 10, start_time: '10:00:00', end_time: '11:00:00', is_active: 1 },
+                { id: 11, start_time: '11:00:00', end_time: '12:00:00', is_active: 1 },
+                { id: 12, start_time: '12:00:00', end_time: '13:00:00', is_active: 1 },
+                { id: 13, start_time: '13:00:00', end_time: '14:00:00', is_active: 1 },
+                { id: 14, start_time: '14:00:00', end_time: '15:00:00', is_active: 1 },
+                { id: 15, start_time: '15:00:00', end_time: '16:00:00', is_active: 1 },
+                { id: 16, start_time: '16:00:00', end_time: '17:00:00', is_active: 1 },
+                { id: 17, start_time: '17:00:00', end_time: '18:00:00', is_active: 1 },
+                { id: 18, start_time: '18:00:00', end_time: '19:00:00', is_active: 1 }
+            ];
+        }
+
+        let bookings = [];
+        try {
+            const [dbBookings] = await pool.execute(
+                'SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != "cancelled"',
+                [date]
+            );
+            bookings = dbBookings || [];
+        } catch (err) {
+            console.error('Error fetching bookings for date:', err);
+        }
 
         // Normalize TIME values to HH:MM:SS strings to support driver variations
         slots.forEach(s => {
@@ -281,7 +324,7 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
         // Find the absolute closing time from active slots (fallback to 7:00 PM)
         let maxEndTimeStr = '19:00:00';
         if (slots.length > 0) {
-            maxEndTimeStr = slots.reduce((max, s) => s.end_time > max ? s.end_time : max, '19:00:00');
+            maxEndTimeStr = slots.reduce((max, s) => (s.end_time > max ? s.end_time : max), '19:00:00');
         }
         const closingMins = timeToMinutes(maxEndTimeStr);
 
@@ -292,7 +335,6 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
             const startMins = timeToMinutes(slot.start_time);
             const endMins = startMins + totalDuration;
             
-            // Create dynamic end_time and label
             const adjustedSlot = {
                 id: slot.id,
                 start_time: slot.start_time,
@@ -327,7 +369,7 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error('Fetch Time Slots Error:', error);
-        res.status(500).json({ success: false, error: 'Internal Server Error: ' + error.message, stack: error.stack });
+        res.status(500).json({ success: false, error: 'Internal Server Error: ' + error.message });
     }
 });
 
