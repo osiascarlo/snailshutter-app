@@ -301,9 +301,9 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
 
         let bookings = [];
         try {
-            const [dbBookings] = await pool.execute(
-                "SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != 'cancelled'",
-                [date]
+            const [dbBookings] = await pool.query(
+                "SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != ?",
+                [date, 'cancelled']
             );
             bookings = dbBookings || [];
         } catch (err) {
@@ -653,7 +653,7 @@ router.put('/', authMiddleware, async (req, res) => {
  */
 router.get('/payment-settings', async (req, res) => {
     try {
-        const [rows] = await pool.execute('SELECT setting_value FROM settings WHERE setting_key = "gcashQr"');
+        const [rows] = await pool.query('SELECT setting_value FROM settings WHERE setting_key = ?', ['gcashQr']);
         const gcashQr = rows[0]?.setting_value || '/assets/images/gcash_qr.png';
         res.json({ success: true, gcashQr });
     } catch (error) {

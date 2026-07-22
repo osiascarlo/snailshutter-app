@@ -59,9 +59,9 @@ async function buildSlotPayload(date) {
     const [slots] = await pool.execute(
         'SELECT * FROM time_slots WHERE is_active = 1 ORDER BY start_time'
     );
-    const [bookings] = await pool.execute(
-        "SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != 'cancelled'",
-        [date]
+    const [bookings] = await pool.query(
+        "SELECT start_time, end_time FROM bookings WHERE booking_date = ? AND status != ?",
+        [date, 'cancelled']
     );
 
     const bookedSlots = [];
