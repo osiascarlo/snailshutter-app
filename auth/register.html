@@ -129,26 +129,33 @@
 
         /* Password toggle styles */
         .password-toggle-group {
-            position: relative;
+            position: relative !important;
+            display: flex !important;
+            align-items: center !important;
+            width: 100% !important;
         }
 
         .password-toggle-icon {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--color-text-muted, #777);
-            transition: color 0.3s;
-            z-index: 10;
+            position: absolute !important;
+            right: 12px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            cursor: pointer !important;
+            color: #777 !important;
+            transition: color 0.2s ease !important;
+            z-index: 99 !important;
+            font-size: 0.95rem !important;
+            user-select: none !important;
+            pointer-events: auto !important;
         }
 
         .password-toggle-icon:hover {
-            color: var(--color-primary, #2d6a4f);
+            color: var(--color-primary, #2d6a4f) !important;
         }
 
         .form-control.with-toggle {
-            padding-right: 3rem;
+            padding-right: 2.75rem !important;
+            width: 100% !important;
         }
 
         /* Hide Edge/IE browser default eye icon to prevent duplicate/overlaying eye icons */
@@ -392,22 +399,26 @@
             if (togglePassword && passwordInput) {
                 togglePassword.addEventListener('click', function (e) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    const isPassword = passwordInput.getAttribute('type') === 'password';
-                    passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-                    this.classList.toggle('fa-eye', !isPassword);
-                    this.classList.toggle('fa-eye-slash', isPassword);
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        this.className = 'fas fa-eye-slash password-toggle-icon';
+                    } else {
+                        passwordInput.type = 'password';
+                        this.className = 'fas fa-eye password-toggle-icon';
+                    }
                 });
             }
 
             if (toggleConfirmPassword && confirmPasswordInput) {
                 toggleConfirmPassword.addEventListener('click', function (e) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    const isPassword = confirmPasswordInput.getAttribute('type') === 'password';
-                    confirmPasswordInput.setAttribute('type', isPassword ? 'text' : 'password');
-                    this.classList.toggle('fa-eye', !isPassword);
-                    this.classList.toggle('fa-eye-slash', isPassword);
+                    if (confirmPasswordInput.type === 'password') {
+                        confirmPasswordInput.type = 'text';
+                        this.className = 'fas fa-eye-slash password-toggle-icon';
+                    } else {
+                        confirmPasswordInput.type = 'password';
+                        this.className = 'fas fa-eye password-toggle-icon';
+                    }
                 });
             }
 
