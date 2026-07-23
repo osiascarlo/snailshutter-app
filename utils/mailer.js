@@ -166,6 +166,7 @@ const sendEmail = async (to, subject, html, text = '') => {
             return await sendWithBrevo(to, subject, html, plainText);
         } catch (brevoError) {
             console.error('⚠️ Brevo API failed:', brevoError.message);
+            // If explicit SMTP credentials also exist, try fallback, otherwise throw Brevo error directly!
             if (process.env.MAIL_USER && process.env.MAIL_PASS) {
                 console.warn('Attempting SMTP fallback...');
             } else {
@@ -179,11 +180,16 @@ const sendEmail = async (to, subject, html, text = '') => {
         try {
             return await sendWithResend(to, subject, html, plainText);
         } catch (resendError) {
-            console.error('⚠️ Resend API failed, falling back to SMTP:', resendError.message);
+            console.error('⚠️ Resend API failed:', resendError.message);
+            if (process.env.MAIL_USER && process.env.MAIL_PASS) {
+                console.warn('Attempting SMTP fallback...');
+            } else {
+                throw resendError;
+            }
         }
     }
 
-    // 3. Fallback to Nodemailer SMTP (Works with Brevo SMTP, Gmail SMTP, SendGrid SMTP, etc.)
+    // 3. Fallback to Nodemailer SMTP
     try {
         const senderUser = process.env.MAIL_USER || 'no-reply@snailshutter.com';
         const senderName = process.env.MAIL_FROM_NAME || 'SnailShutter Studio';
@@ -208,7 +214,7 @@ const sendEmail = async (to, subject, html, text = '') => {
     } catch (error) {
         console.error('Send Email Error:', error);
 
-        let userMessage = 'Failed to send email. Please try again later.';
+        let userMessage = error.message || 'Failed to send email. Please try again later.';
         if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
             userMessage = 'Could not connect to Mail server. Check MAIL_HOST and MAIL_PORT in .env';
         } else if (error.responseCode === 535 || (error.message && error.message.includes('Invalid login'))) {
