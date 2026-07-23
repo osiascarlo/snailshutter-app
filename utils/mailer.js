@@ -4,6 +4,9 @@ require('dotenv').config();
 const port = parseInt(process.env.MAIL_PORT, 10) || 587;
 
 const transporter = nodemailer.createTransport({
+    pool: true,                    // Reuse SMTP connections for fast dispatch
+    maxConnections: 5,             // Max parallel connections
+    maxMessages: 100,              // Max messages per connection
     host: process.env.MAIL_HOST || 'smtp.gmail.com',
     port: port,
     secure: port === 465,          // true only for port 465 (SSL)
@@ -13,7 +16,10 @@ const transporter = nodemailer.createTransport({
     },
     tls: {
         rejectUnauthorized: false  // allow self-signed certs / avoid ECONNRESET
-    }
+    },
+    connectionTimeout: 8000,       // 8s max connection timeout
+    greetingTimeout: 5000,         // 5s greeting timeout
+    socketTimeout: 10000           // 10s socket inactivity timeout
 });
 
 // Verify SMTP connection on startup (non-blocking)

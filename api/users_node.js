@@ -190,11 +190,11 @@ router.get('/profile', authMiddleware, async (req, res) => {
             'SELECT id, full_name, email, phone, role, avatar, created_at FROM users WHERE id = ?',
             [req.session.user_id]
         );
-        
+
         if (users.length === 0) {
             return res.status(404).json({ success: false, error: 'User not found' });
         }
-        
+
         res.json({ success: true, user: users[0] });
     } catch (error) {
         console.error('Fetch Profile Error:', error);
@@ -221,10 +221,10 @@ router.post('/profile', authMiddleware, async (req, res) => {
             'UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?',
             [full_name, email, phone, req.session.user_id]
         );
-        
+
         // Update session name if changed
         req.session.user_name = full_name;
-        
+
         res.json({ success: true, message: 'Profile updated successfully' });
     } catch (error) {
         console.error('Update Profile Error:', error);

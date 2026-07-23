@@ -62,7 +62,11 @@ router.post('/send-otp', async (req, res) => {
             </div>
         `;
 
-        await sendEmail(email, 'Your Verification Code', otpHtml);
+        // Dispatch email asynchronously so client registration UI transitions instantly
+        sendEmail(email, 'Your Verification Code', otpHtml)
+            .then(info => console.log('OTP Email dispatched to %s: %s', email, info?.messageId))
+            .catch(err => console.error('Background OTP send error:', err));
+
         res.json({ success: true, message: 'Verification code sent' });
 
     } catch (error) {
@@ -330,7 +334,10 @@ router.post('/forgot-password', async (req, res) => {
             </div>
         `;
 
-        await sendEmail(email, 'Password Reset Code', resetHtml);
+        sendEmail(email, 'Password Reset Code', resetHtml)
+            .then(info => console.log('Password Reset Email dispatched to %s: %s', email, info?.messageId))
+            .catch(err => console.error('Background password reset email error:', err));
+
         res.json({ success: true, message: 'Reset code sent to your email.' });
 
     } catch (error) {
