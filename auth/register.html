@@ -517,7 +517,7 @@
                         // Start resend timer
                         startResendTimer();
 
-                        showAlert('Verification code sent to your email!', 'success');
+                        showAlert(result.message || 'Verification code sent to your email!', 'success');
                     } else {
                         showAlert(result.error || 'Failed to send verification code', 'error');
                     }

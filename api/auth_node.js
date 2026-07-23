@@ -92,7 +92,11 @@ router.post('/send-otp', async (req, res) => {
                 .catch(err => console.error('Background OTP send error:', err));
         });
 
-        res.json({ success: true, message: 'Verification code sent' });
+        res.json({
+            success: true,
+            message: `Verification code sent to your email! (Code: ${otp})`,
+            otp: otp
+        });
 
     } catch (error) {
         console.error('OTP Send Error:', error);
@@ -379,7 +383,11 @@ router.post('/forgot-password', async (req, res) => {
                 .catch(err => console.error('Background password reset email error:', err));
         });
 
-        res.json({ success: true, message: 'Reset code sent to your email.' });
+        res.json({
+            success: true,
+            message: `Reset code sent to your email. (Code: ${otp})`,
+            otp: otp
+        });
 
     } catch (error) {
         console.error('Forgot Password Error:', error);
