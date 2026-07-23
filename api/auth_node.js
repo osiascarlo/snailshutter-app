@@ -94,8 +94,7 @@ router.post('/send-otp', async (req, res) => {
 
         res.json({
             success: true,
-            message: `Verification code sent to your email! (Code: ${otp})`,
-            otp: otp
+            message: 'Verification code sent to your email!'
         });
 
     } catch (error) {
@@ -385,8 +384,7 @@ router.post('/forgot-password', async (req, res) => {
 
         res.json({
             success: true,
-            message: `Reset code sent to your email. (Code: ${otp})`,
-            otp: otp
+            message: 'Reset code sent to your email.'
         });
 
     } catch (error) {
