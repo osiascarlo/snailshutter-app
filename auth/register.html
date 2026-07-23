@@ -127,7 +127,7 @@
         .requirement-item.valid { color: var(--color-success); }
         .requirement-item.invalid { color: var(--color-danger); }
 
-        /* Password toggle styles */
+        /* Password toggle button styles */
         .password-toggle-group {
             position: relative !important;
             display: flex !important;
@@ -135,22 +135,27 @@
             width: 100% !important;
         }
 
-        .password-toggle-icon {
+        .password-toggle-btn {
             position: absolute !important;
-            right: 14px !important;
+            right: 8px !important;
             top: 50% !important;
             transform: translateY(-50%) !important;
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
             cursor: pointer !important;
-            color: #777 !important;
+            color: #666 !important;
             transition: color 0.2s ease !important;
             z-index: 9999 !important;
             font-size: 1rem !important;
             user-select: none !important;
-            pointer-events: auto !important;
-            padding: 6px !important;
+            padding: 6px 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
 
-        .password-toggle-icon:hover {
+        .password-toggle-btn:hover {
             color: var(--color-primary, #2d6a4f) !important;
         }
 
@@ -232,7 +237,9 @@
                                 <input type="password" id="password" name="password" class="form-control with-toggle"
                                     placeholder="Min 8 characters" required minlength="8"
                                     oninput="validatePasswordRequirements(this.value); if(document.getElementById('confirmPassword').value) validatePasswordMatch();">
-                                <i class="fas fa-eye password-toggle-icon" id="togglePassword" onclick="togglePass('password', this)"></i>
+                                <button type="button" class="password-toggle-btn" onclick="togglePass('password', this)" aria-label="Toggle password visibility">
+                                    <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="form-group">
@@ -241,7 +248,9 @@
                                 <input type="password" id="confirmPassword" name="confirmPassword" class="form-control with-toggle"
                                     placeholder="Repeat password" required
                                     oninput="validatePasswordMatch();">
-                                <i class="fas fa-eye password-toggle-icon" id="toggleConfirmPassword" onclick="togglePass('confirmPassword', this)"></i>
+                                <button type="button" class="password-toggle-btn" onclick="togglePass('confirmPassword', this)" aria-label="Toggle confirm password visibility">
+                                    <i class="fas fa-eye" id="toggleConfirmPasswordIcon"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -364,15 +373,26 @@
     <script src="/assets/js/main.js"></script>
     <script>
         // Global functions available immediately for inline event handlers & JS listeners
-        window.togglePass = function (inputId, iconEl) {
+        window.togglePass = function (inputId, btnEl) {
             const input = document.getElementById(inputId);
             if (!input) return;
-            if (input.type === 'password') {
-                input.type = 'text';
-                iconEl.className = 'fas fa-eye-slash password-toggle-icon';
+
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            // Find the icon element inside the button or target
+            const icon = btnEl.querySelector ? (btnEl.querySelector('i, svg') || btnEl) : btnEl;
+            
+            if (isPassword) {
+                if (icon.tagName && icon.tagName.toLowerCase() === 'svg') {
+                    icon.setAttribute('data-icon', 'eye-slash');
+                }
+                icon.className = 'fas fa-eye-slash';
             } else {
-                input.type = 'password';
-                iconEl.className = 'fas fa-eye password-toggle-icon';
+                if (icon.tagName && icon.tagName.toLowerCase() === 'svg') {
+                    icon.setAttribute('data-icon', 'eye');
+                }
+                icon.className = 'fas fa-eye';
             }
         };
 
@@ -415,59 +435,59 @@
 
             let isValid = true;
 
-            if (!password) {
-                lengthReq.innerHTML = '<i class="far fa-circle"></i> 8+ characters';
-                lengthReq.className = 'requirement-item';
-
-                capitalReq.innerHTML = '<i class="far fa-circle"></i> Capital letter';
-                capitalReq.className = 'requirement-item';
-
-                numberReq.innerHTML = '<i class="far fa-circle"></i> One number';
-                numberReq.className = 'requirement-item';
-
-                specialReq.innerHTML = '<i class="far fa-circle"></i> Special char';
-                specialReq.className = 'requirement-item';
-
-                return false;
-            }
-
-            // Length requirement (8+ characters)
-            if (password.length >= 8) {
+            // 1. Length requirement (8+ characters)
+            if (password && password.length >= 8) {
                 lengthReq.innerHTML = '<i class="fas fa-circle-check"></i> 8+ characters';
                 lengthReq.className = 'requirement-item valid';
-            } else {
+            } else if (password && password.length > 0) {
                 lengthReq.innerHTML = '<i class="fas fa-circle-xmark"></i> 8+ characters';
                 lengthReq.className = 'requirement-item invalid';
                 isValid = false;
+            } else {
+                lengthReq.innerHTML = '<i class="far fa-circle"></i> 8+ characters';
+                lengthReq.className = 'requirement-item';
+                isValid = false;
             }
 
-            // Capital letter requirement
-            if (/[A-Z]/.test(password)) {
+            // 2. Capital letter requirement
+            if (password && /[A-Z]/.test(password)) {
                 capitalReq.innerHTML = '<i class="fas fa-circle-check"></i> Capital letter';
                 capitalReq.className = 'requirement-item valid';
-            } else {
+            } else if (password && password.length > 0) {
                 capitalReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Capital letter';
                 capitalReq.className = 'requirement-item invalid';
                 isValid = false;
-            }
-
-            // Number requirement
-            if (/\d/.test(password)) {
-                numberReq.innerHTML = '<i class="fas fa-circle-check"></i> One number';
-                numberReq.className = 'requirement-item valid';
             } else {
-                numberReq.innerHTML = '<i class="fas fa-circle-xmark"></i> One number';
-                numberReq.className = 'requirement-item invalid';
+                capitalReq.innerHTML = '<i class="far fa-circle"></i> Capital letter';
+                capitalReq.className = 'requirement-item';
                 isValid = false;
             }
 
-            // Special character requirement (any symbol/non-alphanumeric char)
-            if (/[^a-zA-Z0-9]/.test(password)) {
+            // 3. Number requirement
+            if (password && /\d/.test(password)) {
+                numberReq.innerHTML = '<i class="fas fa-circle-check"></i> One number';
+                numberReq.className = 'requirement-item valid';
+            } else if (password && password.length > 0) {
+                numberReq.innerHTML = '<i class="fas fa-circle-xmark"></i> One number';
+                numberReq.className = 'requirement-item invalid';
+                isValid = false;
+            } else {
+                numberReq.innerHTML = '<i class="far fa-circle"></i> One number';
+                numberReq.className = 'requirement-item';
+                isValid = false;
+            }
+
+            // 4. Special character requirement (any symbol/non-alphanumeric char)
+            if (password && /[^a-zA-Z0-9]/.test(password)) {
                 specialReq.innerHTML = '<i class="fas fa-circle-check"></i> Special char';
                 specialReq.className = 'requirement-item valid';
-            } else {
+            } else if (password && password.length > 0) {
                 specialReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Special char';
                 specialReq.className = 'requirement-item invalid';
+                isValid = false;
+            } else {
+                specialReq.innerHTML = '<i class="far fa-circle"></i> Special char';
+                specialReq.className = 'requirement-item';
                 isValid = false;
             }
 
