@@ -473,7 +473,7 @@
                 try {
                     // Generate and send real OTP via PHPMailer
                     console.log('Frontend: Requesting OTP for:', email);
-                    const result = await api.sendOTP(email, fullName);
+                    const result = await api.sendOTP(email, fullName, phone);
 
                     if (result.success) {
                         emailDisplay.textContent = email;

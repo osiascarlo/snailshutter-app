@@ -93,10 +93,10 @@ class API {
     }
 
     // OTP endpoints — uses real Node.js backend
-    async sendOTP(email, name = '') {
+    async sendOTP(email, name = '', phone = '') {
         return this.request('/auth/send-otp', {
             method: 'POST',
-            body: JSON.stringify({ email, name })
+            body: JSON.stringify({ email, name, phone })
         });
     }
 

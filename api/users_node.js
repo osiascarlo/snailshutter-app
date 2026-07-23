@@ -49,16 +49,31 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
     }
 
     try {
-        // Check if email already exists
-        const [existing] = await pool.execute('SELECT id FROM users WHERE email = ?', [email]);
-        if (existing.length > 0) {
-            return res.status(400).json({ success: false, error: 'Email already registered' });
+        const full_name = `${first_name} ${last_name}`.trim();
+
+        // Check if email, phone, or full name already exists
+        if (email) {
+            const [existingEmail] = await pool.execute('SELECT id FROM users WHERE LOWER(email) = LOWER(?)', [email.trim()]);
+            if (existingEmail.length > 0) {
+                return res.status(409).json({ success: false, error: 'An account with this email address already exists.' });
+            }
         }
 
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const full_name = `${first_name} ${last_name}`.trim();
+        if (phone && String(phone).trim()) {
+            const [existingPhone] = await pool.execute('SELECT id FROM users WHERE phone = ?', [String(phone).trim()]);
+            if (existingPhone.length > 0) {
+                return res.status(409).json({ success: false, error: 'An account with this phone number already exists.' });
+            }
+        }
+
+        if (full_name) {
+            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(full_name) = LOWER(?)', [full_name]);
+            if (existingName.length > 0) {
+                return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
+            }
+        }
         const userStatus = status || 'active';
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insert new user
         await pool.execute(

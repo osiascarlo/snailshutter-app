@@ -13,15 +13,36 @@ const generateOTP = () => {
  * POST /api/auth/send_otp.php (Ported to /api/auth/send-otp)
  */
 router.post('/send-otp', async (req, res) => {
-    const { email, name } = req.body;
+    const { email, name, phone } = req.body;
     const userName = name || 'User';
 
     if (!email) {
         return res.status(400).json({ success: false, error: 'Email is required' });
     }
 
-    let otp;
     try {
+        // Check if an account already exists with the same email, phone, or full name
+        if (email && email.trim()) {
+            const [existingEmail] = await pool.execute('SELECT id FROM users WHERE LOWER(email) = LOWER(?)', [email.trim()]);
+            if (existingEmail.length > 0) {
+                return res.status(409).json({ success: false, error: 'An account with this email address already exists.' });
+            }
+        }
+
+        if (phone && phone.trim()) {
+            const [existingPhone] = await pool.execute('SELECT id FROM users WHERE phone = ?', [phone.trim()]);
+            if (existingPhone.length > 0) {
+                return res.status(409).json({ success: false, error: 'An account with this phone number already exists.' });
+            }
+        }
+
+        if (name && name.trim()) {
+            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(full_name) = LOWER(?)', [name.trim()]);
+            if (existingName.length > 0) {
+                return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
+            }
+        }
+
         // Rate-limit check (max 3 in 10 mins)
         const [rateCheck] = await pool.execute(
             'SELECT COUNT(*) as count FROM otp_verifications WHERE email = ? AND created_at > DATE_SUB(NOW(), INTERVAL 10 MINUTE)',
@@ -127,10 +148,24 @@ router.post('/verify-register', async (req, res) => {
         // OTP Valid - Mark as used
         await pool.execute('UPDATE otp_verifications SET is_used = 1 WHERE id = ?', [record.id]);
 
-        // Check if user exists
-        const [existing] = await pool.execute('SELECT id FROM users WHERE email = ?', [email]);
-        if (existing.length > 0) {
-            return res.status(409).json({ success: false, error: 'Email already registered' });
+        // Check if user exists with same email, phone, or full name
+        const [existingEmail] = await pool.execute('SELECT id FROM users WHERE LOWER(email) = LOWER(?)', [email.trim()]);
+        if (existingEmail.length > 0) {
+            return res.status(409).json({ success: false, error: 'An account with this email address already exists.' });
+        }
+
+        if (phone && phone.trim()) {
+            const [existingPhone] = await pool.execute('SELECT id FROM users WHERE phone = ?', [phone.trim()]);
+            if (existingPhone.length > 0) {
+                return res.status(409).json({ success: false, error: 'An account with this phone number already exists.' });
+            }
+        }
+
+        if (fullName && fullName.trim()) {
+            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(full_name) = LOWER(?)', [fullName.trim()]);
+            if (existingName.length > 0) {
+                return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
+            }
         }
 
         // Create User
