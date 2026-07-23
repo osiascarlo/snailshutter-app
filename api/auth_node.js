@@ -83,9 +83,11 @@ router.post('/send-otp', async (req, res) => {
             </div>
         `;
 
+        const otpText = `Hi ${userName}, Your verification code for SnailShutter Studio is: ${otp}. This code will expire in 10 minutes.`;
+
         // Dispatch email asynchronously on next tick so HTTP response returns in < 10ms
         setImmediate(() => {
-            sendEmail(email, 'Your Verification Code', otpHtml)
+            sendEmail(email, 'Your Verification Code', otpHtml, otpText)
                 .then(info => console.log('OTP Email dispatched to %s: %s', email, info?.messageId))
                 .catch(err => console.error('Background OTP send error:', err));
         });

@@ -37,18 +37,29 @@ transporter.verify((error) => {
  * @param {string} to Receiver email
  * @param {string} subject Email subject
  * @param {string} html HTML content
+ * @param {string} [text] Optional plain text alternative
  */
-const sendEmail = async (to, subject, html) => {
+const sendEmail = async (to, subject, html, text = '') => {
     try {
+        // Generate plain text alternative if not supplied to pass spam/greylisting filters instantly
+        const plainText = text || html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
         const mailOptions = {
             from: `"${process.env.MAIL_FROM_NAME || 'SnailShutter'}" <${process.env.MAIL_USER}>`,
             to,
             subject,
-            html
+            text: plainText,
+            html,
+            priority: 'high',
+            headers: {
+                'X-Priority': '1 (Highest)',
+                'X-MSMail-Priority': 'High',
+                'Importance': 'High'
+            }
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent: %s', info.messageId);
+        console.log('Email sent to %s: %s', to, info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error('Send Email Error:', error);
