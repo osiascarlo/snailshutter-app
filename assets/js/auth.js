@@ -96,6 +96,16 @@ class Auth {
         }
     }
 
+    setCurrentUser(user) {
+        this.currentUser = user;
+        if (user) {
+            sessionStorage.setItem('currentUser', JSON.stringify(user));
+        } else {
+            sessionStorage.removeItem('currentUser');
+        }
+        this.updateUI();
+    }
+
     async register(userData) {
         try {
             const response = await api.register(userData);
