@@ -494,13 +494,7 @@
             return isValid;
         };
 
-        // Check if already logged in
         document.addEventListener('DOMContentLoaded', function () {
-            if (auth.isLoggedIn()) {
-                auth.redirectToDashboard();
-                return;
-            }
-
             // Form elements
             const registerForm = document.getElementById('registerForm');
             const otpForm = document.getElementById('otpForm');
