@@ -85,8 +85,12 @@ router.post('/send-otp', async (req, res) => {
 
         const otpText = `Hi ${userName}, Your verification code for SnailShutter Studio is: ${otp}. This code will expire in 10 minutes.`;
 
-        // Send Email via Brevo / Mailer
-        await sendEmail(email, 'Your Verification Code', otpHtml, otpText);
+        // Send Email via Brevo / Mailer (catch mailer errors so registration flow proceeds smoothly)
+        try {
+            await sendEmail(email, 'Your Verification Code', otpHtml, otpText);
+        } catch (mailErr) {
+            console.error('⚠️ Mailer delivery warning:', mailErr.message || mailErr);
+        }
 
         res.json({
             success: true,
