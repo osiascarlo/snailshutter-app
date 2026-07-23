@@ -230,7 +230,8 @@
                             <label for="password">Password</label>
                             <div class="password-toggle-group">
                                 <input type="password" id="password" name="password" class="form-control with-toggle"
-                                    placeholder="Min 8 characters" required minlength="8">
+                                    placeholder="Min 8 characters" required minlength="8"
+                                    oninput="validatePasswordRequirements(this.value); if(document.getElementById('confirmPassword').value) validatePasswordMatch();">
                                 <i class="fas fa-eye password-toggle-icon" id="togglePassword" onclick="togglePass('password', this)"></i>
                             </div>
                         </div>
@@ -238,7 +239,8 @@
                             <label for="confirmPassword">Confirm Password</label>
                             <div class="password-toggle-group">
                                 <input type="password" id="confirmPassword" name="confirmPassword" class="form-control with-toggle"
-                                    placeholder="Repeat password" required>
+                                    placeholder="Repeat password" required
+                                    oninput="validatePasswordMatch();">
                                 <i class="fas fa-eye password-toggle-icon" id="toggleConfirmPassword" onclick="togglePass('confirmPassword', this)"></i>
                             </div>
                         </div>
@@ -361,6 +363,117 @@
     <script src="/assets/js/auth.js"></script>
     <script src="/assets/js/main.js"></script>
     <script>
+        // Global functions available immediately for inline event handlers & JS listeners
+        window.togglePass = function (inputId, iconEl) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconEl.className = 'fas fa-eye-slash password-toggle-icon';
+            } else {
+                input.type = 'password';
+                iconEl.className = 'fas fa-eye password-toggle-icon';
+            }
+        };
+
+        window.validatePasswordMatch = function () {
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const passwordMatch = document.getElementById('passwordMatch');
+            const matchText = document.getElementById('matchText');
+
+            if (!passwordInput || !confirmPasswordInput || !passwordMatch || !matchText) return;
+
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (confirmPassword.length === 0) {
+                passwordMatch.style.display = 'none';
+                return;
+            }
+
+            passwordMatch.style.display = 'block';
+
+            if (password === confirmPassword) {
+                matchText.innerHTML = '✅ Passwords match';
+                matchText.style.color = '#28a745';
+                confirmPasswordInput.style.borderColor = '#28a745';
+            } else {
+                matchText.innerHTML = '❌ Passwords do not match';
+                matchText.style.color = '#dc3545';
+                confirmPasswordInput.style.borderColor = '#dc3545';
+            }
+        };
+
+        window.validatePasswordRequirements = function (password) {
+            const lengthReq = document.getElementById('lengthReq');
+            const capitalReq = document.getElementById('capitalReq');
+            const numberReq = document.getElementById('numberReq');
+            const specialReq = document.getElementById('specialReq');
+
+            if (!lengthReq || !capitalReq || !numberReq || !specialReq) return false;
+
+            let isValid = true;
+
+            if (!password) {
+                lengthReq.innerHTML = '<i class="far fa-circle"></i> 8+ characters';
+                lengthReq.className = 'requirement-item';
+
+                capitalReq.innerHTML = '<i class="far fa-circle"></i> Capital letter';
+                capitalReq.className = 'requirement-item';
+
+                numberReq.innerHTML = '<i class="far fa-circle"></i> One number';
+                numberReq.className = 'requirement-item';
+
+                specialReq.innerHTML = '<i class="far fa-circle"></i> Special char';
+                specialReq.className = 'requirement-item';
+
+                return false;
+            }
+
+            // Length requirement (8+ characters)
+            if (password.length >= 8) {
+                lengthReq.innerHTML = '<i class="fas fa-circle-check"></i> 8+ characters';
+                lengthReq.className = 'requirement-item valid';
+            } else {
+                lengthReq.innerHTML = '<i class="fas fa-circle-xmark"></i> 8+ characters';
+                lengthReq.className = 'requirement-item invalid';
+                isValid = false;
+            }
+
+            // Capital letter requirement
+            if (/[A-Z]/.test(password)) {
+                capitalReq.innerHTML = '<i class="fas fa-circle-check"></i> Capital letter';
+                capitalReq.className = 'requirement-item valid';
+            } else {
+                capitalReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Capital letter';
+                capitalReq.className = 'requirement-item invalid';
+                isValid = false;
+            }
+
+            // Number requirement
+            if (/\d/.test(password)) {
+                numberReq.innerHTML = '<i class="fas fa-circle-check"></i> One number';
+                numberReq.className = 'requirement-item valid';
+            } else {
+                numberReq.innerHTML = '<i class="fas fa-circle-xmark"></i> One number';
+                numberReq.className = 'requirement-item invalid';
+                isValid = false;
+            }
+
+            // Special character requirement (any symbol/non-alphanumeric char)
+            if (/[^a-zA-Z0-9]/.test(password)) {
+                specialReq.innerHTML = '<i class="fas fa-circle-check"></i> Special char';
+                specialReq.className = 'requirement-item valid';
+            } else {
+                specialReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Special char';
+                specialReq.className = 'requirement-item invalid';
+                isValid = false;
+            }
+
+            return isValid;
+        };
+
         // Check if already logged in
         document.addEventListener('DOMContentLoaded', function () {
             if (auth.isLoggedIn()) {
@@ -395,138 +508,21 @@
             const confirmPasswordInput = document.getElementById('confirmPassword');
             const togglePassword = document.getElementById('togglePassword');
             const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-            const lengthReq = document.getElementById('lengthReq');
-            const capitalReq = document.getElementById('capitalReq');
-            const numberReq = document.getElementById('numberReq');
-            const specialReq = document.getElementById('specialReq');
-            const passwordMatch = document.getElementById('passwordMatch');
-            const matchText = document.getElementById('matchText');
 
-            window.togglePass = function (inputId, iconEl) {
-                const input = document.getElementById(inputId);
-                if (!input) return;
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    iconEl.className = 'fas fa-eye-slash password-toggle-icon';
-                } else {
-                    input.type = 'password';
-                    iconEl.className = 'fas fa-eye password-toggle-icon';
-                }
-            };
-
-            // Toggle password visibility
-            if (togglePassword && passwordInput) {
-                togglePassword.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    window.togglePass('password', this);
+            // Real-time password validation listeners
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function () {
+                    window.validatePasswordRequirements(this.value);
+                    if (confirmPasswordInput && confirmPasswordInput.value) {
+                        window.validatePasswordMatch();
+                    }
                 });
             }
 
-            if (toggleConfirmPassword && confirmPasswordInput) {
-                toggleConfirmPassword.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    window.togglePass('confirmPassword', this);
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', function () {
+                    window.validatePasswordMatch();
                 });
-            }
-
-            // Real-time password validation
-            passwordInput.addEventListener('input', function () {
-                const password = this.value;
-                validatePasswordRequirements(password);
-
-                // Also validate confirm password if it has value
-                if (confirmPasswordInput.value) {
-                    validatePasswordMatch();
-                }
-            });
-
-            // Real-time confirm password validation
-            confirmPasswordInput.addEventListener('input', function () {
-                validatePasswordMatch();
-            });
-
-            function validatePasswordMatch() {
-                const password = passwordInput.value;
-                const confirmPassword = confirmPasswordInput.value;
-
-                if (confirmPassword.length === 0) {
-                    passwordMatch.style.display = 'none';
-                    return;
-                }
-
-                passwordMatch.style.display = 'block';
-
-                if (password === confirmPassword) {
-                    matchText.innerHTML = '✅ Passwords match';
-                    matchText.style.color = '#28a745';
-                    confirmPasswordInput.style.borderColor = '#28a745';
-                } else {
-                    matchText.innerHTML = '❌ Passwords do not match';
-                    matchText.style.color = '#dc3545';
-                    confirmPasswordInput.style.borderColor = '#dc3545';
-                }
-            }
-
-            function validatePasswordRequirements(password) {
-                let isValid = true;
-
-                if (!password) {
-                    lengthReq.innerHTML = '<i class="far fa-circle"></i> 8+ characters';
-                    lengthReq.className = 'requirement-item';
-
-                    capitalReq.innerHTML = '<i class="far fa-circle"></i> Capital letter';
-                    capitalReq.className = 'requirement-item';
-
-                    numberReq.innerHTML = '<i class="far fa-circle"></i> One number';
-                    numberReq.className = 'requirement-item';
-
-                    specialReq.innerHTML = '<i class="far fa-circle"></i> Special char';
-                    specialReq.className = 'requirement-item';
-
-                    return false;
-                }
-
-                // Length requirement (8+ characters)
-                if (password.length >= 8) {
-                    lengthReq.innerHTML = '<i class="fas fa-circle-check"></i> 8+ characters';
-                    lengthReq.className = 'requirement-item valid';
-                } else {
-                    lengthReq.innerHTML = '<i class="fas fa-circle-xmark"></i> 8+ characters';
-                    lengthReq.className = 'requirement-item invalid';
-                    isValid = false;
-                }
-
-                // Capital letter requirement
-                if (/[A-Z]/.test(password)) {
-                    capitalReq.innerHTML = '<i class="fas fa-circle-check"></i> Capital letter';
-                    capitalReq.className = 'requirement-item valid';
-                } else {
-                    capitalReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Capital letter';
-                    capitalReq.className = 'requirement-item invalid';
-                    isValid = false;
-                }
-
-                // Number requirement
-                if (/\d/.test(password)) {
-                    numberReq.innerHTML = '<i class="fas fa-circle-check"></i> One number';
-                    numberReq.className = 'requirement-item valid';
-                } else {
-                    numberReq.innerHTML = '<i class="fas fa-circle-xmark"></i> One number';
-                    numberReq.className = 'requirement-item invalid';
-                    isValid = false;
-                }
-
-                // Special character requirement (any symbol/non-alphanumeric char)
-                if (/[^a-zA-Z0-9]/.test(password)) {
-                    specialReq.innerHTML = '<i class="fas fa-circle-check"></i> Special char';
-                    specialReq.className = 'requirement-item valid';
-                } else {
-                    specialReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Special char';
-                    specialReq.className = 'requirement-item invalid';
-                    isValid = false;
-                }
-
-                return isValid;
             }
 
             function validateStrongPassword(password) {
