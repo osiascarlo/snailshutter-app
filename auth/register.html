@@ -184,13 +184,19 @@
                     <div class="grid-2" style="gap: 1rem;">
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" id="password" name="password" class="form-control"
-                                placeholder="Min 8 characters" required minlength="8">
+                            <div class="password-toggle-group">
+                                <input type="password" id="password" name="password" class="form-control with-toggle"
+                                    placeholder="Min 8 characters" required minlength="8">
+                                <i class="fas fa-eye password-toggle-icon" id="togglePassword"></i>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="confirmPassword">Confirm Password</label>
-                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
-                                placeholder="Repeat password" required>
+                            <div class="password-toggle-group">
+                                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control with-toggle"
+                                    placeholder="Repeat password" required>
+                                <i class="fas fa-eye password-toggle-icon" id="toggleConfirmPassword"></i>
+                            </div>
                         </div>
                     </div>
 
@@ -337,12 +343,33 @@
             // Password validation elements
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirmPassword');
+            const togglePassword = document.getElementById('togglePassword');
+            const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
             const lengthReq = document.getElementById('lengthReq');
             const capitalReq = document.getElementById('capitalReq');
             const numberReq = document.getElementById('numberReq');
             const specialReq = document.getElementById('specialReq');
             const passwordMatch = document.getElementById('passwordMatch');
             const matchText = document.getElementById('matchText');
+
+            // Toggle password visibility
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function () {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+
+            if (toggleConfirmPassword && confirmPasswordInput) {
+                toggleConfirmPassword.addEventListener('click', function () {
+                    const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    confirmPasswordInput.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
 
             // Real-time password validation
             passwordInput.addEventListener('input', function () {
@@ -406,7 +433,7 @@
                 }
 
                 // Number requirement
-                if (/[0-9]/.test(password)) {
+                if (/\d/.test(password)) {
                     numberReq.innerHTML = '<i class="fas fa-circle-check"></i> One number';
                     numberReq.className = 'requirement-item valid';
                 } else {
@@ -416,7 +443,7 @@
                 }
 
                 // Special character requirement
-                if (/[!@#$%^&*]/.test(password)) {
+                if (/[@$!%*?&]/.test(password)) {
                     specialReq.innerHTML = '<i class="fas fa-circle-check"></i> Special char';
                     specialReq.className = 'requirement-item valid';
                 } else {
@@ -540,43 +567,34 @@
                             email: registrationData.email,
                             role: 'client'
                         };
-                        auth.currentUser = userObj;
-                        sessionStorage.setItem('currentUser', JSON.stringify(userObj));
+                        auth.setCurrentUser(userObj);
 
-                        showAlert('Account created & verified! Logging you in...', 'success');
+                        showAlert('Account created and verified! Redirecting to dashboard...', 'success');
+
                         setTimeout(() => {
-                            auth.redirectToDashboard();
-                        }, 1000);
+                            window.location.href = '/client/dashboard.html';
+                        }, 1500);
                     } else {
-                        console.log('Frontend: Registration failed:', result.error);
-                        showAlert(result.error || 'Verification failed', 'error');
+                        showAlert(result.error || 'Invalid verification code', 'error');
                     }
                 } catch (error) {
-                    console.log('Frontend: Exception caught:', error);
-                    showAlert(error.message || 'Verification failed', 'error');
+                    showAlert(error.message || 'Verification failed. Please try again.', 'error');
                 } finally {
                     hideLoading(verifyBtn, originalText);
                 }
             });
 
-            // Handle OTP input navigation
+            // Handle OTP inputs navigation
             otpInputs.forEach((input, index) => {
                 input.addEventListener('input', function (e) {
                     const value = e.target.value;
 
-                    if (value.length === 1) {
-                        input.classList.add('filled');
-                        // Move to next input
-                        if (index < otpInputs.length - 1) {
-                            otpInputs[index + 1].focus();
-                        }
-                    } else {
-                        input.classList.remove('filled');
+                    if (value.length === 1 && index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
                     }
                 });
 
                 input.addEventListener('keydown', function (e) {
-                    // Handle backspace
                     if (e.key === 'Backspace' && !e.target.value && index > 0) {
                         otpInputs[index - 1].focus();
                     }
@@ -584,18 +602,15 @@
 
                 input.addEventListener('paste', function (e) {
                     e.preventDefault();
-                    const pastedData = e.clipboardData.getData('text').slice(0, 6);
-                    const digits = pastedData.split('').filter(char => /\d/.test(char));
+                    const pastedData = e.clipboardData.getData('text').trim();
 
-                    digits.forEach((digit, i) => {
-                        if (i < otpInputs.length) {
-                            otpInputs[i].value = digit;
-                            otpInputs[i].classList.add('filled');
-                        }
-                    });
-
-                    if (digits.length > 0 && digits.length < otpInputs.length) {
-                        otpInputs[digits.length].focus();
+                    if (/^\d{6}$/.test(pastedData)) {
+                        pastedData.split('').forEach((char, i) => {
+                            if (otpInputs[i]) {
+                                otpInputs[i].value = char;
+                            }
+                        });
+                        otpInputs[otpInputs.length - 1].focus();
                     }
                 });
             });
@@ -605,65 +620,48 @@
                 otpSection.style.display = 'none';
                 registerForm.style.display = 'block';
 
-                // Update step indicators
-                step2.classList.remove('active');
                 step1.classList.add('active');
                 step1.classList.remove('completed');
+                step2.classList.remove('active');
 
-                // Clear OTP inputs
-                otpInputs.forEach(input => {
-                    input.value = '';
-                    input.classList.remove('filled');
-                });
-
-                // Clear timer
                 clearInterval(countdownInterval);
+                resendBtn.disabled = true;
             });
 
             // Handle resend OTP
             resendBtn.addEventListener('click', async function () {
-                if (resendBtn.disabled) return;
+                if (this.disabled) return;
 
-                // Show loading state
-                const originalText = resendBtn.innerHTML;
-                resendBtn.disabled = true;
-                resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                const originalText = this.innerHTML;
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
                 try {
-                    const result = await api.sendOTP(registrationData.email);
-
+                    const result = await api.sendOTP(registrationData.email, registrationData.fullName, registrationData.phone);
                     if (result.success) {
                         showAlert('New verification code sent!', 'success');
                         startResendTimer();
-
-                        // Clear OTP inputs
-                        otpInputs.forEach(input => {
-                            input.value = '';
-                            input.classList.remove('filled');
-                        });
-                        otpInputs[0].focus();
                     } else {
                         showAlert(result.error || 'Failed to resend code', 'error');
-                        resendBtn.disabled = false;
-                        resendBtn.innerHTML = originalText;
+                        this.disabled = false;
+                        this.innerHTML = originalText;
                     }
                 } catch (error) {
                     showAlert(error.message || 'Failed to resend code', 'error');
-                    resendBtn.disabled = false;
-                    resendBtn.innerHTML = originalText;
+                    this.disabled = false;
+                    this.innerHTML = originalText;
                 }
             });
 
-            // Timer functions
             function startResendTimer() {
                 let timeLeft = 60;
                 resendBtn.disabled = true;
 
                 countdownInterval = setInterval(() => {
-                    if (timeLeft > 0) {
-                        timer.textContent = `(${timeLeft}s)`;
-                        timeLeft--;
-                    } else {
+                    timeLeft--;
+                    timer.textContent = `(${timeLeft}s)`;
+
+                    if (timeLeft <= 0) {
                         clearInterval(countdownInterval);
                         resendBtn.disabled = false;
                         timer.textContent = '';
@@ -671,133 +669,47 @@
                 }, 1000);
             }
 
-            // ── Interactive Lens Flare Shader ────────────────
-            function initAuthShader() {
-                const canvas = document.getElementById('authShaderCanvas');
-                const container = document.querySelector('.auth-right');
-                if (!canvas || !container) return;
+            function validateForm(data) {
+                const errors = [];
 
-                const ctx = canvas.getContext('2d');
-                let width = (canvas.width = container.clientWidth);
-                let height = (canvas.height = container.clientHeight);
-
-                window.addEventListener('resize', () => {
-                    width = canvas.width = container.clientWidth;
-                    height = canvas.height = container.clientHeight;
-                });
-
-                const flares = [];
-                const flareCount = 4;
-                const colors = [
-                    'rgba(132, 232, 146, 0.08)',
-                    'rgba(251, 191, 36, 0.06)',
-                    'rgba(14, 165, 233, 0.06)',
-                    'rgba(168, 85, 247, 0.05)'
-                ];
-
-                for (let i = 0; i < flareCount; i++) {
-                    flares.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        radius: Math.random() * 200 + 100,
-                        color: colors[i % colors.length],
-                        vx: (Math.random() - 0.5) * 0.3,
-                        vy: (Math.random() - 0.5) * 0.3
-                    });
+                if (!data.fullName || data.fullName.trim().length < 2) {
+                    errors.push('Please enter your full name');
                 }
 
-                let mouse = { x: -1000, y: -1000 };
-                container.addEventListener('mousemove', (e) => {
-                    const rect = container.getBoundingClientRect();
-                    mouse.x = e.clientX - rect.left;
-                    mouse.y = e.clientY - rect.top;
-                });
-                container.addEventListener('mouseleave', () => {
-                    mouse.x = -1000;
-                    mouse.y = -1000;
-                });
-
-                function draw() {
-                    ctx.clearRect(0, 0, width, height);
-
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
-                    ctx.lineWidth = 1;
-                    const gridSize = 60;
-                    for (let x = 0; x < width; x += gridSize) {
-                        ctx.beginPath();
-                        ctx.moveTo(x, 0);
-                        ctx.lineTo(x, height);
-                        ctx.stroke();
-                    }
-                    for (let y = 0; y < height; y += gridSize) {
-                        ctx.beginPath();
-                        ctx.moveTo(0, y);
-                        ctx.lineTo(width, y);
-                        ctx.stroke();
-                    }
-
-                    flares.forEach(f => {
-                        f.x += f.vx;
-                        f.y += f.vy;
-
-                        if (f.x < -100 || f.x > width + 100) f.vx *= -1;
-                        if (f.y < -100 || f.y > height + 100) f.vy *= -1;
-
-                        const dx = mouse.x - f.x;
-                        const dy = mouse.y - f.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < 300) {
-                            const force = (300 - dist) / 300 * 0.1;
-                            f.x -= (dx / dist) * force;
-                            f.y -= (dy / dist) * force;
-                        }
-
-                        ctx.beginPath();
-                        const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius);
-                        grad.addColorStop(0, f.color);
-                        grad.addColorStop(1, 'transparent');
-                        ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
-                        ctx.fillStyle = grad;
-                        ctx.fill();
-                    });
-
-                    if (mouse.x !== -1000) {
-                        const centerX = width / 2;
-                        const centerY = height / 2;
-                        const dx = centerX - mouse.x;
-                        const dy = centerY - mouse.y;
-
-                        const ghostPositions = [0.4, 0.8, -0.3, 1.2];
-                        const ghostColors = [
-                            'rgba(132, 232, 146, 0.05)',
-                            'rgba(251, 191, 36, 0.04)',
-                            'rgba(14, 165, 233, 0.04)',
-                            'rgba(168, 85, 247, 0.04)'
-                        ];
-
-                        ghostPositions.forEach((mult, index) => {
-                            const gx = centerX + dx * mult;
-                            const gy = centerY + dy * mult;
-                            const radius = Math.abs(40 + mult * 25);
-                            
-                            ctx.beginPath();
-                            ctx.arc(gx, gy, radius, 0, Math.PI * 2);
-                            ctx.fillStyle = ghostColors[index % ghostColors.length];
-                            ctx.fill();
-
-                            ctx.strokeStyle = ghostColors[index % ghostColors.length].replace('0.', '0.12');
-                            ctx.lineWidth = 1;
-                            ctx.stroke();
-                        });
-                    }
-
-                    requestAnimationFrame(draw);
+                if (!data.email || !isValidEmail(data.email)) {
+                    errors.push('Please enter a valid email address');
                 }
 
-                draw();
+                return errors;
             }
 
-            initAuthShader();
+            function isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            function showLoading(button) {
+                button.disabled = true;
+                button.dataset.originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            }
+
+            function hideLoading(button, originalText) {
+                button.disabled = false;
+                button.innerHTML = originalText || button.dataset.originalText || 'Submit';
+            }
+
+            function showAlert(message, type = 'info') {
+                const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+                alertContainer.innerHTML = `
+                    <div class="alert alert-${type}">
+                        <i class="fas fa-${icon}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+
+                // Auto scroll to alert
+                alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         });
     </script>
 </body>

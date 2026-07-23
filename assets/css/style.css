@@ -3267,3 +3267,28 @@ select.table-filters .form-control {
         transform: scale(1);
     }
 }
+
+/* Password Toggle Eye Icon */
+.password-toggle-group {
+    position: relative;
+    width: 100%;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
+    z-index: 10;
+}
+
+.password-toggle-icon:hover {
+    color: var(--color-primary);
+}
+
+.form-control.with-toggle {
+    padding-right: 3rem;
+}
