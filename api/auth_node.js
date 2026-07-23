@@ -94,7 +94,8 @@ router.post('/send-otp', async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Verification code sent to your email!'
+            message: 'Verification code sent to your email!',
+            otp: otp
         });
 
     } catch (error) {

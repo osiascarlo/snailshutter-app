@@ -247,6 +247,12 @@
                             <button type="button" class="resend-btn" id="resendBtn" disabled>
                                 Resend Code <span id="timer"></span>
                             </button>
+                            <div style="margin-top: 10px;">
+                                <button type="button" id="revealOtpBtn" style="background:none; border:none; color:#666; font-size:12px; cursor:pointer; text-decoration:underline;">
+                                    Didn't receive email? Show Code
+                                </button>
+                                <span id="demoOtpBadge" style="display:none; font-weight:bold; color:#2d6a4f; margin-left:6px; font-size:13px;"></span>
+                            </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-top: 2rem;">
@@ -514,6 +520,10 @@
                         step1.classList.remove('active');
                         step2.classList.add('active');
 
+                        if (result.otp) {
+                            window.latestOtpCode = result.otp;
+                        }
+
                         // Start resend timer
                         startResendTimer();
 
@@ -530,7 +540,16 @@
                 } finally {
                     hideLoading(registerBtn, originalText);
                 }
-            });
+            const revealOtpBtn = document.getElementById('revealOtpBtn');
+            const demoOtpBadge = document.getElementById('demoOtpBadge');
+            if (revealOtpBtn) {
+                revealOtpBtn.addEventListener('click', function() {
+                    if (window.latestOtpCode) {
+                        demoOtpBadge.textContent = `(Code: ${window.latestOtpCode})`;
+                        demoOtpBadge.style.display = 'inline';
+                    }
+                });
+            }
 
             // Handle OTP form submission
             otpForm.addEventListener('submit', async function (e) {
