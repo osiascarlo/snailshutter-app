@@ -22,28 +22,71 @@ const transporter = nodemailer.createTransport({
     socketTimeout: 10000           // 10s socket inactivity timeout
 });
 
-// Verify SMTP connection on startup (non-blocking)
-transporter.verify((error) => {
-    if (error) {
-        console.error('⚠️  SMTP connection failed:', error.message);
-        console.error('   Check MAIL_USER and MAIL_PASS in .env');
-    } else {
-        console.log('✅ SMTP server connection verified — ready to send mail');
-    }
-});
+// Verify SMTP connection on startup if credentials exist
+if (process.env.MAIL_USER && process.env.MAIL_PASS) {
+    transporter.verify((error) => {
+        if (error) {
+            console.error('⚠️  SMTP connection failed:', error.message);
+            console.error('   Check MAIL_USER and MAIL_PASS in .env');
+        } else {
+            console.log('✅ SMTP server connection verified — ready to send mail');
+        }
+    });
+}
 
 /**
- * Send an email
+ * Send email using Resend API (Instant 1-second delivery)
+ */
+const sendWithResend = async (to, subject, html, plainText) => {
+    const resendKey = process.env.RESEND_API_KEY.trim();
+    const fromAddress = process.env.MAIL_FROM || 'SnailShutter Studio <onboarding@resend.dev>';
+
+    const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${resendKey}`
+        },
+        body: JSON.stringify({
+            from: fromAddress,
+            to: Array.isArray(to) ? to : [to],
+            subject: subject,
+            html: html,
+            text: plainText
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || data.error?.message || 'Resend API send failed');
+    }
+
+    console.log('🚀 Resend API email delivered to %s: %s', to, data.id);
+    return { success: true, messageId: data.id };
+};
+
+/**
+ * Send an email (Uses Resend API if RESEND_API_KEY is set, otherwise Nodemailer SMTP)
  * @param {string} to Receiver email
  * @param {string} subject Email subject
  * @param {string} html HTML content
  * @param {string} [text] Optional plain text alternative
  */
 const sendEmail = async (to, subject, html, text = '') => {
-    try {
-        // Generate plain text alternative if not supplied to pass spam/greylisting filters instantly
-        const plainText = text || html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const plainText = text || html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
+    // 1. If RESEND_API_KEY is set in environment, use Resend for instant delivery
+    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim()) {
+        try {
+            return await sendWithResend(to, subject, html, plainText);
+        } catch (resendError) {
+            console.error('⚠️ Resend API failed, falling back to SMTP:', resendError.message);
+        }
+    }
+
+    // 2. Fallback to Nodemailer SMTP
+    try {
         const mailOptions = {
             from: `"${process.env.MAIL_FROM_NAME || 'SnailShutter'}" <${process.env.MAIL_USER}>`,
             to,
@@ -59,7 +102,7 @@ const sendEmail = async (to, subject, html, text = '') => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent to %s: %s', to, info.messageId);
+        console.log('Email sent via SMTP to %s: %s', to, info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error('Send Email Error:', error);
