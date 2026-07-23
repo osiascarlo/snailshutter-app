@@ -39,10 +39,11 @@ if (process.env.MAIL_USER && process.env.MAIL_PASS) {
  */
 const sendWithBrevo = async (to, subject, html, plainText) => {
     const brevoKey = process.env.BREVO_API_KEY.trim();
-    const senderEmail = process.env.MAIL_USER || 'no-reply@snailshutter.com';
+    // Brevo API requires sender email to be the email registered/verified in your Brevo account
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.MAIL_USER || 'johncarloosias123@gmail.com';
     const senderName = process.env.MAIL_FROM_NAME || 'SnailShutter Studio';
 
-    console.log('📧 Sending via Brevo API to:', to);
+    console.log('📧 Sending via Brevo API to:', to, 'from sender:', senderEmail);
 
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
