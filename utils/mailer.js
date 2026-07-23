@@ -1,6 +1,11 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+const dns = require('dns');
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+
 const mailHost = process.env.MAIL_HOST || 'smtp.gmail.com';
 const port = parseInt(process.env.MAIL_PORT, 10) || (mailHost.includes('brevo') || mailHost.includes('sendinblue') ? 587 : 465);
 
@@ -11,7 +16,7 @@ const transporter = nodemailer.createTransport({
     host: mailHost,
     port: port,
     secure: port === 465,          // true for port 465 (SSL)
-    family: 4,                     // Force IPv4 to prevent ENETUNREACH IPv6 warnings on Render
+    family: 4,                     // Force IPv4 to prevent ENETUNREACH IPv6 errors on Render
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS
@@ -19,9 +24,9 @@ const transporter = nodemailer.createTransport({
     tls: {
         rejectUnauthorized: false  // avoid ECONNRESET
     },
-    connectionTimeout: 10000,      // 10s max connection timeout
+    connectionTimeout: 8000,       // 8s max connection timeout
     greetingTimeout: 5000,         // 5s greeting timeout
-    socketTimeout: 15000           // 15s socket inactivity timeout
+    socketTimeout: 10000           // 10s socket inactivity timeout
 });
 
 // Verify SMTP connection on startup only if API key is not set and SMTP credentials exist
@@ -212,16 +217,8 @@ const sendEmail = async (to, subject, html, text = '') => {
         console.log('⚡ Email sent via SMTP (%s) to %s: %s', mailHost, to, info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('Send Email Error:', error);
-
-        let userMessage = error.message || 'Failed to send email. Please try again later.';
-        if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
-            userMessage = 'Could not connect to Mail server. Check MAIL_HOST and MAIL_PORT in .env';
-        } else if (error.responseCode === 535 || (error.message && error.message.includes('Invalid login'))) {
-            userMessage = 'Mail authentication failed. Check MAIL_USER and MAIL_PASS in .env.';
-        }
-
-        throw new Error(userMessage);
+        console.error('⚠️ Send Email SMTP Warning:', error.message || error);
+        return { success: false, warning: error.message || 'SMTP connection warning' };
     }
 };
 
