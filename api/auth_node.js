@@ -83,10 +83,12 @@ router.post('/send-otp', async (req, res) => {
             </div>
         `;
 
-        // Dispatch email asynchronously so client registration UI transitions instantly
-        sendEmail(email, 'Your Verification Code', otpHtml)
-            .then(info => console.log('OTP Email dispatched to %s: %s', email, info?.messageId))
-            .catch(err => console.error('Background OTP send error:', err));
+        // Dispatch email asynchronously on next tick so HTTP response returns in < 10ms
+        setImmediate(() => {
+            sendEmail(email, 'Your Verification Code', otpHtml)
+                .then(info => console.log('OTP Email dispatched to %s: %s', email, info?.messageId))
+                .catch(err => console.error('Background OTP send error:', err));
+        });
 
         res.json({ success: true, message: 'Verification code sent' });
 
@@ -369,9 +371,11 @@ router.post('/forgot-password', async (req, res) => {
             </div>
         `;
 
-        sendEmail(email, 'Password Reset Code', resetHtml)
-            .then(info => console.log('Password Reset Email dispatched to %s: %s', email, info?.messageId))
-            .catch(err => console.error('Background password reset email error:', err));
+        setImmediate(() => {
+            sendEmail(email, 'Password Reset Code', resetHtml)
+                .then(info => console.log('Password Reset Email dispatched to %s: %s', email, info?.messageId))
+                .catch(err => console.error('Background password reset email error:', err));
+        });
 
         res.json({ success: true, message: 'Reset code sent to your email.' });
 

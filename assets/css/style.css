@@ -3292,3 +3292,12 @@ select.table-filters .form-control {
 .form-control.with-toggle {
     padding-right: 3rem;
 }
+
+/* Hide native browser default password reveal icons (Edge, Chrome, Safari, IE) */
+input::-ms-reveal,
+input::-ms-clear,
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-reveal {
+    display: none !important;
+}
