@@ -95,7 +95,7 @@ router.post('/send-otp', async (req, res) => {
 
     } catch (error) {
         console.error('OTP Send Error:', error);
-        let errorMsg = 'Failed to send OTP. Please check server logs.';
+        let errorMsg = error.message || 'Failed to send OTP. Please check server logs.';
 
         if (error.responseCode === 535) {
             errorMsg = 'SMTP Authentication Failed. Check MAIL_USER and MAIL_PASS in .env (Use App Passwords for Gmail).';

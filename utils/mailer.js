@@ -165,7 +165,12 @@ const sendEmail = async (to, subject, html, text = '') => {
         try {
             return await sendWithBrevo(to, subject, html, plainText);
         } catch (brevoError) {
-            console.error('⚠️ Brevo API failed, falling back to SMTP:', brevoError.message);
+            console.error('⚠️ Brevo API failed:', brevoError.message);
+            if (process.env.MAIL_USER && process.env.MAIL_PASS) {
+                console.warn('Attempting SMTP fallback...');
+            } else {
+                throw brevoError;
+            }
         }
     }
 
