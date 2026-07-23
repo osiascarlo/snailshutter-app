@@ -137,16 +137,17 @@
 
         .password-toggle-icon {
             position: absolute !important;
-            right: 12px !important;
+            right: 14px !important;
             top: 50% !important;
             transform: translateY(-50%) !important;
             cursor: pointer !important;
             color: #777 !important;
             transition: color 0.2s ease !important;
-            z-index: 99 !important;
-            font-size: 0.95rem !important;
+            z-index: 9999 !important;
+            font-size: 1rem !important;
             user-select: none !important;
             pointer-events: auto !important;
+            padding: 6px !important;
         }
 
         .password-toggle-icon:hover {
@@ -154,14 +155,20 @@
         }
 
         .form-control.with-toggle {
-            padding-right: 2.75rem !important;
+            padding-right: 3rem !important;
             width: 100% !important;
         }
 
-        /* Hide Edge/IE browser default eye icon to prevent duplicate/overlaying eye icons */
-        input[type="password"]::-ms-reveal,
-        input[type="password"]::-ms-clear {
+        /* Completely suppress browser native password reveal buttons in Edge, Chrome, Safari */
+        input::-ms-reveal,
+        input::-ms-clear,
+        input::-webkit-contacts-auto-fill-button,
+        input::-webkit-credentials-auto-fill-button {
             display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
         }
     </style>
 </head>
@@ -463,6 +470,22 @@
             function validatePasswordRequirements(password) {
                 let isValid = true;
 
+                if (!password) {
+                    lengthReq.innerHTML = '<i class="far fa-circle"></i> 8+ characters';
+                    lengthReq.className = 'requirement-item';
+
+                    capitalReq.innerHTML = '<i class="far fa-circle"></i> Capital letter';
+                    capitalReq.className = 'requirement-item';
+
+                    numberReq.innerHTML = '<i class="far fa-circle"></i> One number';
+                    numberReq.className = 'requirement-item';
+
+                    specialReq.innerHTML = '<i class="far fa-circle"></i> Special char';
+                    specialReq.className = 'requirement-item';
+
+                    return false;
+                }
+
                 // Length requirement (8+ characters)
                 if (password.length >= 8) {
                     lengthReq.innerHTML = '<i class="fas fa-circle-check"></i> 8+ characters';
@@ -493,8 +516,8 @@
                     isValid = false;
                 }
 
-                // Special character requirement
-                if (/[@$!%*?&]/.test(password)) {
+                // Special character requirement (any symbol/non-alphanumeric char)
+                if (/[^a-zA-Z0-9]/.test(password)) {
                     specialReq.innerHTML = '<i class="fas fa-circle-check"></i> Special char';
                     specialReq.className = 'requirement-item valid';
                 } else {
