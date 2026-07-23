@@ -41,6 +41,8 @@ const sendWithResend = async (to, subject, html, plainText) => {
     const resendKey = process.env.RESEND_API_KEY.trim();
     const fromAddress = process.env.MAIL_FROM || 'SnailShutter Studio <onboarding@resend.dev>';
 
+    console.log('📧 Attempting Resend API delivery to:', to);
+
     const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -59,7 +61,9 @@ const sendWithResend = async (to, subject, html, plainText) => {
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || data.error?.message || 'Resend API send failed');
+        const errorDetails = data.message || data.error?.message || JSON.stringify(data);
+        console.error('❌ Resend API Error (%d):', response.status, errorDetails);
+        throw new Error(`Resend API HTTP ${response.status}: ${errorDetails}`);
     }
 
     console.log('🚀 Resend API email delivered to %s: %s', to, data.id);
