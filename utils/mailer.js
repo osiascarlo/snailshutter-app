@@ -1,47 +1,85 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-const port = parseInt(process.env.MAIL_PORT, 10) || 465;
+const mailHost = process.env.MAIL_HOST || 'smtp.gmail.com';
+const port = parseInt(process.env.MAIL_PORT, 10) || (mailHost.includes('brevo') || mailHost.includes('sendinblue') ? 587 : 465);
 
 const transporter = nodemailer.createTransport({
     pool: true,                    // Reuse SMTP connections for fast dispatch
     maxConnections: 5,             // Max parallel connections
     maxMessages: 100,              // Max messages per connection
-    host: process.env.MAIL_HOST || 'smtp.gmail.com',
+    host: mailHost,
     port: port,
-    secure: port === 465,          // true for port 465 (SSL direct encryption - instant socket connect)
+    secure: port === 465,          // true for port 465 (SSL)
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS
     },
     tls: {
-        rejectUnauthorized: false  // allow self-signed certs / avoid ECONNRESET
+        rejectUnauthorized: false  // avoid ECONNRESET
     },
-    connectionTimeout: 8000,       // 8s max connection timeout
+    connectionTimeout: 10000,      // 10s max connection timeout
     greetingTimeout: 5000,         // 5s greeting timeout
-    socketTimeout: 10000           // 10s socket inactivity timeout
+    socketTimeout: 15000           // 15s socket inactivity timeout
 });
 
 // Verify SMTP connection on startup if credentials exist
 if (process.env.MAIL_USER && process.env.MAIL_PASS) {
     transporter.verify((error) => {
         if (error) {
-            console.error('⚠️  SMTP connection failed:', error.message);
-            console.error('   Check MAIL_USER and MAIL_PASS in .env');
+            console.error('⚠️  SMTP connection warning:', error.message);
         } else {
-            console.log('✅ SMTP server connection verified — ready to send mail');
+            console.log(`✅ Mailer connected via SMTP (${mailHost}:${port}) — ready to send mail`);
         }
     });
 }
 
 /**
- * Send email using Resend API (Instant 1-second delivery)
+ * Send email using Brevo REST API (Instant 1-second delivery to ANY email address)
+ */
+const sendWithBrevo = async (to, subject, html, plainText) => {
+    const brevoKey = process.env.BREVO_API_KEY.trim();
+    const senderEmail = process.env.MAIL_USER || 'no-reply@snailshutter.com';
+    const senderName = process.env.MAIL_FROM_NAME || 'SnailShutter Studio';
+
+    console.log('📧 Sending via Brevo API to:', to);
+
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': brevoKey
+        },
+        body: JSON.stringify({
+            sender: { name: senderName, email: senderEmail },
+            to: [{ email: to }],
+            subject: subject,
+            htmlContent: html,
+            textContent: plainText
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        const errorDetails = data.message || data.code || JSON.stringify(data);
+        console.error('❌ Brevo API Error (%d):', response.status, errorDetails);
+        throw new Error(`Brevo API HTTP ${response.status}: ${errorDetails}`);
+    }
+
+    console.log('🚀 Brevo API email delivered to %s (MessageID: %s)', to, data.messageId || data.id);
+    return { success: true, messageId: data.messageId || data.id };
+};
+
+/**
+ * Send email using Resend API
  */
 const sendWithResend = async (to, subject, html, plainText) => {
     const resendKey = process.env.RESEND_API_KEY.trim();
     const fromAddress = process.env.MAIL_FROM || 'SnailShutter Studio <onboarding@resend.dev>';
 
-    console.log('📧 Attempting Resend API delivery to:', to);
+    console.log('📧 Sending via Resend API to:', to);
 
     const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -71,7 +109,7 @@ const sendWithResend = async (to, subject, html, plainText) => {
 };
 
 /**
- * Send an email (Uses Resend API if RESEND_API_KEY is set, otherwise Nodemailer SMTP)
+ * Send an email (Supports Brevo API, Resend API, Brevo SMTP, Gmail SMTP)
  * @param {string} to Receiver email
  * @param {string} subject Email subject
  * @param {string} html HTML content
@@ -80,7 +118,16 @@ const sendWithResend = async (to, subject, html, plainText) => {
 const sendEmail = async (to, subject, html, text = '') => {
     const plainText = text || html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-    // 1. If RESEND_API_KEY is set in environment, use Resend for instant delivery
+    // 1. If BREVO_API_KEY is present, use Brevo API for instant 1-second delivery to ANY recipient
+    if (process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim()) {
+        try {
+            return await sendWithBrevo(to, subject, html, plainText);
+        } catch (brevoError) {
+            console.error('⚠️ Brevo API failed, falling back to SMTP:', brevoError.message);
+        }
+    }
+
+    // 2. If RESEND_API_KEY is present, use Resend API
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim()) {
         try {
             return await sendWithResend(to, subject, html, plainText);
@@ -89,10 +136,13 @@ const sendEmail = async (to, subject, html, text = '') => {
         }
     }
 
-    // 2. Fallback to Nodemailer SMTP
+    // 3. Fallback to Nodemailer SMTP (Works with Brevo SMTP, Gmail SMTP, SendGrid SMTP, etc.)
     try {
+        const senderUser = process.env.MAIL_USER || 'no-reply@snailshutter.com';
+        const senderName = process.env.MAIL_FROM_NAME || 'SnailShutter Studio';
+
         const mailOptions = {
-            from: `"${process.env.MAIL_FROM_NAME || 'SnailShutter'}" <${process.env.MAIL_USER}>`,
+            from: `"${senderName}" <${senderUser}>`,
             to,
             subject,
             text: plainText,
@@ -106,17 +156,16 @@ const sendEmail = async (to, subject, html, text = '') => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent via SMTP to %s: %s', to, info.messageId);
+        console.log('⚡ Email sent via SMTP (%s) to %s: %s', mailHost, to, info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error('Send Email Error:', error);
 
-        // Provide a clear user-facing message
         let userMessage = 'Failed to send email. Please try again later.';
         if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
-            userMessage = 'Could not connect to SMTP server. Check MAIL_HOST and MAIL_PORT in .env';
+            userMessage = 'Could not connect to Mail server. Check MAIL_HOST and MAIL_PORT in .env';
         } else if (error.responseCode === 535 || (error.message && error.message.includes('Invalid login'))) {
-            userMessage = 'SMTP authentication failed. Check MAIL_USER and MAIL_PASS in .env (use a Gmail App Password).';
+            userMessage = 'Mail authentication failed. Check MAIL_USER and MAIL_PASS in .env.';
         }
 
         throw new Error(userMessage);
@@ -124,4 +173,3 @@ const sendEmail = async (to, subject, html, text = '') => {
 };
 
 module.exports = { sendEmail };
-
