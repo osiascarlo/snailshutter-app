@@ -37,6 +37,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Serve favicon to prevent 404 console errors
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'assets/images/logo.png'));
+});
+
 // Import Routes
 const authRoutes = require('./api/auth_node');
 const bookingRoutes = require('./api/bookings_node');
