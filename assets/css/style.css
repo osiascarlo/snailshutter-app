@@ -1889,17 +1889,32 @@ textarea.form-control { resize: vertical; min-height: 108px; }
     gap: 0.3rem;
 }
 
-.req-item {
+.req-item,
+.requirement-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-    transition: color var(--transition-fast);
+    font-size: 0.8125rem;
+    color: var(--color-text-muted, #666);
+    transition: color var(--transition-fast, 0.2s ease);
 }
 
-.req-item.valid { color: var(--color-success); }
-.req-item i { width: 12px; text-align: center; }
+.req-item.valid,
+.requirement-item.valid {
+    color: var(--color-success, #28a745) !important;
+    font-weight: 600;
+}
+
+.req-item.invalid,
+.requirement-item.invalid {
+    color: var(--color-danger, #dc3545) !important;
+}
+
+.req-item i,
+.requirement-item i {
+    width: 14px;
+    text-align: center;
+}
 
 /* OTP input */
 .otp-container {
