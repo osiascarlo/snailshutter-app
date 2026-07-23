@@ -35,16 +35,56 @@ if (!process.env.BREVO_API_KEY && !process.env.RESEND_API_KEY && process.env.MAI
     });
 }
 
+let cachedBrevoSender = null;
+
+/**
+ * Auto-detect verified sender email from Brevo account if not explicitly set
+ */
+const getBrevoSender = async (brevoKey) => {
+    if (process.env.BREVO_SENDER_EMAIL && process.env.BREVO_SENDER_EMAIL.trim()) {
+        return process.env.BREVO_SENDER_EMAIL.trim();
+    }
+    if (process.env.MAIL_USER && process.env.MAIL_USER.includes('@')) {
+        return process.env.MAIL_USER.trim();
+    }
+    if (cachedBrevoSender) {
+        return cachedBrevoSender;
+    }
+
+    try {
+        const res = await fetch('https://api.brevo.com/v3/senders', {
+            headers: {
+                'Accept': 'application/json',
+                'api-key': brevoKey
+            }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.senders && data.senders.length > 0) {
+                const activeSender = data.senders.find(s => s.active) || data.senders[0];
+                if (activeSender && activeSender.email) {
+                    cachedBrevoSender = activeSender.email;
+                    console.log('✅ Auto-detected Brevo verified sender email:', cachedBrevoSender);
+                    return cachedBrevoSender;
+                }
+            }
+        }
+    } catch (err) {
+        console.error('⚠️ Could not auto-detect Brevo sender:', err.message);
+    }
+
+    return 'johncarloosias123@gmail.com';
+};
+
 /**
  * Send email using Brevo REST API (Instant 1-second delivery to ANY email address)
  */
 const sendWithBrevo = async (to, subject, html, plainText) => {
     const brevoKey = process.env.BREVO_API_KEY.trim();
-    // Brevo API requires sender email to be the email registered/verified in your Brevo account
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.MAIL_USER || 'johncarloosias123@gmail.com';
+    const senderEmail = await getBrevoSender(brevoKey);
     const senderName = process.env.MAIL_FROM_NAME || 'SnailShutter Studio';
 
-    console.log('📧 Sending via Brevo API to:', to, 'from sender:', senderEmail);
+    console.log('📧 Sending via Brevo API to:', to, 'using verified sender:', senderEmail);
 
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
