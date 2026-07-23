@@ -11,6 +11,7 @@ const transporter = nodemailer.createTransport({
     host: mailHost,
     port: port,
     secure: port === 465,          // true for port 465 (SSL)
+    family: 4,                     // Force IPv4 to prevent ENETUNREACH IPv6 warnings on Render
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS
@@ -23,8 +24,8 @@ const transporter = nodemailer.createTransport({
     socketTimeout: 15000           // 15s socket inactivity timeout
 });
 
-// Verify SMTP connection on startup if credentials exist
-if (process.env.MAIL_USER && process.env.MAIL_PASS) {
+// Verify SMTP connection on startup only if API key is not set and SMTP credentials exist
+if (!process.env.BREVO_API_KEY && !process.env.RESEND_API_KEY && process.env.MAIL_USER && process.env.MAIL_PASS) {
     transporter.verify((error) => {
         if (error) {
             console.error('⚠️  SMTP connection warning:', error.message);
