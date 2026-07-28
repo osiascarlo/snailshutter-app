@@ -273,7 +273,35 @@ const sendEmail = async (to, subject, html, text = '') => {
     const plainText = text || html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     let lastErrorMsg = null;
 
-    // 1. If Mailjet API keys are present, prioritize Mailjet API for instant delivery
+    // 1. Prioritize BREVO_API_KEY as #1 for free instant delivery with verified sender detection
+    if (process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim()) {
+        try {
+            return await sendWithBrevo(to, subject, html, plainText);
+        } catch (brevoError) {
+            console.error('⚠️ Brevo API failed:', brevoError.message);
+            lastErrorMsg = brevoError.message;
+            if (!process.env.RESEND_API_KEY && !process.env.MAILJET_API_KEY && (!process.env.MAIL_USER || !process.env.MAIL_PASS)) {
+                return { success: false, error: `Brevo API failed: ${brevoError.message}`, provider: 'Brevo API' };
+            }
+            console.warn('Attempting next fallback provider...');
+        }
+    }
+
+    // 2. If RESEND_API_KEY is present, use Resend API as #2 fallback
+    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim()) {
+        try {
+            return await sendWithResend(to, subject, html, plainText);
+        } catch (resendError) {
+            console.error('⚠️ Resend API failed:', resendError.message);
+            lastErrorMsg = resendError.message;
+            if (!process.env.MAILJET_API_KEY && (!process.env.MAIL_USER || !process.env.MAIL_PASS)) {
+                return { success: false, error: `Resend API failed: ${resendError.message}`, provider: 'Resend API' };
+            }
+            console.warn('Attempting next fallback provider...');
+        }
+    }
+
+    // 3. If Mailjet API keys are present, try Mailjet API as #3 fallback
     const mailjetPub = (process.env.MAILJET_API_KEY || process.env.MJ_APIKEY_PUBLIC || '').trim();
     let mailjetSec = (process.env.MAILJET_SECRET_KEY || process.env.MJ_APIKEY_PRIVATE || '').trim();
     let mjPublic = mailjetPub;
@@ -289,40 +317,10 @@ const sendEmail = async (to, subject, html, text = '') => {
         } catch (mailjetError) {
             console.error('⚠️ Mailjet API failed:', mailjetError.message);
             lastErrorMsg = mailjetError.message;
-            if (!process.env.BREVO_API_KEY && (!process.env.MAIL_USER || !process.env.MAIL_PASS)) {
+            if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
                 return { success: false, error: `Mailjet API failed: ${mailjetError.message}`, provider: 'Mailjet API' };
             }
-            console.warn('Attempting next fallback provider...');
-        }
-    }
-    let brevoErrorMsg = null;
-
-    // 1. If BREVO_API_KEY is present, use Brevo API for instant 1-second delivery to ANY recipient
-    if (process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim()) {
-        try {
-            return await sendWithBrevo(to, subject, html, plainText);
-        } catch (brevoError) {
-            console.error('⚠️ Brevo API failed:', brevoError.message);
-            brevoErrorMsg = brevoError.message;
-            // If explicit SMTP credentials also exist, try fallback, otherwise return Brevo error directly
-            if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
-                return { success: false, error: `Brevo API failed: ${brevoError.message}`, provider: 'Brevo API' };
-            }
             console.warn('Attempting SMTP fallback...');
-        }
-    }
-
-    // 2. If RESEND_API_KEY is present, use Resend API
-    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim()) {
-        try {
-            return await sendWithResend(to, subject, html, plainText);
-        } catch (resendError) {
-            console.error('⚠️ Resend API failed:', resendError.message);
-            if (process.env.MAIL_USER && process.env.MAIL_PASS) {
-                console.warn('Attempting SMTP fallback...');
-            } else {
-                throw resendError;
-            }
         }
     }
 
