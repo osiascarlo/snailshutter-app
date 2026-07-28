@@ -49,9 +49,6 @@ const getBrevoSender = async (brevoKey) => {
     if (process.env.BREVO_SENDER_EMAIL && process.env.BREVO_SENDER_EMAIL.trim()) {
         return process.env.BREVO_SENDER_EMAIL.trim();
     }
-    if (process.env.MAIL_USER && process.env.MAIL_USER.includes('@')) {
-        return process.env.MAIL_USER.trim();
-    }
     if (cachedBrevoSender) {
         return cachedBrevoSender;
     }
@@ -73,9 +70,16 @@ const getBrevoSender = async (brevoKey) => {
                     return cachedBrevoSender;
                 }
             }
+        } else {
+            const errBody = await res.text();
+            console.error('⚠️ Brevo Scheders API fetch failed (%d):', res.status, errBody);
         }
     } catch (err) {
         console.error('⚠️ Could not auto-detect Brevo sender:', err.message);
+    }
+
+    if (process.env.MAIL_USER && process.env.MAIL_USER.includes('@')) {
+        return process.env.MAIL_USER.trim();
     }
 
     return 'johncarloosias123@gmail.com';
@@ -112,11 +116,11 @@ const sendWithBrevo = async (to, subject, html, plainText) => {
     if (!response.ok) {
         const errorDetails = data.message || data.code || JSON.stringify(data);
         console.error('❌ Brevo API Error (%d):', response.status, errorDetails);
-        throw new Error(`Brevo API HTTP ${response.status}: ${errorDetails}`);
+        throw new Error(`HTTP ${response.status} - ${errorDetails} (Tried sender: ${senderEmail})`);
     }
 
     console.log('🚀 Brevo API email delivered to %s (MessageID: %s)', to, data.messageId || data.id);
-    return { success: true, messageId: data.messageId || data.id };
+    return { success: true, messageId: data.messageId || data.id, provider: 'Brevo API', sender: senderEmail };
 };
 
 /**
@@ -152,7 +156,7 @@ const sendWithResend = async (to, subject, html, plainText) => {
     }
 
     console.log('🚀 Resend API email delivered to %s: %s', to, data.id);
-    return { success: true, messageId: data.id };
+    return { success: true, messageId: data.id, provider: 'Resend API' };
 };
 
 /**
@@ -164,6 +168,7 @@ const sendWithResend = async (to, subject, html, plainText) => {
  */
 const sendEmail = async (to, subject, html, text = '') => {
     const plainText = text || html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    let brevoErrorMsg = null;
 
     // 1. If BREVO_API_KEY is present, use Brevo API for instant 1-second delivery to ANY recipient
     if (process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim()) {
@@ -171,12 +176,12 @@ const sendEmail = async (to, subject, html, text = '') => {
             return await sendWithBrevo(to, subject, html, plainText);
         } catch (brevoError) {
             console.error('⚠️ Brevo API failed:', brevoError.message);
-            // If explicit SMTP credentials also exist, try fallback, otherwise throw Brevo error directly!
-            if (process.env.MAIL_USER && process.env.MAIL_PASS) {
-                console.warn('Attempting SMTP fallback...');
-            } else {
-                throw brevoError;
+            brevoErrorMsg = brevoError.message;
+            // If explicit SMTP credentials also exist, try fallback, otherwise return Brevo error directly
+            if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
+                return { success: false, error: `Brevo API failed: ${brevoError.message}`, provider: 'Brevo API' };
             }
+            console.warn('Attempting SMTP fallback...');
         }
     }
 
@@ -215,10 +220,15 @@ const sendEmail = async (to, subject, html, text = '') => {
 
         const info = await transporter.sendMail(mailOptions);
         console.log('⚡ Email sent via SMTP (%s) to %s: %s', mailHost, to, info.messageId);
-        return { success: true, messageId: info.messageId };
+        return { success: true, messageId: info.messageId, provider: 'SMTP' };
     } catch (error) {
         console.error('⚠️ Send Email SMTP Warning:', error.message || error);
-        return { success: false, warning: error.message || 'SMTP connection warning' };
+        return { 
+            success: false, 
+            warning: error.message || 'SMTP connection warning', 
+            brevoError: brevoErrorMsg || undefined,
+            provider: 'SMTP fallback failed'
+        };
     }
 };
 
