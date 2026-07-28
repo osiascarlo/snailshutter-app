@@ -69,7 +69,7 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
         }
 
         if (first_name && last_name) {
-            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(CONCAT(first_name, " ", last_name)) = LOWER(?)', [`${first_name} ${last_name}`.trim()]);
+            const [existingName] = await pool.execute("SELECT id FROM users WHERE LOWER(CONCAT(first_name, ' ', last_name)) = LOWER(?)", [`${first_name} ${last_name}`.trim()]);
             if (existingName.length > 0) {
                 return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
             }

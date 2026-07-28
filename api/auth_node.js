@@ -37,7 +37,7 @@ router.post('/send-otp', async (req, res) => {
         }
 
         if (name && name.trim()) {
-            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(CONCAT(first_name, " ", last_name)) = LOWER(?)', [name.trim()]);
+            const [existingName] = await pool.execute("SELECT id FROM users WHERE LOWER(CONCAT(first_name, ' ', last_name)) = LOWER(?)", [name.trim()]);
             if (existingName.length > 0) {
                 return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
             }
@@ -178,7 +178,7 @@ router.post('/verify-register', async (req, res) => {
         }
 
         if (cleanFullName) {
-            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(CONCAT(first_name, " ", last_name)) = LOWER(?)', [cleanFullName]);
+            const [existingName] = await pool.execute("SELECT id FROM users WHERE LOWER(CONCAT(first_name, ' ', last_name)) = LOWER(?)", [cleanFullName]);
             if (existingName.length > 0) {
                 return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
             }
@@ -357,7 +357,7 @@ router.post('/forgot-password', async (req, res) => {
 
     try {
         // Check if user exists
-        const [users] = await pool.execute('SELECT CONCAT(first_name, " ", last_name) as full_name FROM users WHERE email = ?', [email]);
+        const [users] = await pool.execute("SELECT CONCAT(first_name, ' ', last_name) as full_name FROM users WHERE email = ?", [email]);
         if (users.length === 0) {
             // We return success anyway to avoid email harvesting, but don't send anything
             return res.json({ success: true, message: 'If an account exists, a reset code has been sent.' });
