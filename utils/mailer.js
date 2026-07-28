@@ -123,6 +123,109 @@ const sendWithBrevo = async (to, subject, html, plainText) => {
     return { success: true, messageId: data.messageId || data.id, provider: 'Brevo API', sender: senderEmail };
 };
 
+let cachedMailjetSender = null;
+
+/**
+ * Auto-detect verified sender email from Mailjet account if not explicitly set
+ */
+const getMailjetSender = async (publicKey, secretKey) => {
+    if (process.env.MAILJET_SENDER_EMAIL && process.env.MAILJET_SENDER_EMAIL.trim()) {
+        return process.env.MAILJET_SENDER_EMAIL.trim();
+    }
+    if (process.env.MAIL_FROM && process.env.MAIL_FROM.includes('@')) {
+        return process.env.MAIL_FROM.trim();
+    }
+    if (cachedMailjetSender) {
+        return cachedMailjetSender;
+    }
+
+    try {
+        const authHeader = 'Basic ' + Buffer.from(`${publicKey}:${secretKey}`).toString('base64');
+        const res = await fetch('https://api.mailjet.com/v3/REST/sender', {
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': authHeader
+            }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.Data && data.Data.length > 0) {
+                const activeSender = data.Data.find(s => s.Status === 'Active') || data.Data[0];
+                if (activeSender && activeSender.Email) {
+                    cachedMailjetSender = activeSender.Email;
+                    console.log('✅ Auto-detected Mailjet verified sender email:', cachedMailjetSender);
+                    return cachedMailjetSender;
+                }
+            }
+        } else {
+            const errBody = await res.text();
+            console.error('⚠️ Mailjet Senders API fetch failed (%d):', res.status, errBody);
+        }
+    } catch (err) {
+        console.error('⚠️ Could not auto-detect Mailjet sender:', err.message);
+    }
+
+    if (process.env.MAIL_USER && process.env.MAIL_USER.includes('@')) {
+        return process.env.MAIL_USER.trim();
+    }
+
+    return 'johncarloosias123@gmail.com';
+};
+
+/**
+ * Send email using Mailjet REST API v3.1 (Instant cloud delivery over HTTPS)
+ */
+const sendWithMailjet = async (to, subject, html, plainText, publicKey, secretKey) => {
+    const senderEmail = await getMailjetSender(publicKey, secretKey);
+    const senderName = process.env.MAIL_FROM_NAME || 'SnailShutter Studio';
+    const authHeader = 'Basic ' + Buffer.from(`${publicKey}:${secretKey}`).toString('base64');
+
+    console.log('📧 Sending via Mailjet API to:', to, 'using verified sender:', senderEmail);
+
+    const response = await fetch('https://api.mailjet.com/v3.1/send', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': authHeader
+        },
+        body: JSON.stringify({
+            Messages: [
+                {
+                    From: {
+                        Email: senderEmail,
+                        Name: senderName
+                    },
+                    To: [
+                        {
+                            Email: to,
+                            Name: to
+                        }
+                    ],
+                    Subject: subject,
+                    TextPart: plainText,
+                    HTMLPart: html
+                }
+            ]
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || (data.Messages && data.Messages[0] && data.Messages[0].Status === 'error')) {
+        const errorDetails = (data.Messages && data.Messages[0] && data.Messages[0].Errors) 
+            ? JSON.stringify(data.Messages[0].Errors) 
+            : (data.ErrorMessage || JSON.stringify(data));
+        console.error('❌ Mailjet API Error (%d):', response.status, errorDetails);
+        throw new Error(`Mailjet API Error: ${errorDetails} (Tried sender: ${senderEmail})`);
+    }
+
+    const msgInfo = (data.Messages && data.Messages[0]) ? data.Messages[0] : {};
+    const messageId = msgInfo.To && msgInfo.To[0] && msgInfo.To[0].MessageID ? msgInfo.To[0].MessageID : 'mj-' + Date.now();
+    console.log('🚀 Mailjet API email delivered to %s (MessageID: %s)', to, messageId);
+    return { success: true, messageId: String(messageId), provider: 'Mailjet API', sender: senderEmail };
+};
+
 /**
  * Send email using Resend API
  */
@@ -160,7 +263,7 @@ const sendWithResend = async (to, subject, html, plainText) => {
 };
 
 /**
- * Send an email (Supports Brevo API, Resend API, Brevo SMTP, Gmail SMTP)
+ * Send an email (Supports Mailjet API, Brevo API, Resend API, Gmail/Nodemailer SMTP)
  * @param {string} to Receiver email
  * @param {string} subject Email subject
  * @param {string} html HTML content
@@ -168,6 +271,30 @@ const sendWithResend = async (to, subject, html, plainText) => {
  */
 const sendEmail = async (to, subject, html, text = '') => {
     const plainText = text || html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    let lastErrorMsg = null;
+
+    // 1. If Mailjet API keys are present, prioritize Mailjet API for instant delivery
+    const mailjetPub = (process.env.MAILJET_API_KEY || process.env.MJ_APIKEY_PUBLIC || '').trim();
+    let mailjetSec = (process.env.MAILJET_SECRET_KEY || process.env.MJ_APIKEY_PRIVATE || '').trim();
+    let mjPublic = mailjetPub;
+    if (mailjetPub.includes(':') && !mailjetSec) {
+        const parts = mailjetPub.split(':');
+        mjPublic = parts[0].trim();
+        mailjetSec = parts[1].trim();
+    }
+
+    if (mjPublic && mailjetSec) {
+        try {
+            return await sendWithMailjet(to, subject, html, plainText, mjPublic, mailjetSec);
+        } catch (mailjetError) {
+            console.error('⚠️ Mailjet API failed:', mailjetError.message);
+            lastErrorMsg = mailjetError.message;
+            if (!process.env.BREVO_API_KEY && (!process.env.MAIL_USER || !process.env.MAIL_PASS)) {
+                return { success: false, error: `Mailjet API failed: ${mailjetError.message}`, provider: 'Mailjet API' };
+            }
+            console.warn('Attempting next fallback provider...');
+        }
+    }
     let brevoErrorMsg = null;
 
     // 1. If BREVO_API_KEY is present, use Brevo API for instant 1-second delivery to ANY recipient

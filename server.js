@@ -154,6 +154,8 @@ app.get('/api/test-email', async (req, res) => {
     MAIL_PORT: process.env.MAIL_PORT || 'not set (using default 465 or 587)',
     MAIL_USER: process.env.MAIL_USER ? `${process.env.MAIL_USER.substring(0, 3)}***@***` : '⚠️ MISSING / NOT SET in Render Environment',
     MAIL_PASS_SET: !(!process.env.MAIL_PASS || process.env.MAIL_PASS.trim() === ''),
+    MAILJET_API_KEY_SET: !(!process.env.MAILJET_API_KEY && !process.env.MJ_APIKEY_PUBLIC),
+    MAILJET_SECRET_KEY_SET: !(!process.env.MAILJET_SECRET_KEY && !process.env.MJ_APIKEY_PRIVATE),
     BREVO_API_KEY_SET: !(!process.env.BREVO_API_KEY || process.env.BREVO_API_KEY.trim() === ''),
     RESEND_API_KEY_SET: !(!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.trim() === '')
   };
