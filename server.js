@@ -144,6 +144,47 @@ app.get('/api/check-db-schema', async (req, res) => {
   }
 });
 
+// Diagnostic endpoint to test email sending live from Render and view exact SMTP/API error responses
+app.get('/api/test-email', async (req, res) => {
+  const targetEmail = req.query.to || 'banceleste@gmail.com';
+  const { sendEmail } = require('./utils/mailer');
+  
+  const envStatus = {
+    MAIL_HOST: process.env.MAIL_HOST || 'not set (using default smtp.gmail.com)',
+    MAIL_PORT: process.env.MAIL_PORT || 'not set (using default 465 or 587)',
+    MAIL_USER: process.env.MAIL_USER ? `${process.env.MAIL_USER.substring(0, 3)}***@***` : '⚠️ MISSING / NOT SET in Render Environment',
+    MAIL_PASS_SET: !(!process.env.MAIL_PASS || process.env.MAIL_PASS.trim() === ''),
+    BREVO_API_KEY_SET: !(!process.env.BREVO_API_KEY || process.env.BREVO_API_KEY.trim() === ''),
+    RESEND_API_KEY_SET: !(!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.trim() === '')
+  };
+
+  try {
+    console.log(`Diagnostic testing email dispatch to ${targetEmail}...`);
+    const result = await sendEmail(
+      targetEmail,
+      'SnailShutter Diagnostic Test Email',
+      '<h2>Hello from SnailShutter Cloud Diagnostic Server!</h2><p>If you received this email, your cloud mailer is working perfectly!</p>',
+      'Hello from SnailShutter Cloud Diagnostic Server! If you received this, mailer works!'
+    );
+    return res.json({ 
+      success: result.success !== false, 
+      targetEmail, 
+      deliveryResult: result, 
+      envStatus,
+      explanation: result.success === false ? "The SMTP server rejected or timed out the connection from this IP/account." : "Email dispatched successfully!" 
+    });
+  } catch (err) {
+    console.error('Diagnostic email delivery failure:', err);
+    return res.status(500).json({
+      success: false,
+      targetEmail,
+      error: err.message,
+      stack: err.stack,
+      envStatus
+    });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
