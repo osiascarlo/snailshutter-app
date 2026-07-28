@@ -77,12 +77,56 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, error: 'Internal Server Error' });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`\n🚀 SnailShutter Node.js Server running at http://localhost:${PORT}`);
-  console.log(`📁 Serving files from: ${__dirname}`);
-  console.log(`\n📋 Access the application:`);
-  console.log(`   • Main page: http://localhost:${PORT}`);
-  console.log(`   • Login: http://localhost:${PORT}/auth/login.html`);
-  console.log(`\n⚠️  Press Ctrl+C to stop server\n`);
+const pool = require('./config/db');
+
+// Automatically check and migrate database schema on server startup (handles remote cloud databases like Render)
+async function checkAndMigrateDatabase() {
+  try {
+    console.log('🔄 Checking database schema compatibility...');
+    const [columns] = await pool.execute("SHOW COLUMNS FROM users");
+    const colNames = columns.map(c => c.Field);
+
+    if (!colNames.includes('first_name')) {
+      console.log('⚡ Running migration on database: adding first_name...');
+      await pool.execute('ALTER TABLE users ADD COLUMN first_name VARCHAR(50) NOT NULL DEFAULT "" AFTER id');
+    }
+
+    if (!colNames.includes('last_name')) {
+      console.log('⚡ Running migration on database: adding last_name...');
+      await pool.execute('ALTER TABLE users ADD COLUMN last_name VARCHAR(50) NOT NULL DEFAULT "" AFTER first_name');
+    }
+
+    if (colNames.includes('full_name')) {
+      console.log('⚡ Migrating existing user full_name data to first_name and last_name...');
+      const [users] = await pool.execute('SELECT id, full_name, first_name, last_name FROM users');
+      for (const u of users) {
+        if (u.full_name && (!u.first_name || u.first_name === '')) {
+          const parts = u.full_name.trim().split(/\s+/);
+          const first = parts[0] || 'User';
+          const last = parts.slice(1).join(' ') || 'User';
+          await pool.execute('UPDATE users SET first_name = ?, last_name = ? WHERE id = ?', [first, last, u.id]);
+          console.log(`Updated user ID ${u.id}: "${u.full_name}" -> "${first}" / "${last}"`);
+        }
+      }
+      console.log('⚡ Dropping deprecated full_name column from users table...');
+      await pool.execute('ALTER TABLE users DROP COLUMN full_name');
+      console.log('✅ Database migration completed successfully on cloud server!');
+    } else {
+      console.log('✅ Database schema is up-to-date (first_name and last_name columns exist).');
+    }
+  } catch (error) {
+    console.error('⚠️ Database check/migration warning:', error.message);
+  }
+}
+
+// Check DB schema and start server
+checkAndMigrateDatabase().then(() => {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 SnailShutter Node.js Server running at http://localhost:${PORT}`);
+    console.log(`📁 Serving files from: ${__dirname}`);
+    console.log(`\n📋 Access the application:`);
+    console.log(`   • Main page: http://localhost:${PORT}`);
+    console.log(`   • Login: http://localhost:${PORT}/auth/login.html`);
+    console.log(`\n⚠️  Press Ctrl+C to stop server\n`);
+  });
 });
