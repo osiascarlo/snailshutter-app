@@ -21,7 +21,7 @@ router.get('/', authMiddleware, async (req, res) => {
         const ed = `${year}-${month.toString().padStart(2, '0')}-${lastDay.toString().padStart(2, '0')}`;
 
         try {
-            let sql = "SELECT b.*, u.full_name as client_name, s.name as service_name FROM bookings b JOIN users u ON b.client_id=u.id JOIN services s ON b.service_id=s.id WHERE b.booking_date BETWEEN ? AND ?";
+            let sql = "SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) as client_name, s.name as service_name FROM bookings b JOIN users u ON b.client_id=u.id JOIN services s ON b.service_id=s.id WHERE b.booking_date BETWEEN ? AND ?";
             let params = [sd, ed];
 
             if (userRole === 'staff') {

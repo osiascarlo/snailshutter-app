@@ -37,7 +37,7 @@ router.post('/send-otp', async (req, res) => {
         }
 
         if (name && name.trim()) {
-            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(full_name) = LOWER(?)', [name.trim()]);
+            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(CONCAT(first_name, " ", last_name)) = LOWER(?)', [name.trim()]);
             if (existingName.length > 0) {
                 return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
             }
@@ -119,14 +119,22 @@ router.post('/send-otp', async (req, res) => {
  * POST /api/auth/verify_register.php (Ported to /api/auth/verify-register)
  */
 router.post('/verify-register', async (req, res) => {
-    let { email, otp, fullName, password, phone } = req.body;
+    let { email, otp, fullName, firstName, lastName, password, phone } = req.body;
 
-    // Strip HTML tags from user-supplied name to prevent stored XSS
-    if (fullName) {
-        fullName = fullName.replace(/<[^>]*>/g, '').trim();
+    if (!firstName || !lastName) {
+        if (fullName) {
+            const parts = fullName.trim().split(/\s+/);
+            firstName = parts[0] || '';
+            lastName = parts.slice(1).join(' ') || 'User';
+        }
     }
 
-    if (!email || !otp || !fullName || !password) {
+    // Strip HTML tags from user-supplied name to prevent stored XSS
+    if (firstName) firstName = firstName.replace(/<[^>]*>/g, '').trim();
+    if (lastName) lastName = lastName.replace(/<[^>]*>/g, '').trim();
+    const cleanFullName = `${firstName} ${lastName}`.trim();
+
+    if (!email || !otp || !firstName || !lastName || !password) {
         return res.status(400).json({ success: false, error: 'All fields are required' });
     }
 
@@ -169,8 +177,8 @@ router.post('/verify-register', async (req, res) => {
             }
         }
 
-        if (fullName && fullName.trim()) {
-            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(full_name) = LOWER(?)', [fullName.trim()]);
+        if (cleanFullName) {
+            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(CONCAT(first_name, " ", last_name)) = LOWER(?)', [cleanFullName]);
             if (existingName.length > 0) {
                 return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
             }
@@ -179,8 +187,8 @@ router.post('/verify-register', async (req, res) => {
         // Create User
         const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await pool.execute(
-            'INSERT INTO users (full_name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
-            [fullName, email, hashedPassword, phone, 'client']
+            'INSERT INTO users (first_name, last_name, email, password, phone, role) VALUES (?, ?, ?, ?, ?, ?)',
+            [firstName, lastName, email, hashedPassword, phone, 'client']
         );
 
         const userId = result.insertId;
@@ -189,7 +197,7 @@ router.post('/verify-register', async (req, res) => {
         const welcomeHtml = `
             <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-top: 5px solid #d4a574;">
                 <h2 style="color: #1a1a2e;">Account Created Successfully!</h2>
-                <p>Hi <strong>${fullName}</strong>,</p>
+                <p>Hi <strong>${cleanFullName}</strong>,</p>
                 <p>Welcome to <strong>SnailShutter Studio</strong>! Your account has been successfully verified and created.</p>
                 <p>You can now log in to our dashboard to book your photography sessions, view your gallery, and manage your appointments.</p>
                 <div style="margin: 30px 0; text-align: center;">
@@ -212,12 +220,14 @@ router.post('/verify-register', async (req, res) => {
         // Set Session
         req.session.user_id = userId;
         req.session.user_role = 'client';
-        req.session.user_name = fullName;
+        req.session.user_name = cleanFullName;
+        req.session.first_name = firstName;
+        req.session.last_name = lastName;
 
         res.json({
             success: true,
             message: 'Account created successfully',
-            data: { id: userId, name: fullName, email, role: 'client' }
+            data: { id: userId, name: cleanFullName, first_name: firstName, last_name: lastName, email, role: 'client' }
         });
 
     } catch (error) {
@@ -235,9 +245,9 @@ router.post('/verify-register', async (req, res) => {
 // staff@studio.com / Staff@123
 // client@studio.com / Client@123
 const DEMO_USERS = [
-    { id: 1, full_name: 'Admin User',  email: 'admin@studio.com',  password: '$2b$10$/GQc/TMhU5iGdgl/Wg9Qqe25cI0e2m9pYBbGDIxn/k30RCq/Be0US', role: 'admin'  },
-    { id: 2, full_name: 'Staff User',  email: 'staff@studio.com',  password: '$2b$10$pVKX4dhdCYPocJ/L/15jwu18EJzxEiExSw9Wm7dJZ67g6LjUL4DH.', role: 'staff'  },
-    { id: 3, full_name: 'Client User', email: 'client@studio.com', password: '$2b$10$uK/NOQq4kYToS1fJCRKq2.TWXcnkKH6o8q5pq1AteSoGk6IGzkP8u', role: 'client' },
+    { id: 1, first_name: 'Admin',  last_name: 'User',  full_name: 'Admin User',  email: 'admin@studio.com',  password: '$2b$10$/GQc/TMhU5iGdgl/Wg9Qqe25cI0e2m9pYBbGDIxn/k30RCq/Be0US', role: 'admin'  },
+    { id: 2, first_name: 'Staff',  last_name: 'User',  full_name: 'Staff User',  email: 'staff@studio.com',  password: '$2b$10$pVKX4dhdCYPocJ/L/15jwu18EJzxEiExSw9Wm7dJZ67g6LjUL4DH.', role: 'staff'  },
+    { id: 3, first_name: 'Client', last_name: 'User', full_name: 'Client User', email: 'client@studio.com', password: '$2b$10$uK/NOQq4kYToS1fJCRKq2.TWXcnkKH6o8q5pq1AteSoGk6IGzkP8u', role: 'client' },
 ];
 
 router.post('/login', async (req, res) => {
@@ -260,14 +270,18 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, error: 'Invalid email or password' });
         }
 
+        const uFullName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User';
+
         // Set Session
         req.session.user_id = user.id;
         req.session.user_role = user.role;
-        req.session.user_name = user.full_name;
+        req.session.user_name = uFullName;
+        req.session.first_name = user.first_name;
+        req.session.last_name = user.last_name;
 
         res.json({
             success: true,
-            data: { id: user.id, name: user.full_name, email: user.email, role: user.role }
+            data: { id: user.id, name: uFullName, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role }
         });
 
     } catch (error) {
@@ -287,10 +301,12 @@ router.post('/login', async (req, res) => {
         req.session.user_id   = demoUser.id;
         req.session.user_role = demoUser.role;
         req.session.user_name = demoUser.full_name;
+        req.session.first_name = demoUser.first_name;
+        req.session.last_name = demoUser.last_name;
 
         res.json({
             success: true,
-            data: { id: demoUser.id, name: demoUser.full_name, email: demoUser.email, role: demoUser.role }
+            data: { id: demoUser.id, name: demoUser.full_name, first_name: demoUser.first_name, last_name: demoUser.last_name, email: demoUser.email, role: demoUser.role }
         });
     }
 });
@@ -306,7 +322,9 @@ router.get('/session', (req, res) => {
             data: {
                 id: req.session.user_id,
                 role: req.session.user_role,
-                name: req.session.user_name
+                name: req.session.user_name,
+                first_name: req.session.first_name,
+                last_name: req.session.last_name
             }
         });
     } else {
@@ -339,7 +357,7 @@ router.post('/forgot-password', async (req, res) => {
 
     try {
         // Check if user exists
-        const [users] = await pool.execute('SELECT full_name FROM users WHERE email = ?', [email]);
+        const [users] = await pool.execute('SELECT CONCAT(first_name, " ", last_name) as full_name FROM users WHERE email = ?', [email]);
         if (users.length === 0) {
             // We return success anyway to avoid email harvesting, but don't send anything
             return res.json({ success: true, message: 'If an account exists, a reset code has been sent.' });

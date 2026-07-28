@@ -17,7 +17,7 @@ router.get('/', requireAdmin, async (req, res) => {
     try {
         const query = `
             SELECT b.id, b.client_id, b.staff_id, b.service_ids, b.service_id, b.booking_date, b.start_time, b.google_drive_link,
-                   c.full_name as client_name, c.email as client_email, s.name as service_name
+                   CONCAT(c.first_name, ' ', c.last_name) as client_name, c.email as client_email, s.name as service_name
             FROM bookings b
             JOIN users c ON b.client_id = c.id
             JOIN services s ON b.service_id = s.id
@@ -58,7 +58,7 @@ router.post('/:bookingId', requireAdmin, async (req, res) => {
     try {
         // 1. Get the current booking details including client info and old link
         const [oldBookings] = await pool.execute(
-            `SELECT b.google_drive_link, c.email, c.full_name, s.name as service_name, b.booking_date 
+            `SELECT b.google_drive_link, c.email, CONCAT(c.first_name, ' ', c.last_name) as full_name, s.name as service_name, b.booking_date 
              FROM bookings b 
              JOIN users c ON b.client_id = c.id 
              JOIN services s ON b.service_id = s.id 

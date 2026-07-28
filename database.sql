@@ -7,7 +7,8 @@ USE studio_booking;
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20) DEFAULT NULL,
@@ -70,17 +71,17 @@ CREATE TABLE IF NOT EXISTS bookings (
 -- ========================================
 
 -- Default admin (password: Admin@123)
-INSERT INTO users (full_name, email, password, role) VALUES
-('Studio Admin', 'admin@studio.com', '$2b$10$Y74oXpL98yvgjLvi4XpW5OMTHRJHWYmqRCYt6hlSeiz.b5tk9JyAa', 'admin');
+INSERT INTO users (first_name, last_name, email, password, role) VALUES
+('Studio', 'Admin', 'admin@studio.com', '$2b$10$Y74oXpL98yvgjLvi4XpW5OMTHRJHWYmqRCYt6hlSeiz.b5tk9JyAa', 'admin');
 
 -- Default staff members (password: Staff@123)
-INSERT INTO users (full_name, email, password, phone, role) VALUES
-('Maria Santos', 'maria@studio.com', '$2b$10$WXTj/HcvE7B13SqoEgrNGek2Dmj6wr8Kv2emnSwxJRflzGEQ2qYIS', '09171234567', 'staff'),
-('Carlos Rivera', 'carlos@studio.com', '$2b$10$WXTj/HcvE7B13SqoEgrNGek2Dmj6wr8Kv2emnSwxJRflzGEQ2qYIS', '09179876543', 'staff');
+INSERT INTO users (first_name, last_name, email, password, phone, role) VALUES
+('Maria', 'Santos', 'maria@studio.com', '$2b$10$WXTj/HcvE7B13SqoEgrNGek2Dmj6wr8Kv2emnSwxJRflzGEQ2qYIS', '09171234567', 'staff'),
+('Carlos', 'Rivera', 'carlos@studio.com', '$2b$10$WXTj/HcvE7B13SqoEgrNGek2Dmj6wr8Kv2emnSwxJRflzGEQ2qYIS', '09179876543', 'staff');
 
 -- Default client (password: Client@123)
-INSERT INTO users (full_name, email, password, phone, role) VALUES
-('Juan Dela Cruz', 'juan@gmail.com', '$2b$10$372KsaJrmaGKRphl8eDNEukSZIh2134t/BZaU/UFihkxVfcJstHF2', '09181112233', 'client');
+INSERT INTO users (first_name, last_name, email, password, phone, role) VALUES
+('Juan', 'Dela Cruz', 'juan@gmail.com', '$2b$10$372KsaJrmaGKRphl8eDNEukSZIh2134t/BZaU/UFihkxVfcJstHF2', '09181112233', 'client');
 
 -- Services
 INSERT INTO services (name, description, duration_minutes, price) VALUES

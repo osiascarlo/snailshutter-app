@@ -209,9 +209,22 @@
                 <form id="registerForm" style="margin-top: 2rem;">
                     <div class="grid-2" style="gap: 1rem;">
                         <div class="form-group">
-                            <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" name="fullName" class="form-control"
-                                placeholder="Juan Dela Cruz" required>
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" class="form-control"
+                                placeholder="Juan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" class="form-control"
+                                placeholder="Dela Cruz" required>
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="gap: 1rem;">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com"
+                                required>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
@@ -222,12 +235,6 @@
                                 title="Phone number must be exactly 11 digits (e.g. 09171234567)"
                                 oninput="this.value=this.value.replace(/\D/g,'').slice(0,11)">
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com"
-                            required>
                     </div>
 
                     <div class="grid-2" style="gap: 1rem;">
@@ -547,9 +554,11 @@
             registerForm.addEventListener('submit', async function (e) {
                 e.preventDefault();
 
-                const fullName = document.getElementById('fullName').value;
-                const email = document.getElementById('email').value;
-                const phone = document.getElementById('phone').value;
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const fullName = `${firstName} ${lastName}`.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -568,14 +577,14 @@
                     return;
                 }
 
-                const errors = validateForm({ fullName, email, password });
+                const errors = validateForm({ firstName, lastName, email, password });
                 if (errors.length > 0) {
                     showAlert(errors[0], 'error');
                     return;
                 }
 
                 // Store registration data
-                registrationData = { fullName, email, phone, password };
+                registrationData = { firstName, lastName, fullName, email, phone, password };
 
                 // Show loading state
                 const originalText = registerBtn.innerHTML;
@@ -663,6 +672,8 @@
                         // Set current logged in user session locally
                         const userObj = result.data || {
                             name: registrationData.fullName,
+                            first_name: registrationData.firstName,
+                            last_name: registrationData.lastName,
                             email: registrationData.email,
                             role: 'client'
                         };
@@ -771,8 +782,12 @@
             function validateForm(data) {
                 const errors = [];
 
-                if (!data.fullName || data.fullName.trim().length < 2) {
-                    errors.push('Please enter your full name');
+                if (!data.firstName || data.firstName.trim().length < 1) {
+                    errors.push('Please enter your first name');
+                }
+
+                if (!data.lastName || data.lastName.trim().length < 1) {
+                    errors.push('Please enter your last name');
                 }
 
                 if (!data.email || !isValidEmail(data.email)) {

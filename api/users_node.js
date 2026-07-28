@@ -13,7 +13,9 @@ router.get('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
         const [users] = await pool.execute(`
             SELECT 
                 u.id, 
-                u.full_name, 
+                u.first_name,
+                u.last_name,
+                CONCAT(u.first_name, ' ', u.last_name) AS full_name, 
                 u.email, 
                 u.phone, 
                 u.role, 
@@ -24,7 +26,7 @@ router.get('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
             FROM users u
             LEFT JOIN bookings b ON (u.id = b.client_id OR u.id = b.staff_id)
             GROUP BY u.id
-            ORDER BY u.role, u.full_name
+            ORDER BY u.role, u.first_name, u.last_name
         `);
         res.json({ success: true, users: users });
     } catch (error) {
@@ -66,8 +68,8 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
             }
         }
 
-        if (full_name) {
-            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(full_name) = LOWER(?)', [full_name]);
+        if (first_name && last_name) {
+            const [existingName] = await pool.execute('SELECT id FROM users WHERE LOWER(CONCAT(first_name, " ", last_name)) = LOWER(?)', [`${first_name} ${last_name}`.trim()]);
             if (existingName.length > 0) {
                 return res.status(409).json({ success: false, error: 'An account with this full name already exists.' });
             }
@@ -77,8 +79,8 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
 
         // Insert new user
         await pool.execute(
-            'INSERT INTO users (full_name, email, password, phone, role, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [full_name, email, hashedPassword, phone || null, role, userStatus, notes || null]
+            'INSERT INTO users (first_name, last_name, email, password, phone, role, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [first_name, last_name, email, hashedPassword, phone || null, role, userStatus, notes || null]
         );
 
         res.json({ success: true, message: 'User created successfully' });
@@ -94,7 +96,7 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
  */
 router.get('/staff', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
     try {
-        const [staff] = await pool.execute("SELECT id, full_name, email, phone FROM users WHERE role = 'staff' ORDER BY full_name");
+        const [staff] = await pool.execute("SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) as full_name, email, phone FROM users WHERE role = 'staff' ORDER BY first_name, last_name");
         res.json({ success: true, staff: staff });
     } catch (error) {
         console.error('Fetch Staff Error:', error);
@@ -126,9 +128,13 @@ router.post('/update_role', authMiddleware, roleMiddleware(['admin']), async (re
         const fields = [];
         const values = [];
 
-        if (first_name !== undefined && last_name !== undefined) {
-            fields.push('full_name = ?');
-            values.push(`${first_name} ${last_name}`.trim());
+        if (first_name !== undefined) {
+            fields.push('first_name = ?');
+            values.push(first_name.trim());
+        }
+        if (last_name !== undefined) {
+            fields.push('last_name = ?');
+            values.push(last_name.trim());
         }
         if (email !== undefined) {
             fields.push('email = ?');
@@ -202,7 +208,7 @@ router.post('/delete', authMiddleware, roleMiddleware(['admin']), async (req, re
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
         const [users] = await pool.execute(
-            'SELECT id, full_name, email, phone, role, avatar, created_at FROM users WHERE id = ?',
+            "SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) as full_name, email, phone, role, avatar, created_at FROM users WHERE id = ?",
             [req.session.user_id]
         );
 
@@ -222,23 +228,35 @@ router.get('/profile', authMiddleware, async (req, res) => {
  * Updates current user's general info
  */
 router.post('/profile', authMiddleware, async (req, res) => {
-    let { full_name, email, phone } = req.body;
+    let { full_name, first_name, last_name, email, phone } = req.body;
+
+    if (!first_name || !last_name) {
+        if (full_name) {
+            const parts = full_name.trim().split(/\s+/);
+            first_name = parts[0] || '';
+            last_name = parts.slice(1).join(' ') || 'User';
+        }
+    }
 
     // Strip HTML tags from user-supplied name to prevent stored XSS
-    if (full_name) full_name = full_name.replace(/<[^>]*>/g, '').trim();
+    if (first_name) first_name = first_name.replace(/<[^>]*>/g, '').trim();
+    if (last_name) last_name = last_name.replace(/<[^>]*>/g, '').trim();
+    const cleanFullName = `${first_name} ${last_name}`.trim();
 
-    if (!full_name || !email) {
+    if (!first_name || !last_name || !email) {
         return res.status(400).json({ success: false, error: 'Name and email are required' });
     }
 
     try {
         await pool.execute(
-            'UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?',
-            [full_name, email, phone, req.session.user_id]
+            'UPDATE users SET first_name = ?, last_name = ?, email = ?, phone = ? WHERE id = ?',
+            [first_name, last_name, email, phone, req.session.user_id]
         );
 
         // Update session name if changed
-        req.session.user_name = full_name;
+        req.session.user_name = cleanFullName;
+        req.session.first_name = first_name;
+        req.session.last_name = last_name;
 
         res.json({ success: true, message: 'Profile updated successfully' });
     } catch (error) {

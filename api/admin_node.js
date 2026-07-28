@@ -66,7 +66,7 @@ router.get('/analytics', authMiddleware, roleMiddleware(['admin']), async (req, 
 
         // 5. Staff Performance
         const [staffResult] = await pool.execute(`
-            SELECT u.full_name as name, COUNT(b.id) as count
+            SELECT CONCAT(u.first_name, ' ', u.last_name) as name, COUNT(b.id) as count
             FROM bookings b
             JOIN users u ON b.staff_id = u.id
             WHERE b.status = 'completed'

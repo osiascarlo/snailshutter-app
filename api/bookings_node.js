@@ -87,7 +87,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
         if (userRole === 'client') {
             query = `
-                SELECT b.*, s.name as service_name, st.full_name as staff_name 
+                SELECT b.*, s.name as service_name, CONCAT(st.first_name, ' ', st.last_name) as staff_name 
                 FROM bookings b 
                 JOIN services s ON b.service_id = s.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
@@ -97,7 +97,7 @@ router.get('/', authMiddleware, async (req, res) => {
             params = [userId];
         } else if (userRole === 'staff') {
             query = `
-                SELECT b.*, s.name as service_name, c.full_name as client_name, st.full_name as staff_name 
+                SELECT b.*, s.name as service_name, CONCAT(c.first_name, ' ', c.last_name) as client_name, CONCAT(st.first_name, ' ', st.last_name) as staff_name 
                 FROM bookings b 
                 JOIN services s ON b.service_id = s.id 
                 JOIN users c ON b.client_id = c.id 
@@ -107,7 +107,7 @@ router.get('/', authMiddleware, async (req, res) => {
             params = [];
         } else { // admin
             query = `
-                SELECT b.*, s.name as service_name, c.full_name as client_name, st.full_name as staff_name 
+                SELECT b.*, s.name as service_name, CONCAT(c.first_name, ' ', c.last_name) as client_name, CONCAT(st.first_name, ' ', st.last_name) as staff_name 
                 FROM bookings b 
                 JOIN services s ON b.service_id = s.id 
                 JOIN users c ON b.client_id = c.id 
@@ -539,7 +539,7 @@ router.put('/', authMiddleware, async (req, res) => {
             
             // Get booking and client info for email
             const [info] = await pool.execute(`
-                SELECT b.*, s.name as service_name, u.email, u.full_name 
+                SELECT b.*, s.name as service_name, u.email, CONCAT(u.first_name, ' ', u.last_name) as full_name 
                 FROM bookings b 
                 JOIN services s ON b.service_id = s.id 
                 JOIN users u ON b.client_id = u.id 
