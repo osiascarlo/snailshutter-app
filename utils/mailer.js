@@ -271,6 +271,9 @@ const sendWithResend = async (to, subject, html, plainText) => {
  */
 const sendEmail = async (to, subject, html, text = '') => {
     const plainText = text || html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    let brevoErrorMsg = null;
+    let resendErrorMsg = null;
+    let mailjetErrorMsg = null;
     let lastErrorMsg = null;
 
     // 1. Prioritize BREVO_API_KEY as #1 for free instant delivery with verified sender detection
@@ -279,9 +282,10 @@ const sendEmail = async (to, subject, html, text = '') => {
             return await sendWithBrevo(to, subject, html, plainText);
         } catch (brevoError) {
             console.error('⚠️ Brevo API failed:', brevoError.message);
+            brevoErrorMsg = brevoError.message;
             lastErrorMsg = brevoError.message;
             if (!process.env.RESEND_API_KEY && !process.env.MAILJET_API_KEY && (!process.env.MAIL_USER || !process.env.MAIL_PASS)) {
-                return { success: false, error: `Brevo API failed: ${brevoError.message}`, provider: 'Brevo API' };
+                return { success: false, error: `Brevo API failed: ${brevoError.message}`, brevoError: brevoErrorMsg, provider: 'Brevo API' };
             }
             console.warn('Attempting next fallback provider...');
         }
@@ -293,9 +297,10 @@ const sendEmail = async (to, subject, html, text = '') => {
             return await sendWithResend(to, subject, html, plainText);
         } catch (resendError) {
             console.error('⚠️ Resend API failed:', resendError.message);
+            resendErrorMsg = resendError.message;
             lastErrorMsg = resendError.message;
             if (!process.env.MAILJET_API_KEY && (!process.env.MAIL_USER || !process.env.MAIL_PASS)) {
-                return { success: false, error: `Resend API failed: ${resendError.message}`, provider: 'Resend API' };
+                return { success: false, error: `Resend API failed: ${resendError.message}`, resendError: resendErrorMsg, provider: 'Resend API' };
             }
             console.warn('Attempting next fallback provider...');
         }
@@ -316,9 +321,10 @@ const sendEmail = async (to, subject, html, text = '') => {
             return await sendWithMailjet(to, subject, html, plainText, mjPublic, mailjetSec);
         } catch (mailjetError) {
             console.error('⚠️ Mailjet API failed:', mailjetError.message);
+            mailjetErrorMsg = mailjetError.message;
             lastErrorMsg = mailjetError.message;
             if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
-                return { success: false, error: `Mailjet API failed: ${mailjetError.message}`, provider: 'Mailjet API' };
+                return { success: false, error: `Mailjet API failed: ${mailjetError.message}`, mailjetError: mailjetErrorMsg, provider: 'Mailjet API' };
             }
             console.warn('Attempting SMTP fallback...');
         }
@@ -350,9 +356,12 @@ const sendEmail = async (to, subject, html, text = '') => {
         console.error('⚠️ Send Email SMTP Warning:', error.message || error);
         return { 
             success: false, 
-            warning: error.message || 'SMTP connection warning', 
+            error: lastErrorMsg || error.message || 'All email providers failed',
+            smtpError: error.message || 'SMTP connection warning', 
             brevoError: brevoErrorMsg || undefined,
-            provider: 'SMTP fallback failed'
+            resendError: resendErrorMsg || undefined,
+            mailjetError: mailjetErrorMsg || undefined,
+            provider: 'All failovers unsuccessful'
         };
     }
 };
