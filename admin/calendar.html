@@ -617,9 +617,14 @@
                     return getLocalDateString(booking.booking_date) === dateStr && booking.status !== 'cancelled';
                 });
                 
+                const todayStr = getLocalDateString(currentDate);
+                const isPastDate = dateStr < todayStr;
                 const hasBooking = dayBookings.length > 0;
-                const isCompleted = hasBooking && dayBookings.every(b => b.status === 'completed');
-                const isToday = currentDate.getDate() === day && currentDate.getMonth() === currentMonth && currentDate.getFullYear() === currentYear;
+                const isCompleted = hasBooking && (
+                    dayBookings.every(b => (b.status || '').toLowerCase() === 'completed') ||
+                    isPastDate
+                );
+                const isToday = dateStr === todayStr;
 
                 let classes = 'calendar-day';
                 if (isToday) classes += ' today';
