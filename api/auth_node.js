@@ -140,7 +140,7 @@ router.post('/verify-register', async (req, res) => {
     try {
         // Find OTP
         const [records] = await pool.execute(
-            'SELECT id, otp_code, attempts FROM otp_verifications WHERE email = ? AND purpose = "register" AND is_used = 0 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
+            "SELECT id, otp_code, attempts FROM otp_verifications WHERE email = ? AND purpose = 'register' AND is_used = 0 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1",
             [email]
         );
 
@@ -436,7 +436,7 @@ router.post('/reset-password', async (req, res) => {
     try {
         // Verify OTP
         const [records] = await pool.execute(
-            'SELECT id, otp_code FROM otp_verifications WHERE email = ? AND purpose = "password_reset" AND is_used = 0 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
+            "SELECT id, otp_code FROM otp_verifications WHERE email = ? AND purpose = 'password_reset' AND is_used = 0 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1",
             [email]
         );
 
