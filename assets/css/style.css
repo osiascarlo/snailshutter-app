@@ -617,6 +617,12 @@ textarea.form-control { resize: vertical; min-height: 108px; }
     transform: translateY(-1px);
 }
 
+.btn-modal-cancel:active,
+.btn-danger-gradient:active,
+.btn-primary-gradient:active {
+    transform: scale(0.97) !important;
+}
+
 /* Enhanced Alert System (Floating) */
 #alertContainer {
     position: fixed;
