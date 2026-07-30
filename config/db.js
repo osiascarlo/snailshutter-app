@@ -9,7 +9,8 @@ const poolOpts = {
     port: process.env.DB_PORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    dateStrings: true
 };
 
 // Enable SSL if we are connecting to a remote database

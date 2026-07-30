@@ -542,6 +542,10 @@
         // Helper to get local YYYY-MM-DD date string
         function getLocalDateString(dateInput) {
             if (!dateInput) return '';
+            if (typeof dateInput === 'string') {
+                const match = dateInput.match(/^(\d{4}-\d{2}-\d{2})/);
+                if (match) return match[1];
+            }
             const d = new Date(dateInput);
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
