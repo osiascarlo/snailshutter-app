@@ -185,9 +185,11 @@ router.post('/verify-register', async (req, res) => {
 
         // Create User
         const hashedPassword = await bcrypt.hash(password, 10);
+        const finalPhone = (phone && phone.trim() !== '') ? phone.trim() : null;
+        
         const [result] = await pool.execute(
             'INSERT INTO users (first_name, last_name, email, password, phone, role) VALUES (?, ?, ?, ?, ?, ?)',
-            [firstName, lastName, email, hashedPassword, phone, 'client']
+            [firstName, lastName, email, hashedPassword, finalPhone, 'client']
         );
 
         const userId = result.insertId;
@@ -200,7 +202,7 @@ router.post('/verify-register', async (req, res) => {
                 <p>Welcome to <strong>SnailShutter Studio</strong>! Your account has been successfully verified and created.</p>
                 <p>You can now log in to our dashboard to book your photography sessions, view your gallery, and manage your appointments.</p>
                 <div style="margin: 30px 0; text-align: center;">
-                    <a href="http://localhost:${process.env.PORT || 3000}/auth/login.html" 
+                    <a href="https://snailshutter-app.onrender.com/auth/login.html" 
                        style="background-color: #d4a574; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
                        Go to Login
                     </a>
@@ -231,7 +233,7 @@ router.post('/verify-register', async (req, res) => {
 
     } catch (error) {
         console.error('Registration Error:', error);
-        res.status(500).json({ success: false, error: 'Internal Server Error' });
+        res.status(500).json({ success: false, error: 'Internal Server Error: ' + error.message });
     }
 });
 
