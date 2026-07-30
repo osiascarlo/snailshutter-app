@@ -43,29 +43,41 @@ function showConfirm(options = {}) {
         message = 'Are you sure you want to proceed?',
         confirmText = 'Confirm',
         cancelText = 'Cancel',
-        type = 'confirm' // 'confirm' or 'danger'
+        type = 'confirm', // 'confirm' or 'danger'
+        icon = null
     } = options;
 
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay';
+        overlay.className = 'modal-overlay custom-confirm-overlay';
         
-        const iconClass = type === 'danger' ? 'fa-exclamation-triangle modal-icon-danger' : 'fa-question-circle modal-icon-confirm';
+        let iconClass = 'fa-question';
+        if (icon) {
+            iconClass = icon;
+        } else if (type === 'danger') {
+            iconClass = 'fa-right-from-bracket';
+        } else {
+            iconClass = 'fa-circle-check';
+        }
 
         overlay.innerHTML = `
-            <div class="modal-container">
-                <div class="modal-header">
-                    <div class="modal-icon ${type === 'danger' ? 'modal-icon-danger' : 'modal-icon-confirm'}">
-                        <i class="fas ${iconClass.split(' ')[0]}"></i>
+            <div class="modal-container custom-confirm-container">
+                <div class="modal-header custom-confirm-header">
+                    <div class="modal-icon ${type === 'danger' ? 'modal-icon-danger-glow' : 'modal-icon-confirm-glow'}">
+                        <i class="fas ${iconClass}"></i>
                     </div>
                 </div>
-                <div class="modal-content">
+                <div class="modal-content custom-confirm-content">
                     <h3 class="modal-title">${title}</h3>
                     <p class="modal-message">${message}</p>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary btn-sm" id="modalCancel">${cancelText}</button>
-                    <button class="btn ${type === 'danger' ? 'btn-danger' : 'btn-primary'} btn-sm" id="modalConfirm">${confirmText}</button>
+                <div class="modal-footer custom-confirm-footer">
+                    <button class="btn btn-modal-cancel" id="modalCancel">
+                        ${cancelText}
+                    </button>
+                    <button class="btn ${type === 'danger' ? 'btn-danger-gradient' : 'btn-primary-gradient'} btn-modal-confirm" id="modalConfirm">
+                        ${confirmText}
+                    </button>
                 </div>
             </div>
         `;

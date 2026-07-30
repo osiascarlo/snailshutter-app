@@ -122,11 +122,12 @@ class Auth {
         // Show confirmation dialog if the premium modal system is available
         if (!force && typeof showConfirm === 'function') {
             const confirmed = await showConfirm({
-                title: 'Log Out',
-                message: 'Are you sure you want to log out of your account?',
+                title: 'Sign Out of SnailShutter?',
+                message: 'Are you sure you want to log out of your session? You will need to sign back in to access your appointments and photo gallery.',
                 confirmText: 'Log Out',
-                cancelText: 'Stay',
-                type: 'danger'
+                cancelText: 'Cancel',
+                type: 'danger',
+                icon: 'fa-right-from-bracket'
             });
             if (!confirmed) return;
         }
