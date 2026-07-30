@@ -31,10 +31,7 @@ router.get('/', authMiddleware, async (req, res) => {
             let sql = "SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) as client_name, s.name as service_name FROM bookings b JOIN users u ON b.client_id=u.id JOIN services s ON b.service_id=s.id WHERE b.booking_date BETWEEN ? AND ?";
             let params = [sd, ed];
 
-            if (userRole === 'staff') {
-                sql += " AND b.staff_id=?";
-                params.push(userId);
-            } else if (userRole === 'client') {
+            if (userRole === 'client') {
                 sql += " AND b.client_id=?";
                 params.push(userId);
             }
@@ -77,9 +74,7 @@ router.get('/', authMiddleware, async (req, res) => {
                     return b.booking_date >= sd && b.booking_date <= ed;
                 }).map(b => ({ ...b }));
 
-                if (userRole === 'staff') {
-                    list = list.filter(b => b.staff_id === userId);
-                } else if (userRole === 'client') {
+                if (userRole === 'client') {
                     list = list.filter(b => b.client_id === userId);
                 }
 
