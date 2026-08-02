@@ -2,7 +2,21 @@ class Auth {
     constructor() {
         this.currentUser = null;
         this.backButtonInterceptorInitialized = false;
+        this.setupGlobalLogoutListener();
         this.init();
+    }
+
+    setupGlobalLogoutListener() {
+        if (typeof document !== 'undefined') {
+            document.addEventListener('click', (e) => {
+                const logoutBtn = e.target.closest('[data-logout]');
+                if (logoutBtn) {
+                    e.preventDefault();
+                    console.log('Auth.js: Global logout triggered by click on [data-logout]');
+                    this.logout();
+                }
+            });
+        }
     }
 
     async init() {
@@ -119,6 +133,11 @@ class Auth {
     }
 
     async logout(force = false) {
+        if (document.querySelector('.custom-confirm-overlay')) {
+            console.log('Auth.js: Logout confirmation already open, skipping duplicate.');
+            return;
+        }
+
         // Show confirmation dialog if the premium modal system is available
         if (!force && typeof showConfirm === 'function') {
             const confirmed = await showConfirm({

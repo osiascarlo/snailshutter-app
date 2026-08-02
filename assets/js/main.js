@@ -38,6 +38,11 @@ function showAlert(message, type = 'success') {
  * @returns {Promise<boolean>}
  */
 function showConfirm(options = {}) {
+    if (document.querySelector('.custom-confirm-overlay')) {
+        console.warn('showConfirm: Modal overlay already active, suppressing duplicate.');
+        return Promise.resolve(false);
+    }
+
     const {
         title = 'Confirmation',
         message = 'Are you sure you want to proceed?',
@@ -83,6 +88,7 @@ function showConfirm(options = {}) {
         `;
 
         document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
 
         // Force reflow for animation
         overlay.offsetHeight;
@@ -90,6 +96,9 @@ function showConfirm(options = {}) {
 
         const cleanup = (result) => {
             overlay.classList.remove('active');
+            if (!document.querySelector('.modal-overlay.active, .modal-overlay.show')) {
+                document.body.style.overflow = '';
+            }
             setTimeout(() => {
                 overlay.remove();
                 resolve(result);

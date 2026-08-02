@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../config/db');
 const { authMiddleware } = require('../middleware/auth');
 const { sendEmail } = require('../utils/mailer');
+const { isMaintenanceModeActive, shouldSendEmailNotification } = require('../utils/reminders');
 const { notifyDate, notifyAdminBooking } = require('./availability_sse');
 const multer = require('multer');
 const path = require('path');
@@ -92,7 +93,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
                 WHERE b.client_id = ? 
-                ORDER BY b.booking_date DESC, b.start_time DESC
+                ORDER BY b.created_at DESC, b.id DESC
             `;
             params = [userId];
         } else if (userRole === 'staff') {
@@ -102,7 +103,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 JOIN users c ON b.client_id = c.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
-                ORDER BY b.booking_date DESC, b.start_time DESC
+                ORDER BY b.created_at DESC, b.id DESC
             `;
             params = [];
         } else { // admin
@@ -112,7 +113,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 JOIN users c ON b.client_id = c.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
-                ORDER BY b.booking_date DESC, b.start_time DESC
+                ORDER BY b.created_at DESC, b.id DESC
             `;
         }
 
@@ -404,6 +405,15 @@ router.post('/', authMiddleware, (req, res, next) => {
     const proofPath = `/assets/uploads/proofs/${req.file.filename}`;
     const downpaymentAmount = totalPrice * 0.1;
 
+    // Maintenance Mode check
+    const inMaintenance = await isMaintenanceModeActive();
+    if (inMaintenance && req.session.user_role !== 'admin' && req.session.user_role !== 'staff') {
+        return res.status(503).json({ 
+            success: false, 
+            error: 'The studio booking system is currently down for maintenance. Online bookings are temporarily paused.' 
+        });
+    }
+
     try {
         // Conflict Detection
         const [conflicts] = await pool.execute(
@@ -562,10 +572,15 @@ router.put('/', authMiddleware, async (req, res) => {
                         <p style="font-size: 12px; color: #999;">If you need to make changes, please contact us or visit your dashboard.</p>
                     </div>
                 `;
-                // Send email asynchronously without blocking the response
-                sendEmail(b.email, 'Booking Confirmed - SnailShutter Studio', confirmHtml)
-                    .then(res => console.log(`Email sent to ${b.email}:`, res.messageId))
-                    .catch(err => console.error(`Email failed to ${b.email}:`, err));
+                // Send email asynchronously if email notifications are enabled
+                const sendAllowed = await shouldSendEmailNotification('important');
+                if (sendAllowed) {
+                    sendEmail(b.email, 'Booking Confirmed - SnailShutter Studio', confirmHtml)
+                        .then(res => console.log(`Email sent to ${b.email}:`, res.messageId))
+                        .catch(err => console.error(`Email failed to ${b.email}:`, err));
+                } else {
+                    console.log(`ℹ️ Booking confirmation email skipped for ${b.email} due to email notification settings.`);
+                }
             }
         } else if (action === 'status_update' && userRole !== 'client') {
             let finalStatus = status;

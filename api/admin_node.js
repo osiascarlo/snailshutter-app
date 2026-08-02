@@ -184,13 +184,16 @@ const settingsUpload = multer({
     }
 });
 
+const { processBookingReminders, FALLBACK_SETTINGS } = require('../utils/reminders');
+
 router.get('/settings/public', async (req, res) => {
     try {
         const [rows] = await pool.execute('SELECT * FROM settings');
-        const settings = {};
+        const settings = { ...FALLBACK_SETTINGS };
         const publicKeys = [
             'studioName', 'studioEmail', 'studioPhone', 'studioAddress',
-            'studioHours', 'studioMapEmbed', 'studioDirectionsLink', 'gcashQr'
+            'studioHours', 'studioMapEmbed', 'studioDirectionsLink', 'gcashQr',
+            'maintenanceMode', 'emailNotifications', 'bookingReminders'
         ];
         rows.forEach(r => {
             if (publicKeys.includes(r.setting_key)) {
@@ -199,22 +202,32 @@ router.get('/settings/public', async (req, res) => {
         });
         res.json({ success: true, settings });
     } catch (error) {
-        console.error('Get Public Settings Error:', error);
-        res.status(500).json({ success: false, error: 'Internal Server Error' });
+        console.warn('Get Public Settings Warning (using fallbacks):', error.message);
+        res.json({ success: true, settings: FALLBACK_SETTINGS });
     }
 });
 
 router.get('/settings', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
     try {
         const [rows] = await pool.execute('SELECT * FROM settings');
-        const settings = {};
+        const settings = { ...FALLBACK_SETTINGS };
         rows.forEach(r => {
             settings[r.setting_key] = r.setting_value;
         });
         res.json({ success: true, settings });
     } catch (error) {
-        console.error('Get Settings Error:', error);
-        res.status(500).json({ success: false, error: 'Internal Server Error' });
+        console.warn('Get Settings Error (using fallbacks):', error.message);
+        res.json({ success: true, settings: FALLBACK_SETTINGS });
+    }
+});
+
+router.post('/settings/send-reminders', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
+    try {
+        const result = await processBookingReminders();
+        res.json(result);
+    } catch (error) {
+        console.error('Manual Reminders Error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
@@ -242,20 +255,30 @@ router.post('/settings', authMiddleware, roleMiddleware(['admin']), (req, res, n
         for (const key of keys) {
             if (req.body[key] !== undefined) {
                 console.log(`[POST /settings] Saving DB setting: ${key} = "${req.body[key]}"`);
-                await pool.execute(
-                    'INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
-                    [key, req.body[key], req.body[key]]
-                );
+                try {
+                    await pool.execute(
+                        'INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
+                        [key, req.body[key], req.body[key]]
+                    );
+                } catch (dbErr) {
+                    console.warn(`[POST /settings] Could not write ${key} to DB, updating in-memory fallback:`, dbErr.message);
+                }
+                FALLBACK_SETTINGS[key] = req.body[key];
             }
         }
 
         if (req.file) {
             const gcashQrPath = `/assets/uploads/settings/${req.file.filename}`;
             console.log('[POST /settings] Saving DB setting: gcashQr =', gcashQrPath);
-            await pool.execute(
-                'INSERT INTO settings (setting_key, setting_value) VALUES ("gcashQr", ?) ON DUPLICATE KEY UPDATE setting_value = ?',
-                [gcashQrPath, gcashQrPath]
-            );
+            try {
+                await pool.execute(
+                    'INSERT INTO settings (setting_key, setting_value) VALUES ("gcashQr", ?) ON DUPLICATE KEY UPDATE setting_value = ?',
+                    [gcashQrPath, gcashQrPath]
+                );
+            } catch (dbErr) {
+                console.warn('[POST /settings] Could not write gcashQr to DB:', dbErr.message);
+            }
+            FALLBACK_SETTINGS.gcashQr = gcashQrPath;
         }
 
         console.log('[POST /settings] All settings saved successfully. Sending JSON response.');

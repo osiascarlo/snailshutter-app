@@ -249,6 +249,12 @@ class API {
             body: formData
         });
     }
+
+    async triggerReminders() {
+        return this.request('/admin/settings/send-reminders', {
+            method: 'POST'
+        });
+    }
 }
 
 const api = new API();

@@ -272,6 +272,44 @@
             box-shadow: 0 0 0 3px var(--color-primary-glow);
         }
 
+        /* ── Filter Pills ── */
+        .filter-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            background: var(--color-bg-soft);
+            color: var(--color-text-soft);
+            border: 1px solid var(--color-border);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .filter-pill:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .filter-pill.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .filter-pill.active i {
+            color: white !important;
+        }
+
         /* ── Mobile Responsive ── */
         @media (max-width: 768px) {
             .booking-select-row {
@@ -361,7 +399,7 @@
         <main class="main-content">
             <div class="page-hero">
                 <h1><i class="fas fa-paper-plane" style="color:var(--color-primary);margin-right:0.5rem;"></i> Photo Deliveries</h1>
-                <p>Manage and assign Google Drive folder links containing finished client photos. Saving a new link sends an email notification to the client automatically.</p>
+                <p>Manage and assign Google Drive folder links containing finished photos for completed client bookings. Saving a new link sends an email notification to the client automatically.</p>
             </div>
 
             <div class="content-body">
@@ -369,7 +407,7 @@
                 <!-- ── Tab Bar ── -->
                 <div class="gallery-tabs">
                     <button class="gallery-tab active" onclick="switchTab('overview', this)">
-                        <i class="fas fa-th-large"></i> Booking Overview
+                        <i class="fas fa-th-large"></i> Completed Bookings Overview
                     </button>
                     <button class="gallery-tab" id="manage-tab-btn" onclick="switchTab('upload', this)">
                         <i class="fab fa-google-drive"></i> Manage Google Drive Link
@@ -381,7 +419,7 @@
                 ══════════════════════════════════════════ -->
                 <div id="tab-overview">
                     <div class="gallery-toolbar">
-                        <h2>All Bookings & Photo Links</h2>
+                        <h2>Completed Bookings & Photo Links</h2>
                         <div class="toolbar-right">
                             <button class="btn btn-sm" onclick="loadOverview()">
                                 <i class="fas fa-sync-alt"></i> Refresh
@@ -389,11 +427,23 @@
                         </div>
                     </div>
 
-                    <!-- Search Bar -->
+                    <!-- Search Bar & Status Filter Pills -->
                     <div class="search-container">
-                        <div class="search-wrap">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="gallerySearch" placeholder="Search client name, booking ID, or service..." oninput="filterGalleryBookings()">
+                        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                            <div class="search-wrap">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="gallerySearch" placeholder="Search client name, booking ID, or service..." oninput="filterGalleryBookings()">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; border-top: 1px solid var(--color-border-soft); padding-top: 0.75rem;">
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--color-text-soft); display: flex; align-items: center; gap: 0.35rem;">
+                                    <i class="fas fa-filter" style="color: var(--color-primary);"></i> Filter Status:
+                                </span>
+                                <div class="filter-pills">
+                                    <button class="filter-pill active" data-link-filter="all" onclick="setLinkFilter('all', this)">All (<span id="count-all">0</span>)</button>
+                                    <button class="filter-pill" data-link-filter="with-link" onclick="setLinkFilter('with-link', this)"><i class="fas fa-check-circle" style="color:#10b981;"></i> Link Set (<span id="count-set">0</span>)</button>
+                                    <button class="filter-pill" data-link-filter="no-link" onclick="setLinkFilter('no-link', this)"><i class="fas fa-times-circle" style="color:#ef4444;"></i> No Link (<span id="count-nolink">0</span>)</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -542,6 +592,32 @@
     }
 
     // ───────────────────────────────────────────────
+    //  Link Filter Pills
+    // ───────────────────────────────────────────────
+    let currentLinkFilter = 'all';
+
+    function setLinkFilter(filter, btn) {
+        currentLinkFilter = filter;
+        document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        filterGalleryBookings();
+    }
+
+    function updateFilterCounts() {
+        const total = allBookings.length;
+        const set = allBookings.filter(b => b.google_drive_link && b.google_drive_link.trim() !== '').length;
+        const nolink = total - set;
+
+        const countAll = document.getElementById('count-all');
+        const countSet = document.getElementById('count-set');
+        const countNoLink = document.getElementById('count-nolink');
+
+        if (countAll) countAll.textContent = total;
+        if (countSet) countSet.textContent = set;
+        if (countNoLink) countNoLink.textContent = nolink;
+    }
+
+    // ───────────────────────────────────────────────
     //  Overview tab
     // ───────────────────────────────────────────────
     async function loadOverview() {
@@ -557,7 +633,8 @@
             const data = await res.json();
             allBookings = data.data || [];
 
-            renderOverviewCards(allBookings);
+            updateFilterCounts();
+            filterGalleryBookings();
 
         } catch (e) {
             grid.innerHTML = `
@@ -576,7 +653,7 @@
                 <div class="gallery-empty">
                     <i class="fas fa-search"></i>
                     <h3>No bookings found</h3>
-                    <p>Bookings will appear here once created.</p>
+                    <p>Bookings matching the selected filter will appear here.</p>
                 </div>`;
             return;
         }
@@ -617,30 +694,38 @@
     }
 
     function filterGalleryBookings() {
-        const query = document.getElementById('gallerySearch').value.toLowerCase().trim();
-        if (!query) {
-            renderOverviewCards(allBookings);
-            return;
+        let list = [...allBookings];
+
+        // 1. Link Status Filter
+        if (currentLinkFilter === 'with-link') {
+            list = list.filter(b => b.google_drive_link && b.google_drive_link.trim() !== '');
+        } else if (currentLinkFilter === 'no-link') {
+            list = list.filter(b => !b.google_drive_link || b.google_drive_link.trim() === '');
         }
 
-        const queryTerms = query.split(/\s+/);
+        // 2. Search Term Filter
+        const queryInput = document.getElementById('gallerySearch');
+        const query = queryInput ? queryInput.value.toLowerCase().trim() : '';
 
-        const filtered = allBookings.filter(b => {
-            const clientName = (b.client_name || '').toLowerCase();
-            const serviceName = (b.service_name || '').toLowerCase();
-            const bookingId = String(b.id);
-            const dateStr = new Date(b.booking_date).toLocaleDateString().toLowerCase();
-            
-            return queryTerms.every(term => 
-                clientName.includes(term) || 
-                serviceName.includes(term) || 
-                bookingId.includes(term) || 
-                (`#${bookingId}`).includes(term) ||
-                dateStr.includes(term)
-            );
-        });
+        if (query) {
+            const queryTerms = query.split(/\s+/);
+            list = list.filter(b => {
+                const clientName = (b.client_name || '').toLowerCase();
+                const serviceName = (b.service_name || '').toLowerCase();
+                const bookingId = String(b.id);
+                const dateStr = new Date(b.booking_date).toLocaleDateString().toLowerCase();
+                
+                return queryTerms.every(term => 
+                    clientName.includes(term) || 
+                    serviceName.includes(term) || 
+                    bookingId.includes(term) || 
+                    (`#${bookingId}`).includes(term) ||
+                    dateStr.includes(term)
+                );
+            });
+        }
 
-        renderOverviewCards(filtered);
+        renderOverviewCards(list);
     }
 
     function openBookingInUpload(bookingId) {

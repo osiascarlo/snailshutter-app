@@ -847,9 +847,9 @@ body.premium-dashboard .status-badge.status-pending {
 }
 
 body.premium-dashboard .status-badge.status-confirmed {
-    background: #D1FAE5;
-    color: #065F46;
-    box-shadow: 0 0 0 1px rgba(16,185,129,0.15);
+    background: #DBEAFE;
+    color: #1E40AF;
+    box-shadow: 0 0 0 1px rgba(59,130,246,0.15);
 }
 
 body.premium-dashboard .status-badge.status-completed {
@@ -1408,6 +1408,42 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
     body.premium-dashboard .modal-overlay {
         z-index: 999999 !important;
         align-items: center !important;
+    }
+
+    /* Prevent background scrolling and scroll chaining when modal is active or shown */
+    html:has(.modal-overlay.active),
+    html:has(.modal-overlay.show),
+    html:has(.modal-overlay[style*="display: flex"]),
+    html:has(.modal-overlay[style*="display: block"]),
+    html.modal-open,
+    body:has(.modal-overlay.active),
+    body:has(.modal-overlay.show),
+    body:has(.modal-overlay[style*="display: flex"]),
+    body:has(.modal-overlay[style*="display: block"]),
+    body.modal-open {
+        overflow: hidden !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        touch-action: none;
+    }
+
+    body:has(.modal-overlay.active) .main-content,
+    body:has(.modal-overlay.show) .main-content,
+    body:has(.modal-overlay[style*="display: flex"]) .main-content,
+    body:has(.modal-overlay[style*="display: block"]) .main-content,
+    body.modal-open .main-content,
+    body:has(.modal-overlay.active) .dashboard-layout,
+    body:has(.modal-overlay.show) .dashboard-layout,
+    body.modal-open .dashboard-layout {
+        overflow: hidden !important;
+    }
+
+    .modal-overlay,
+    .modal-container,
+    .modal-content,
+    .modal,
+    .modal-body {
+        overscroll-behavior: contain !important;
     }
 
     body.premium-dashboard .modal-container {

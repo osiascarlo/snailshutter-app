@@ -55,7 +55,7 @@
     --color-info:      #0284C7;
 
     --color-pending:   #D97706;
-    --color-confirmed: #16A34A;
+    --color-confirmed: #2563EB;
     --color-completed: #7C3AED;
     --color-cancelled: #DC2626;
 
@@ -376,6 +376,41 @@ textarea.form-control { resize: vertical; min-height: 108px; }
 /* ===========================
    MODAL SYSTEM
 =========================== */
+html:has(.modal-overlay.active),
+html:has(.modal-overlay.show),
+html:has(.modal-overlay[style*="display: flex"]),
+html:has(.modal-overlay[style*="display: block"]),
+html.modal-open,
+body:has(.modal-overlay.active),
+body:has(.modal-overlay.show),
+body:has(.modal-overlay[style*="display: flex"]),
+body:has(.modal-overlay[style*="display: block"]),
+body.modal-open {
+    overflow: hidden !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    touch-action: none;
+}
+
+body:has(.modal-overlay.active) .main-content,
+body:has(.modal-overlay.show) .main-content,
+body:has(.modal-overlay[style*="display: flex"]) .main-content,
+body:has(.modal-overlay[style*="display: block"]) .main-content,
+body.modal-open .main-content,
+body:has(.modal-overlay.active) .dashboard-layout,
+body:has(.modal-overlay.show) .dashboard-layout,
+body.modal-open .dashboard-layout {
+    overflow: hidden !important;
+}
+
+.modal-overlay,
+.modal-container,
+.modal-content,
+.modal,
+.modal-body {
+    overscroll-behavior: contain !important;
+}
+
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -720,7 +755,7 @@ textarea.form-control { resize: vertical; min-height: 108px; }
 }
 
 .badge-pending   { background: #FEF3C7; color: #92400E; }
-.badge-confirmed { background: #DCFCE7; color: #15803D; }
+.badge-confirmed { background: #DBEAFE; color: #1E40AF; }
 .badge-completed { background: #EDE9FE; color: #6D28D9; }
 .badge-cancelled { background: #FEE2E2; color: #B91C1C; }
 .badge-admin     { background: #FEF2F2; color: #B91C1C; }
@@ -2821,7 +2856,7 @@ select.table-filters .form-control {
 }
 
 .calendar-event.pending   { background: #FEF3C7; color: #92400E; }
-.calendar-event.confirmed { background: #DCFCE7; color: #15803D; }
+.calendar-event.confirmed { background: #DBEAFE; color: #1E40AF; }
 .calendar-event.completed { background: #EDE9FE; color: #6D28D9; }
 .calendar-event.cancelled { background: #FEE2E2; color: #B91C1C; }
 

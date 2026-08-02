@@ -672,6 +672,7 @@
             `;
 
             document.body.appendChild(overlay);
+            document.body.style.overflow = 'hidden';
             
             // Force reflow for fade-in animations
             overlay.offsetHeight;
@@ -689,9 +690,12 @@
             const overlay = document.getElementById('bookingDetailsModal');
             if (overlay) {
                 overlay.classList.remove('active');
+                document.body.style.overflow = '';
                 setTimeout(() => {
                     overlay.remove();
                 }, 200);
+            } else {
+                document.body.style.overflow = '';
             }
         }
 

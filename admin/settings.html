@@ -163,7 +163,7 @@
                         <div class="role">Administrator</div>
                     </div>
                 </div>
-                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;cursor:pointer;position:relative;z-index:10;">
                     <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
                 </a>
             </div>
@@ -196,33 +196,33 @@
                             <div class="form-group">
                                 <label class="form-label">Studio Email</label>
                                 <input type="email" class="form-control" id="studioEmail"
-                                    value="contact@snailshutter.com">
+                                    value="snailshutterstudio@gmail.com">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Studio Phone</label>
-                                <input type="tel" class="form-control" id="studioPhone" value="+63 912 3456789">
+                                <input type="tel" class="form-control" id="studioPhone" value="+63 912 345 6789">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Studio Address</label>
                                 <textarea class="form-control" id="studioAddress"
-                                    rows="3">123 Photography Street, Studio City, 12345</textarea>
+                                    rows="3">EJR Business Center 2, Poblacion, Alaminos City, Pangasinan, Philippines</textarea>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Studio Hours</label>
-                                <input type="text" class="form-control" id="studioHours" placeholder="e.g. Mon – Sat, 9:00 AM – 6:00 PM">
+                                <input type="text" class="form-control" id="studioHours" value="Mon – Sat, 9:00 AM – 6:00 PM" placeholder="Mon – Sat, 9:00 AM – 6:00 PM">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Google Maps Embed URL (iframe src)</label>
-                                <textarea class="form-control" id="studioMapEmbed" rows="3" placeholder="Paste the Google Maps iframe src here..."></textarea>
+                                <textarea class="form-control" id="studioMapEmbed" rows="3" placeholder="https://www.google.com/maps/embed?...">https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d958.1126989311325!2d119.9756506!3d16.1456869!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3393dd09643fcad5%3A0x24a5ac354149095!2sSnailshutter%20Alaminos%20Photography%20Studio!5e0!3m2!1sen!2sph!4v1782822704080!5m2!1sen!2sph</textarea>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Get Directions Link</label>
-                                <input type="url" class="form-control" id="studioDirectionsLink" placeholder="e.g. https://www.google.com/maps/dir/?api=1&destination=...">
+                                <input type="url" class="form-control" id="studioDirectionsLink" value="https://www.google.com/maps/dir/?api=1&destination=Snailshutter+Alaminos+Photography+Studio" placeholder="https://www.google.com/maps/dir/?api=1&destination=Snailshutter+Alaminos+Photography+Studio">
                             </div>
                         </form>
                     </div>
@@ -255,9 +255,16 @@
                             <div class="form-group">
                                 <label class="form-label">Maintenance Mode</label>
                                 <select class="form-control" id="maintenanceMode">
-                                    <option value="normal">Normal</option>
-                                    <option value="maintenance">Maintenance</option>
+                                    <option value="normal">Normal (Operational)</option>
+                                    <option value="maintenance">Maintenance (Pause Client Bookings)</option>
                                 </select>
+                            </div>
+
+                            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed #e2e8f0;">
+                                <button type="button" class="btn" onclick="triggerRemindersNow()" style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; font-size: 0.88rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                    <i class="fas fa-paper-plane"></i> Run Booking Reminders Now
+                                </button>
+                                <div id="reminderStatusMsg" style="margin-top: 0.5rem; font-size: 0.82rem; text-align: center; display: none;"></div>
                             </div>
                         </form>
                     </div>
@@ -402,6 +409,37 @@
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
+        async function triggerRemindersNow() {
+            const statusEl = document.getElementById('reminderStatusMsg');
+            statusEl.style.display = 'block';
+            statusEl.style.color = '#4f46e5';
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking and sending upcoming booking reminders...';
+
+            try {
+                const res = await api.triggerReminders();
+                if (res.success) {
+                    if (res.sent > 0) {
+                        statusEl.style.color = '#16a34a';
+                        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Sent ${res.sent} reminder email(s) for upcoming bookings!`;
+                    } else if (res.reason) {
+                        statusEl.style.color = '#eab308';
+                        statusEl.innerHTML = `<i class="fas fa-info-circle"></i> ${res.reason}`;
+                    } else {
+                        statusEl.style.color = '#475569';
+                        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Reminder check completed. No new reminders needed right now.`;
+                    }
+                } else {
+                    statusEl.style.color = '#dc2626';
+                    statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${res.error || 'Could not process reminders'}`;
+                }
+            } catch (err) {
+                statusEl.style.color = '#dc2626';
+                statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Failed to send reminders: ${err.message}`;
+            }
+
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 6000);
         }
 
         // Initialize admin settings page
@@ -410,12 +448,6 @@
 
             // Check if user is logged in and is admin
             if (!auth.requireAuth('admin')) return;
-
-            // Handle logout
-            document.querySelector('[data-logout]').addEventListener('click', (e) => {
-                e.preventDefault();
-                auth.logout();
-            });
 
             const user = auth.currentUser;
             console.log('User logged in:', user);

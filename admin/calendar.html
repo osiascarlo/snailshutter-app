@@ -236,8 +236,44 @@
             border-radius: var(--radius-md);
             padding: 1.25rem;
             margin-bottom: 1rem;
-            background: var(--color-bg-soft);
+            background: white;
             transition: all 0.2s ease;
+        }
+
+        .booking-detail-card.status-pending {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 5px solid #f59e0b;
+        }
+        .booking-detail-card.status-pending .booking-detail-item i {
+            color: #d97706;
+        }
+
+        .booking-detail-card.status-confirmed {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 5px solid #3b82f6;
+        }
+        .booking-detail-card.status-confirmed .booking-detail-item i {
+            color: #2563eb;
+        }
+
+        .booking-detail-card.status-completed {
+            background: #faf5ff;
+            border: 1px solid #e9d5ff;
+            border-left: 5px solid #7c3aed;
+        }
+        .booking-detail-card.status-completed .booking-detail-item i {
+            color: #7c3aed;
+        }
+
+        .booking-detail-card.status-cancelled {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 5px solid #ef4444;
+        }
+        .booking-detail-card.status-cancelled .booking-detail-item i {
+            color: #dc2626;
         }
 
         .booking-detail-card:last-child {
@@ -245,8 +281,8 @@
         }
 
         .booking-detail-card:hover {
-            box-shadow: var(--shadow-sm);
-            border-color: var(--color-primary-light);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
         }
 
         .booking-detail-header {
@@ -264,11 +300,17 @@
 
         .booking-detail-status {
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 700;
             padding: 0.25rem 0.75rem;
             border-radius: 50px;
             text-transform: capitalize;
         }
+
+        /* Status Badge Colors (matching All Bookings tab) */
+        .status-pending { background: #fef3c7 !important; color: #92400e !important; }
+        .status-confirmed { background: #dbeafe !important; color: #1e40af !important; }
+        .status-completed { background: #f3e8ff !important; color: #6b21a8 !important; }
+        .status-cancelled { background: #fee2e2 !important; color: #b91c1c !important; }
 
         .booking-detail-grid {
             display: grid;
@@ -722,7 +764,8 @@
 
             dayBookings.forEach(b => {
                 const card = document.createElement('div');
-                card.className = 'booking-detail-card';
+                const st = (b.status || 'pending').toLowerCase();
+                card.className = `booking-detail-card status-${st}`;
 
                 // Status Badge CSS Class
                 let statusClass = 'status-pending';
@@ -799,6 +842,7 @@
 
             // Show Modal
             const modal = document.getElementById('bookingDetailsModal');
+            document.body.style.overflow = 'hidden';
             modal.style.display = 'flex';
             // Force reflow
             modal.offsetHeight;
@@ -808,6 +852,7 @@
         function closeModal() {
             const modal = document.getElementById('bookingDetailsModal');
             modal.classList.remove('show');
+            document.body.style.overflow = '';
             setTimeout(() => {
                 modal.style.display = 'none';
             }, 200);

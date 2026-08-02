@@ -224,6 +224,14 @@
                 allClientBookings = (response.data || response.bookings || []);
                 document.getElementById('bookingCount').textContent = allClientBookings.length;
 
+                // Sort by most recent booking created date (newest first)
+                allClientBookings.sort((a, b) => {
+                    const timeA = a.created_at ? new Date(a.created_at).getTime() : (a.id || 0);
+                    const timeB = b.created_at ? new Date(b.created_at).getTime() : (b.id || 0);
+                    if (timeB !== timeA) return timeB - timeA;
+                    return (b.id || 0) - (a.id || 0);
+                });
+
                 if (allClientBookings.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state" style="padding:3rem;">
@@ -238,8 +246,10 @@
                 }
 
                 const rows = allClientBookings.map((b, i) => {
-                    const date = new Date(b.booking_date).toLocaleDateString('en-US',
+                    const sessionDate = new Date(b.booking_date).toLocaleDateString('en-US',
                         { month: 'short', day: 'numeric', year: 'numeric' });
+                    const bookedOn = b.created_at ? new Date(b.created_at).toLocaleDateString('en-US',
+                        { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
                     const start = formatTime(b.start_time);
                     const end = formatTime(b.end_time);
                     const status = (b.status || 'pending').toLowerCase();
@@ -248,7 +258,8 @@
                     return `<tr class="booking-row-item" onclick="openBookingModal(${b.id})">
                         <td style="font-weight:700; color:var(--color-primary, #2e7d32);">#${i + 1}</td>
                         <td style="font-weight:600; color:#1e293b;">${b.service_name || b.service || '—'}</td>
-                        <td style="white-space:nowrap;">${date}</td>
+                        <td style="white-space:nowrap; color:#64748b; font-size:0.88rem;">${bookedOn}</td>
+                        <td style="white-space:nowrap; font-weight:600; color:#0f172a;">${sessionDate}</td>
                         <td style="white-space:nowrap;">${start} – ${end}</td>
                         <td style="font-weight:700; color:#0f172a;">${price}</td>
                         <td><span class="status-badge status-${status}">${cap(status)}</span></td>
@@ -265,8 +276,14 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>#</th><th>Service</th><th>Date</th><th>Time</th>
-                                    <th>Price</th><th>Status</th><th>Action</th>
+                                    <th>#</th>
+                                    <th>Service</th>
+                                    <th>Date Booked</th>
+                                    <th>Appointment Date</th>
+                                    <th>Time</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>${rows}</tbody>
@@ -350,13 +367,19 @@
             // Show Modal
             const modal = document.getElementById('bookingDetailsModal');
             modal.classList.add('active');
+            document.documentElement.classList.add('modal-open');
+            document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
         }
 
         function closeBookingModal() {
             const modal = document.getElementById('bookingDetailsModal');
             modal.classList.remove('active');
+            document.documentElement.classList.remove('modal-open');
+            document.body.classList.remove('modal-open');
             document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
         }
 
         async function cancelBookingFromModal(bookingId) {

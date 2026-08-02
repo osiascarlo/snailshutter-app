@@ -334,17 +334,33 @@
             right: 0.75rem;
             width: 28px;
             height: 28px;
-            background: var(--color-primary);
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px solid #94a3b8;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: transparent;
             font-size: 0.8rem;
             z-index: 10;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.25s ease;
+            pointer-events: none;
+        }
+
+        .service-card:hover .check-badge {
+            border-color: var(--color-primary);
+            background: white;
+            transform: scale(1.08);
+        }
+
+        .service-card.selected .check-badge,
+        .service-card .check-badge.checked {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
             box-shadow: 0 2px 8px rgba(46, 125, 50, 0.35);
             animation: checkPop 400ms cubic-bezier(0.32, 0.72, 0, 1) both;
-            pointer-events: none;
         }
 
         /* ── Selection Ripple (design-spells: magic ripple) ── */
@@ -480,16 +496,33 @@
         }
 
         #multiSelectBar {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1.5px solid rgba(46, 125, 50, 0.15);
-            border-radius: var(--radius-xl);
-            padding: 1rem 1.5rem;
-            box-shadow:
-                0 -4px 24px rgba(0,0,0,0.06),
-                0 0 0 1px rgba(255,255,255,0.5) inset;
-            animation: barSlideUp 500ms cubic-bezier(0.32, 0.72, 0, 1) both;
+            position: fixed !important;
+            bottom: 1.5rem !important;
+            left: calc(var(--sidebar-width, 260px) + 2.5rem) !important;
+            right: 2.5rem !important;
+            z-index: 1000 !important;
+            background: rgba(255, 255, 255, 0.94) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1.5px solid rgba(46, 125, 50, 0.2) !important;
+            border-radius: var(--radius-xl) !important;
+            padding: 1rem 1.75rem !important;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+            animation: barSlideUp 400ms cubic-bezier(0.32, 0.72, 0, 1) both;
+            margin-top: 0 !important;
+        }
+
+        .services-grid {
+            padding-bottom: 90px;
+        }
+
+        @media (max-width: 992px) {
+            #multiSelectBar {
+                left: 1.25rem !important;
+                right: 1.25rem !important;
+                bottom: 1.25rem !important;
+                padding: 0.85rem 1.25rem !important;
+            }
         }
 
         #multiSelectBar .btn-primary {
@@ -1104,18 +1137,6 @@
                             <div class="spinner"></div>
                         </div>
                         
-                        <!-- Multi-select Action Bar (design-spells: floating glass bar) -->
-                        <div id="multiSelectBar" style="display:none; justify-content:space-between; align-items:center; margin-top:2rem; flex-wrap:wrap; gap:1rem;">
-                            <div id="multiSelectSummary" style="display:flex; align-items:center; gap:0.5rem; font-weight:600; color:var(--color-text); font-size:0.95rem;">
-                                <span class="select-count-pill" id="selectedCount">0</span>
-                                <span>services selected</span>
-                                <span style="color:var(--color-text-muted); margin:0 0.25rem;">·</span>
-                                <span style="font-weight:800; color:var(--color-primary); font-size:1.1rem; font-variant-numeric:tabular-nums;" id="selectedTotal">₱0</span>
-                            </div>
-                            <button class="btn btn-primary" onclick="proceedToDate()">
-                                Select Date & Time <i class="fas fa-arrow-right" style="margin-left:0.4rem;"></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -1244,18 +1265,7 @@
                             </div>
                         </div>
 
-                        <!-- Add More Services -->
-                        <div style="margin-bottom:1.5rem;">
-                            <button type="button" class="btn btn-secondary" onclick="toggleAddOns()" id="addOnToggleBtn" style="width:100%; display:flex; align-items:center; justify-content:space-between;">
-                                <span><i class="fas fa-plus-circle"></i> Add More Services (Optional)</span>
-                                <i class="fas fa-chevron-down" id="addOnChevron"></i>
-                            </button>
-                            <div id="addOnPanel" style="display:none; margin-top:1rem; border:1px solid var(--color-border-soft); border-radius:var(--radius-lg); overflow:hidden;">
-                                <div id="addOnList" style="max-height:320px; overflow-y:auto;"></div>
-                            </div>
-                            <!-- Selected Add-Ons Tags -->
-                            <div id="selectedAddOns" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.75rem;"></div>
-                        </div>
+
 
                         <!-- GCash QR Payment Instruction & Proof Upload -->
                         <div style="margin-bottom: 1.5rem; padding: 1.5rem; border: 1.5px solid #93c5fd; background-color: #eff6ff; border-radius: var(--radius-lg); display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
@@ -1294,6 +1304,19 @@
                     </div>
                 </div>
 
+                <!-- Floating Multi-select Action Bar -->
+                <div id="multiSelectBar" style="display:none; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div id="multiSelectSummary" style="display:flex; align-items:center; gap:0.5rem; font-weight:600; color:var(--color-text); font-size:0.95rem;">
+                        <span class="select-count-pill" id="selectedCount">0</span>
+                        <span>services selected</span>
+                        <span style="color:var(--color-text-muted); margin:0 0.25rem;">·</span>
+                        <span style="font-weight:800; color:var(--color-primary); font-size:1.1rem; font-variant-numeric:tabular-nums;" id="selectedTotal">₱0</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="proceedToDate()">
+                        Select Date & Time <i class="fas fa-arrow-right" style="margin-left:0.4rem;"></i>
+                    </button>
+                </div>
+
             </div>
         </main>
     </div>
@@ -1311,6 +1334,8 @@
         var services = [];
         var timeSlots = [];
         var addOnServices = []; // Additional services selected on confirm step
+        var currentBookingStep = 1;
+        var bookActiveFilter = 'all';
 
         var allBookings = [];
         var calendarEvents = {};
@@ -1383,27 +1408,43 @@
                 });
             }
 
-            // Load initial view
+            // Render default packages immediately (0ms instant load)
+            renderFallbackServices();
+
+            // Load & sync latest packages from backend in background
             loadServices();
         });
 
         async function loadServices() {
             console.log('Loading services...');
             try {
-                const response = await api.getServices();
-                console.log('Services response:', response);
-                if (response.success) {
+                const fetchPromise = api.getServices();
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Services fetch timeout')), 2000)
+                );
+
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
+                if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
                     services = response.data.filter(s => s.is_active == 1);
-                    console.log('Filtered services:', services);
                     renderServices();
                 } else {
-                    showAlert('Failed to load services', 'error');
+                    renderFallbackServices();
                 }
             } catch (error) {
-                console.error('Error loading services:', error);
-                showAlert('Failed to load services', 'error');
+                console.warn('Error/timeout loading services, rendering fallback:', error);
+                renderFallbackServices();
             }
-        } let bookActiveFilter = 'all';
+        }
+
+        function renderFallbackServices() {
+            services = [
+                { id: 1, name: 'Solo Package (Self Portrait)', description: '1 pax, 15 mins photo session, 15 mins selection, 1 4R & 2 photo strips, Soft copy of ALL raw photos', duration_minutes: 30, price: 399, category: 'Self Portrait Studio', is_active: 1 },
+                { id: 2, name: 'Graduation Package (Self Portrait)', description: '1 pax, 15 mins photo session, 15 mins selection, 2 4R & 2 photo strips, Soft copy of ALL raw photos', duration_minutes: 30, price: 499, category: 'Self Portrait Studio', is_active: 1 },
+                { id: 3, name: 'Duo Package (Self Portrait)', description: '2 pax, 20 mins photo session, 15 mins selection, 1 4R & 2 photo strips, Soft copy of ALL raw photos', duration_minutes: 35, price: 799, category: 'Self Portrait Studio', is_active: 1 },
+                { id: 4, name: 'Family/Barkada Package (Self Portrait)', description: '3-4 pax, 25 mins photo session, 15 mins selection, 2 4R & 4 photo strips, Soft copy of ALL raw photos', duration_minutes: 40, price: 1199, category: 'Self Portrait Studio', is_active: 1 }
+            ];
+            renderServices();
+        }
 
         function renderServices() {
             const container = document.getElementById('servicesContainer');
@@ -1447,7 +1488,7 @@
                 const isSelected = selectedServices.some(item => item.id === s.id);
                 return `
                 <div class="service-card ${isSelected ? 'selected' : ''}" style="--card-index:${idx};" onclick="toggleServiceSelection(${s.id}, event)">
-                    ${isSelected ? '<div class="check-badge"><i class="fas fa-check"></i></div>' : ''}
+                    <div class="check-badge ${isSelected ? 'checked' : ''}"><i class="fas fa-check"></i></div>
                     <div class="service-card-image">
                         <span class="category-badge">${s.category || 'General'}</span>
                         <img src="${s.image_url || '/assets/images/services/photobooth.png'}" alt="${s.name}" loading="lazy">
@@ -1496,12 +1537,16 @@
             const bar = document.getElementById('multiSelectBar');
             const countEl = document.getElementById('selectedCount');
             const totalEl = document.getElementById('selectedTotal');
+            if (!bar) return;
 
-            if (selectedServices.length > 0) {
+            const step1El = document.getElementById('step1');
+            const isStep1Visible = step1El && step1El.style.display !== 'none';
+
+            if (selectedServices.length > 0 && isStep1Visible) {
                 bar.style.display = 'flex';
-                countEl.textContent = selectedServices.length;
+                if (countEl) countEl.textContent = selectedServices.length;
                 const total = selectedServices.reduce((sum, s) => sum + Number(s.price), 0);
-                totalEl.textContent = '₱' + total.toLocaleString();
+                if (totalEl) totalEl.textContent = '₱' + total.toLocaleString();
             } else {
                 bar.style.display = 'none';
             }
@@ -1800,8 +1845,6 @@
 
         function showConfirmation() {
             addOnServices = []; // reset add-ons each time we reach confirm
-            document.getElementById('selectedAddOns').innerHTML = '';
-            updateAddOnList();
 
             const serviceNames = selectedServices.map(s => s.name).join(', ');
             document.getElementById('confirmService').textContent = serviceNames;
@@ -1961,8 +2004,6 @@
             }
         }
 
-        let currentBookingStep = 1;
-
         // Initialize history state on page load
         if (window.history && window.history.replaceState) {
             const initialHashStep = (window.location.hash && window.location.hash.startsWith('#step'))
@@ -2024,6 +2065,7 @@
             } else {
                 currentBookingStep = step;
             }
+            updateMultiSelectBar();
         }
 
         // Listen for browser Back/Forward navigation buttons
@@ -2205,6 +2247,31 @@
                 }
             });
         };
+
+        // Maintenance Mode client check
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const res = await api.getPublicSettings();
+                if (res.success && res.settings && res.settings.maintenanceMode === 'maintenance') {
+                    const mainContent = document.querySelector('.main-content') || document.body;
+                    const banner = document.createElement('div');
+                    banner.id = 'maintenanceAlertBanner';
+                    banner.style.cssText = 'background: #fef2f2; border: 2px solid #ef4444; color: #991b1b; padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem; font-weight: 600; text-align: center; font-size: 1.05rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);';
+                    banner.innerHTML = '<i class="fas fa-tools" style="margin-right: 0.5rem; color: #dc2626;"></i> <strong>Studio Maintenance Mode Active:</strong> Online booking is currently paused for studio maintenance. Please check back later!';
+                    mainContent.insertBefore(banner, mainContent.firstChild);
+
+                    const submitBtns = document.querySelectorAll('button[type="submit"], #submitBookingBtn, .btn-confirm-booking');
+                    submitBtns.forEach(btn => {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.5';
+                        btn.style.cursor = 'not-allowed';
+                        btn.title = 'Online booking is paused during maintenance mode.';
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load maintenance settings:', e);
+            }
+        });
 
         // Clean up on page unload
         window.addEventListener('beforeunload', stopAvailabilityStream);

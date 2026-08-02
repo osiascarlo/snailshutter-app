@@ -58,20 +58,43 @@ const FALLBACK_SERVICES = [
  * GET /api/services
  */
 router.get('/', async (req, res) => {
+    let resolved = false;
+
+    // Safety timeout: if DB query takes more than 1500ms, immediately return fallback
+    const timer = setTimeout(() => {
+        if (!resolved) {
+            resolved = true;
+            console.warn('GET /api/services query timed out, serving fallback services.');
+            let fallback = FALLBACK_SERVICES;
+            if (!(req.query.all === 'true' && req.session && req.session.user_role === 'admin')) {
+                fallback = FALLBACK_SERVICES.filter(s => s.is_active === 1);
+            }
+            res.json({ success: true, data: fallback });
+        }
+    }, 1500);
+
     try {
         let query = 'SELECT * FROM services WHERE is_active = 1 ORDER BY price ASC';
         if (req.query.all === 'true' && req.session && req.session.user_role === 'admin') {
             query = 'SELECT * FROM services ORDER BY price ASC';
         }
         const [services] = await pool.execute(query);
-        res.json({ success: true, data: services });
-    } catch (error) {
-        console.warn('DB unavailable, serving fallback services:', error.code || error.message);
-        let fallback = FALLBACK_SERVICES;
-        if (!(req.query.all === 'true' && req.session && req.session.user_role === 'admin')) {
-            fallback = FALLBACK_SERVICES.filter(s => s.is_active === 1);
+        if (!resolved) {
+            resolved = true;
+            clearTimeout(timer);
+            res.json({ success: true, data: services });
         }
-        res.json({ success: true, data: fallback });
+    } catch (error) {
+        if (!resolved) {
+            resolved = true;
+            clearTimeout(timer);
+            console.warn('DB unavailable, serving fallback services:', error.code || error.message);
+            let fallback = FALLBACK_SERVICES;
+            if (!(req.query.all === 'true' && req.session && req.session.user_role === 'admin')) {
+                fallback = FALLBACK_SERVICES.filter(s => s.is_active === 1);
+            }
+            res.json({ success: true, data: fallback });
+        }
     }
 });
 
