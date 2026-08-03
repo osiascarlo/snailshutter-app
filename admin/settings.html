@@ -269,30 +269,39 @@
                         </form>
                     </div>
 
-                    <!-- Appearance Settings -->
+                    <!-- Localization & Timezone Settings -->
                     <div class="settings-card">
                         <div class="settings-title">
-                            <i class="fas fa-palette"></i> Appearance Settings
+                            <i class="fas fa-globe"></i> Localization & Timezone
                         </div>
 
-                        <form id="appearanceSettings">
+                        <form id="appearanceSettings" onsubmit="return false;">
                             <div class="form-group">
-                                <label class="form-label">Theme Color</label>
-                                <select class="form-control" id="themeColor">
-                                    <option value="blue">Blue</option>
-                                    <option value="green">Green</option>
-                                    <option value="purple">Purple</option>
-                                    <option value="red">Red</option>
+                                <label class="form-label" style="font-weight: 700;">Studio Time Zone</label>
+                                <select class="form-control" id="timeZone" onchange="updateLiveStudioClock()">
+                                    <option value="Asia/Manila">Asia/Manila (PHT, UTC+8 — Philippines)</option>
+                                    <option value="Asia/Singapore">Asia/Singapore (SGT, UTC+8 — Singapore)</option>
+                                    <option value="Asia/Tokyo">Asia/Tokyo (JST, UTC+9 — Japan)</option>
+                                    <option value="Asia/Hong_Kong">Asia/Hong_Kong (HKT, UTC+8 — Hong Kong)</option>
+                                    <option value="Asia/Dubai">Asia/Dubai (GST, UTC+4 — UAE)</option>
+                                    <option value="UTC">UTC / GMT (UTC+0 — Universal Time)</option>
+                                    <option value="Europe/London">Europe/London (GMT/BST, UTC+0 — UK)</option>
+                                    <option value="Europe/Paris">Europe/Paris (CET/CEST, UTC+1 — France)</option>
+                                    <option value="America/New_York">America/New_York (EST/EDT, UTC-5 — New York)</option>
+                                    <option value="America/Chicago">America/Chicago (CST/CDT, UTC-6 — Chicago)</option>
+                                    <option value="America/Denver">America/Denver (MST/MDT, UTC-7 — Denver)</option>
+                                    <option value="America/Los_Angeles">America/Los_Angeles (PST/PDT, UTC-8 — Los Angeles)</option>
+                                    <option value="Australia/Sydney">Australia/Sydney (AEST/AEDT, UTC+10 — Sydney)</option>
                                 </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Time Zone</label>
-                                <select class="form-control" id="timeZone">
-                                    <option value="UTC+8">UTC+8 (Philippines)</option>
-                                    <option value="UTC+0">UTC+0 (London)</option>
-                                    <option value="UTC-5">UTC-5 (New York)</option>
-                                </select>
+                                <p style="font-size: 0.8rem; color: var(--color-text-soft); margin-top: 0.4rem; margin-bottom: 0.5rem;">
+                                    All booking schedules, email notifications, and automated reminders operate in this studio timezone.
+                                </p>
+                                <div id="studioClockBox" style="display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.9rem; background: var(--color-bg-soft); border: 1px solid var(--color-border-soft); border-radius: 8px; font-size: 0.84rem; margin-top: 0.5rem;">
+                                    <span style="color: var(--color-text-soft); font-weight: 600; display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-clock" style="color: var(--color-primary);"></i> Current Studio Time:
+                                    </span>
+                                    <span id="liveStudioClock" style="font-weight: 700; color: var(--color-primary); font-family: monospace; font-size: 0.92rem;">--:--:--</span>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -357,9 +366,11 @@
             console.log('Saving settings...');
 
             const btn = document.querySelector('button[onclick="saveSettings()"]');
-            const originalHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            const originalHtml = btn ? btn.innerHTML : '<i class="fas fa-save"></i> Save Settings';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            }
 
             const formData = new FormData();
             formData.append('studioName', document.getElementById('studioName').value);
@@ -374,11 +385,10 @@
             formData.append('bookingReminders', document.getElementById('bookingReminders').value);
             formData.append('maintenanceMode', document.getElementById('maintenanceMode').value);
             
-            formData.append('themeColor', document.getElementById('themeColor').value);
             formData.append('timeZone', document.getElementById('timeZone').value);
 
             const fileInput = document.getElementById('gcashQrFile');
-            if (fileInput.files && fileInput.files.length > 0) {
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
                 formData.append('gcashQr', fileInput.files[0]);
             }
 
@@ -386,29 +396,39 @@
                 const response = await api.saveSettings(formData);
                 if (response.success) {
                     // Update preview if a new image was selected locally
-                    if (fileInput.files && fileInput.files.length > 0) {
+                    if (fileInput && fileInput.files && fileInput.files.length > 0) {
                         const reader = new FileReader();
                         reader.onload = function(e) {
-                            document.getElementById('gcashQrPreview').src = e.target.result;
+                            const preview = document.getElementById('gcashQrPreview');
+                            if (preview) preview.src = e.target.result;
                         };
                         reader.readAsDataURL(fileInput.files[0]);
                     }
                     
+                    updateLiveStudioClock();
+
                     const successMessage = document.getElementById('successMessage');
-                    successMessage.style.display = 'block';
-                    setTimeout(() => {
-                        successMessage.style.display = 'none';
-                    }, 3000);
+                    if (successMessage) {
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 4000);
+                    } else {
+                        alert('Settings saved successfully!');
+                    }
                 } else {
                     alert(response.error || 'Failed to save settings');
                 }
             } catch (error) {
                 console.error('Save settings error:', error);
-                alert('An error occurred while saving settings');
+                alert('An error occurred while saving settings: ' + (error.message || 'Unknown error'));
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalHtml;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
             }
+        }
         async function triggerRemindersNow() {
             const statusEl = document.getElementById('reminderStatusMsg');
             statusEl.style.display = 'block';
@@ -442,9 +462,48 @@
             }, 6000);
         }
 
+        function updateLiveStudioClock() {
+            const clockEl = document.getElementById('liveStudioClock');
+            if (!clockEl) return;
+
+            const tzSelect = document.getElementById('timeZone');
+            let tz = tzSelect ? tzSelect.value : 'Asia/Manila';
+            
+            // Backwards compatibility for legacy saved values
+            if (tz === 'UTC+8') tz = 'Asia/Manila';
+            else if (tz === 'UTC+0') tz = 'UTC';
+            else if (tz === 'UTC-5') tz = 'America/New_York';
+
+            try {
+                const now = new Date();
+                const options = {
+                    timeZone: tz,
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                };
+                clockEl.textContent = new Intl.DateTimeFormat('en-US', options).format(now);
+            } catch (e) {
+                clockEl.textContent = new Date().toLocaleString();
+            }
+        }
+
+        // Start interval & immediate triggers
+        setInterval(updateLiveStudioClock, 1000);
+        window.addEventListener('DOMContentLoaded', updateLiveStudioClock);
+        window.addEventListener('load', updateLiveStudioClock);
+
         // Initialize admin settings page
         document.addEventListener('DOMContentLoaded', async function () {
             console.log('Admin settings page loaded');
+
+            // Start live clock immediately
+            updateLiveStudioClock();
 
             // Check if user is logged in and is admin
             if (!auth.requireAuth('admin')) return;
@@ -474,8 +533,14 @@
                     if (s.bookingReminders) document.getElementById('bookingReminders').value = s.bookingReminders;
                     if (s.maintenanceMode) document.getElementById('maintenanceMode').value = s.maintenanceMode;
                     
-                    if (s.themeColor) document.getElementById('themeColor').value = s.themeColor;
-                    if (s.timeZone) document.getElementById('timeZone').value = s.timeZone;
+                    if (s.timeZone) {
+                        let tz = s.timeZone;
+                        if (tz === 'UTC+8') tz = 'Asia/Manila';
+                        else if (tz === 'UTC+0') tz = 'UTC';
+                        else if (tz === 'UTC-5') tz = 'America/New_York';
+                        document.getElementById('timeZone').value = tz;
+                        updateLiveStudioClock();
+                    }
                     
                     if (s.gcashQr) document.getElementById('gcashQrPreview').src = s.gcashQr;
                 }

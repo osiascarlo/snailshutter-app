@@ -77,6 +77,17 @@ router.get('/', async (req, res) => {
         let query = 'SELECT * FROM services WHERE is_active = 1 ORDER BY price ASC';
         if (req.query.all === 'true' && req.session && req.session.user_role === 'admin') {
             query = 'SELECT * FROM services ORDER BY price ASC';
+        } else if (req.query.most_booked === 'true' || req.query.sort === 'most_booked') {
+            const limit = parseInt(req.query.limit) || 4;
+            query = `
+                SELECT s.*, COUNT(b.id) AS booking_count 
+                FROM services s 
+                LEFT JOIN bookings b ON (b.service_id = s.id OR FIND_IN_SET(s.id, b.service_ids) > 0) 
+                WHERE s.is_active = 1 
+                GROUP BY s.id 
+                ORDER BY booking_count DESC, s.price ASC
+                LIMIT ${limit}
+            `;
         }
         const [services] = await pool.execute(query);
         if (!resolved) {

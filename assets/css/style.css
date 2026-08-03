@@ -421,11 +421,16 @@ body.modal-open .dashboard-layout {
     justify-content: center;
     z-index: 2000;
     opacity: 0;
-    transition: opacity var(--transition-base);
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--transition-base), visibility var(--transition-base);
 }
 
-.modal-overlay.active {
+.modal-overlay.active,
+.modal-overlay.show {
     opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .modal-container {
@@ -2385,22 +2390,49 @@ body.modal-open .dashboard-layout {
 }
 
 /* Logout link in sidebar */
-.sidebar-logout {
+.sidebar-logout,
+[data-logout],
+a[data-logout],
+.sidebar-link[data-logout] {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     padding: 0.625rem 0.875rem;
-    color: var(--color-text-soft);
+    color: #ef4444 !important;
     font-size: 0.875rem;
+    font-weight: 600 !important;
     border-radius: var(--radius-md);
     transition: all var(--transition-fast);
     cursor: pointer;
     margin-top: 0.25rem;
 }
 
-.sidebar-logout:hover {
-    background: #FEF2F2;
-    color: var(--color-danger);
+.sidebar-logout .icon,
+.sidebar-logout i,
+[data-logout] .icon,
+[data-logout] i,
+a[data-logout] i,
+.sidebar-link[data-logout] .icon,
+.sidebar-link[data-logout] i {
+    color: #ef4444 !important;
+}
+
+.sidebar-logout:hover,
+[data-logout]:hover,
+a[data-logout]:hover,
+.sidebar-link[data-logout]:hover {
+    background: #FEF2F2 !important;
+    color: #dc2626 !important;
+}
+
+.sidebar-logout:hover .icon,
+.sidebar-logout:hover i,
+[data-logout]:hover .icon,
+[data-logout]:hover i,
+a[data-logout]:hover i,
+.sidebar-link[data-logout]:hover .icon,
+.sidebar-link[data-logout]:hover i {
+    color: #dc2626 !important;
 }
 
 /* Main Content */
@@ -3547,4 +3579,75 @@ input::-webkit-contacts-auto-fill-button,
 input::-webkit-credentials-auto-fill-button,
 input::-webkit-reveal {
     display: none !important;
+}
+
+/* ── Global Maintenance Mode Banner Responsive CSS ── */
+#maintenanceAlertBanner {
+    position: fixed !important;
+    top: 0 !important;
+    left: 268px !important;
+    right: 0 !important;
+    z-index: 99999 !important;
+    background: #fef2f2 !important;
+    border-bottom: 2px solid #ef4444 !important;
+    color: #991b1b !important;
+    padding: 0.85rem 1.5rem !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    font-size: 0.92rem !important;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.18) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    box-sizing: border-box !important;
+    transition: all 0.3s ease !important;
+}
+
+@media (max-width: 992px) {
+    #maintenanceAlertBanner {
+        left: 0 !important;
+        padding-left: 4.25rem !important;
+        padding-right: 1rem !important;
+        font-size: 0.84rem !important;
+        line-height: 1.35 !important;
+        min-height: 54px !important;
+        text-align: left !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #maintenanceAlertBanner {
+        padding-left: 3.75rem !important;
+        padding-right: 0.75rem !important;
+        font-size: 0.78rem !important;
+    }
+}
+
+/* Elevate mobile hamburger menu button above maintenance mode banner */
+.mobile-menu-btn {
+    z-index: 100005 !important;
+}
+
+body:has(#maintenanceAlertBanner) .mobile-menu-btn {
+    top: 0.45rem !important;
+    left: 0.75rem !important;
+    z-index: 100005 !important;
+}
+
+/* ── Maintenance Active UI Freeze ── */
+body.maintenance-active .service-card,
+body.maintenance-active .service-card * {
+    pointer-events: none !important;
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+body.maintenance-active #multiSelectBar {
+    display: none !important;
+}
+
+body.maintenance-active .calendar-widget .calendar-day {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
 }

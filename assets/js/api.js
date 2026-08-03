@@ -108,8 +108,12 @@ class API {
     }
 
     // Services endpoints
-    async getServices(includeInactive = false) {
-        return this.request(`/services${includeInactive ? '?all=true' : ''}`);
+    async getServices(params = false) {
+        if (typeof params === 'object' && params !== null) {
+            const query = new URLSearchParams(params).toString();
+            return this.request(`/services?${query}`);
+        }
+        return this.request(`/services${params === true ? '?all=true' : ''}`);
     }
 
     async createService(serviceData) {

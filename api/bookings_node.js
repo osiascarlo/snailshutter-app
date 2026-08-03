@@ -4,7 +4,7 @@ const pool = require('../config/db');
 const { authMiddleware } = require('../middleware/auth');
 const { sendEmail } = require('../utils/mailer');
 const { isMaintenanceModeActive, shouldSendEmailNotification } = require('../utils/reminders');
-const { notifyDate, notifyAdminBooking } = require('./availability_sse');
+const { notifyDate, notifyAdminBooking, notifyPopularServices } = require('./availability_sse');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -247,6 +247,19 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
         return res.status(400).json({ success: false, error: 'Missing date' });
     }
 
+    const slotDate = new Date(date + 'T00:00:00');
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (slotDate <= todayStart) {
+        return res.json({
+            success: true,
+            available_slots: [],
+            booked_slots: [],
+            message: 'Same-day bookings are not allowed'
+        });
+    }
+
     try {
         // Parse service IDs
         const ids = [];
@@ -398,6 +411,14 @@ router.post('/', authMiddleware, (req, res, next) => {
         return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
 
+    const reqDate = new Date(bookingDate + 'T00:00:00');
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (reqDate <= todayStart) {
+        return res.status(400).json({ success: false, error: 'Same-day bookings are not allowed. Please select a date starting from tomorrow.' });
+    }
+
     if (!req.file) {
         return res.status(400).json({ success: false, error: 'Proof of payment is required' });
     }
@@ -447,8 +468,9 @@ router.post('/', authMiddleware, (req, res, next) => {
             }
         }
 
-        // Notify all SSE clients watching this date
+        // Notify all SSE clients watching this date and popular services
         notifyDate(bookingDate).catch(err => console.error('[SSE notify] POST error:', err));
+        notifyPopularServices().catch(err => console.error('[SSE notifyPopular] POST error:', err));
 
         // Get readable service names for notifications
         let serviceNames = 'Session';
@@ -619,12 +641,13 @@ router.put('/', authMiddleware, async (req, res) => {
 
         res.json({ success: true, message: 'Booking updated successfully' });
 
-        // Notify SSE clients watching the affected date (fire-and-forget)
+        // Notify SSE clients watching the affected date and popular services (fire-and-forget)
         try {
             const [bRow] = await pool.execute('SELECT booking_date FROM bookings WHERE id = ?', [bookingId]);
             if (bRow.length > 0) {
                 notifyDate(bRow[0].booking_date).catch(err => console.error('[SSE notify] PUT error:', err));
             }
+            notifyPopularServices().catch(err => console.error('[SSE notifyPopular] PUT error:', err));
         } catch (_) {}
 
     } catch (error) {

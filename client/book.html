@@ -730,59 +730,47 @@
             color: #0f172a !important;
         }
 
-        .calendar-widget .calendar-day.today {
-            border: 2px solid var(--color-secondary, #475569) !important;
-            font-weight: 700;
-            color: #0f172a !important;
-            background: #f8fafc !important;
-        }
-
-        .calendar-widget .calendar-day.other-month {
-            color: #cbd5e1 !important;
-            background: transparent !important;
-            border-color: transparent !important;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
         .calendar-widget .calendar-day.disabled {
-            color: #e2e8f0 !important;
+            color: #94a3b8 !important;
             background: #f8fafc !important;
             border-color: transparent !important;
             cursor: not-allowed;
-            opacity: 0.55;
+            opacity: 0.45;
             pointer-events: none;
         }
 
-        /* ── Day Availability Highlighting (Soft Pastel Tints) ── */
-        .calendar-widget .calendar-day.has-bookings {
-            background: #f0fdf4 !important;
-            color: #166534 !important;
-            border-color: #dcfce7 !important;
+        .calendar-widget .calendar-day.today,
+        .calendar-widget .calendar-day.today.disabled {
+            border: 2px solid #000000 !important;
+            font-weight: 800;
+            color: #000000 !important;
+            background: #e2e8f0 !important;
+            cursor: not-allowed;
+            opacity: 1 !important;
+            box-shadow: inset 0 0 0 1px #000000 !important;
         }
-        .calendar-widget .calendar-day.has-bookings:hover {
-            background: #e8fdf0 !important;
-            border-color: #bbf7d0 !important;
+
+        /* ── Day Availability Highlighting ── */
+        .calendar-widget .calendar-day.has-bookings,
+        .calendar-widget .calendar-day.conflict {
+            background: #fff1f2 !important;
+            color: #be123c !important;
+            border-color: #fecdd3 !important;
+        }
+        .calendar-widget .calendar-day.has-bookings:hover,
+        .calendar-widget .calendar-day.conflict:hover {
+            background: #ffe4e6 !important;
+            border-color: #fda4af !important;
         }
 
         .calendar-widget .calendar-day.completed-bookings {
             background: #f5f3ff !important;
-            color: #5b21b6 !important;
-            border-color: #e9e3ff !important;
-        }
-        .calendar-widget .calendar-day.completed-bookings:hover {
-            background: #eeeaff !important;
+            color: #6d28d9 !important;
             border-color: #ddd6fe !important;
         }
-
-        .calendar-widget .calendar-day.conflict {
-            background: #fef2f2 !important;
-            color: #991b1b !important;
-            border-color: #fee2e2 !important;
-        }
-        .calendar-widget .calendar-day.conflict:hover {
-            background: #fde8e8 !important;
-            border-color: #fca5a5 !important;
+        .calendar-widget .calendar-day.completed-bookings:hover {
+            background: #ede9fe !important;
+            border-color: #c4b5fd !important;
         }
 
         /* Concentric Selected Highlight */
@@ -797,15 +785,17 @@
         }
 
         /* Concealed indicators inside pastel backgrounds */
-        .calendar-widget .booking-indicator {
+        .calendar-widget .booking-indicator,
+        .calendar-widget .conflict-indicator {
             position: absolute;
             bottom: 6px;
             width: 5px;
             height: 5px;
             border-radius: 50%;
-            background: #166534;
+            background: #ef4444 !important;
         }
-        .calendar-widget .calendar-day.selected .booking-indicator {
+        .calendar-widget .calendar-day.selected .booking-indicator,
+        .calendar-widget .calendar-day.selected .conflict-indicator {
             background: white !important;
         }
         .calendar-widget .completed-indicator {
@@ -814,20 +804,9 @@
             width: 5px;
             height: 5px;
             border-radius: 50%;
-            background: #5b21b6;
+            background: #8b5cf6 !important;
         }
         .calendar-widget .calendar-day.selected .completed-indicator {
-            background: white !important;
-        }
-        .calendar-widget .conflict-indicator {
-            position: absolute;
-            bottom: 6px;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: #991b1b;
-        }
-        .calendar-widget .calendar-day.selected .conflict-indicator {
             background: white !important;
         }
 
@@ -1157,21 +1136,21 @@
                                         <!-- Calendar will be rendered here -->
                                     </div>
                                     <!-- Legend matching event calendar -->
-                                    <div class="calendar-legend" style="display: flex; gap: 1rem; margin-top: 1.25rem; flex-wrap: wrap; font-size: 0.85rem; justify-content: center;">
+                                    <div class="calendar-legend" style="display: flex; gap: 1.25rem; margin-top: 1.25rem; flex-wrap: wrap; font-size: 0.85rem; justify-content: center; font-weight: 500;">
                                         <div style="display: flex; align-items: center; gap: 0.4rem;">
-                                            <div style="width: 12px; height: 12px; border-radius: 3px; background: var(--color-success, #16a34a);"></div>
+                                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #10b981;"></div>
                                             <span>Available</span>
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 0.4rem;">
-                                            <div style="width: 12px; height: 12px; border-radius: 3px; background: var(--color-danger, #dc2626);"></div>
+                                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #ef4444;"></div>
                                             <span>Booked</span>
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 0.4rem;">
-                                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #7c3aed;"></div>
+                                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #8b5cf6;"></div>
                                             <span>Completed</span>
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 0.4rem;">
-                                            <div style="width: 12px; height: 12px; border-radius: 3px; background: var(--color-secondary, #475569);"></div>
+                                            <div style="width: 12px; height: 12px; border-radius: 3px; background: #e2e8f0; border: 2px solid #000000;"></div>
                                             <span>Today</span>
                                         </div>
                                     </div>
@@ -1467,6 +1446,20 @@
             filtersEl.style.display = 'flex';
 
             renderBookServiceCards();
+
+            // Auto-select service and redirect to Step 2 (Date & Time) if passed in URL query param (e.g. ?serviceId=3)
+            const urlParams = new URLSearchParams(window.location.search);
+            const preselectId = parseInt(urlParams.get('serviceId'));
+            if (preselectId && services.some(s => s.id === preselectId)) {
+                const target = services.find(s => s.id === preselectId);
+                if (target) {
+                    selectedServices = [target];
+                    selectedService = target;
+                    updateMultiSelectBar();
+                    renderBookServiceCards();
+                    proceedToDate();
+                }
+            }
         }
 
         function applyBookFilter(filter) {
@@ -1507,6 +1500,15 @@
         }
 
         function toggleServiceSelection(id, event) {
+            if (document.body.classList.contains('maintenance-active')) {
+                if (typeof showAlert === 'function') {
+                    showAlert('Online booking is currently paused for studio maintenance. Please check back later!', 'warning');
+                } else {
+                    alert('Online booking is currently paused for studio maintenance. Please check back later!');
+                }
+                return;
+            }
+
             const svc = services.find(s => s.id === id);
             if (!svc) return;
 
@@ -1561,13 +1563,17 @@
             goToStep(2);
             loadAllBookings();
             
-            if (selectedDate) {
+            const todayStart = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+            if (selectedDate && new Date(selectedDate + 'T00:00:00') > todayStart) {
                 updateSelectedDateInfo(selectedDate);
                 loadAvailableSlots();
             } else {
-                // Pre-select tomorrow's date by default
+                // Pre-select tomorrow's date by default (same-day booking not allowed)
                 const tomorrow = new Date(Date.now() + 86400000);
-                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                const year = tomorrow.getFullYear();
+                const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                const day = String(tomorrow.getDate()).padStart(2, '0');
+                const tomorrowStr = `${year}-${month}-${day}`;
                 document.getElementById('bookingDate').value = tomorrowStr;
                 selectedDate = tomorrowStr;
                 updateSelectedDateInfo(tomorrowStr);
@@ -1629,14 +1635,15 @@
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const date = new Date(dateStr + 'T00:00:00');
+                const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                 const isToday = today.toDateString() === date.toDateString();
-                const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const isNotBookable = date <= todayStart; // Disallow same-day and past bookings
 
                 let classes = 'calendar-day';
                 let indicator = '';
 
                 if (isToday) classes += ' today';
-                if (isPast) classes += ' disabled';
+                if (isNotBookable) classes += ' disabled';
 
                 // Check for bookings on this date (highlighting like event calendar)
                 const dayBookings = getBookingsForDate(dateStr);
@@ -1655,12 +1662,12 @@
                     }
                 }
 
-                if (dateInput.value === dateStr && !isPast) {
+                if (dateInput.value === dateStr && !isNotBookable) {
                     classes += ' selected';
                 }
 
                 calendarHTML += `
-                    <div class="${classes}" onclick="${isPast ? '' : `selectDate('${dateStr}')`}" ${isPast ? 'style="cursor: not-allowed;"' : ''}>
+                    <div class="${classes}" onclick="${isNotBookable ? '' : `selectDate('${dateStr}')`}" ${isNotBookable ? 'style="cursor: not-allowed; opacity: 0.45;"' : ''}>
                         ${day}
                         ${indicator}
                     </div>
@@ -1684,6 +1691,15 @@
         }
 
         function selectDate(dateStr) {
+            const selDate = new Date(dateStr + 'T00:00:00');
+            const today = new Date();
+            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+            if (selDate <= todayStart) {
+                showAlert('Same-day bookings are not allowed. Please select tomorrow or a future date.', 'warning');
+                return;
+            }
+
             document.getElementById('bookingDate').value = dateStr;
             selectedDate = dateStr;
             renderCalendar(); // Re-render to update selection
@@ -2247,31 +2263,6 @@
                 }
             });
         };
-
-        // Maintenance Mode client check
-        document.addEventListener('DOMContentLoaded', async function () {
-            try {
-                const res = await api.getPublicSettings();
-                if (res.success && res.settings && res.settings.maintenanceMode === 'maintenance') {
-                    const mainContent = document.querySelector('.main-content') || document.body;
-                    const banner = document.createElement('div');
-                    banner.id = 'maintenanceAlertBanner';
-                    banner.style.cssText = 'background: #fef2f2; border: 2px solid #ef4444; color: #991b1b; padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem; font-weight: 600; text-align: center; font-size: 1.05rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);';
-                    banner.innerHTML = '<i class="fas fa-tools" style="margin-right: 0.5rem; color: #dc2626;"></i> <strong>Studio Maintenance Mode Active:</strong> Online booking is currently paused for studio maintenance. Please check back later!';
-                    mainContent.insertBefore(banner, mainContent.firstChild);
-
-                    const submitBtns = document.querySelectorAll('button[type="submit"], #submitBookingBtn, .btn-confirm-booking');
-                    submitBtns.forEach(btn => {
-                        btn.disabled = true;
-                        btn.style.opacity = '0.5';
-                        btn.style.cursor = 'not-allowed';
-                        btn.title = 'Online booking is paused during maintenance mode.';
-                    });
-                }
-            } catch (e) {
-                console.error('Failed to load maintenance settings:', e);
-            }
-        });
 
         // Clean up on page unload
         window.addEventListener('beforeunload', stopAvailabilityStream);

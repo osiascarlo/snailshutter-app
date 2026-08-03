@@ -248,7 +248,7 @@ router.post('/settings', authMiddleware, roleMiddleware(['admin']), (req, res, n
         const keys = [
             'studioName', 'studioEmail', 'studioPhone', 'studioAddress', 
             'emailNotifications', 'bookingReminders', 'maintenanceMode', 
-            'themeColor', 'timeZone',
+            'timeZone',
             'studioHours', 'studioMapEmbed', 'studioDirectionsLink'
         ];
 

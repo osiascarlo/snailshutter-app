@@ -50,6 +50,145 @@
         .modal-overlay.active .modal-container {
             transform: scale(1) translateY(0);
         }
+
+        /* Filter Tabs Base */
+        .filter-tab {
+            padding: 0.45rem 1.1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            user-select: none;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+        }
+        .filter-tab .filter-count {
+            padding: 0.15rem 0.5rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        /* All Filter */
+        .filter-tab.filter-all {
+            background: white;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+        .filter-tab.filter-all .filter-count {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        .filter-tab.filter-all:hover,
+        .filter-tab.filter-all.active {
+            background: #1b5e20 !important;
+            color: white !important;
+            border-color: #1b5e20 !important;
+            box-shadow: 0 4px 12px rgba(27, 94, 32, 0.25);
+        }
+        .filter-tab.filter-all:hover .filter-count,
+        .filter-tab.filter-all.active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
+        /* Pending Filter (Amber / Yellow) */
+        .filter-tab.filter-pending {
+            background: #fffbe0;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+        .filter-tab.filter-pending .filter-count {
+            background: #fef3c7;
+            color: #78350f;
+        }
+        .filter-tab.filter-pending:hover,
+        .filter-tab.filter-pending.active {
+            background: #f59e0b !important;
+            color: white !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        .filter-tab.filter-pending:hover .filter-count,
+        .filter-tab.filter-pending.active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
+        /* Confirmed Filter (Soft Blue / Royal Blue) */
+        .filter-tab.filter-confirmed {
+            background: #eff6ff;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+        .filter-tab.filter-confirmed .filter-count {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+        .filter-tab.filter-confirmed:hover,
+        .filter-tab.filter-confirmed.active {
+            background: #2563eb !important;
+            color: white !important;
+            border-color: #1d4ed8 !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .filter-tab.filter-confirmed:hover .filter-count,
+        .filter-tab.filter-confirmed.active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
+        /* Completed Filter (Purple) */
+        .filter-tab.filter-completed {
+            background: #f5f3ff;
+            color: #5b21b6;
+            border-color: #ddd6fe;
+        }
+        .filter-tab.filter-completed .filter-count {
+            background: #ede9fe;
+            color: #4c1d95;
+        }
+        .filter-tab.filter-completed:hover,
+        .filter-tab.filter-completed.active {
+            background: #7c3aed !important;
+            color: white !important;
+            border-color: #6d28d9 !important;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        .filter-tab.filter-completed:hover .filter-count,
+        .filter-tab.filter-completed.active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
+        /* Cancelled Filter (Red) */
+        .filter-tab.filter-cancelled {
+            background: #fef2f2;
+            color: #b91c1c;
+            border-color: #fecdd3;
+        }
+        .filter-tab.filter-cancelled .filter-count {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .filter-tab.filter-cancelled:hover,
+        .filter-tab.filter-cancelled.active {
+            background: #dc2626 !important;
+            color: white !important;
+            border-color: #b91c1c !important;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        .filter-tab.filter-cancelled:hover .filter-count,
+        .filter-tab.filter-cancelled.active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
     </style>
 </head>
 
@@ -107,6 +246,26 @@
                         <h3 style="margin:0;"><i class="fas fa-history"></i> Booking History (<span id="bookingCount">…</span>)</h3>
                         <span style="font-size:0.8rem; color:var(--color-text-muted);"><i class="fas fa-info-circle"></i> Click any booking to view full details</span>
                     </div>
+
+                    <!-- Status Filter Bar -->
+                    <div class="booking-filters-bar" style="padding: 1rem 1.25rem 0.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--color-border-soft, #f1f5f9);">
+                        <button class="filter-tab filter-all active" onclick="filterBookings('all', this)">
+                            All <span class="filter-count" id="countAll">0</span>
+                        </button>
+                        <button class="filter-tab filter-pending" onclick="filterBookings('pending', this)">
+                            Pending <span class="filter-count" id="countPending">0</span>
+                        </button>
+                        <button class="filter-tab filter-confirmed" onclick="filterBookings('confirmed', this)">
+                            Confirmed <span class="filter-count" id="countConfirmed">0</span>
+                        </button>
+                        <button class="filter-tab filter-completed" onclick="filterBookings('completed', this)">
+                            Completed <span class="filter-count" id="countCompleted">0</span>
+                        </button>
+                        <button class="filter-tab filter-cancelled" onclick="filterBookings('cancelled', this)">
+                            Cancelled <span class="filter-count" id="countCancelled">0</span>
+                        </button>
+                    </div>
+
                     <div id="bookingsContainer">
                         <div class="spinner" style="margin:2rem auto;"></div>
                     </div>
@@ -197,6 +356,7 @@
     <script src="/assets/js/dashboard-premium.js"></script>
     <script>
         let allClientBookings = [];
+        let currentStatusFilter = 'all';
 
         document.addEventListener('DOMContentLoaded', async function () {
             if (!auth.requireAuth('client')) return;
@@ -232,63 +392,8 @@
                     return (b.id || 0) - (a.id || 0);
                 });
 
-                if (allClientBookings.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state" style="padding:3rem;">
-                            <div class="empty-icon"><i class="fas fa-calendar-times"></i></div>
-                            <h3>No Bookings Yet</h3>
-                            <p>You haven't booked any sessions yet. Ready to capture some memories?</p>
-                            <a href="/client/book.html" class="btn btn-primary" style="margin-top:1rem;">
-                                <i class="fas fa-plus-circle"></i> Book a Session
-                            </a>
-                        </div>`;
-                    return;
-                }
-
-                const rows = allClientBookings.map((b, i) => {
-                    const sessionDate = new Date(b.booking_date).toLocaleDateString('en-US',
-                        { month: 'short', day: 'numeric', year: 'numeric' });
-                    const bookedOn = b.created_at ? new Date(b.created_at).toLocaleDateString('en-US',
-                        { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
-                    const start = formatTime(b.start_time);
-                    const end = formatTime(b.end_time);
-                    const status = (b.status || 'pending').toLowerCase();
-                    const price = b.total_price ? '&#8369;' + Number(b.total_price).toLocaleString() : '—';
-
-                    return `<tr class="booking-row-item" onclick="openBookingModal(${b.id})">
-                        <td style="font-weight:700; color:var(--color-primary, #2e7d32);">#${i + 1}</td>
-                        <td style="font-weight:600; color:#1e293b;">${b.service_name || b.service || '—'}</td>
-                        <td style="white-space:nowrap; color:#64748b; font-size:0.88rem;">${bookedOn}</td>
-                        <td style="white-space:nowrap; font-weight:600; color:#0f172a;">${sessionDate}</td>
-                        <td style="white-space:nowrap;">${start} – ${end}</td>
-                        <td style="font-weight:700; color:#0f172a;">${price}</td>
-                        <td><span class="status-badge status-${status}">${cap(status)}</span></td>
-                        <td onclick="event.stopPropagation();">
-                            <button class="btn btn-sm btn-secondary" onclick="openBookingModal(${b.id})" style="border-radius:50px; font-size:0.78rem; padding:0.35rem 0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:0.35rem;">
-                                <i class="fas fa-eye"></i> Details
-                            </button>
-                        </td>
-                    </tr>`;
-                }).join('');
-
-                container.innerHTML = `
-                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%;">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Service</th>
-                                    <th>Date Booked</th>
-                                    <th>Appointment Date</th>
-                                    <th>Time</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rows}</tbody>
-                        </table>
-                    </div>`;
+                updateFilterCounts();
+                renderBookingsList();
 
             } catch (err) {
                 console.error('Failed to load bookings:', err);
@@ -300,6 +405,106 @@
                     </div>`;
                 document.getElementById('bookingCount').textContent = '0';
             }
+        }
+
+        function filterBookings(status, btnEl) {
+            currentStatusFilter = status;
+            document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            renderBookingsList();
+        }
+
+        function updateFilterCounts() {
+            const counts = {
+                all: allClientBookings.length,
+                pending: 0,
+                confirmed: 0,
+                completed: 0,
+                cancelled: 0
+            };
+            allClientBookings.forEach(b => {
+                const st = (b.status || 'pending').toLowerCase();
+                if (counts[st] !== undefined) {
+                    counts[st]++;
+                }
+            });
+
+            document.getElementById('countAll').textContent = counts.all;
+            document.getElementById('countPending').textContent = counts.pending;
+            document.getElementById('countConfirmed').textContent = counts.confirmed;
+            document.getElementById('countCompleted').textContent = counts.completed;
+            document.getElementById('countCancelled').textContent = counts.cancelled;
+        }
+
+        function renderBookingsList() {
+            const container = document.getElementById('bookingsContainer');
+            let filtered = allClientBookings;
+            if (currentStatusFilter !== 'all') {
+                filtered = allClientBookings.filter(b => (b.status || 'pending').toLowerCase() === currentStatusFilter);
+            }
+
+            if (filtered.length === 0) {
+                const filterTitle = currentStatusFilter === 'all' ? 'No Bookings Yet' : `No ${cap(currentStatusFilter)} Bookings`;
+                const filterMsg = currentStatusFilter === 'all' 
+                    ? 'You haven\'t booked any sessions yet. Ready to capture some memories?' 
+                    : `You have no ${currentStatusFilter} bookings in your history.`;
+                
+                container.innerHTML = `
+                    <div class="empty-state" style="padding:3rem;">
+                        <div class="empty-icon"><i class="fas fa-calendar-times"></i></div>
+                        <h3>${filterTitle}</h3>
+                        <p>${filterMsg}</p>
+                        <a href="/client/book.html" class="btn btn-primary" style="margin-top:1rem;">
+                            <i class="fas fa-plus-circle"></i> Book a Session
+                        </a>
+                    </div>`;
+                return;
+            }
+
+            const rows = filtered.map((b, i) => {
+                const sessionDate = new Date(b.booking_date).toLocaleDateString('en-US',
+                    { month: 'short', day: 'numeric', year: 'numeric' });
+                const bookedOn = b.created_at ? new Date(b.created_at).toLocaleDateString('en-US',
+                    { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+                const start = formatTime(b.start_time);
+                const end = formatTime(b.end_time);
+                const status = (b.status || 'pending').toLowerCase();
+                const price = b.total_price ? '&#8369;' + Number(b.total_price).toLocaleString() : '—';
+
+                return `<tr class="booking-row-item" onclick="openBookingModal(${b.id})">
+                    <td style="font-weight:700; color:var(--color-primary, #2e7d32);">#${i + 1}</td>
+                    <td style="font-weight:600; color:#1e293b;">${b.service_name || b.service || '—'}</td>
+                    <td style="white-space:nowrap; color:#64748b; font-size:0.88rem;">${bookedOn}</td>
+                    <td style="white-space:nowrap; font-weight:600; color:#0f172a;">${sessionDate}</td>
+                    <td style="white-space:nowrap;">${start} – ${end}</td>
+                    <td style="font-weight:700; color:#0f172a;">${price}</td>
+                    <td><span class="status-badge status-${status}">${cap(status)}</span></td>
+                    <td onclick="event.stopPropagation();">
+                        <button class="btn btn-sm btn-secondary" onclick="openBookingModal(${b.id})" style="border-radius:50px; font-size:0.78rem; padding:0.35rem 0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:0.35rem;">
+                            <i class="fas fa-eye"></i> Details
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Service</th>
+                                <th>Date Booked</th>
+                                <th>Appointment Date</th>
+                                <th>Time</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
         }
 
         function openBookingModal(bookingId) {

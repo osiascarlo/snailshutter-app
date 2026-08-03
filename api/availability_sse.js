@@ -8,6 +8,7 @@ const pool = require('../config/db');
  */
 const dateClients = new Map();
 const adminClients = new Set();
+const popularServicesClients = new Set();
 
 /**
  * Register a response object under a given date.
@@ -216,7 +217,78 @@ function notifyAdminBooking(booking) {
     }
 }
 
+/**
+ * Fetch top most booked services data for SSE push
+ */
+async function getPopularServicesData(limit = 4) {
+    try {
+        const query = `
+            SELECT s.*, COUNT(b.id) AS booking_count 
+            FROM services s 
+            LEFT JOIN bookings b ON (b.service_id = s.id OR FIND_IN_SET(s.id, b.service_ids) > 0) 
+            WHERE s.is_active = 1 
+            GROUP BY s.id 
+            ORDER BY booking_count DESC, s.price ASC 
+            LIMIT ${parseInt(limit) || 4}
+        `;
+        const [services] = await pool.execute(query);
+        return services;
+    } catch (err) {
+        console.error('[SSE] getPopularServicesData DB error:', err);
+        const servicesRouter = require('./services_node');
+        const fallback = servicesRouter.FALLBACK_SERVICES || [];
+        return fallback.filter(s => s.is_active === 1).slice(0, 4);
+    }
+}
+
+/**
+ * Pushes updated most booked services data to all connected client SSE listeners.
+ */
+async function notifyPopularServices() {
+    if (popularServicesClients.size === 0) return;
+    try {
+        const services = await getPopularServicesData(4);
+        const payload = JSON.stringify({ type: 'popular_services', data: services });
+        for (const res of popularServicesClients) {
+            res.write(`data: ${payload}\n\n`);
+        }
+    } catch (err) {
+        console.error('[SSE] notifyPopularServices error:', err);
+    }
+}
+
+/* ------------------------------------------------------------------ *
+ *  GET /api/availability/popular-services-stream                   *
+ *  Real-time SSE stream for top 4 most booked services.             *
+ * ------------------------------------------------------------------ */
+router.get('/popular-services-stream', async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    popularServicesClients.add(res);
+
+    try {
+        const services = await getPopularServicesData(4);
+        res.write(`data: ${JSON.stringify({ type: 'popular_services', data: services })}\n\n`);
+    } catch (err) {
+        console.error('[SSE] Initial popular-services payload error:', err);
+    }
+
+    const heartbeat = setInterval(() => {
+        res.write(`: heartbeat\n\n`);
+    }, 30000);
+
+    req.on('close', () => {
+        clearInterval(heartbeat);
+        popularServicesClients.delete(res);
+    });
+});
+
 module.exports = router;
 module.exports.notifyDate = notifyDate;
 module.exports.notifyAdminBooking = notifyAdminBooking;
+module.exports.notifyPopularServices = notifyPopularServices;
 

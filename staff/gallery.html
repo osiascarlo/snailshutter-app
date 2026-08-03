@@ -293,6 +293,11 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
+            user-select: none;
+        }
+
+        .filter-pill * {
+            pointer-events: none;
         }
 
         .filter-pill:hover {
@@ -404,16 +409,6 @@
 
             <div class="content-body">
 
-                <!-- ── Tab Bar ── -->
-                <div class="gallery-tabs">
-                    <button class="gallery-tab active" onclick="switchTab('overview', this)">
-                        <i class="fas fa-th-large"></i> Completed Bookings Overview
-                    </button>
-                    <button class="gallery-tab" id="manage-tab-btn" onclick="switchTab('upload', this)">
-                        <i class="fab fa-google-drive"></i> Manage Google Drive Link
-                    </button>
-                </div>
-
                 <!-- ══════════════════════════════════════════
                      TAB: Overview
                 ══════════════════════════════════════════ -->
@@ -455,47 +450,44 @@
                     </div>
                 </div>
 
-                <!-- ══════════════════════════════════════════
-                     TAB: Manage/Upload Link
-                ══════════════════════════════════════════ -->
-                <div id="tab-upload" style="display:none;">
+    </div>
 
-                    <!-- Booking selector -->
-                    <div class="booking-select-row">
-                        <label for="bookingSelect"><i class="fas fa-calendar-check"></i> &nbsp;Select Booking:</label>
-                        <select id="bookingSelect" onchange="onBookingChange()">
-                            <option value="">— Choose a booking —</option>
-                        </select>
-                        <div id="bookingInfo" style="font-size:0.82rem; color:var(--color-text-soft); font-weight:600;"></div>
-                    </div>
-
-                    <!-- Link Form -->
-                    <div class="drive-link-card" id="linkCard" style="display:none;">
-                        <h3><i class="fab fa-google-drive" style="color:#10b981;"></i> Edit Google Drive Link</h3>
-                        
-                        <div class="form-group">
-                            <label for="driveUrlInput">Google Drive Folder Link URL:</label>
-                            <input type="url" id="driveUrlInput" placeholder="https://drive.google.com/drive/folders/..." required>
-                            <span style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">
-                                Client will get notified via email when this link is saved or updated.
-                            </span>
-                        </div>
-
-                        <div style="display:flex; gap:0.75rem;">
-                            <button class="btn btn-primary" id="saveLinkBtn" onclick="saveDriveLink()">
-                                <i class="fas fa-save"></i> Save &amp; Notify Client
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Helper Select Message -->
-                    <div class="gallery-empty" id="selectPrompt">
-                        <i class="fab fa-google-drive" style="opacity: 0.3;"></i>
-                        <h3>No Booking Selected</h3>
-                        <p>Select a booking from the dropdown or click a booking in the Overview tab to assign a Google Drive link.</p>
-                    </div>
-
+    <!-- Edit Drive Link Modal -->
+    <div id="editDriveModal" class="modal-overlay" style="display:none;" onclick="if(event.target === this) closeDriveModal()">
+        <div class="modal-container" style="max-width: 520px; width: 92%; padding: 0; overflow: hidden; border-radius: 20px; background: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+            <div style="background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); color: white; padding: 1.5rem 1.75rem; position: relative;">
+                <button type="button" onclick="closeDriveModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 50; pointer-events: auto; outline: none;" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    <i class="fas fa-times" style="pointer-events: none;"></i>
+                </button>
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; opacity: 0.9;">
+                    <i class="fab fa-google-drive"></i> Photo Delivery Link
                 </div>
+                <h3 id="modalClientTitle" style="margin: 0.4rem 0 0; font-size: 1.25rem; font-weight: 700; color: white;">Edit Google Drive Link</h3>
+            </div>
+            <div style="padding: 1.5rem 1.75rem;">
+                <div id="modalClientDetails" style="margin-bottom: 1rem; font-size: 0.88rem; color: #475569; background: #f8fafc; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <!-- Details will be injected here -->
+                </div>
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="modalDriveUrlInput" style="font-weight: 600; font-size: 0.85rem; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                        Google Drive Folder URL:
+                    </label>
+                    <input type="url" id="modalDriveUrlInput" placeholder="https://drive.google.com/drive/folders/..." class="form-control" style="width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0.65rem 0.85rem; font-size: 0.9rem;" required>
+                    <span style="font-size: 0.75rem; color: #64748b; margin-top: 0.35rem; display: block;">
+                        <i class="fas fa-paper-plane" style="color: #2e7d32;"></i> Client will receive an automatic email notification with this link upon saving.
+                    </span>
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closeDriveModal()" style="border-radius: 50px; padding: 0.5rem 1.25rem; font-weight: 600;">
+                        Cancel
+                    </button>
+                    <button class="btn btn-primary" id="modalSaveBtn" onclick="saveDriveLinkFromModal()" style="border-radius: 50px; padding: 0.5rem 1.5rem; font-weight: 600;">
+                        <i class="fas fa-save"></i> Save & Notify Client
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
             </div>
         </main>
@@ -592,6 +584,15 @@
     }
 
     // ───────────────────────────────────────────────
+    //  Helper: Check if booking has a valid Drive link
+    // ───────────────────────────────────────────────
+    function checkHasLink(b) {
+        if (!b || !b.google_drive_link) return false;
+        const linkStr = String(b.google_drive_link).trim();
+        return linkStr.length > 0 && linkStr !== 'null' && linkStr !== 'undefined';
+    }
+
+    // ───────────────────────────────────────────────
     //  Link Filter Pills
     // ───────────────────────────────────────────────
     let currentLinkFilter = 'all';
@@ -599,13 +600,23 @@
     function setLinkFilter(filter, btn) {
         currentLinkFilter = filter;
         document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
+        
+        let targetBtn = btn;
+        if (typeof btn === 'string' || !btn) {
+            targetBtn = document.querySelector(`.filter-pill[data-link-filter="${filter}"]`);
+        }
+        if (targetBtn && targetBtn.closest) {
+            const actualPill = targetBtn.closest('.filter-pill');
+            if (actualPill) actualPill.classList.add('active');
+        } else if (targetBtn && targetBtn.classList) {
+            targetBtn.classList.add('active');
+        }
         filterGalleryBookings();
     }
 
     function updateFilterCounts() {
         const total = allBookings.length;
-        const set = allBookings.filter(b => b.google_drive_link && b.google_drive_link.trim() !== '').length;
+        const set = allBookings.filter(b => checkHasLink(b)).length;
         const nolink = total - set;
 
         const countAll = document.getElementById('count-all');
@@ -659,8 +670,8 @@
         }
 
         grid.innerHTML = list.map(b => {
-            const hasLink = b.google_drive_link && b.google_drive_link.trim() !== '';
-            const date = new Date(b.booking_date).toLocaleDateString();
+            const hasLink = checkHasLink(b);
+            const date = b.booking_date ? new Date(b.booking_date).toLocaleDateString() : '—';
 
             const statusBadge = hasLink 
                 ? `<span class="link-status set">✅ Link Set</span>`
@@ -669,8 +680,7 @@
             return `
                 <div class="booking-overview-card">
                     <div>
-                        <div class="card-header">
-                            <span class="bid">Booking #${b.id}</span>
+                        <div class="card-header" style="justify-content: center;">
                             ${statusBadge}
                         </div>
                         <h4>${b.client_name}</h4>
@@ -698,9 +708,9 @@
 
         // 1. Link Status Filter
         if (currentLinkFilter === 'with-link') {
-            list = list.filter(b => b.google_drive_link && b.google_drive_link.trim() !== '');
+            list = list.filter(b => checkHasLink(b));
         } else if (currentLinkFilter === 'no-link') {
-            list = list.filter(b => !b.google_drive_link || b.google_drive_link.trim() === '');
+            list = list.filter(b => !checkHasLink(b));
         }
 
         // 2. Search Term Filter
@@ -713,7 +723,7 @@
                 const clientName = (b.client_name || '').toLowerCase();
                 const serviceName = (b.service_name || '').toLowerCase();
                 const bookingId = String(b.id);
-                const dateStr = new Date(b.booking_date).toLocaleDateString().toLowerCase();
+                const dateStr = b.booking_date ? new Date(b.booking_date).toLocaleDateString().toLowerCase() : '';
                 
                 return queryTerms.every(term => 
                     clientName.includes(term) || 
@@ -729,9 +739,75 @@
     }
 
     function openBookingInUpload(bookingId) {
-        document.getElementById('bookingSelect').value = bookingId;
-        onBookingChange();
-        switchTab('upload', document.getElementById('manage-tab-btn'));
+        const booking = allBookings.find(b => b.id == bookingId);
+        if (!booking) return;
+        currentBookingId = bookingId;
+
+        document.getElementById('modalClientTitle').textContent = `Google Drive Link: ${booking.client_name}`;
+        document.getElementById('modalClientDetails').innerHTML = `
+            <strong>Service:</strong> ${booking.service_name || 'Photography Session'}<br>
+            <strong>Date:</strong> ${booking.booking_date ? new Date(booking.booking_date).toLocaleDateString() : '—'} | <strong>Status:</strong> Completed
+        `;
+        document.getElementById('modalDriveUrlInput').value = booking.google_drive_link || '';
+
+        const modal = document.getElementById('editDriveModal');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+        document.documentElement.classList.add('modal-open');
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDriveModal() {
+        const modal = document.getElementById('editDriveModal');
+        if (modal) {
+            modal.classList.remove('active');
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+        }
+        document.documentElement.classList.remove('modal-open');
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+    }
+
+    async function saveDriveLinkFromModal() {
+        if (!currentBookingId) return;
+        const url = document.getElementById('modalDriveUrlInput').value.trim();
+        if (!url) {
+            alert('Please enter a valid Google Drive URL.');
+            return;
+        }
+
+        const btn = document.getElementById('modalSaveBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+        try {
+            const res = await fetch(`/api/gallery/${currentBookingId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ google_drive_link: url })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                closeDriveModal();
+                if (typeof showAlert === 'function') {
+                    showAlert('Google Drive link saved & client notified!', 'success');
+                } else {
+                    alert('Saved successfully!');
+                }
+                await loadOverview();
+            } else {
+                alert(data.error || 'Failed to save link.');
+            }
+        } catch (e) {
+            alert('Error saving link: ' + e.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Save & Notify Client';
+        }
     }
 
     // ───────────────────────────────────────────────

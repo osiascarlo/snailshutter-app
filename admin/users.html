@@ -76,6 +76,19 @@
             align-items: end;
         }
 
+        .filter-controls .form-group {
+            margin-bottom: 0;
+        }
+
+        .filter-controls .btn-secondary {
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
         .user-modal-overlay {
             display: none;
             position: fixed;
@@ -396,9 +409,12 @@
                                 <option value="pending">Pending</option>
                             </select>
                         </div>
-                        <button class="btn btn-secondary" onclick="resetFilters()">
-                            <i class="fas fa-redo"></i> Reset
-                        </button>
+                        <div class="form-group">
+                            <label style="visibility: hidden; user-select: none;">Action</label>
+                            <button class="btn btn-secondary" onclick="resetFilters()">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </div>
                     </div>
                 </div>
 

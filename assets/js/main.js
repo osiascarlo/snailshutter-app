@@ -220,8 +220,51 @@ document.addEventListener('DOMContentLoaded', function() {
         adminNotifScript.src = '/assets/js/admin_notifications.js';
         adminNotifScript.defer = true;
         document.body.appendChild(adminNotifScript);
+    } else {
+        // Run global maintenance mode check across all client tabs
+        checkGlobalMaintenanceMode();
     }
 });
+
+// Global Client Maintenance Mode Check across all client tabs
+async function checkGlobalMaintenanceMode() {
+    if (typeof api === 'undefined' || !api.getPublicSettings) return;
+
+    try {
+        const res = await api.getPublicSettings();
+        if (res && res.success && res.settings && res.settings.maintenanceMode === 'maintenance') {
+            document.body.classList.add('maintenance-active');
+
+            if (document.getElementById('maintenanceAlertBanner')) return;
+
+            const banner = document.createElement('div');
+            banner.id = 'maintenanceAlertBanner';
+            banner.innerHTML = '<i class="fas fa-tools" style="flex-shrink: 0; color: #dc2626; font-size: 1.1rem;"></i> <span><strong>Studio Maintenance Mode Active:</strong> Online booking is currently paused for studio maintenance. Please check back later!</span>';
+
+            document.body.appendChild(banner);
+
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.paddingTop = '65px';
+            }
+
+            const multiBar = document.getElementById('multiSelectBar');
+            if (multiBar) {
+                multiBar.style.display = 'none';
+            }
+
+            const submitBtns = document.querySelectorAll('button[type="submit"], #submitBookingBtn, .btn-confirm-booking, #nextToStep2Btn, #multiSelectBtn');
+            submitBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+                btn.title = 'Online booking is paused during maintenance mode.';
+            });
+        }
+    } catch (e) {
+        console.warn('Maintenance check warning:', e);
+    }
+}
 
 // Form validation helpers
 function validateEmail(email) {

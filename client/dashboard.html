@@ -133,7 +133,30 @@
             z-index: 3;
         }
 
-        .premium-service-card:hover .book-overlay {
+        .premium-service-card {
+            background: var(--premium-surface);
+            border: 1px solid var(--premium-border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.45s var(--premium-ease);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .premium-service-card:hover .book-overlay,
+        .premium-service-card.active .book-overlay,
+        .premium-service-card:focus .book-overlay,
+        .premium-service-card:active .book-overlay {
+            opacity: 1;
+        }
+
+        .premium-service-card.active {
+            border-color: var(--premium-accent);
+            box-shadow: var(--premium-shadow-xl);
+            transform: translateY(-4px);
+        }
+
+        .premium-service-card.active .card-img-wrap::after {
             opacity: 1;
         }
 
@@ -273,10 +296,10 @@
                     <!-- Stats will be rendered by JavaScript -->
                 </div>
 
-                <!-- Available Services -->
+                <!-- Most Booked Services -->
                 <div class="section-header">
-                    <h3><i class="fas fa-camera-retro"></i> Our Services</h3>
-                    <a href="/client/book.html" class="btn btn-secondary btn-sm">View All</a>
+                    <h3><i class="fas fa-fire" style="color: #ef4444;"></i> Most Booked Services</h3>
+                    <a href="/client/book.html" class="btn btn-secondary btn-sm">View All Services</a>
                 </div>
                 <div class="premium-services-grid" id="servicesGrid">
                     <!-- Services will be rendered by JavaScript -->
@@ -443,38 +466,97 @@
                     }
                 }
 
-                // Load services
-                const services = await api.getServices();
-                const servicesGrid = document.getElementById('servicesGrid');
-                if (servicesGrid && services.data) {
-                    servicesGrid.innerHTML = services.data.map((s, i) => `
-                        <div class="premium-service-card stagger-in" style="animation-delay: ${i * 0.08}s;">
-                            <div class="card-img-wrap">
-                                <span class="card-category">${s.category || 'General'}</span>
-                                <img src="${s.image_url || '/assets/images/services/photobooth.png'}" alt="${s.name}">
-                            </div>
-                            <div class="book-overlay">
-                                <a href="/client/book.html" class="book-btn shutter-click">
-                                    <i class="fas fa-camera"></i> Book Now
-                                </a>
-                            </div>
-                            <div class="card-body">
-                                <h4>${s.name}</h4>
-                                <div class="card-meta">
-                                    <span class="card-price">₱${parseFloat(s.price).toLocaleString()}</span>
-                                    <span class="card-duration"><i class="far fa-clock"></i> ${s.duration_minutes > 0 ? `${s.duration_minutes} min` : 'Custom'}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    // Re-init shutter effect for newly created buttons
-                    DashboardPremium.initShutterEffect();
+                // Initial load for top 4 most booked services
+                const services = await api.getServices({ most_booked: true, limit: 4 });
+                if (services && services.data) {
+                    renderMostBookedServices(services.data);
                 }
+
+                // Connect to real-time stream for live popular service updates
+                initRealtimePopularServices();
+
             } catch (error) {
                 console.error('Error loading dashboard:', error);
             }
         });
+
+        function renderMostBookedServices(servicesList) {
+            const servicesGrid = document.getElementById('servicesGrid');
+            if (!servicesGrid || !Array.isArray(servicesList)) return;
+
+            // Only display top 4 most booked services
+            const top4 = servicesList.slice(0, 4);
+
+            if (top4.length === 0) {
+                servicesGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; color:var(--premium-text-muted);">No services available.</div>';
+                return;
+            }
+
+            servicesGrid.innerHTML = top4.map((s, i) => `
+                <div class="premium-service-card stagger-in" style="animation-delay: ${i * 0.08}s;" onclick="handleServiceCardClick(event, ${s.id})" tabindex="0">
+                    <div class="card-img-wrap">
+                        <div style="position:absolute; top:0.75rem; left:0.75rem; right:0.75rem; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; z-index:2; pointer-events:none;">
+                            <span class="card-category" style="position:static; max-width:50%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:0;">${s.category || 'General'}</span>
+                            <span class="popular-badge" style="position:static; background:linear-gradient(135deg, #ef4444, #f97316); color:#fff; padding:0.2rem 0.55rem; border-radius:20px; font-family:'Inter',sans-serif; font-size:0.625rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; box-shadow:0 2px 8px rgba(239,68,68,0.35); white-space:nowrap; flex-shrink:0;"><i class="fas fa-fire"></i> Most Booked #${i + 1}</span>
+                        </div>
+                        <img src="${s.image_url || '/assets/images/services/photobooth.png'}" alt="${s.name}">
+                    </div>
+                    <div class="book-overlay">
+                        <a href="/client/book.html?serviceId=${s.id}" class="book-btn shutter-click" onclick="event.stopPropagation()">
+                            <i class="fas fa-camera"></i> Book Now
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h4>${s.name}</h4>
+                        <div class="card-meta">
+                            <span class="card-price">₱${parseFloat(s.price).toLocaleString()}</span>
+                            <span class="card-duration"><i class="far fa-clock"></i> ${s.duration_minutes > 0 ? `${s.duration_minutes} min` : 'Custom'}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            if (window.DashboardPremium && DashboardPremium.initShutterEffect) {
+                DashboardPremium.initShutterEffect();
+            }
+        }
+
+        let popularServicesSse = null;
+        function initRealtimePopularServices() {
+            if (typeof EventSource === 'undefined') return;
+            if (popularServicesSse) {
+                popularServicesSse.close();
+            }
+            popularServicesSse = new EventSource('/api/availability/popular-services-stream');
+            popularServicesSse.onmessage = function (event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data && data.type === 'popular_services' && Array.isArray(data.data)) {
+                        renderMostBookedServices(data.data);
+                    }
+                } catch (err) {
+                    console.error('[SSE] Error processing popular services stream:', err);
+                }
+            };
+            window.addEventListener('beforeunload', () => {
+                if (popularServicesSse) popularServicesSse.close();
+            });
+        }
+
+        function handleServiceCardClick(event, serviceId) {
+            // If the Book Now button was clicked, let the link navigate to auto-select
+            if (event.target.closest('.book-btn')) return;
+
+            // Clicking/tapping the card body only activates/toggles the card overlay
+            const card = event.currentTarget;
+            const isActive = card.classList.contains('active');
+
+            document.querySelectorAll('.premium-service-card').forEach(c => c.classList.remove('active'));
+
+            if (!isActive) {
+                card.classList.add('active');
+            }
+        }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
