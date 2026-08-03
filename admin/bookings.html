@@ -165,10 +165,61 @@
             color: var(--color-primary);
         }
 
-        .filter-pill.active {
+        /* Active: All */
+        .filter-pill[data-filter="all"].active {
             background: var(--color-primary);
             color: white;
             border-color: var(--color-primary);
+        }
+
+        /* Active: Pending — amber/yellow matching section title */
+        .filter-pill[data-filter="pending"].active {
+            background: #f59e0b;
+            color: white;
+            border-color: #d97706;
+        }
+
+        /* Active: Confirmed — blue matching section title */
+        .filter-pill[data-filter="confirmed"].active {
+            background: #3b82f6;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        /* Active: Completed — purple matching section title */
+        .filter-pill[data-filter="completed"].active {
+            background: #7c3aed;
+            color: white;
+            border-color: #6d28d9;
+        }
+
+        /* Active: Cancelled — red matching section title */
+        .filter-pill[data-filter="cancelled"].active {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        /* Idle pills: tinted border & text on hover to match their status color */
+        .filter-pill[data-filter="pending"]:not(.active):hover {
+            border-color: #f59e0b;
+            color: #92400e;
+            background: #fef3c7;
+        }
+        .filter-pill[data-filter="confirmed"]:not(.active):hover {
+            border-color: #3b82f6;
+            color: #1e40af;
+            background: #dbeafe;
+        }
+        .filter-pill[data-filter="completed"]:not(.active):hover {
+            border-color: #7c3aed;
+            color: #6b21a8;
+            background: #f3e8ff;
+        }
+        .filter-pill[data-filter="cancelled"]:not(.active):hover {
+            border-color: #ef4444;
+            color: #b91c1c;
+            background: #fee2e2;
         }
 
         /* ── Mobile Responsive ── */
