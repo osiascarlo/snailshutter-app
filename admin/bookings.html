@@ -147,79 +147,177 @@
             flex-wrap: wrap;
         }
 
+        /* Filter Tabs / Pills Base */
+        .filter-tab,
         .filter-pill {
-            background: var(--color-bg-soft);
-            color: var(--color-text-soft);
-            border: 1px solid var(--color-border);
-            padding: 0.5rem 1.25rem;
+            padding: 0.45rem 1.1rem;
             border-radius: 50px;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            user-select: none;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
             outline: none;
         }
-
-        .filter-pill:hover {
-            border-color: var(--color-primary);
-            color: var(--color-primary);
+        .filter-tab .filter-count,
+        .filter-pill .filter-count {
+            padding: 0.15rem 0.5rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            pointer-events: none;
         }
 
-        /* Active: All */
+        /* All Filter */
+        .filter-tab.filter-all,
+        .filter-pill[data-filter="all"] {
+            background: white;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+        .filter-tab.filter-all .filter-count,
+        .filter-pill[data-filter="all"] .filter-count {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        .filter-tab.filter-all:hover,
+        .filter-tab.filter-all.active,
+        .filter-pill[data-filter="all"]:hover,
         .filter-pill[data-filter="all"].active {
-            background: var(--color-primary);
-            color: white;
-            border-color: var(--color-primary);
+            background: #1b5e20 !important;
+            color: white !important;
+            border-color: #1b5e20 !important;
+            box-shadow: 0 4px 12px rgba(27, 94, 32, 0.25);
+        }
+        .filter-tab.filter-all:hover .filter-count,
+        .filter-tab.filter-all.active .filter-count,
+        .filter-pill[data-filter="all"]:hover .filter-count,
+        .filter-pill[data-filter="all"].active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
         }
 
-        /* Active: Pending — amber/yellow matching section title */
-        .filter-pill[data-filter="pending"].active {
-            background: #f59e0b;
-            color: white;
-            border-color: #d97706;
-        }
-
-        /* Active: Confirmed — blue matching section title */
-        .filter-pill[data-filter="confirmed"].active {
-            background: #3b82f6;
-            color: white;
-            border-color: #2563eb;
-        }
-
-        /* Active: Completed — purple matching section title */
-        .filter-pill[data-filter="completed"].active {
-            background: #7c3aed;
-            color: white;
-            border-color: #6d28d9;
-        }
-
-        /* Active: Cancelled — red matching section title */
-        .filter-pill[data-filter="cancelled"].active {
-            background: #ef4444;
-            color: white;
-            border-color: #dc2626;
-        }
-
-        /* Idle pills: tinted border & text on hover to match their status color */
-        .filter-pill[data-filter="pending"]:not(.active):hover {
-            border-color: #f59e0b;
+        /* Pending Filter (Amber / Yellow) */
+        .filter-tab.filter-pending,
+        .filter-pill[data-filter="pending"] {
+            background: #fffbe0;
             color: #92400e;
+            border-color: #fde68a;
+        }
+        .filter-tab.filter-pending .filter-count,
+        .filter-pill[data-filter="pending"] .filter-count {
             background: #fef3c7;
+            color: #78350f;
         }
-        .filter-pill[data-filter="confirmed"]:not(.active):hover {
-            border-color: #3b82f6;
+        .filter-tab.filter-pending:hover,
+        .filter-tab.filter-pending.active,
+        .filter-pill[data-filter="pending"]:hover,
+        .filter-pill[data-filter="pending"].active {
+            background: #f59e0b !important;
+            color: white !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        .filter-tab.filter-pending:hover .filter-count,
+        .filter-tab.filter-pending.active .filter-count,
+        .filter-pill[data-filter="pending"]:hover .filter-count,
+        .filter-pill[data-filter="pending"].active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
+        /* Confirmed Filter (Soft Blue / Royal Blue) */
+        .filter-tab.filter-confirmed,
+        .filter-pill[data-filter="confirmed"] {
+            background: #eff6ff;
             color: #1e40af;
+            border-color: #bfdbfe;
+        }
+        .filter-tab.filter-confirmed .filter-count,
+        .filter-pill[data-filter="confirmed"] .filter-count {
             background: #dbeafe;
+            color: #1e3a8a;
         }
-        .filter-pill[data-filter="completed"]:not(.active):hover {
-            border-color: #7c3aed;
-            color: #6b21a8;
-            background: #f3e8ff;
+        .filter-tab.filter-confirmed:hover,
+        .filter-tab.filter-confirmed.active,
+        .filter-pill[data-filter="confirmed"]:hover,
+        .filter-pill[data-filter="confirmed"].active {
+            background: #2563eb !important;
+            color: white !important;
+            border-color: #1d4ed8 !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
-        .filter-pill[data-filter="cancelled"]:not(.active):hover {
-            border-color: #ef4444;
+        .filter-tab.filter-confirmed:hover .filter-count,
+        .filter-tab.filter-confirmed.active .filter-count,
+        .filter-pill[data-filter="confirmed"]:hover .filter-count,
+        .filter-pill[data-filter="confirmed"].active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
+        /* Completed Filter (Purple) */
+        .filter-tab.filter-completed,
+        .filter-pill[data-filter="completed"] {
+            background: #f5f3ff;
+            color: #5b21b6;
+            border-color: #ddd6fe;
+        }
+        .filter-tab.filter-completed .filter-count,
+        .filter-pill[data-filter="completed"] .filter-count {
+            background: #ede9fe;
+            color: #4c1d95;
+        }
+        .filter-tab.filter-completed:hover,
+        .filter-tab.filter-completed.active,
+        .filter-pill[data-filter="completed"]:hover,
+        .filter-pill[data-filter="completed"].active {
+            background: #7c3aed !important;
+            color: white !important;
+            border-color: #6d28d9 !important;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        .filter-tab.filter-completed:hover .filter-count,
+        .filter-tab.filter-completed.active .filter-count,
+        .filter-pill[data-filter="completed"]:hover .filter-count,
+        .filter-pill[data-filter="completed"].active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
+        /* Cancelled Filter (Red) */
+        .filter-tab.filter-cancelled,
+        .filter-pill[data-filter="cancelled"] {
+            background: #fef2f2;
             color: #b91c1c;
+            border-color: #fecdd3;
+        }
+        .filter-tab.filter-cancelled .filter-count,
+        .filter-pill[data-filter="cancelled"] .filter-count {
             background: #fee2e2;
+            color: #991b1b;
+        }
+        .filter-tab.filter-cancelled:hover,
+        .filter-tab.filter-cancelled.active,
+        .filter-pill[data-filter="cancelled"]:hover,
+        .filter-pill[data-filter="cancelled"].active {
+            background: #dc2626 !important;
+            color: white !important;
+            border-color: #b91c1c !important;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        .filter-tab.filter-cancelled:hover .filter-count,
+        .filter-tab.filter-cancelled.active .filter-count,
+        .filter-pill[data-filter="cancelled"]:hover .filter-count,
+        .filter-pill[data-filter="cancelled"].active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
         }
 
         /* ── Mobile Responsive ── */
@@ -353,11 +451,21 @@
                 <div class="filter-container" style="display: none;">
                     <span class="filter-label"><i class="fas fa-filter"></i> Filter Status:</span>
                     <div class="filter-pills">
-                        <button class="filter-pill active" data-filter="all">All</button>
-                        <button class="filter-pill" data-filter="pending">Pending</button>
-                        <button class="filter-pill" data-filter="confirmed">Confirmed</button>
-                        <button class="filter-pill" data-filter="completed">Completed</button>
-                        <button class="filter-pill" data-filter="cancelled">Cancelled</button>
+                        <button class="filter-tab filter-pill filter-all active" data-filter="all">
+                            All <span class="filter-count" id="countAll">0</span>
+                        </button>
+                        <button class="filter-tab filter-pill filter-pending" data-filter="pending">
+                            Pending <span class="filter-count" id="countPending">0</span>
+                        </button>
+                        <button class="filter-tab filter-pill filter-confirmed" data-filter="confirmed">
+                            Confirmed <span class="filter-count" id="countConfirmed">0</span>
+                        </button>
+                        <button class="filter-tab filter-pill filter-completed" data-filter="completed">
+                            Completed <span class="filter-count" id="countCompleted">0</span>
+                        </button>
+                        <button class="filter-tab filter-pill filter-cancelled" data-filter="cancelled">
+                            Cancelled <span class="filter-count" id="countCancelled">0</span>
+                        </button>
                     </div>
                 </div>
 
@@ -437,6 +545,13 @@
                     const confirmed = bookings.filter(b => b.status === 'confirmed');
                     const completed = bookings.filter(b => b.status === 'completed');
                     const cancelled = bookings.filter(b => b.status === 'cancelled');
+
+                    // Update count badges on filter tabs
+                    if (document.getElementById('countAll')) document.getElementById('countAll').textContent = bookings.length;
+                    if (document.getElementById('countPending')) document.getElementById('countPending').textContent = pending.length;
+                    if (document.getElementById('countConfirmed')) document.getElementById('countConfirmed').textContent = confirmed.length;
+                    if (document.getElementById('countCompleted')) document.getElementById('countCompleted').textContent = completed.length;
+                    if (document.getElementById('countCancelled')) document.getElementById('countCancelled').textContent = cancelled.length;
 
                     // Helper to render grid content
                     function renderGrid(gridId, sectionId, list) {
@@ -521,13 +636,16 @@
             });
 
             // Add filter event listeners
-            const filterPills = document.querySelectorAll('.filter-pill');
+            const filterPills = document.querySelectorAll('.filter-tab, .filter-pill');
             filterPills.forEach(pill => {
-                pill.addEventListener('click', () => {
+                pill.addEventListener('click', (e) => {
+                    const targetBtn = e.target.closest('.filter-tab, .filter-pill');
+                    if (!targetBtn) return;
+                    
                     filterPills.forEach(p => p.classList.remove('active'));
-                    pill.classList.add('active');
+                    targetBtn.classList.add('active');
 
-                    const filterValue = pill.getAttribute('data-filter');
+                    const filterValue = targetBtn.getAttribute('data-filter');
 
                     document.querySelectorAll('.booking-section').forEach(section => {
                         const sectionId = section.getAttribute('id');
