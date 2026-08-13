@@ -308,16 +308,31 @@
                         <form id="passwordForm">
                             <div class="form-group" style="margin-bottom: 1.25rem;">
                                 <label for="currentPassword">Current Password</label>
-                                <input type="password" id="currentPassword" class="form-control" required>
+                                <div style="position: relative;">
+                                    <input type="password" id="currentPassword" class="form-control" style="padding-right: 2.75rem;" required>
+                                    <button type="button" onclick="togglePasswordVisibility('currentPassword', this)" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 0.25rem; font-size: 0.95rem; z-index: 2;" title="Toggle Password Visibility">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="form-row" style="margin-bottom: 1rem;">
                                 <div class="form-group">
                                     <label for="newPassword">New Password</label>
-                                    <input type="password" id="newPassword" class="form-control" required minlength="8">
+                                    <div style="position: relative;">
+                                        <input type="password" id="newPassword" class="form-control" style="padding-right: 2.75rem;" required minlength="8">
+                                        <button type="button" onclick="togglePasswordVisibility('newPassword', this)" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 0.25rem; font-size: 0.95rem; z-index: 2;" title="Toggle Password Visibility">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="confirmPassword">Confirm New Password</label>
-                                    <input type="password" id="confirmPassword" class="form-control" required minlength="8">
+                                    <div style="position: relative;">
+                                        <input type="password" id="confirmPassword" class="form-control" style="padding-right: 2.75rem;" required minlength="8">
+                                        <button type="button" onclick="togglePasswordVisibility('confirmPassword', this)" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 0.25rem; font-size: 0.95rem; z-index: 2;" title="Toggle Password Visibility">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -325,16 +340,16 @@
                             <div class="password-requirements" id="passwordRequirements" style="margin-bottom: 1.5rem; background: #f8fafc; padding: 0.85rem 1rem; border-radius: 10px; border: 1px solid #e2e8f0;">
                                 <div style="font-size: 0.78rem; font-weight: 600; color: var(--color-text-muted); margin-bottom: 0.4rem;">Password must contain:</div>
                                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.4rem; font-size: 0.78rem;">
-                                    <div class="requirement-item invalid" id="lengthReq" style="display: flex; align-items: center; gap: 0.35rem; color: #dc2626;">
+                                    <div class="requirement-item invalid" id="lengthReq" style="display: flex; align-items: center; gap: 0.35rem; color: #ef4444; transition: all 0.2s;">
                                         <i class="fas fa-circle-xmark"></i> 8+ characters
                                     </div>
-                                    <div class="requirement-item invalid" id="capitalReq" style="display: flex; align-items: center; gap: 0.35rem; color: #dc2626;">
+                                    <div class="requirement-item invalid" id="capitalReq" style="display: flex; align-items: center; gap: 0.35rem; color: #ef4444; transition: all 0.2s;">
                                         <i class="fas fa-circle-xmark"></i> Capital letter
                                     </div>
-                                    <div class="requirement-item invalid" id="numberReq" style="display: flex; align-items: center; gap: 0.35rem; color: #dc2626;">
+                                    <div class="requirement-item invalid" id="numberReq" style="display: flex; align-items: center; gap: 0.35rem; color: #ef4444; transition: all 0.2s;">
                                         <i class="fas fa-circle-xmark"></i> One number
                                     </div>
-                                    <div class="requirement-item invalid" id="specialReq" style="display: flex; align-items: center; gap: 0.35rem; color: #dc2626;">
+                                    <div class="requirement-item invalid" id="specialReq" style="display: flex; align-items: center; gap: 0.35rem; color: #ef4444; transition: all 0.2s;">
                                         <i class="fas fa-circle-xmark"></i> Special char
                                     </div>
                                 </div>
@@ -460,41 +475,49 @@
 
                 // Length requirement (8+)
                 if (password.length >= 8) {
-                    lengthReq.innerHTML = '<i class="fas fa-circle-check"></i> 8+ characters';
-                    lengthReq.style.color = '#16a34a';
+                    lengthReq.innerHTML = '<i class="fas fa-circle-check" style="color: #10b981;"></i> 8+ characters';
+                    lengthReq.style.color = '#10b981';
+                    lengthReq.className = 'requirement-item valid';
                 } else {
-                    lengthReq.innerHTML = '<i class="fas fa-circle-xmark"></i> 8+ characters';
-                    lengthReq.style.color = '#dc2626';
+                    lengthReq.innerHTML = '<i class="fas fa-circle-xmark" style="color: #ef4444;"></i> 8+ characters';
+                    lengthReq.style.color = '#ef4444';
+                    lengthReq.className = 'requirement-item invalid';
                     isValid = false;
                 }
 
                 // Capital letter requirement
                 if (/[A-Z]/.test(password)) {
-                    capitalReq.innerHTML = '<i class="fas fa-circle-check"></i> Capital letter';
-                    capitalReq.style.color = '#16a34a';
+                    capitalReq.innerHTML = '<i class="fas fa-circle-check" style="color: #10b981;"></i> Capital letter';
+                    capitalReq.style.color = '#10b981';
+                    capitalReq.className = 'requirement-item valid';
                 } else {
-                    capitalReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Capital letter';
-                    capitalReq.style.color = '#dc2626';
+                    capitalReq.innerHTML = '<i class="fas fa-circle-xmark" style="color: #ef4444;"></i> Capital letter';
+                    capitalReq.style.color = '#ef4444';
+                    capitalReq.className = 'requirement-item invalid';
                     isValid = false;
                 }
 
                 // Number requirement
                 if (/[0-9]/.test(password)) {
-                    numberReq.innerHTML = '<i class="fas fa-circle-check"></i> One number';
-                    numberReq.style.color = '#16a34a';
+                    numberReq.innerHTML = '<i class="fas fa-circle-check" style="color: #10b981;"></i> One number';
+                    numberReq.style.color = '#10b981';
+                    numberReq.className = 'requirement-item valid';
                 } else {
-                    numberReq.innerHTML = '<i class="fas fa-circle-xmark"></i> One number';
-                    numberReq.style.color = '#dc2626';
+                    numberReq.innerHTML = '<i class="fas fa-circle-xmark" style="color: #ef4444;"></i> One number';
+                    numberReq.style.color = '#ef4444';
+                    numberReq.className = 'requirement-item invalid';
                     isValid = false;
                 }
 
                 // Special character requirement
-                if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-                    specialReq.innerHTML = '<i class="fas fa-circle-check"></i> Special char';
-                    specialReq.style.color = '#16a34a';
+                if (/[!@#$%^&*(),.?":{}|_+\-=\[\]\\\/]/.test(password)) {
+                    specialReq.innerHTML = '<i class="fas fa-circle-check" style="color: #10b981;"></i> Special char';
+                    specialReq.style.color = '#10b981';
+                    specialReq.className = 'requirement-item valid';
                 } else {
-                    specialReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Special char';
-                    specialReq.style.color = '#dc2626';
+                    specialReq.innerHTML = '<i class="fas fa-circle-xmark" style="color: #ef4444;"></i> Special char';
+                    specialReq.style.color = '#ef4444';
+                    specialReq.className = 'requirement-item invalid';
                     isValid = false;
                 }
 
@@ -505,6 +528,12 @@
                 newPasswordInput.addEventListener('input', function () {
                     checkPasswordRequirements(this.value);
                 });
+                newPasswordInput.addEventListener('keyup', function () {
+                    checkPasswordRequirements(this.value);
+                });
+                newPasswordInput.addEventListener('change', function () {
+                    checkPasswordRequirements(this.value);
+                });
             }
 
             // Password Update Form Submission
@@ -513,6 +542,11 @@
                 const currentPassword = document.getElementById('currentPassword').value;
                 const newPassword = document.getElementById('newPassword').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (currentPassword === newPassword) {
+                    showAlert('New password cannot be the same as your current password.', 'warning');
+                    return;
+                }
 
                 if (!checkPasswordRequirements(newPassword)) {
                     showAlert('Password must meet all security requirements (8+ chars, capital letter, number, special char).', 'error');
@@ -544,6 +578,23 @@
                 );
             });
         });
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.className = 'fas fa-eye-slash';
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.className = 'fas fa-eye';
+                }
+            }
+        }
 
         // ── Confirmation Modal Helpers ──
         let pendingConfirmAction = null;

@@ -276,11 +276,15 @@ router.post('/password', authMiddleware, async (req, res) => {
         return res.status(400).json({ success: false, error: 'Current and new passwords are required' });
     }
 
+    if (current_password === new_password) {
+        return res.status(400).json({ success: false, error: 'New password cannot be the same as your current password.' });
+    }
+
     // Password requirement check: at least 8 characters, a capital letter, a number, and a special character
     const isLengthValid = new_password.length >= 8;
     const isCapitalValid = /[A-Z]/.test(new_password);
     const isNumberValid = /[0-9]/.test(new_password);
-    const isSpecialValid = /[!@#$%^&*(),.?":{}|<>]/.test(new_password);
+    const isSpecialValid = /[!@#$%^&*(),.?":{}|_+\-=\[\]\\\/]/.test(new_password);
 
     if (!isLengthValid || !isCapitalValid || !isNumberValid || !isSpecialValid) {
         return res.status(400).json({
@@ -292,10 +296,18 @@ router.post('/password', authMiddleware, async (req, res) => {
     try {
         // Verify current password
         const [users] = await pool.execute('SELECT password FROM users WHERE id = ?', [req.session.user_id]);
+        if (!users || users.length === 0) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
         const isMatch = await bcrypt.compare(current_password, users[0].password);
 
         if (!isMatch) {
             return res.status(401).json({ success: false, error: 'Current password is incorrect' });
+        }
+
+        const isSamePassword = await bcrypt.compare(new_password, users[0].password);
+        if (isSamePassword) {
+            return res.status(400).json({ success: false, error: 'New password cannot be the same as your current password.' });
         }
 
         // Hash and save new password
