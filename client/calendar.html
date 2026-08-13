@@ -551,14 +551,21 @@
         }
 
         function loadAllBookings() {
-            api.getBookings().then(response => {
+            api.getStudioBookings().then(response => {
                 if (response.success) {
-                    allBookings = response.data;
+                    allBookings = response.data || [];
                     organizeBookingsByDate();
                     renderCalendar();
                 }
             }).catch(error => {
-                console.error('Error loading bookings:', error);
+                console.error('Error loading studio bookings:', error);
+                api.getBookings().then(fallback => {
+                    if (fallback.success) {
+                        allBookings = fallback.data || [];
+                        organizeBookingsByDate();
+                        renderCalendar();
+                    }
+                }).catch(fbErr => console.error('Fallback error:', fbErr));
             });
         }
 

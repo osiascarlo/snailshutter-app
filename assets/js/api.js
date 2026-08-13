@@ -148,6 +148,10 @@ class API {
         return this.request('/bookings');
     }
 
+    async getStudioBookings() {
+        return this.request('/bookings/studio-bookings');
+    }
+
     async createBooking(bookingData) {
         const body = bookingData instanceof FormData ? bookingData : JSON.stringify(bookingData);
         return this.request('/bookings', {

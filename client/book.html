@@ -1365,14 +1365,24 @@
 
         async function loadAllBookings() {
             try {
-                const response = await api.getBookings();
+                const response = await api.getStudioBookings();
                 if (response.success) {
                     allBookings = response.data || [];
                     organizeBookingsByDate();
                     renderCalendar();
                 }
             } catch (error) {
-                console.error('Error loading bookings:', error);
+                console.error('Error loading studio bookings:', error);
+                try {
+                    const fallback = await api.getBookings();
+                    if (fallback.success) {
+                        allBookings = fallback.data || [];
+                        organizeBookingsByDate();
+                        renderCalendar();
+                    }
+                } catch (fbErr) {
+                    console.error('Fallback load error:', fbErr);
+                }
             }
         }
 

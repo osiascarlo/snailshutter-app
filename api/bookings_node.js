@@ -76,6 +76,28 @@ const FALLBACK_BOOKINGS = [
 ];
 
 /**
+ * GET /api/bookings/studio-bookings
+ * Returns all non-cancelled studio bookings for calendar indicators across all users
+ */
+router.get('/studio-bookings', authMiddleware, async (req, res) => {
+    try {
+        const query = `
+            SELECT b.id, b.client_id, b.service_id, b.service_ids, b.booking_date, b.start_time, b.end_time, b.status,
+                   s.name as service_name
+            FROM bookings b 
+            LEFT JOIN services s ON b.service_id = s.id
+            WHERE b.status != 'cancelled'
+            ORDER BY b.booking_date ASC, b.start_time ASC
+        `;
+        const [bookings] = await pool.execute(query);
+        res.json({ success: true, data: bookings });
+    } catch (err) {
+        console.error('Fetch studio bookings error:', err);
+        res.status(500).json({ success: false, error: 'Failed to fetch studio bookings' });
+    }
+});
+
+/**
  * GET /api/bookings
  */
 router.get('/', authMiddleware, async (req, res) => {
