@@ -379,7 +379,8 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
         res.json({
             success: true,
             available_slots: adjustedSlots,
-            booked_slots: bookedSlots
+            booked_slots: bookedSlots,
+            existing_bookings: bookings
         });
     } catch (error) {
         console.error('Fetch Time Slots Error:', error);
@@ -436,16 +437,16 @@ router.post('/', authMiddleware, (req, res, next) => {
     }
 
     try {
-        // Conflict Detection
+        // Conflict Detection: check if [startTime, endTime] overlaps with any existing non-cancelled booking
         const [conflicts] = await pool.execute(
             `SELECT id FROM bookings 
              WHERE booking_date = ? AND status != 'cancelled' 
-             AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?) OR (start_time >= ? AND end_time <= ?))`,
-            [bookingDate, endTime, startTime, endTime, startTime, startTime, endTime]
+             AND (start_time < ? AND end_time > ?)`,
+            [bookingDate, endTime, startTime]
         );
 
         if (conflicts.length > 0) {
-            return res.status(409).json({ success: false, error: 'Time slot already booked. Please choose another time.' });
+            return res.status(409).json({ success: false, error: 'The selected time slot/range overlaps with an existing booking. Please choose a different time.' });
         }
 
         let result;

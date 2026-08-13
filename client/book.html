@@ -1312,6 +1312,8 @@
         var selectedServices = [];
         var services = [];
         var timeSlots = [];
+        var currentBookedSlots = [];
+        var fetchedBookings = [];
         var addOnServices = []; // Additional services selected on confirm step
         var currentBookingStep = 1;
         var bookActiveFilter = 'all';
@@ -1719,7 +1721,9 @@
 
                 if (response.success) {
                     timeSlots = response.available_slots || [];
-                    renderTimeSlots(response.booked_slots || []);
+                    currentBookedSlots = response.booked_slots || [];
+                    fetchedBookings = response.existing_bookings || [];
+                    renderTimeSlots(currentBookedSlots);
                 } else {
                     showAlert(response.error || response.message || 'Failed to load time slots', 'error');
                 }
@@ -1839,6 +1843,41 @@
 
             const startTime = startTimeStr + ':00';
             const endTime = endTimeStr + ':00';
+
+            // Check for overlap against existing bookings on this date
+            for (const b of (fetchedBookings || [])) {
+                const bStartStr = String(b.start_time).split('.')[0];
+                const bEndStr = String(b.end_time).split('.')[0];
+                const [bsh, bsm] = bStartStr.split(':');
+                const [beh, bem] = bEndStr.split(':');
+                const bStartMins = parseInt(bsh) * 60 + parseInt(bsm);
+                const bEndMins = parseInt(beh) * 60 + parseInt(bem);
+
+                if (startMinutes < bEndMins && endMinutes > bStartMins) {
+                    const bStartLabel = formatTimeLabel(bStartStr);
+                    const bEndLabel = formatTimeLabel(bEndStr);
+                    showAlert(`The selected custom time (${formatTimeLabel(startTime)} - ${formatTimeLabel(endTime)}) overlaps with an existing booking (${bStartLabel} - ${bEndLabel}). Please select an available time range.`, 'warning');
+                    return;
+                }
+            }
+
+            // Check for overlap against booked time slots
+            for (const slot of (timeSlots || [])) {
+                if ((currentBookedSlots || []).includes(slot.start_time)) {
+                    const sStartStr = String(slot.start_time).split('.')[0];
+                    const sEndStr = String(slot.end_time).split('.')[0];
+                    const [ssh, ssm] = sStartStr.split(':');
+                    const [seh, sem] = sEndStr.split(':');
+                    const sStartMins = parseInt(ssh) * 60 + parseInt(ssm);
+                    const sEndMins = parseInt(seh) * 60 + parseInt(sem);
+
+                    if (startMinutes < sEndMins && endMinutes > sStartMins) {
+                        showAlert(`The selected custom time (${formatTimeLabel(startTime)} - ${formatTimeLabel(endTime)}) overlaps with a booked time slot (${slot.slot_label}). Please select an available time range.`, 'warning');
+                        return;
+                    }
+                }
+            }
+
             const label = formatTimeLabel(startTime) + ' - ' + formatTimeLabel(endTime) + ' (Custom)';
 
             selectedSlot = {
