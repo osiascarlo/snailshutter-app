@@ -51,10 +51,10 @@ router.get('/', requireAdmin, async (req, res) => {
     }
 });
 
-// ── POST /api/gallery/:bookingId — save or update Google Drive Link ────────
-router.post('/:bookingId', requireAdmin, async (req, res) => {
+// ── POST & PUT /api/gallery/:bookingId — save or update Google Drive Link ───
+async function saveDriveLinkHandler(req, res) {
     const { bookingId } = req.params;
-    const { googleDriveLink } = req.body;
+    const googleDriveLink = req.body.googleDriveLink || req.body.google_drive_link || req.body.url || '';
 
     try {
         // 1. Get the current booking details including client info and old link
@@ -135,6 +135,9 @@ router.post('/:bookingId', requireAdmin, async (req, res) => {
         console.error('Save Google Drive Link error:', err);
         res.status(500).json({ success: false, error: 'Failed to save Google Drive link' });
     }
-});
+}
+
+router.post('/:bookingId', requireAdmin, saveDriveLinkHandler);
+router.put('/:bookingId', requireAdmin, saveDriveLinkHandler);
 
 module.exports = router;

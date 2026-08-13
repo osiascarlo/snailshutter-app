@@ -797,12 +797,19 @@
 
         try {
             const res = await fetch(`/api/gallery/${currentBookingId}`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ google_drive_link: url })
+                body: JSON.stringify({ googleDriveLink: url, google_drive_link: url })
             });
-            const data = await res.json();
+            let data;
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await res.json();
+            } else {
+                const text = await res.text();
+                throw new Error(`Server response error (${res.status}): ${res.statusText || 'Non-JSON response'}`);
+            }
             if (res.ok && data.success) {
                 closeDriveModal();
                 if (typeof showAlert === 'function') {
@@ -810,9 +817,10 @@
                 } else {
                     alert('Saved successfully!');
                 }
-                await loadOverview();
+                if (typeof loadOverview === 'function') await loadOverview();
+                if (typeof loadBookings === 'function') await loadBookings();
             } else {
-                alert(data.error || 'Failed to save link.');
+                alert(data.error || data.message || 'Failed to save link.');
             }
         } catch (e) {
             alert('Error saving link: ' + e.message);
