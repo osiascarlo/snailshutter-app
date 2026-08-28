@@ -153,6 +153,11 @@
 
             // Load Data
             try {
+                const statsGrid = document.querySelector('.stats-grid');
+                if (statsGrid) {
+                    statsGrid.innerHTML = getStatCardSkeletonHTML(4);
+                }
+
                 const bookings = await api.getBookings();
                 // Filter bookings assigned to this staff member
                 const staffBookings = bookings.data.filter(b => b.staff_id === user.id || !b.staff_id);

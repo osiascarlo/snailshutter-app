@@ -988,6 +988,9 @@
         async function loadServices() {
             const servicesGrid = document.getElementById('servicesGrid');
             const filtersContainer = document.getElementById('servicesFilters');
+            if (servicesGrid) {
+                servicesGrid.innerHTML = getServiceSkeletonHTML(6);
+            }
             try {
                 const response = await api.getServices();
                 if (response.success && response.data && response.data.length > 0) {

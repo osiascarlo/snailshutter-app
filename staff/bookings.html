@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Bookings | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.5">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.7">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.7">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .booking-actions {
@@ -526,6 +526,12 @@
         }
 
         async function loadBookings(shouldHighlight = true) {
+            if (!window.currentBookings) {
+                const gridPending = document.getElementById('grid-pending');
+                const gridConfirmed = document.getElementById('grid-confirmed');
+                if (gridPending) gridPending.innerHTML = getBookingSkeletonHTML(2);
+                if (gridConfirmed) gridConfirmed.innerHTML = getBookingSkeletonHTML(2);
+            }
             try {
                 const response = await api.getBookings();
                 let bookings = response.data || [];

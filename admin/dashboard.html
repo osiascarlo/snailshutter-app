@@ -176,6 +176,11 @@
 
             // Load Data
             try {
+                const statsGrid = document.querySelector('.stats-grid');
+                if (statsGrid) {
+                    statsGrid.innerHTML = getStatCardSkeletonHTML(4);
+                }
+
                 // Load Bookings for stats
                 const bookings = await api.getBookings();
                 const bookingList = bookings.data || [];

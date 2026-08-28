@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book a Session | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.7">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.7">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.5">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.7">
     <style>
         /* ── Book Service Filter Tabs ── */
         .book-service-filters {
@@ -1113,7 +1113,38 @@
                         <!-- Category Filter Tabs -->
                         <div id="bookServiceFilters" class="book-service-filters" style="display:none;"></div>
                         <div id="servicesContainer" class="services-grid">
-                            <div class="spinner"></div>
+                            <div class="service-card-skeleton">
+                                <div class="skeleton-img-wrap"></div>
+                                <div class="skeleton-body">
+                                    <div class="skeleton skeleton-title" style="width: 70%; height: 1.25rem;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 95%; height: 0.82rem;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 65%; height: 0.82rem;"></div>
+                                </div>
+                            </div>
+                            <div class="service-card-skeleton">
+                                <div class="skeleton-img-wrap"></div>
+                                <div class="skeleton-body">
+                                    <div class="skeleton skeleton-title" style="width: 70%; height: 1.25rem;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 95%; height: 0.82rem;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 65%; height: 0.82rem;"></div>
+                                </div>
+                            </div>
+                            <div class="service-card-skeleton">
+                                <div class="skeleton-img-wrap"></div>
+                                <div class="skeleton-body">
+                                    <div class="skeleton skeleton-title" style="width: 70%; height: 1.25rem;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 95%; height: 0.82rem;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 65%; height: 0.82rem;"></div>
+                                </div>
+                            </div>
+                            <div class="service-card-skeleton">
+                                <div class="skeleton-img-wrap"></div>
+                                <div class="skeleton-body">
+                                    <div class="skeleton skeleton-title" style="width: 70%; height: 1.25rem;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 95%; height: 0.82rem;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 65%; height: 0.82rem;"></div>
+                                </div>
+                            </div>
                         </div>
                         
                     </div>
@@ -1729,6 +1760,10 @@
 
         async function loadAvailableSlots() {
             if (!selectedDate) return;
+            const container = document.getElementById('timeSlotsContainer');
+            if (container) {
+                container.innerHTML = getTimeSlotSkeletonHTML(8);
+            }
             try {
                 const sId = selectedService ? selectedService.id : (selectedServices && selectedServices.length > 0 ? selectedServices[0].id : null);
                 const serviceIdsStr = selectedServices && selectedServices.length > 0 ? selectedServices.map(s => s.id).join(',') : (sId ? String(sId) : '');

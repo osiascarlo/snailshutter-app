@@ -155,6 +155,63 @@ function hideLoading(element, originalText) {
     }
 }
 
+/**
+ * Universal Skeleton Loader HTML Generators
+ */
+function getServiceSkeletonHTML(count = 6) {
+    return Array.from({ length: count }).map(() => `
+        <div class="service-card-skeleton">
+            <div class="skeleton-img-wrap"></div>
+            <div class="skeleton-body">
+                <div class="skeleton skeleton-title" style="width: 70%; height: 1.25rem;"></div>
+                <div class="skeleton skeleton-text" style="width: 95%; height: 0.82rem;"></div>
+                <div class="skeleton skeleton-text" style="width: 65%; height: 0.82rem;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #e2e8f0;">
+                    <div class="skeleton skeleton-badge" style="width: 70px; height: 18px;"></div>
+                    <div class="skeleton skeleton-badge" style="width: 50px; height: 18px;"></div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getBookingSkeletonHTML(count = 3) {
+    return Array.from({ length: count }).map(() => `
+        <div class="booking-card-skeleton">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="skeleton skeleton-title" style="width: 55%; height: 1.15rem; margin-bottom: 0;"></div>
+                <div class="skeleton skeleton-badge" style="width: 55px; height: 18px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.4rem;">
+                <div class="skeleton skeleton-text" style="width: 80%; height: 0.82rem; margin-bottom: 0;"></div>
+                <div class="skeleton skeleton-text" style="width: 55%; height: 0.82rem; margin-bottom: 0;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; padding-top: 0.5rem; border-top: 1px dashed #f1f5f9;">
+                <div class="skeleton skeleton-badge" style="width: 75px; height: 20px;"></div>
+                <div class="skeleton skeleton-text" style="width: 45px; height: 14px; margin-bottom: 0;"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getTimeSlotSkeletonHTML(count = 8) {
+    return Array.from({ length: count }).map(() => `
+        <div class="time-slot-skeleton"></div>
+    `).join('');
+}
+
+function getStatCardSkeletonHTML(count = 4) {
+    return Array.from({ length: count }).map(() => `
+        <div class="stat-card-skeleton">
+            <div class="skeleton" style="width: 48px; height: 48px; border-radius: 12px;"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.4rem;">
+                <div class="skeleton skeleton-title" style="width: 40%; height: 1.5rem; margin-bottom: 0;"></div>
+                <div class="skeleton skeleton-text" style="width: 60%; height: 0.8rem; margin-bottom: 0;"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
 // Navigation and UI helpers
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');

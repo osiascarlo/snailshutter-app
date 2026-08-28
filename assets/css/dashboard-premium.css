@@ -1650,3 +1650,106 @@ body.maintenance-active .calendar-widget .calendar-day {
     pointer-events: none !important;
     opacity: 0.5 !important;
 }
+
+/* ============================================================
+   UNIVERSAL SKELETON LOADER & SHIMMER SYSTEM
+   ============================================================ */
+@keyframes skeletonShimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%) !important;
+    background-size: 200% 100% !important;
+    animation: skeletonShimmer 1.5s ease-in-out infinite !important;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.skeleton-text {
+    height: 0.9rem;
+    margin-bottom: 0.4rem;
+    border-radius: 4px;
+}
+
+.skeleton-title {
+    height: 1.25rem;
+    width: 65%;
+    margin-bottom: 0.6rem;
+    border-radius: 6px;
+}
+
+.skeleton-badge {
+    height: 20px;
+    width: 60px;
+    border-radius: 50px;
+}
+
+/* Service Card Skeleton */
+.service-card-skeleton {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+}
+
+.service-card-skeleton .skeleton-img-wrap {
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.5s ease-in-out infinite;
+    position: relative;
+}
+
+.service-card-skeleton .skeleton-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Booking Card Skeleton */
+.booking-card-skeleton {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    pointer-events: none;
+}
+
+/* Time Slot Skeleton */
+.time-slot-skeleton {
+    height: 46px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.5s ease-in-out infinite;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+/* Stat Card Skeleton */
+.stat-card-skeleton {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    pointer-events: none;
+}
