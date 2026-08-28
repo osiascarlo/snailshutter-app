@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.5">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.4">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.7">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.7">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.7">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -21,22 +21,22 @@
 
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <a href="/admin/dashboard.html" class="sidebar-logo">
+                <a href="/index.html" class="sidebar-logo">
                     <img src="/assets/images/logo.png" alt="SnailShutter">
                 </a>
             </div>
 
             <nav class="sidebar-nav">
-                <div class="sidebar-section">
-                    <div class="sidebar-section-title">Main</div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
                     <a href="/admin/dashboard.html" class="sidebar-link active">
                         <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
                     </a>
                     <a href="/admin/bookings.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-calendar"></i></span> All Bookings
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> All Bookings
                     </a>
                     <a href="/admin/calendar.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                        <span class="icon"><i class="fas fa-calendar"></i></span> Calendar
                     </a>
                     <a href="/admin/gallery.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
@@ -145,10 +145,10 @@
         </main>
     </div>
 
-    <script src="/assets/js/api.js"></script>
-    <script src="/assets/js/auth.js"></script>
-    <script src="/assets/js/main.js"></script>
-    <script src="/assets/js/dashboard-premium.js"></script>
+    <script src="/assets/js/api.js?v=1.0.7"></script>
+    <script src="/assets/js/auth.js?v=1.0.7"></script>
+    <script src="/assets/js/main.js?v=1.0.7"></script>
+    <script src="/assets/js/dashboard-premium.js?v=1.0.7"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
             // Check auth
@@ -174,35 +174,43 @@
                 });
             }
 
-            // Load Data
-            try {
-                const statsGrid = document.querySelector('.stats-grid');
-                if (statsGrid) {
-                    statsGrid.innerHTML = getStatCardSkeletonHTML(4);
-                }
+            // Set skeleton loaders initially
+            const statsGrid = document.querySelector('.stats-grid');
+            if (statsGrid && typeof getStatCardSkeletonHTML === 'function') {
+                statsGrid.innerHTML = getStatCardSkeletonHTML(4);
+            }
+            const activityContainer = document.getElementById('recentActivity');
+            if (activityContainer && typeof getBookingSkeletonHTML === 'function') {
+                activityContainer.innerHTML = getBookingSkeletonHTML(3);
+            }
 
-                // Load Bookings for stats
-                const bookings = await api.getBookings();
-                const bookingList = bookings.data || [];
+            // Load Data resiliently in parallel
+            try {
+                const [bookingsRes, usersRes, servicesRes] = await Promise.allSettled([
+                    api.getBookings(),
+                    api.getUsers(),
+                    api.getServices()
+                ]);
+
+                // Bookings
+                const bookingsData = bookingsRes.status === 'fulfilled' && bookingsRes.value ? bookingsRes.value : {};
+                const bookingList = bookingsData.data || bookingsData.bookings || [];
                 const totalBookings = bookingList.length;
                 const pending = bookingList.filter(b => b.status === 'pending').length;
                 const confirmed = bookingList.filter(b => b.status === 'confirmed').length;
                 const completed = bookingList.filter(b => b.status === 'completed').length;
 
-                // Load Users — returns response.users
-                const usersResp = await api.getUsers();
-                const userList = usersResp.users || usersResp.data || [];
+                // Users
+                const usersData = usersRes.status === 'fulfilled' && usersRes.value ? usersRes.value : {};
+                const userList = usersData.users || usersData.data || [];
                 const totalUsers = userList.length;
 
-                // Load Services
-                const services = await api.getServices();
-                const serviceList = services.data || [];
+                // Services
+                const servicesData = servicesRes.status === 'fulfilled' && servicesRes.value ? servicesRes.value : {};
+                const serviceList = servicesData.data || [];
                 const activeServices = serviceList.length;
 
-
-
-                // Update Stats with count-up data attributes
-                const statsGrid = document.querySelector('.stats-grid');
+                // Render Stats
                 if (statsGrid) {
                     statsGrid.innerHTML = `
                         <div class="stat-card stagger-in">
@@ -235,39 +243,56 @@
                         </div>
                     `;
 
-                    // Re-init count-up for dynamically added elements
-                    DashboardPremium.initCountUp();
+                    if (window.DashboardPremium && typeof DashboardPremium.initCountUp === 'function') {
+                        DashboardPremium.initCountUp();
+                    }
                 }
 
-                // Update Recent Activity with premium timeline
-                const activityContainer = document.getElementById('recentActivity');
-                if (activityContainer && bookingList.length > 0) {
-                    activityContainer.innerHTML = bookingList.slice(0, 6).map((b, i) => {
-                        const dotClass = DashboardPremium.getStatusDotClass(b.status);
-                        const relTime = DashboardPremium.relativeTime(b.booking_date);
-                        const fmtDate = DashboardPremium.formatDate(b.booking_date);
-                        return `
-                            <div class="timeline-item stagger-in" style="animation-delay: ${i * 0.08}s;">
-                                <div class="timeline-dot-wrap">
-                                    <div class="timeline-dot ${dotClass}"></div>
-                                    ${i < bookingList.slice(0, 6).length - 1 ? '<div class="timeline-line"></div>' : ''}
+                // Render Recent Activity (sorted by latest activity / creation date)
+                if (activityContainer) {
+                    if (bookingList.length > 0) {
+                        const sortedActivities = [...bookingList].sort((a, b) => {
+                            const dateA = new Date(a.updated_at || a.created_at || a.booking_date).getTime();
+                            const dateB = new Date(b.updated_at || b.created_at || b.booking_date).getTime();
+                            return dateB - dateA;
+                        });
+
+                        activityContainer.innerHTML = sortedActivities.slice(0, 6).map((b, i) => {
+                            const dotClass = window.DashboardPremium ? DashboardPremium.getStatusDotClass(b.status) : 'booking';
+                            const relTime = window.DashboardPremium ? DashboardPremium.relativeTime(b.updated_at || b.created_at || b.booking_date) : '';
+                            const fmtDate = window.DashboardPremium ? DashboardPremium.formatDate(b.booking_date) : (b.booking_date || '');
+                            const priceFormatted = b.total_price ? `₱${parseFloat(b.total_price).toLocaleString()}` : '';
+
+                            return `
+                                <div class="timeline-item stagger-in" style="animation-delay: ${i * 0.06}s; cursor: pointer;" onclick="window.location.href='/admin/bookings.html'">
+                                    <div class="timeline-dot-wrap">
+                                        <div class="timeline-dot ${dotClass}"></div>
+                                        ${i < Math.min(sortedActivities.length, 6) - 1 ? '<div class="timeline-line"></div>' : ''}
+                                    </div>
+                                    <div class="timeline-content" style="flex: 1;">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                                            <strong>${b.client_name || 'Client'}</strong>
+                                            <span class="status-badge status-${b.status}" style="font-size: 0.72rem; padding: 0.2rem 0.6rem; text-transform: capitalize;">${b.status}</span>
+                                        </div>
+                                        <p style="margin: 0.25rem 0 0; color: var(--color-text-muted, #64748b); font-size: 0.85rem;">
+                                            Booked <strong>${b.service_name || 'Photography Session'}</strong> ${fmtDate ? `for <strong>${fmtDate}</strong>` : ''} ${priceFormatted ? `(${priceFormatted})` : ''}
+                                        </p>
+                                    </div>
+                                    <div class="timeline-time" style="font-size: 0.8rem; color: var(--color-text-muted, #94a3b8); margin-left: 0.75rem; white-space: nowrap;">
+                                        ${relTime}
+                                    </div>
                                 </div>
-                                <div class="timeline-content">
-                                    <strong>${b.client_name || 'Client'}</strong>
-                                    <p>Booked <strong>${b.service_name}</strong> — ${fmtDate}</p>
-                                </div>
-                                <div class="timeline-time">${relTime}</div>
+                            `;
+                        }).join('');
+                    } else {
+                        activityContainer.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">📸</div>
+                                <h3>No recent activity</h3>
+                                <p>Booking activities and system events will appear here.</p>
                             </div>
                         `;
-                    }).join('');
-                } else if (activityContainer) {
-                    activityContainer.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-icon">📸</div>
-                            <h3>No recent activity</h3>
-                            <p>Booking activities and system events will appear here.</p>
-                        </div>
-                    `;
+                    }
                 }
             } catch (error) {
                 console.error('Error loading admin dashboard:', error);
