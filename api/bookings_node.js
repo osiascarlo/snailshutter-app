@@ -115,7 +115,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
                 WHERE b.client_id = ? 
-                ORDER BY b.created_at DESC, b.id DESC
+                ORDER BY b.booking_date DESC, b.start_time DESC, b.created_at DESC, b.id DESC
             `;
             params = [userId];
         } else if (userRole === 'staff') {
@@ -125,7 +125,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 JOIN users c ON b.client_id = c.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
-                ORDER BY b.created_at DESC, b.id DESC
+                ORDER BY b.booking_date DESC, b.start_time DESC, b.created_at DESC, b.id DESC
             `;
             params = [];
         } else { // admin
@@ -135,7 +135,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 JOIN users c ON b.client_id = c.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
-                ORDER BY b.created_at DESC, b.id DESC
+                ORDER BY b.booking_date DESC, b.start_time DESC, b.created_at DESC, b.id DESC
             `;
         }
 
@@ -172,6 +172,13 @@ router.get('/', authMiddleware, async (req, res) => {
         if (userRole === 'client') {
             list = list.filter(b => b.client_id === userId);
         }
+
+        list.sort((a, b) => {
+            const dateA = new Date(`${a.booking_date}T${a.start_time || '00:00:00'}`).getTime();
+            const dateB = new Date(`${b.booking_date}T${b.start_time || '00:00:00'}`).getTime();
+            if (dateB !== dateA) return dateB - dateA;
+            return (b.id || 0) - (a.id || 0);
+        });
 
         // Map booking service names for fallback bookings
         list.forEach(b => {

@@ -527,7 +527,18 @@
         async function loadBookings(shouldHighlight = true) {
             try {
                 const response = await api.getBookings();
-                const bookings = response.data || [];
+                let bookings = response.data || [];
+
+                // Sort bookings descending by booking date, start time, and ID
+                bookings.sort((a, b) => {
+                    const strA = typeof a.booking_date === 'string' ? a.booking_date.split('T')[0] : new Date(a.booking_date).toISOString().split('T')[0];
+                    const strB = typeof b.booking_date === 'string' ? b.booking_date.split('T')[0] : new Date(b.booking_date).toISOString().split('T')[0];
+                    const timeA = new Date(`${strA}T${a.start_time || '00:00:00'}`).getTime();
+                    const timeB = new Date(`${strB}T${b.start_time || '00:00:00'}`).getTime();
+                    if (timeB !== timeA) return timeB - timeA;
+                    return (b.id || 0) - (a.id || 0);
+                });
+
                 window.currentBookings = bookings;
                 const emptyState = document.getElementById('emptyState');
 
