@@ -682,6 +682,10 @@
         }
 
         function bookTimeSlot(slot) {
+            if (document.body.classList.contains('maintenance-active')) {
+                showAlert('Online booking is currently paused for studio maintenance. Please check back later!', 'warning');
+                return;
+            }
             if (!selectedDate) {
                 showAlert('Please select a date first', 'warning');
                 return;

@@ -637,23 +637,25 @@ body.modal-open .dashboard-layout {
     transform: translateY(-1px);
 }
 
-.btn-primary-gradient {
+.btn-primary-gradient,
+.btn-success-gradient {
     flex: 1;
     padding: 0.75rem 1.25rem;
     border-radius: 12px;
     font-weight: 600;
     font-size: 0.925rem;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
     color: #ffffff;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
     transition: all 0.2s ease;
 }
 
-.btn-primary-gradient:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+.btn-primary-gradient:hover,
+.btn-success-gradient:hover {
+    background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
     transform: translateY(-1px);
 }
 

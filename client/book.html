@@ -1567,6 +1567,14 @@
         }
 
         function proceedToDate() {
+            if (document.body.classList.contains('maintenance-active')) {
+                if (typeof showAlert === 'function') {
+                    showAlert('Online booking is currently paused for studio maintenance. Please check back later!', 'warning');
+                } else {
+                    alert('Online booking is currently paused for studio maintenance. Please check back later!');
+                }
+                return;
+            }
             if (selectedServices.length === 0) {
                 showAlert('Please select at least one service', 'warning');
                 return;
@@ -2003,6 +2011,15 @@
         }
 
         async function submitBooking() {
+            if (document.body.classList.contains('maintenance-active')) {
+                if (typeof showAlert === 'function') {
+                    showAlert('Online booking is currently paused for studio maintenance. Please check back later!', 'warning');
+                } else {
+                    alert('Online booking is currently paused for studio maintenance. Please check back later!');
+                }
+                return;
+            }
+
             console.log('Submitting booking...');
             console.log('Selected services:', selectedServices);
             console.log('Selected date:', selectedDate);

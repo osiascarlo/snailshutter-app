@@ -236,22 +236,28 @@ document.addEventListener('DOMContentLoaded', function() {
 async function checkGlobalMaintenanceMode() {
     if (typeof api === 'undefined' || !api.getPublicSettings) return;
 
+    // Do NOT disable form submission or login on authentication pages
+    const isAuthPage = window.location.pathname.includes('/auth/') || 
+                       window.location.pathname.includes('login') || 
+                       window.location.pathname.includes('register') ||
+                       window.location.pathname.includes('forgot-password') ||
+                       window.location.pathname.includes('reset-password');
+
     try {
         const res = await api.getPublicSettings();
         if (res && res.success && res.settings && res.settings.maintenanceMode === 'maintenance') {
             document.body.classList.add('maintenance-active');
 
-            if (document.getElementById('maintenanceAlertBanner')) return;
+            if (!document.getElementById('maintenanceAlertBanner')) {
+                const banner = document.createElement('div');
+                banner.id = 'maintenanceAlertBanner';
+                banner.innerHTML = '<i class="fas fa-tools" style="flex-shrink: 0; color: #dc2626; font-size: 1.1rem;"></i> <span><strong>Studio Maintenance Mode Active:</strong> Online booking is currently paused for studio maintenance. Please check back later!</span>';
+                document.body.appendChild(banner);
 
-            const banner = document.createElement('div');
-            banner.id = 'maintenanceAlertBanner';
-            banner.innerHTML = '<i class="fas fa-tools" style="flex-shrink: 0; color: #dc2626; font-size: 1.1rem;"></i> <span><strong>Studio Maintenance Mode Active:</strong> Online booking is currently paused for studio maintenance. Please check back later!</span>';
-
-            document.body.appendChild(banner);
-
-            const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
-                mainContent.style.paddingTop = '65px';
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.style.paddingTop = '65px';
+                }
             }
 
             const multiBar = document.getElementById('multiSelectBar');
@@ -259,13 +265,18 @@ async function checkGlobalMaintenanceMode() {
                 multiBar.style.display = 'none';
             }
 
-            const submitBtns = document.querySelectorAll('button[type="submit"], #submitBookingBtn, .btn-confirm-booking, #nextToStep2Btn, #multiSelectBtn');
-            submitBtns.forEach(btn => {
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-                btn.style.cursor = 'not-allowed';
-                btn.title = 'Online booking is paused during maintenance mode.';
-            });
+            // Target ONLY booking-specific buttons, never login/auth/profile forms!
+            if (!isAuthPage) {
+                const bookingActionBtns = document.querySelectorAll(
+                    '#submitBookingBtn, #submitBtn, .btn-confirm-booking, #nextToStep2Btn, #multiSelectBtn, #multiSelectBar button, form#bookingForm button[type="submit"]'
+                );
+                bookingActionBtns.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                    btn.title = 'Online booking is paused during maintenance mode.';
+                });
+            }
         }
     } catch (e) {
         console.warn('Maintenance check warning:', e);
