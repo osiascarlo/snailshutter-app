@@ -1521,16 +1521,19 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
 #maintenanceAlertBanner {
     position: fixed !important;
     top: 0 !important;
-    left: 268px !important;
+    left: 0 !important;
     right: 0 !important;
-    z-index: 99999 !important;
+    width: 100% !important;
+    z-index: 100000 !important;
     background: #fef2f2 !important;
     border-bottom: 2px solid #ef4444 !important;
     color: #991b1b !important;
-    padding: 0.85rem 1.5rem !important;
+    padding: 0.55rem 1.25rem !important;
     font-weight: 700 !important;
     text-align: center !important;
-    font-size: 0.92rem !important;
+    font-size: 0.88rem !important;
+    line-height: 1.35 !important;
+    min-height: 42px !important;
     box-shadow: 0 4px 15px rgba(220, 38, 38, 0.18) !important;
     display: flex !important;
     align-items: center !important;
@@ -1540,23 +1543,94 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
     transition: all 0.3s ease !important;
 }
 
+/* On dashboard pages with desktop sidebar, restrict banner to main content area */
+body:has(.sidebar) #maintenanceAlertBanner {
+    left: 268px !important;
+    width: calc(100% - 268px) !important;
+}
+
+/* Offset Landing Navigation so buttons & header are never covered */
+body.maintenance-active .landing-nav,
+body:has(#maintenanceAlertBanner) .landing-nav {
+    top: 42px !important;
+}
+body.maintenance-active .landing-nav.scrolled,
+body:has(#maintenanceAlertBanner) .landing-nav.scrolled {
+    top: 42px !important;
+    margin-top: 0.5rem !important;
+}
+body.maintenance-active .hero-section,
+body:has(#maintenanceAlertBanner) .hero-section {
+    padding-top: calc(100px + 42px) !important;
+}
+
+/* Mobile & Tablet Adjustments (≤992px) */
 @media (max-width: 992px) {
     #maintenanceAlertBanner {
         left: 0 !important;
-        padding-left: 4.25rem !important;
+        width: 100% !important;
+        padding-left: 1rem !important;
         padding-right: 1rem !important;
-        font-size: 0.84rem !important;
-        line-height: 1.35 !important;
-        min-height: 54px !important;
-        text-align: left !important;
+        font-size: 0.82rem !important;
+        min-height: 48px !important;
+    }
+
+    body:has(.sidebar) #maintenanceAlertBanner {
+        left: 0 !important;
+        width: 100% !important;
+        padding-left: 4.25rem !important;
+    }
+
+    body.maintenance-active .landing-nav,
+    body:has(#maintenanceAlertBanner) .landing-nav {
+        top: 48px !important;
+    }
+
+    body.maintenance-active .nav-links,
+    body:has(#maintenanceAlertBanner) .nav-links {
+        top: 48px !important;
+        height: calc(100vh - 48px) !important;
+    }
+
+    body.maintenance-active .hero-section,
+    body:has(#maintenanceAlertBanner) .hero-section {
+        padding-top: calc(72px + 48px) !important;
+    }
+
+    body:has(#maintenanceAlertBanner) .mobile-menu-btn {
+        top: 0.45rem !important;
+        left: 0.75rem !important;
+        z-index: 100005 !important;
     }
 }
 
 @media (max-width: 480px) {
     #maintenanceAlertBanner {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        font-size: 0.76rem !important;
+        min-height: 52px !important;
+    }
+
+    body:has(.sidebar) #maintenanceAlertBanner {
         padding-left: 3.75rem !important;
         padding-right: 0.75rem !important;
-        font-size: 0.78rem !important;
+    }
+
+    body.maintenance-active .landing-nav,
+    body:has(#maintenanceAlertBanner) .landing-nav {
+        top: 52px !important;
+    }
+
+    body.maintenance-active .nav-links,
+    body:has(#maintenanceAlertBanner) .nav-links {
+        top: 52px !important;
+        height: calc(100vh - 52px) !important;
+    }
+
+    body.maintenance-active .hero-section,
+    body:has(#maintenanceAlertBanner) .hero-section {
+        padding-top: calc(60px + 52px) !important;
     }
 }
 
