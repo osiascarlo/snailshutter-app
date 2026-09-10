@@ -721,12 +721,24 @@ router.put('/', authMiddleware, async (req, res) => {
  */
 router.get('/payment-settings', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT setting_value FROM settings WHERE setting_key = ?', ['gcashQr']);
-        const gcashQr = rows[0]?.setting_value || '/assets/images/gcash_qr.png';
-        res.json({ success: true, gcashQr });
+        const [rows] = await pool.query(
+            'SELECT setting_key, setting_value FROM settings WHERE setting_key IN (?, ?, ?)',
+            ['gcashQr', 'gcashNumber', 'gcashName']
+        );
+        const settingsMap = {};
+        rows.forEach(r => settingsMap[r.setting_key] = r.setting_value);
+        const gcashQr = settingsMap['gcashQr'] || '/assets/images/gcash_qr.png';
+        const gcashNumber = settingsMap['gcashNumber'] || '0912 345 6789';
+        const gcashName = settingsMap['gcashName'] || 'SnailShutter Studio';
+        res.json({ success: true, gcashQr, gcashNumber, gcashName });
     } catch (error) {
         console.error('Fetch payment settings error:', error);
-        res.json({ success: false, gcashQr: '/assets/images/gcash_qr.png' });
+        res.json({ 
+            success: false, 
+            gcashQr: '/assets/images/gcash_qr.png', 
+            gcashNumber: '0912 345 6789',
+            gcashName: 'SnailShutter Studio'
+        });
     }
 });
 

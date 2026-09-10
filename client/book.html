@@ -1292,9 +1292,27 @@
                                     <input type="file" id="proofOfPayment" class="form-control" accept="image/*" style="background: white; border-color: #93c5fd;">
                                 </div>
                             </div>
-                            <div style="width: 150px; text-align: center; flex-shrink: 0; margin: 0 auto;">
-                                <img id="confirmGcashQrImg" src="/assets/images/gcash_qr.png" alt="GCash QR" style="width: 100%; border-radius: var(--radius-md); border: 1px solid #bfdbfe; background: white; padding: 4px; box-shadow: var(--shadow-sm);">
-                                <span style="font-size: 0.65rem; color: #1d4ed8; font-weight: 700; display: block; margin-top: 0.35rem; letter-spacing: 0.5px;">GCASH QR CODE</span>
+                            <div style="width: 175px; text-align: center; flex-shrink: 0; margin: 0 auto;">
+                                <div style="background: white; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 0.5rem; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.08);">
+                                    <img id="confirmGcashQrImg" src="/assets/images/gcash_qr.png" alt="GCash QR" style="width: 100%; border-radius: 8px; display: block; margin: 0 auto;">
+                                    <span style="font-size: 0.65rem; color: #1d4ed8; font-weight: 800; display: block; margin-top: 0.35rem; letter-spacing: 0.6px; text-transform: uppercase;">GCASH QR CODE</span>
+                                </div>
+
+                                <!-- GCash Number & Copy Box -->
+                                <div id="gcashNumberContainer" style="margin-top: 0.65rem; padding: 0.6rem; background: #ffffff; border: 1.5px solid #bfdbfe; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                                    <div style="font-size: 0.62rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.2rem;">
+                                        <i class="fas fa-mobile-alt" style="color: #2563eb;"></i> GCash Number
+                                    </div>
+                                    <div id="displayGcashNumber" data-raw-number="09123456789" style="font-family: 'Inter', monospace, sans-serif; font-size: 0.95rem; font-weight: 800; color: #1e40af; letter-spacing: 0.5px; user-select: all;">
+                                        0912 345 6789
+                                    </div>
+                                    <div id="displayGcashName" style="font-size: 0.72rem; color: #475569; font-weight: 600; margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        SnailShutter Studio
+                                    </div>
+                                    <button type="button" id="copyGcashBtn" onclick="copyGcashNumber()" style="margin-top: 0.45rem; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; padding: 0.4rem 0.5rem; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);">
+                                        <i class="far fa-copy"></i> <span>Copy Number</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1963,12 +1981,28 @@
             document.getElementById('confirmTime').textContent = selectedSlot.label;
             refreshConfirmPrice();
 
-            // Dynamically load active GCash QR code from settings
+            // Dynamically load active GCash QR code and number from settings
             fetch('/api/bookings/payment-settings')
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success && data.gcashQr) {
-                        document.getElementById('confirmGcashQrImg').src = data.gcashQr;
+                    if (data.success) {
+                        if (data.gcashQr) {
+                            document.getElementById('confirmGcashQrImg').src = data.gcashQr;
+                        }
+                        const numEl = document.getElementById('displayGcashNumber');
+                        const nameEl = document.getElementById('displayGcashName');
+                        if (numEl && data.gcashNumber) {
+                            numEl.textContent = data.gcashNumber;
+                            numEl.setAttribute('data-raw-number', data.gcashNumber.replace(/\s+/g, ''));
+                        }
+                        if (nameEl) {
+                            if (data.gcashName) {
+                                nameEl.textContent = data.gcashName;
+                                nameEl.style.display = 'block';
+                            } else {
+                                nameEl.style.display = 'none';
+                            }
+                        }
                     }
                 })
                 .catch(err => console.error('Failed to load active GCash QR settings:', err));
@@ -1984,6 +2018,50 @@
             
             const downpayment = total * 0.1;
             document.getElementById('confirmDownpayment').textContent = '₱' + downpayment.toLocaleString();
+        }
+
+        function copyGcashNumber() {
+            const numEl = document.getElementById('displayGcashNumber');
+            if (!numEl) return;
+            const rawNumber = numEl.getAttribute('data-raw-number') || numEl.textContent.trim().replace(/\s+/g, '');
+            const copyBtn = document.getElementById('copyGcashBtn');
+
+            function onSuccess() {
+                if (!copyBtn) return;
+                const origHtml = copyBtn.innerHTML;
+                const origBg = copyBtn.style.background;
+                copyBtn.style.background = '#10b981';
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> <span>Copied!</span>';
+                setTimeout(() => {
+                    copyBtn.style.background = origBg || '#2563eb';
+                    copyBtn.innerHTML = origHtml;
+                }, 2000);
+            }
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(rawNumber).then(onSuccess).catch(() => fallbackCopyGcash(rawNumber, onSuccess));
+            } else {
+                fallbackCopyGcash(rawNumber, onSuccess);
+            }
+        }
+
+        function fallbackCopyGcash(text, cb) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '0';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                if (cb) cb();
+            } catch (e) {
+                console.error('Fallback copy failed', e);
+            }
+            document.body.removeChild(ta);
         }
 
         function toggleAddOns() {

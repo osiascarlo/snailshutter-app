@@ -327,6 +327,22 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="form-group" style="margin-top: 1.25rem;">
+                                <label class="form-label" style="font-weight: 700;">GCash Mobile Number</label>
+                                <input type="text" class="form-control" id="gcashNumber" placeholder="e.g. 0912 345 6789" style="font-family: monospace; font-size: 0.95rem; font-weight: 600;">
+                                <p style="font-size: 0.8rem; color: var(--color-text-soft); margin-top: 0.35rem; margin-bottom: 0;">
+                                    Displayed below the GCash QR code on the client booking checkout page with an instant copy button.
+                                </p>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label class="form-label" style="font-weight: 700;">GCash Account Name (Optional)</label>
+                                <input type="text" class="form-control" id="gcashName" placeholder="e.g. SnailShutter Studio / John C.">
+                                <p style="font-size: 0.8rem; color: var(--color-text-soft); margin-top: 0.35rem; margin-bottom: 0;">
+                                    The registered account name shown to clients for sender verification.
+                                </p>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -386,6 +402,8 @@
             formData.append('maintenanceMode', document.getElementById('maintenanceMode').value);
             
             formData.append('timeZone', document.getElementById('timeZone').value);
+            formData.append('gcashNumber', document.getElementById('gcashNumber').value.trim());
+            formData.append('gcashName', document.getElementById('gcashName').value.trim());
 
             const fileInput = document.getElementById('gcashQrFile');
             if (fileInput && fileInput.files && fileInput.files.length > 0) {
@@ -543,6 +561,8 @@
                     }
                     
                     if (s.gcashQr) document.getElementById('gcashQrPreview').src = s.gcashQr;
+                    if (s.gcashNumber) document.getElementById('gcashNumber').value = s.gcashNumber;
+                    if (s.gcashName) document.getElementById('gcashName').value = s.gcashName;
                 }
             } catch (err) {
                 console.error('Failed to load settings:', err);

@@ -193,6 +193,7 @@ router.get('/settings/public', async (req, res) => {
         const publicKeys = [
             'studioName', 'studioEmail', 'studioPhone', 'studioAddress',
             'studioHours', 'studioMapEmbed', 'studioDirectionsLink', 'gcashQr',
+            'gcashNumber', 'gcashName',
             'maintenanceMode', 'emailNotifications', 'bookingReminders'
         ];
         rows.forEach(r => {
@@ -249,7 +250,8 @@ router.post('/settings', authMiddleware, roleMiddleware(['admin']), (req, res, n
             'studioName', 'studioEmail', 'studioPhone', 'studioAddress', 
             'emailNotifications', 'bookingReminders', 'maintenanceMode', 
             'timeZone',
-            'studioHours', 'studioMapEmbed', 'studioDirectionsLink'
+            'studioHours', 'studioMapEmbed', 'studioDirectionsLink',
+            'gcashNumber', 'gcashName'
         ];
 
         for (const key of keys) {

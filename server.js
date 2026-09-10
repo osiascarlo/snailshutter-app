@@ -139,7 +139,9 @@ async function runDatabaseMigration() {
       ['studioDirectionsLink', 'https://www.google.com/maps/dir/?api=1&destination=Snailshutter+Alaminos+Photography+Studio'],
       ['emailNotifications', 'all'],
       ['bookingReminders', '24'],
-      ['maintenanceMode', 'normal']
+      ['maintenanceMode', 'normal'],
+      ['gcashNumber', '0912 345 6789'],
+      ['gcashName', 'SnailShutter Studio']
     ];
 
     for (const [key, val] of defaultSettings) {
