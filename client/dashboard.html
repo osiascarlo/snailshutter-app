@@ -341,48 +341,59 @@
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
             // Check if user is logged in
-            const currentUser = sessionStorage.getItem('currentUser');
+            let currentUser = sessionStorage.getItem('currentUser');
             if (!currentUser) {
-                window.location.href = '/auth/login.html';
-                return;
+                try {
+                    const sessionRes = await api.getSession();
+                    if (sessionRes && sessionRes.success && sessionRes.data) {
+                        currentUser = JSON.stringify(sessionRes.data);
+                        sessionStorage.setItem('currentUser', currentUser);
+                        if (window.auth) window.auth.currentUser = sessionRes.data;
+                    } else {
+                        window.location.href = '/auth/login.html';
+                        return;
+                    }
+                } catch (e) {
+                    window.location.href = '/auth/login.html';
+                    return;
+                }
             }
 
-            if (!auth.requireAuth('client')) return;
+            if (window.auth && !auth.requireAuth('client')) return;
 
-            // Populate user name
-            const userObj = JSON.parse(currentUser);
+            // Populate user name safely
+            const userObj = JSON.parse(currentUser || '{}');
+            const displayName = userObj.name || userObj.full_name || (userObj.first_name ? `${userObj.first_name} ${userObj.last_name || ''}`.trim() : '') || 'Client';
             const userNameEl = document.getElementById('userNameDisplay');
-            if (userNameEl) userNameEl.textContent = userObj.full_name;
+            if (userNameEl) userNameEl.textContent = displayName;
 
             // Update sidebar user info
-            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = userObj.full_name);
+            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = displayName);
             document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = 'Client');
-            document.querySelectorAll('[data-user-initial]').forEach(el => el.textContent = (userObj.full_name || 'C').charAt(0).toUpperCase());
+            document.querySelectorAll('[data-user-initial]').forEach(el => el.textContent = (displayName || 'C').charAt(0).toUpperCase());
 
             // Handle logout
             const logoutLink = document.querySelector('[data-logout]');
             if (logoutLink) {
                 logoutLink.addEventListener('click', (e) => {
                     e.preventDefault();
-                    auth.logout();
+                    if (window.auth) auth.logout();
                 });
             }
 
-            // Load content
-            try {
-                const statsGrid = document.querySelector('.stats-grid');
-                if (statsGrid) {
-                    statsGrid.innerHTML = getStatCardSkeletonHTML(3);
-                }
+            const statsGrid = document.querySelector('.stats-grid');
+            if (statsGrid && typeof getStatCardSkeletonHTML === 'function') {
+                statsGrid.innerHTML = getStatCardSkeletonHTML(3);
+            }
 
-                // Load stats
+            // Load bookings & stats
+            try {
                 const bookings = await api.getBookings();
-                const bookingData = bookings.data || [];
+                const bookingData = (bookings && bookings.data) || [];
                 const completed = bookingData.filter(b => b.status === 'completed').length;
                 const upcoming = bookingData.filter(b => b.status === 'confirmed' || b.status === 'pending').length;
                 const totalBookings = bookingData.length;
 
-                const statsGrid = document.querySelector('.stats-grid');
                 if (statsGrid) {
                     statsGrid.innerHTML = `
                         <div class="stat-card stagger-in">
@@ -408,7 +419,9 @@
                         </div>
                     `;
 
-                    DashboardPremium.initCountUp();
+                    if (window.DashboardPremium && DashboardPremium.initCountUp) {
+                        DashboardPremium.initCountUp();
+                    }
                 }
 
                 // Session countdown — show next upcoming session
@@ -447,6 +460,8 @@
                         tableBody.innerHTML = bookingData.map((b, i) => {
                             const downpayment = b.downpayment_amount ? '₱' + Number(b.downpayment_amount).toLocaleString() : '—';
                             const payStatus = (b.payment_status || 'unpaid').toLowerCase();
+                            const formattedDate = window.DashboardPremium && DashboardPremium.formatDate ? DashboardPremium.formatDate(b.booking_date) : b.booking_date;
+                            const formattedTime = window.DashboardPremium && DashboardPremium.formatTime ? DashboardPremium.formatTime(b.start_time) : b.start_time;
                             return `
                                 <tr class="stagger-in" style="animation-delay: ${i * 0.06}s;">
                                     <td>
@@ -458,8 +473,8 @@
                                             </a>
                                         ` : ''}
                                     </td>
-                                    <td>${DashboardPremium.formatDate(b.booking_date)}</td>
-                                    <td>${DashboardPremium.formatTime(b.start_time)}</td>
+                                    <td>${formattedDate}</td>
+                                    <td>${formattedTime}</td>
                                     <td style="font-weight:700; color:var(--premium-accent);">${downpayment}</td>
                                     <td><span class="status-badge payment-${payStatus}">${payStatus.charAt(0).toUpperCase() + payStatus.slice(1)}</span></td>
                                     <td><span class="status-badge status-${b.status}">${b.status}</span></td>
@@ -470,18 +485,40 @@
                         tableBody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:2rem;color:var(--premium-text-muted);">No bookings yet. Book your first session!</td></tr>';
                     }
                 }
+            } catch (error) {
+                console.error('Error loading client bookings/stats:', error);
+                const tableBody = document.querySelector('.data-table tbody');
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:2rem;color:var(--premium-text-muted);">Could not load bookings. Please refresh.</td></tr>';
+                }
+            }
+
+            // Load Most Booked Services
+            try {
+                const servicesGrid = document.getElementById('servicesGrid');
+                if (servicesGrid && typeof getServiceSkeletonHTML === 'function') {
+                    servicesGrid.innerHTML = getServiceSkeletonHTML(4);
+                }
 
                 // Initial load for top 4 most booked services
                 const services = await api.getServices({ most_booked: true, limit: 4 });
-                if (services && services.data) {
+                if (services && services.data && services.data.length > 0) {
                     renderMostBookedServices(services.data);
+                } else {
+                    const fallbackServices = await api.getServices();
+                    if (fallbackServices && fallbackServices.data) {
+                        renderMostBookedServices(fallbackServices.data);
+                    }
                 }
 
                 // Connect to real-time stream for live popular service updates
                 initRealtimePopularServices();
-
             } catch (error) {
-                console.error('Error loading dashboard:', error);
+                console.error('Error loading most booked services:', error);
+                const servicesGrid = document.getElementById('servicesGrid');
+                if (servicesGrid) {
+                    servicesGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; color:var(--premium-text-muted);">Unable to load services at this time.</div>';
+                }
             }
         });
 

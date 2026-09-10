@@ -171,8 +171,8 @@
                 const pendingBookings = staffBookings.filter(b => b.status === 'pending').length;
 
                 // Update stats
-                const statsGrid = document.querySelector('.stats-grid');
-                statsGrid.innerHTML = `
+                if (statsGrid) {
+                    statsGrid.innerHTML = `
                     <div class="stat-card stagger-in">
                         <div class="stat-icon primary"><i class="fas fa-camera"></i></div>
                         <div class="stat-card-info">
@@ -200,11 +200,13 @@
                             <div class="stat-value" data-count="${pendingBookings}">0</div>
                             <div class="stat-label">Pending</div>
                         </div>
-                    </div>
                 `;
+                }
 
                 // Re-init count-up
-                DashboardPremium.initCountUp();
+                if (window.DashboardPremium && DashboardPremium.initCountUp) {
+                    DashboardPremium.initCountUp();
+                }
 
                 // Today's Schedule
                 const today = new Date().toDateString();
