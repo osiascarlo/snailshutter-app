@@ -470,7 +470,14 @@ router.post('/', authMiddleware, (req, res, next) => {
         return res.status(400).json({ success: false, error: 'File size exceeds 2MB limit. Please upload an image up to 2MB.' });
     }
 
-    const proofPath = `/assets/uploads/proofs/${req.file.filename}`;
+    // Convert uploaded proof image to Base64 data URL for permanent cloud database persistence (survives Render container restarts/redeploys)
+    let proofPath = `/assets/uploads/proofs/${req.file.filename}`;
+    try {
+        const fileBuffer = fs.readFileSync(req.file.path);
+        proofPath = `data:${req.file.mimetype};base64,${fileBuffer.toString('base64')}`;
+    } catch (b64Err) {
+        console.warn('Could not encode proof to base64, storing relative path fallback:', b64Err);
+    }
     const downpaymentAmount = totalPrice * 0.1;
 
     // Maintenance Mode check
@@ -756,6 +763,45 @@ router.get('/payment-settings', async (req, res) => {
             gcashNumber: '0912 345 6789',
             gcashName: 'SnailShutter Studio'
         });
+    }
+});
+
+/**
+ * GET /api/bookings/:id/receipt
+ * Serve receipt image safely whether stored as a Base64 data URL or relative path
+ */
+router.get('/:id/receipt', authMiddleware, async (req, res) => {
+    const bookingId = parseInt(req.params.id);
+    if (!bookingId) return res.status(400).send('Invalid booking ID');
+
+    try {
+        const [rows] = await pool.execute('SELECT proof_of_payment FROM bookings WHERE id = ?', [bookingId]);
+        if (!rows || rows.length === 0 || !rows[0].proof_of_payment) {
+            return res.status(404).send('Receipt not found');
+        }
+
+        const proof = rows[0].proof_of_payment;
+        if (proof.startsWith('data:image/')) {
+            const matches = proof.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+            if (matches && matches.length === 3) {
+                const mimeType = matches[1];
+                const buffer = Buffer.from(matches[2], 'base64');
+                res.setHeader('Content-Type', mimeType);
+                res.setHeader('Content-Length', buffer.length);
+                return res.send(buffer);
+            }
+        }
+
+        // Relative path fallback
+        const filePath = path.join(__dirname, '..', proof.replace(/^\//, ''));
+        if (fs.existsSync(filePath)) {
+            return res.sendFile(filePath);
+        }
+
+        res.status(404).send('Receipt file not found on disk');
+    } catch (err) {
+        console.error('Error fetching receipt:', err);
+        res.status(500).send('Internal Server Error');
     }
 });
 

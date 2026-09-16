@@ -121,6 +121,18 @@ async function runDatabaseMigration() {
       logs.push('Database schema is already up-to-date (first_name and last_name columns exist).');
     }
 
+    // Ensure bookings.proof_of_payment column is LONGTEXT so images can be permanently preserved across cloud redeploys
+    try {
+      const [bCols] = await pool.execute("SHOW COLUMNS FROM bookings LIKE 'proof_of_payment'");
+      if (bCols.length > 0 && !bCols[0].Type.toLowerCase().includes('longtext')) {
+        logs.push('Upgrading bookings.proof_of_payment to LONGTEXT for persistent cloud storage...');
+        await pool.execute('ALTER TABLE bookings MODIFY COLUMN proof_of_payment LONGTEXT NULL');
+        logs.push('Upgraded bookings.proof_of_payment to LONGTEXT successfully.');
+      }
+    } catch (colErr) {
+      logs.push(`Booking proof column check warning: ${colErr.message}`);
+    }
+
     // Ensure settings table exists & sync official SnailShutter details
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS settings (
