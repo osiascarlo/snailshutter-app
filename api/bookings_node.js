@@ -25,13 +25,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 2 * 1024 * 1024 }, // Strictly 2MB limit
     fileFilter: (req, file, cb) => {
         const filetypes = /jpeg|jpg|png|webp|gif/i;
-        const mimetype = filetypes.test(file.mimetype);
+        const mimetype = file.mimetype && file.mimetype.startsWith('image/') && filetypes.test(file.mimetype);
         const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
         if (mimetype && extname) return cb(null, true);
-        cb(new Error('Only images (jpg, png, webp, gif) are allowed for proof of payment'));
+        cb(new Error('Only image files (JPG, PNG, WEBP, GIF) are allowed for proof of payment.'));
     }
 });
 const FALLBACK_BOOKINGS = [
@@ -424,6 +424,9 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, (req, res, next) => {
     upload.single('proof')(req, res, function (err) {
         if (err instanceof multer.MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ success: false, error: 'File size exceeds 2MB limit. Please upload an image up to 2MB.' });
+            }
             return res.status(400).json({ success: false, error: `Upload error: ${err.message}` });
         } else if (err) {
             return res.status(400).json({ success: false, error: err.message });
@@ -451,6 +454,20 @@ router.post('/', authMiddleware, (req, res, next) => {
 
     if (!req.file) {
         return res.status(400).json({ success: false, error: 'Proof of payment is required' });
+    }
+
+    if (!req.file.mimetype || !req.file.mimetype.startsWith('image/')) {
+        if (req.file.path && fs.existsSync(req.file.path)) {
+            try { fs.unlinkSync(req.file.path); } catch (e) {}
+        }
+        return res.status(400).json({ success: false, error: 'Only image files (JPG, PNG, WEBP, GIF) are accepted for proof of payment.' });
+    }
+
+    if (req.file.size > 2 * 1024 * 1024) {
+        if (req.file.path && fs.existsSync(req.file.path)) {
+            try { fs.unlinkSync(req.file.path); } catch (e) {}
+        }
+        return res.status(400).json({ success: false, error: 'File size exceeds 2MB limit. Please upload an image up to 2MB.' });
     }
 
     const proofPath = `/assets/uploads/proofs/${req.file.filename}`;

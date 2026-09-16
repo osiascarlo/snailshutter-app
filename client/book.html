@@ -1289,7 +1289,22 @@
                                 </p>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label style="font-weight: 700; font-size: 0.85rem; color: #1e3a8a;">Upload Receipt / Proof of Payment <span style="color: #dc2626;">*</span></label>
-                                    <input type="file" id="proofOfPayment" class="form-control" accept="image/*" style="background: white; border-color: #93c5fd;">
+                                    <input type="file" id="proofOfPayment" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif,image/jpg" onchange="handleProofFileChange(this)" style="background: white; border-color: #93c5fd;">
+                                    <div style="font-size: 0.75rem; color: #475569; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+                                        <i class="fas fa-info-circle" style="color: #2563eb;"></i> 
+                                        <span>Only image files (JPG, PNG, WEBP, GIF) are accepted. Max size: <strong>2MB</strong>.</span>
+                                    </div>
+                                    <div id="proofValidationFeedback" style="display: none; margin-top: 0.5rem; font-size: 0.8rem; border-radius: 6px; padding: 0.5rem 0.75rem;"></div>
+                                    <div id="proofPreviewCard" style="display: none; margin-top: 0.75rem; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; background: #ffffff; border: 1.5px solid #bfdbfe; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                        <img id="proofPreviewImg" src="" alt="Proof Preview" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; flex-shrink: 0;">
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div id="proofFileName" style="font-size: 0.82rem; font-weight: 700; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+                                            <div id="proofFileSize" style="font-size: 0.75rem; color: #16a34a; font-weight: 600; margin-top: 2px;"></div>
+                                        </div>
+                                        <button type="button" id="removeProofBtn" onclick="clearProofSelection()" style="background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; border-radius: 6px; padding: 0.3rem 0.6rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;" title="Remove uploaded proof">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div style="width: 175px; text-align: center; flex-shrink: 0; margin: 0 auto;">
@@ -2064,6 +2079,92 @@
             document.body.removeChild(ta);
         }
 
+        // Proof of Payment Upload Validation & Preview
+        function handleProofFileChange(input) {
+            const file = input && input.files && input.files[0];
+            const feedbackEl = document.getElementById('proofValidationFeedback');
+            const previewCard = document.getElementById('proofPreviewCard');
+            const previewImg = document.getElementById('proofPreviewImg');
+            const fileNameEl = document.getElementById('proofFileName');
+            const fileSizeEl = document.getElementById('proofFileSize');
+
+            if (!file) {
+                clearProofSelection(false);
+                return;
+            }
+
+            // Allowed extensions and image MIME types
+            const validImageExtensions = /\.(jpe?g|png|webp|gif)$/i;
+            const isImage = (file.type && file.type.startsWith('image/')) || validImageExtensions.test(file.name);
+
+            if (!isImage) {
+                input.value = '';
+                if (previewCard) previewCard.style.display = 'none';
+                if (feedbackEl) {
+                    feedbackEl.style.display = 'block';
+                    feedbackEl.style.background = '#fef2f2';
+                    feedbackEl.style.border = '1px solid #fca5a5';
+                    feedbackEl.style.color = '#b91c1c';
+                    feedbackEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> <strong>Invalid File:</strong> Only image files (JPG, PNG, WEBP, GIF) are accepted.';
+                }
+                showAlert('Only image files (JPG, PNG, WEBP, GIF) are accepted. Non-image files cannot be uploaded.', 'error');
+                return;
+            }
+
+            // Max file size: 2MB (2 * 1024 * 1024 bytes)
+            const MAX_SIZE = 2 * 1024 * 1024;
+            if (file.size > MAX_SIZE) {
+                const currentSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                input.value = '';
+                if (previewCard) previewCard.style.display = 'none';
+                if (feedbackEl) {
+                    feedbackEl.style.display = 'block';
+                    feedbackEl.style.background = '#fef2f2';
+                    feedbackEl.style.border = '1px solid #fca5a5';
+                    feedbackEl.style.color = '#b91c1c';
+                    feedbackEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> <strong>File Too Large:</strong> The selected image is ${currentSizeMB} MB. Maximum allowed size is 2MB.`;
+                }
+                showAlert(`Image file exceeds the 2MB limit (${currentSizeMB} MB). Please upload an image up to 2MB.`, 'error');
+                return;
+            }
+
+            // Valid image file within 2MB limit
+            if (feedbackEl) {
+                feedbackEl.style.display = 'none';
+            }
+
+            const formattedSize = file.size < 1024 * 1024
+                ? (file.size / 1024).toFixed(1) + ' KB'
+                : (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+            if (fileNameEl) fileNameEl.textContent = file.name;
+            if (fileSizeEl) fileSizeEl.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a;"></i> ${formattedSize} &bull; Ready to upload`;
+
+            if (previewImg) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    if (previewCard) previewCard.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            } else if (previewCard) {
+                previewCard.style.display = 'flex';
+            }
+        }
+
+        function clearProofSelection(showFeedback = false) {
+            const input = document.getElementById('proofOfPayment');
+            if (input) input.value = '';
+            const previewCard = document.getElementById('proofPreviewCard');
+            if (previewCard) previewCard.style.display = 'none';
+            const previewImg = document.getElementById('proofPreviewImg');
+            if (previewImg) previewImg.src = '';
+            const feedbackEl = document.getElementById('proofValidationFeedback');
+            if (feedbackEl && !showFeedback) {
+                feedbackEl.style.display = 'none';
+            }
+        }
+
         function toggleAddOns() {
             const panel = document.getElementById('addOnPanel');
             const chevron = document.getElementById('addOnChevron');
@@ -2145,6 +2246,27 @@
             const fileInput = document.getElementById('proofOfPayment');
             if (!fileInput.files || fileInput.files.length === 0) {
                 showAlert('Please upload your proof of payment first.', 'warning');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Booking';
+                return;
+            }
+
+            const proofFile = fileInput.files[0];
+            const validImageExtensions = /\.(jpe?g|png|webp|gif)$/i;
+            const isImage = (proofFile.type && proofFile.type.startsWith('image/')) || validImageExtensions.test(proofFile.name);
+            if (!isImage) {
+                showAlert('Only image files (JPG, PNG, WEBP, GIF) are accepted for proof of payment.', 'error');
+                clearProofSelection(true);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Booking';
+                return;
+            }
+
+            const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+            if (proofFile.size > MAX_SIZE) {
+                const currentSizeMB = (proofFile.size / (1024 * 1024)).toFixed(2);
+                showAlert(`Selected image exceeds the 2MB size limit (${currentSizeMB} MB). Please upload an image up to 2MB.`, 'error');
+                clearProofSelection(true);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Booking';
                 return;

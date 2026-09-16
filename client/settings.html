@@ -408,6 +408,22 @@
                 const file = e.target.files[0];
                 if (!file) return;
 
+                const validImageExtensions = /\.(jpe?g|png|webp)$/i;
+                const isImage = (file.type && file.type.startsWith('image/')) || validImageExtensions.test(file.name);
+                if (!isImage) {
+                    showAlert('Only image files (JPG, PNG, WEBP) are accepted for avatar.', 'error');
+                    avatarInput.value = '';
+                    return;
+                }
+
+                const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+                if (file.size > MAX_SIZE) {
+                    const currentSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    showAlert(`Avatar image exceeds the 2MB size limit (${currentSizeMB} MB). Please upload an image up to 2MB.`, 'error');
+                    avatarInput.value = '';
+                    return;
+                }
+
                 const formData = new FormData();
                 formData.append('avatar', file);
 
