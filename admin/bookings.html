@@ -120,16 +120,124 @@
             text-align: center;
         }
 
-        .filter-container {
+        .filter-container,
+        .search-filter-card {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 1rem;
             margin-bottom: 2rem;
             background: white;
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--color-border-soft);
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-md, 12px);
+            box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
+            border: 1px solid var(--color-border-soft, #e2e8f0);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .search-filter-card:focus-within {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.08);
+        }
+
+        .booking-search-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .booking-search-wrap {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .booking-search-wrap .search-icon {
+            position: absolute;
+            left: 1.1rem;
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .booking-search-wrap:focus-within .search-icon {
+            color: var(--color-primary, #1b5e20);
+        }
+
+        .booking-search-input {
+            width: 100%;
+            height: 46px;
+            padding: 0.6rem 2.75rem 0.6rem 2.85rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: #1e293b;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .booking-search-input::placeholder {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .booking-search-input:focus {
+            background: #ffffff;
+            border-color: var(--color-primary, #1b5e20);
+            box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.12);
+        }
+
+        .clear-search-btn {
+            position: absolute;
+            right: 0.75rem;
+            background: #e2e8f0;
+            border: none;
+            color: #64748b;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .clear-search-btn:hover {
+            background: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .search-result-stats {
+            white-space: nowrap;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #475569;
+            background: #f1f5f9;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .filter-divider {
+            height: 1px;
+            background: var(--color-border-soft, #f1f5f9);
+            width: 100%;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .filter-label {
@@ -322,17 +430,33 @@
 
         /* ── Mobile Responsive ── */
         @media (max-width: 768px) {
-            .filter-container {
+            .filter-container,
+            .search-filter-card {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            .booking-search-row {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 0.75rem;
-                padding: 0.875rem 1rem;
+                gap: 0.5rem;
+            }
+            .booking-search-input {
+                font-size: 0.9rem;
+                height: 42px;
+                padding-left: 2.6rem;
+            }
+            .filter-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
             }
             .filter-pills {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 flex-wrap: nowrap;
                 scrollbar-width: none;
+                width: 100%;
+                padding-bottom: 2px;
                 gap: 0.375rem;
             }
             .filter-pills::-webkit-scrollbar { display: none; }
@@ -447,25 +571,50 @@
             </div>
 
             <div class="content-body">
-                <!-- Filter Controls -->
-                <div class="filter-container" style="display: none;">
-                    <span class="filter-label"><i class="fas fa-filter"></i> Filter Status:</span>
-                    <div class="filter-pills">
-                        <button class="filter-tab filter-pill filter-all active" data-filter="all">
-                            All <span class="filter-count" id="countAll">0</span>
-                        </button>
-                        <button class="filter-tab filter-pill filter-pending" data-filter="pending">
-                            Pending <span class="filter-count" id="countPending">0</span>
-                        </button>
-                        <button class="filter-tab filter-pill filter-confirmed" data-filter="confirmed">
-                            Confirmed <span class="filter-count" id="countConfirmed">0</span>
-                        </button>
-                        <button class="filter-tab filter-pill filter-completed" data-filter="completed">
-                            Completed <span class="filter-count" id="countCompleted">0</span>
-                        </button>
-                        <button class="filter-tab filter-pill filter-cancelled" data-filter="cancelled">
-                            Cancelled <span class="filter-count" id="countCancelled">0</span>
-                        </button>
+                <!-- Filter & Search Controls -->
+                <div class="filter-container search-filter-card" id="searchFilterCard" style="display: none;">
+                    <div class="booking-search-row">
+                        <div class="booking-search-wrap">
+                            <i class="fas fa-search search-icon"></i>
+                            <input 
+                                type="text" 
+                                id="bookingSearchInput" 
+                                class="booking-search-input" 
+                                placeholder="Search by client name, booking ID (e.g. #31), package, notes, date..." 
+                                autocomplete="off"
+                                spellcheck="false"
+                            >
+                            <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Clear search" style="display:none;" onclick="clearBookingSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="search-result-stats" id="searchResultStats" style="display:none;">
+                            <i class="fas fa-info-circle" style="color:var(--color-primary, #1b5e20);"></i>
+                            <span id="searchResultCount">0 found</span>
+                        </div>
+                    </div>
+
+                    <div class="filter-divider"></div>
+
+                    <div class="filter-row">
+                        <span class="filter-label"><i class="fas fa-filter"></i> Filter Status:</span>
+                        <div class="filter-pills">
+                            <button class="filter-tab filter-pill filter-all active" data-filter="all">
+                                All <span class="filter-count" id="countAll">0</span>
+                            </button>
+                            <button class="filter-tab filter-pill filter-pending" data-filter="pending">
+                                Pending <span class="filter-count" id="countPending">0</span>
+                            </button>
+                            <button class="filter-tab filter-pill filter-confirmed" data-filter="confirmed">
+                                Confirmed <span class="filter-count" id="countConfirmed">0</span>
+                            </button>
+                            <button class="filter-tab filter-pill filter-completed" data-filter="completed">
+                                Completed <span class="filter-count" id="countCompleted">0</span>
+                            </button>
+                            <button class="filter-tab filter-pill filter-cancelled" data-filter="cancelled">
+                                Cancelled <span class="filter-count" id="countCancelled">0</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -488,6 +637,18 @@
                 <div class="booking-section" id="section-cancelled">
                     <h2 class="section-title status-cancelled"><i class="fas fa-times-circle"></i> Cancelled Bookings <span class="count">0</span></h2>
                     <div class="bookings-grid" id="grid-cancelled"></div>
+                </div>
+
+                <!-- Search Empty State -->
+                <div id="emptySearchState" class="empty-state" style="display:none; text-align:center; padding:3rem 1.5rem; background:white; border-radius:14px; border:1px dashed var(--color-border-soft, #cbd5e1); margin-top:1rem; box-shadow:var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.05));">
+                    <div style="width:56px; height:56px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; color:#64748b; font-size:1.4rem;">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 style="font-size:1.15rem; font-weight:700; color:#1e293b; margin-bottom:0.35rem;">No bookings found matching <span id="emptySearchTerm" style="color:var(--color-primary, #1b5e20);"></span></h3>
+                    <p style="color:#64748b; font-size:0.9rem; max-width:420px; margin:0 auto 1.25rem;">Check for typos or try searching with a client name, booking ID (e.g. #31), package name, or date.</p>
+                    <button type="button" class="btn btn-sm" onclick="clearBookingSearch()" style="background:var(--color-primary, #1b5e20); color:white; border:none; border-radius:8px; padding:0.5rem 1.25rem; cursor:pointer; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem;">
+                        <i class="fas fa-times"></i> Clear Search
+                    </button>
                 </div>
 
                 <!-- Empty State -->
@@ -524,6 +685,186 @@
             }
         };
 
+        function clearBookingSearch() {
+            const searchInput = document.getElementById('bookingSearchInput');
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+            }
+            applyFiltersAndSearch(false);
+        }
+
+        function renderGrid(gridId, sectionId, list, query = '') {
+            const grid = document.getElementById(gridId);
+            const section = document.getElementById(sectionId);
+            if (!grid || !section) return;
+            
+            // Update count in section title
+            section.querySelector('.count').textContent = list.length;
+
+            if (list.length === 0) {
+                grid.innerHTML = `<div class="empty-section-message">${query ? 'No matching bookings in this category' : 'No bookings in this category'}</div>`;
+            } else {
+                grid.innerHTML = list.map(booking => `
+                    <div class="booking-card" id="booking-${booking.id}" onclick="openBookingDetailsModal(${booking.id})">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+                            <div style="font-weight:700; color:var(--color-primary); font-size:1.05rem; line-height:1.2; word-break:break-word;">
+                                #${booking.id} - ${booking.service_name}
+                            </div>
+                            <span class="status-badge payment-${(booking.payment_status || 'unpaid').toLowerCase()}" style="font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:20px; font-weight:bold; white-space:nowrap; display:inline-block;">
+                                ${(booking.payment_status || 'unpaid').toUpperCase()}
+                            </span>
+                        </div>
+                        
+                        <div style="font-size:0.9rem; color:var(--color-text-soft); display:flex; flex-direction:column; gap:0.3rem; margin-top:0.4rem;">
+                            <div><i class="fas fa-calendar-alt"></i> ${new Date(booking.booking_date).toLocaleDateString()} at ${booking.start_time}</div>
+                            <div><i class="fas fa-user"></i> Client: <strong>${booking.client_name}</strong></div>
+                            ${booking.notes && booking.notes.trim() ? `
+                                <div style="font-size:0.8rem; color:var(--color-text-muted); margin-top:0.15rem; display:flex; align-items:center; gap:0.35rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(booking.notes)}">
+                                    <i class="fas fa-sticky-note" style="color:var(--color-primary); font-size:0.75rem; flex-shrink:0;"></i> 
+                                    <span style="overflow:hidden; text-overflow:ellipsis;">${escapeHtml(booking.notes)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--color-border-soft);">
+                            <span class="booking-status status-${booking.status}" style="margin:0; font-size:0.8rem; padding:0.2rem 0.6rem; border-radius:50px; font-weight:600;">
+                                ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            </span>
+                            <span style="font-size:0.8rem; color:var(--color-primary); font-weight:600; display:flex; align-items:center; gap:0.25rem;">
+                                Details <i class="fas fa-arrow-right" style="font-size:0.75rem; width:auto; color:inherit; margin:0;"></i>
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function applyFiltersAndSearch(shouldHighlight = false) {
+            const bookings = window.currentBookings || [];
+            const searchInput = document.getElementById('bookingSearchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const statsEl = document.getElementById('searchResultStats');
+            const statsCountEl = document.getElementById('searchResultCount');
+            const emptyState = document.getElementById('emptyState');
+            const emptySearchState = document.getElementById('emptySearchState');
+            const filterContainer = document.querySelector('.filter-container');
+
+            const rawQuery = searchInput ? searchInput.value.trim() : '';
+            const query = rawQuery.toLowerCase();
+
+            if (clearBtn) {
+                clearBtn.style.display = rawQuery.length > 0 ? 'flex' : 'none';
+            }
+
+            if (!bookings || bookings.length === 0) {
+                document.querySelectorAll('.booking-section').forEach(s => s.style.display = 'none');
+                if (filterContainer) filterContainer.style.display = 'none';
+                if (emptySearchState) emptySearchState.style.display = 'none';
+                if (emptyState) emptyState.style.display = 'block';
+                return;
+            }
+
+            if (filterContainer) filterContainer.style.display = 'flex';
+            if (emptyState) emptyState.style.display = 'none';
+
+            // Filter bookings by query
+            let filtered = bookings;
+            if (query.length > 0) {
+                filtered = bookings.filter(b => {
+                    const idStr = String(b.id || '');
+                    const clientName = (b.client_name || '').toLowerCase();
+                    const serviceName = (b.service_name || '').toLowerCase();
+                    const notes = (b.notes || '').toLowerCase();
+                    const status = (b.status || '').toLowerCase();
+                    const paymentStatus = (b.payment_status || '').toLowerCase();
+                    const staffName = (b.staff_name || '').toLowerCase();
+                    const clientEmail = (b.client_email || '').toLowerCase();
+                    const clientPhone = (b.client_phone || '').toLowerCase();
+                    
+                    let dateStr = '';
+                    if (b.booking_date) {
+                        try {
+                            const d = new Date(b.booking_date);
+                            dateStr = `${d.toLocaleDateString()} ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} ${d.toLocaleDateString('en-US', { month: 'long' })}`.toLowerCase();
+                        } catch (e) {}
+                    }
+
+                    return (
+                        idStr.includes(query) ||
+                        (`#${idStr}`).includes(query) ||
+                        clientName.includes(query) ||
+                        serviceName.includes(query) ||
+                        notes.includes(query) ||
+                        status.includes(query) ||
+                        paymentStatus.includes(query) ||
+                        staffName.includes(query) ||
+                        clientEmail.includes(query) ||
+                        clientPhone.includes(query) ||
+                        dateStr.includes(query)
+                    );
+                });
+            }
+
+            // Update stats badge
+            if (statsEl) {
+                if (query.length > 0) {
+                    statsEl.style.display = 'inline-flex';
+                    if (statsCountEl) statsCountEl.textContent = `${filtered.length} of ${bookings.length} found`;
+                } else {
+                    statsEl.style.display = 'none';
+                }
+            }
+
+            // Group filtered bookings by status
+            const pending = filtered.filter(b => b.status === 'pending');
+            const confirmed = filtered.filter(b => b.status === 'confirmed');
+            const completed = filtered.filter(b => b.status === 'completed');
+            const cancelled = filtered.filter(b => b.status === 'cancelled');
+
+            // Update count badges on filter tabs
+            if (document.getElementById('countAll')) document.getElementById('countAll').textContent = filtered.length;
+            if (document.getElementById('countPending')) document.getElementById('countPending').textContent = pending.length;
+            if (document.getElementById('countConfirmed')) document.getElementById('countConfirmed').textContent = confirmed.length;
+            if (document.getElementById('countCompleted')) document.getElementById('countCompleted').textContent = completed.length;
+            if (document.getElementById('countCancelled')) document.getElementById('countCancelled').textContent = cancelled.length;
+
+            // Render status grids
+            renderGrid('grid-pending', 'section-pending', pending, query);
+            renderGrid('grid-confirmed', 'section-confirmed', confirmed, query);
+            renderGrid('grid-completed', 'section-completed', completed, query);
+            renderGrid('grid-cancelled', 'section-cancelled', cancelled, query);
+
+            // Determine active filter
+            const activeTab = document.querySelector('.filter-tab.active, .filter-pill.active');
+            const filterValue = activeTab ? activeTab.getAttribute('data-filter') : 'all';
+
+            document.querySelectorAll('.booking-section').forEach(section => {
+                const sectionId = section.getAttribute('id');
+                const status = sectionId.replace('section-', '');
+                if (filterValue === 'all' || filterValue === status) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // Show empty search state if query yielded 0 results across all bookings
+            if (emptySearchState) {
+                if (query.length > 0 && filtered.length === 0) {
+                    emptySearchState.style.display = 'block';
+                    const termSpan = document.getElementById('emptySearchTerm');
+                    if (termSpan) termSpan.textContent = `"${rawQuery}"`;
+                } else {
+                    emptySearchState.style.display = 'none';
+                }
+            }
+
+            if (shouldHighlight) {
+                highlightBooking();
+            }
+        }
+
         async function loadBookings(shouldHighlight = true) {
             if (!window.currentBookings) {
                 const gridPending = document.getElementById('grid-pending');
@@ -546,85 +887,7 @@
                 });
 
                 window.currentBookings = bookings;
-                const emptyState = document.getElementById('emptyState');
-
-                const filterContainer = document.querySelector('.filter-container');
-                if (!bookings || bookings.length === 0) {
-                    document.querySelectorAll('.booking-section').forEach(s => s.style.display = 'none');
-                    if (filterContainer) filterContainer.style.display = 'none';
-                    emptyState.style.display = 'block';
-                } else {
-                    if (filterContainer) filterContainer.style.display = 'flex';
-                    emptyState.style.display = 'none';
-
-                    // Group bookings by status
-                    const pending = bookings.filter(b => b.status === 'pending');
-                    const confirmed = bookings.filter(b => b.status === 'confirmed');
-                    const completed = bookings.filter(b => b.status === 'completed');
-                    const cancelled = bookings.filter(b => b.status === 'cancelled');
-
-                    // Update count badges on filter tabs
-                    if (document.getElementById('countAll')) document.getElementById('countAll').textContent = bookings.length;
-                    if (document.getElementById('countPending')) document.getElementById('countPending').textContent = pending.length;
-                    if (document.getElementById('countConfirmed')) document.getElementById('countConfirmed').textContent = confirmed.length;
-                    if (document.getElementById('countCompleted')) document.getElementById('countCompleted').textContent = completed.length;
-                    if (document.getElementById('countCancelled')) document.getElementById('countCancelled').textContent = cancelled.length;
-
-                    // Helper to render grid content
-                    function renderGrid(gridId, sectionId, list) {
-                        const grid = document.getElementById(gridId);
-                        const section = document.getElementById(sectionId);
-                        
-                        // Update count in section title
-                        section.querySelector('.count').textContent = list.length;
-
-                        if (list.length === 0) {
-                            grid.innerHTML = '<div class="empty-section-message">No bookings in this category</div>';
-                        } else {
-                            grid.innerHTML = list.map(booking => `
-                                <div class="booking-card" id="booking-${booking.id}" onclick="openBookingDetailsModal(${booking.id})">
-                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-                                        <div style="font-weight:700; color:var(--color-primary); font-size:1.05rem; line-height:1.2; word-break:break-word;">
-                                            #${booking.id} - ${booking.service_name}
-                                        </div>
-                                        <span class="status-badge payment-${(booking.payment_status || 'unpaid').toLowerCase()}" style="font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:20px; font-weight:bold; white-space:nowrap; display:inline-block;">
-                                            ${(booking.payment_status || 'unpaid').toUpperCase()}
-                                        </span>
-                                    </div>
-                                    
-                                    <div style="font-size:0.9rem; color:var(--color-text-soft); display:flex; flex-direction:column; gap:0.3rem; margin-top:0.4rem;">
-                                        <div><i class="fas fa-calendar-alt"></i> ${new Date(booking.booking_date).toLocaleDateString()} at ${booking.start_time}</div>
-                                        <div><i class="fas fa-user"></i> Client: <strong>${booking.client_name}</strong></div>
-                                        ${booking.notes && booking.notes.trim() ? `
-                                            <div style="font-size:0.8rem; color:var(--color-text-muted); margin-top:0.15rem; display:flex; align-items:center; gap:0.35rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(booking.notes)}">
-                                                <i class="fas fa-sticky-note" style="color:var(--color-primary); font-size:0.75rem; flex-shrink:0;"></i> 
-                                                <span style="overflow:hidden; text-overflow:ellipsis;">${escapeHtml(booking.notes)}</span>
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                    
-                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--color-border-soft);">
-                                        <span class="booking-status status-${booking.status}" style="margin:0; font-size:0.8rem; padding:0.2rem 0.6rem; border-radius:50px; font-weight:600;">
-                                            ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                                        </span>
-                                        <span style="font-size:0.8rem; color:var(--color-primary); font-weight:600; display:flex; align-items:center; gap:0.25rem;">
-                                            Details <i class="fas fa-arrow-right" style="font-size:0.75rem; width:auto; color:inherit; margin:0;"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            `).join('');
-                        }
-                    }
-
-                    renderGrid('grid-pending', 'section-pending', pending);
-                    renderGrid('grid-confirmed', 'section-confirmed', confirmed);
-                    renderGrid('grid-completed', 'section-completed', completed);
-                    renderGrid('grid-cancelled', 'section-cancelled', cancelled);
-
-                    if (shouldHighlight) {
-                        highlightBooking();
-                    }
-                }
+                applyFiltersAndSearch(shouldHighlight);
             } catch (error) {
                 console.error('Error loading bookings:', error);
                 showAlert('Failed to load bookings');
@@ -657,6 +920,19 @@
                 console.log('[Bookings Page] Live booking update received:', e.detail);
                 loadBookings(false); // reload grid from database in real-time
             });
+
+            // Search bar input & clear listeners
+            const searchInput = document.getElementById('bookingSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    applyFiltersAndSearch(false);
+                });
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        clearBookingSearch();
+                    }
+                });
+            }
 
             // Add filter event listeners
             const filterPills = document.querySelectorAll('.filter-tab, .filter-pill');
