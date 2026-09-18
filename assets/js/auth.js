@@ -175,6 +175,16 @@ class Auth {
         return role;
     }
 
+    getFormattedRole() {
+        const role = this.getUserRole();
+        if (!role) return '';
+        const lower = role.toLowerCase();
+        if (lower === 'admin') return 'Administrator';
+        if (lower === 'staff') return 'Staff Member';
+        if (lower === 'client') return 'Client';
+        return role.charAt(0).toUpperCase() + role.slice(1);
+    }
+
     getUserName() {
         return this.currentUser ? this.currentUser.name : null;
     }
@@ -208,7 +218,7 @@ class Auth {
 
             const roleElements = document.querySelectorAll('[data-user-role]');
             roleElements.forEach(el => {
-                el.textContent = this.getUserRole();
+                el.textContent = this.getFormattedRole();
             });
 
             const initialElements = document.querySelectorAll('[data-user-initial]');

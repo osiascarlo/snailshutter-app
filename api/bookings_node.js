@@ -280,12 +280,12 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    if (slotDate <= todayStart) {
+    if (slotDate < todayStart) {
         return res.json({
             success: true,
             available_slots: [],
             booked_slots: [],
-            message: 'Same-day bookings are not allowed'
+            message: 'Past dates cannot be booked'
         });
     }
 
@@ -448,8 +448,8 @@ router.post('/', authMiddleware, (req, res, next) => {
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    if (reqDate <= todayStart) {
-        return res.status(400).json({ success: false, error: 'Same-day bookings are not allowed. Please select a date starting from tomorrow.' });
+    if (reqDate < todayStart) {
+        return res.status(400).json({ success: false, error: 'Past dates cannot be booked. Please select today or a future date.' });
     }
 
     if (!req.file) {

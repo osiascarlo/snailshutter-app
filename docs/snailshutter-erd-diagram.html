@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figure 3.3 Entity Relationship Diagram (ERD) — SnailShutter Capstone Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --border: #e2e8f0;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-links {
+            max-width: 1440px;
+            width: 100%;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            font-size: 0.88rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .header-section {
+            max-width: 1440px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .title-group h1 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .title-group p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.55rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            background: #172554;
+            border-color: #172554;
+        }
+
+        .btn-green {
+            background: #15803d;
+            color: white;
+            border-color: #15803d;
+        }
+
+        .btn-green:hover {
+            background: #166534;
+            border-color: #166534;
+        }
+
+        /* Instructions Banner */
+        .info-banner {
+            max-width: 1440px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .info-banner .icon {
+            font-size: 1.5rem;
+            color: #1e40af;
+            line-height: 1;
+        }
+
+        .info-banner .content {
+            font-size: 0.88rem;
+            color: #1e3a8a;
+            line-height: 1.5;
+        }
+
+        .info-banner ol {
+            margin-top: 0.35rem;
+            margin-left: 1.25rem;
+            color: #1e293b;
+        }
+
+        /* Diagram Canvas Container */
+        .diagram-wrapper {
+            max-width: 1440px;
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem 1.5rem 1.5rem;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        #diagram-svg {
+            max-width: 1380px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Documentation & Specifications Table */
+        .docs-section {
+            max-width: 1440px;
+            width: 100%;
+            margin-top: 2rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.75rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .docs-section h2 {
+            font-size: 1.25rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.8rem 1rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .badge-pk { background: #fef3c7; color: #b45309; font-weight:700; padding:2px 6px; border-radius:4px; font-size:0.75rem; }
+        .badge-fk { background: #dcfce7; color: #15803d; font-weight:700; padding:2px 6px; border-radius:4px; font-size:0.75rem; }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #0f172a;
+            color: white;
+            padding: 0.85rem 1.4rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Links -->
+    <div class="nav-links">
+        <a href="snailshutter-use-case-diagram.html"><i class="fas fa-arrow-left"></i> Figure 3.1: Use Case Diagram</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-context-diagram.html"><i class="fas fa-project-diagram"></i> Figure 3.2: Context Diagram</a>
+        <span style="color:#cbd5e1;">|</span>
+        <span style="color:#64748b; font-weight:600;"><i class="fas fa-database"></i> Figure 3.3: Entity Relationship Diagram (Active)</span>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-1-diagram.html"><i class="fas fa-sitemap"></i> Figure 3.4: DFD Level 1</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-2-diagram.html"><i class="fas fa-diagram-project"></i> Figure 3.5: DFD Level 2</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="appendix-h-wireframes.html"><i class="fas fa-th-large"></i> Appendix H: Wireframes</a>
+    </div>
+
+    <div class="header-section">
+        <div class="title-group">
+            <h1>SnailShutter System — Entity Relationship Diagram (ERD)</h1>
+            <p>Relational Database Schema &amp; Cardinality Mapping (Academic Capstone - Figure 3.3)</p>
+        </div>
+        <div class="actions-group">
+            <a class="btn btn-primary" href="snailshutter-erd-diagram.docx" download>
+                <i class="fas fa-file-word"></i> Download ERD Word (.docx)
+            </a>
+            <a class="btn btn-primary" href="snailshutter-database-schema-table.docx" download style="background:#0f766e; border-color:#0f766e;">
+                <i class="fas fa-table"></i> Download Table 3 (.docx)
+            </a>
+            <button class="btn btn-green" onclick="copySVGForWord()">
+                <i class="fas fa-paste"></i> Copy ERD for Word
+            </button>
+            <a class="btn" href="snailshutter-erd-diagram.svg" download>
+                <i class="fas fa-file-code"></i> Download SVG (White)
+            </a>
+            <a class="btn" href="snailshutter-erd-diagram-transparent.svg" download>
+                <i class="fas fa-layer-group"></i> Download SVG (Transparent)
+            </a>
+            <button class="btn" onclick="exportPNG()">
+                <i class="fas fa-file-image"></i> Download PNG
+            </button>
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print / PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Word Editable Instructions Banner -->
+    <div class="info-banner">
+        <div class="icon"><i class="fas fa-lightbulb"></i></div>
+        <div class="content">
+            <strong>How to make this ERD 100% editable in Microsoft Word:</strong>
+            <ol>
+                <li>Click <strong>Download Word (.docx)</strong> above, or insert <code>snailshutter-erd-diagram.svg</code> directly into your Word document (<strong>Insert &gt; Pictures &gt; This Device...</strong>).</li>
+                <li>Right-click the diagram in Word and select <strong>Convert to Shape</strong> (or click <em>Convert to Shape</em> on the <em>Graphics Format</em> ribbon).</li>
+                <li>Click <strong>Yes</strong> to confirm. Word will instantly turn all database tables, columns, PK/FK indicators, and crow's foot lines into native Word shapes! You can double-click any field name to rename it, add/remove rows, or change colors.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Diagram Canvas Wrapper -->
+    <div class="diagram-wrapper">
+        <div id="svg-container">
+            <!-- Included directly via fetch or rendered -->
+        </div>
+    </div>
+
+    <!-- Capstone Documentation Specifications Table -->
+    <div class="docs-section">
+        <h2><i class="fas fa-database" style="color:#1e3a8a;"></i> Database Entity &amp; Relationship Matrix (Chapter 3 Reference)</h2>
+        <p style="color:var(--text-muted); font-size: 0.9rem;">This table details the relational tables, primary keys, foreign keys, and cardinalities depicted in Figure 3.3.</p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Table Name</th>
+                        <th style="width: 15%;">Primary Key (PK)</th>
+                        <th style="width: 25%;">Foreign Keys (FK) &amp; Target</th>
+                        <th style="width: 15%;">Cardinality</th>
+                        <th style="width: 30%;">Description &amp; Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>users</strong></td>
+                        <td><span class="badge-pk">PK</span> id</td>
+                        <td>None (Unique: email)</td>
+                        <td>1 &rarr; 0..* (bookings: client_id)<br>1 &rarr; 0..* (bookings: staff_id)<br>1 &rarr; 0..* (otp_verifications: email)</td>
+                        <td>Central entity storing all studio members (clients, photographers/staff, and administrators) with RBAC role, hashed passwords, and contact info.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>bookings</strong></td>
+                        <td><span class="badge-pk">PK</span> id</td>
+                        <td>
+                            <span class="badge-fk">FK</span> client_id &rarr; users(id)<br>
+                            <span class="badge-fk">FK</span> staff_id &rarr; users(id)<br>
+                            <span class="badge-fk">FK</span> service_id &rarr; services(id)
+                        </td>
+                        <td>*..1 &rarr; 1 (users)<br>*..1 &rarr; 1 (services)<br>*..1 &rarr; 1 (time_slots)</td>
+                        <td>Transactional booking entity containing appointment dates, time slots, pricing, downpayment verification, status, and photo delivery Google Drive links.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>services</strong></td>
+                        <td><span class="badge-pk">PK</span> id</td>
+                        <td>None</td>
+                        <td>1 &rarr; 0..* (bookings: service_id)</td>
+                        <td>Studio photography service catalog (Portrait, Prenup, Event, ID Photo) with duration, base prices, descriptions, and active flags.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>time_slots</strong></td>
+                        <td><span class="badge-pk">PK</span> id</td>
+                        <td>None</td>
+                        <td>1 &rarr; 0..* (bookings: appointment times)</td>
+                        <td>Fixed hourly studio appointment slots (10:00 AM to 7:00 PM) used to validate studio availability and prevent overlapping bookings.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>otp_verifications</strong></td>
+                        <td><span class="badge-pk">PK</span> id</td>
+                        <td>Identified by email &rarr; users(email)</td>
+                        <td>0..* &rarr; 1 (users)</td>
+                        <td>Security verification table storing time-limited 6-digit OTP codes, attempt counts, and expiration timestamps for email verification and password resets.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>settings</strong></td>
+                        <td><span class="badge-pk">PK</span> setting_key</td>
+                        <td>None</td>
+                        <td>N/A (Key-Value configuration)</td>
+                        <td>Studio configuration key-value storage (operating hours, studio email/phone, address, GCash QR image path, notification preferences).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Academic Manuscript Documentation Table (Matches Physical MySQL Database) -->
+    <div class="docs-section" style="margin-top: 1.5rem; background:#ffffff;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.1rem; font-family:'Times New Roman', Times, serif; font-weight:700; color: #0f172a;">
+                Table 3 represents the Database Schema of the developers' proposed system.
+            </h3>
+            <button class="btn btn-green" onclick="copySchemaTable()" style="font-size:0.8rem; padding:0.4rem 0.8rem;">
+                <i class="fas fa-copy"></i> Copy Table for Microsoft Word
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table id="academic-schema-table" style="font-family:'Times New Roman', Times, serif; font-size: 0.95rem; border: 1px solid #000000; width:100%;">
+                <thead>
+                    <tr style="background:#ffffff; border-bottom: 1.5px solid #000000;">
+                        <th style="width: 25%; text-align:center; font-weight:700; color:#000000; border: 1px solid #000000; padding: 0.6rem 0.8rem;">Table Name</th>
+                        <th style="width: 75%; text-align:center; font-weight:700; color:#000000; border: 1px solid #000000; padding: 0.6rem 0.8rem;">Attributes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:center; border: 1px solid #000000; text-decoration: underline; vertical-align:middle; padding: 0.6rem 0.8rem; font-weight:600;">users</td>
+                        <td style="border: 1px solid #000000; padding: 0.6rem 0.8rem; line-height: 1.55;">id (PK), first_name, last_name, email (UQ), password, phone, role, status, notes, avatar, created_at, updated_at</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center; border: 1px solid #000000; text-decoration: underline; vertical-align:middle; padding: 0.6rem 0.8rem; font-weight:600;">bookings</td>
+                        <td style="border: 1px solid #000000; padding: 0.6rem 0.8rem; line-height: 1.55;">id (PK), client_id (FK), staff_id (FK), service_id (FK), service_ids, booking_date, start_time, end_time, status, notes, total_price, downpayment_amount, proof_of_payment, google_drive_link, payment_status, created_at, updated_at</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center; border: 1px solid #000000; text-decoration: underline; vertical-align:middle; padding: 0.6rem 0.8rem; font-weight:600;">services</td>
+                        <td style="border: 1px solid #000000; padding: 0.6rem 0.8rem; line-height: 1.55;">id (PK), name, description, duration_minutes, price, is_active, created_at</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center; border: 1px solid #000000; text-decoration: underline; vertical-align:middle; padding: 0.6rem 0.8rem; font-weight:600;">time_slots</td>
+                        <td style="border: 1px solid #000000; padding: 0.6rem 0.8rem; line-height: 1.55;">id (PK), slot_label, start_time, end_time, is_active</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center; border: 1px solid #000000; text-decoration: underline; vertical-align:middle; padding: 0.6rem 0.8rem; font-weight:600;">otp_verifications</td>
+                        <td style="border: 1px solid #000000; padding: 0.6rem 0.8rem; line-height: 1.55;">id (PK), email, otp_code, purpose, is_used, attempts, expires_at, created_at</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center; border: 1px solid #000000; text-decoration: underline; vertical-align:middle; padding: 0.6rem 0.8rem; font-weight:600;">settings</td>
+                        <td style="border: 1px solid #000000; padding: 0.6rem 0.8rem; line-height: 1.55;">setting_key (PK), setting_value</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Load the SVG file directly into the container
+        fetch('snailshutter-erd-diagram.svg')
+            .then(res => res.text())
+            .then(svgText => {
+                document.getElementById('svg-container').innerHTML = svgText;
+                const svgEl = document.querySelector('#svg-container svg');
+                if (svgEl) svgEl.setAttribute('id', 'diagram-svg');
+            })
+            .catch(err => {
+                console.error('Error loading SVG:', err);
+            });
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3500);
+        }
+
+        function copySVGForWord() {
+            const svgEl = document.getElementById('diagram-svg');
+            if (!svgEl) return;
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                    const textBlob = new Blob([svgString], { type: 'text/plain' });
+                    const item = new ClipboardItem({ 'image/svg+xml': blob, 'text/plain': textBlob });
+                    navigator.clipboard.write([item]).then(() => {
+                        showToast('Copied! In Word: Paste (Ctrl+V) -> Right-Click -> "Convert to Shape" to edit!');
+                    }).catch(() => {
+                        navigator.clipboard.writeText(svgString).then(() => {
+                            showToast('SVG code copied! In Word, Insert the SVG file and click "Convert to Shape".');
+                        });
+                    });
+                } catch(e) {
+                    navigator.clipboard.writeText(svgString).then(() => {
+                        showToast('SVG code copied to clipboard!');
+                    });
+                }
+            } else {
+                navigator.clipboard.writeText(svgString).then(() => {
+                    showToast('SVG code copied to clipboard!');
+                });
+            }
+        }
+
+        function exportPNG() {
+            const svgEl = document.getElementById('diagram-svg');
+            if (!svgEl) return;
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(svgBlob);
+            
+            const image = new Image();
+            image.onload = function() {
+                const canvas = document.createElement('canvas');
+                const scale = 2.0;
+                canvas.width = 1100 * scale;
+                canvas.height = 790 * scale;
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.scale(scale, scale);
+                context.drawImage(image, 0, 0);
+                
+                const pngURL = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pngURL;
+                downloadLink.download = 'Figure_3_3_ERD_Diagram_SnailShutter.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                showToast('High-Res PNG downloaded successfully!');
+            };
+            image.src = blobURL;
+        }
+
+        function copySchemaTable() {
+            const table = document.getElementById('academic-schema-table');
+            if (!table) return;
+
+            const html = table.outerHTML;
+            const text = table.innerText;
+
+            if (navigator.clipboard && window.ClipboardItem) {
+                const blobHtml = new Blob([html], { type: 'text/html' });
+                const blobText = new Blob([text], { type: 'text/plain' });
+                const item = new ClipboardItem({
+                    'text/html': blobHtml,
+                    'text/plain': blobText
+                });
+                navigator.clipboard.write([item]).then(() => {
+                    showToast('Table 3 copied! Paste (Ctrl+V) directly into Microsoft Word.');
+                }).catch(() => {
+                    copyFallback(table);
+                });
+            } else {
+                copyFallback(table);
+            }
+        }
+
+        function copyFallback(el) {
+            const range = document.createRange();
+            range.selectNode(el);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand('copy');
+                showToast('Table 3 copied! Paste (Ctrl+V) directly into Microsoft Word.');
+            } catch (err) {
+                showToast('Failed to auto-copy. Please select and copy the table manually.');
+            }
+            window.getSelection().removeAllRanges();
+        }
+    </script>
+</body>
+</html>

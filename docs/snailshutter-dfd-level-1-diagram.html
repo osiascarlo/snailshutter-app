@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figure 3.4 Data Flow Diagram (DFD) Level 1 — SnailShutter Capstone Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --border: #e2e8f0;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-links {
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.85rem;
+            font-size: 0.88rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .header-section {
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .title-group h1 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .title-group p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.55rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            background: #172554;
+            border-color: #172554;
+        }
+
+        .btn-green {
+            background: #15803d;
+            color: white;
+            border-color: #15803d;
+        }
+
+        .btn-green:hover {
+            background: #166534;
+            border-color: #166534;
+        }
+
+        /* Instructions Banner */
+        .info-banner {
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .info-banner .icon {
+            font-size: 1.5rem;
+            color: #1e40af;
+            line-height: 1;
+        }
+
+        .info-banner .content {
+            font-size: 0.88rem;
+            color: #1e3a8a;
+            line-height: 1.5;
+        }
+
+        .info-banner ol {
+            margin-top: 0.35rem;
+            margin-left: 1.25rem;
+            color: #1e293b;
+        }
+
+        /* Narrative Section */
+        .narrative-card {
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.2rem 1.5rem;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        /* Diagram Canvas Container */
+        .diagram-wrapper {
+            max-width: 1400px;
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem 1.5rem 1.5rem;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        #diagram-svg {
+            max-width: 1340px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Documentation & Specifications Table */
+        .docs-section {
+            max-width: 1400px;
+            width: 100%;
+            margin-top: 2rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.75rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .docs-section h2 {
+            font-size: 1.25rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.8rem 1rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .badge-proc { background: #e0e7ff; color: #3730a3; font-weight:700; padding:2px 6px; border-radius:4px; font-size:0.75rem; }
+        .badge-ds { background: #f1f5f9; color: #0f172a; font-weight:700; padding:2px 6px; border-radius:4px; font-size:0.75rem; border: 1px solid #cbd5e1; }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #0f172a;
+            color: white;
+            padding: 0.85rem 1.4rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Links -->
+    <div class="nav-links">
+        <a href="snailshutter-use-case-diagram.html"><i class="fas fa-arrow-left"></i> Figure 3.1: Use Case</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-context-diagram.html"><i class="fas fa-project-diagram"></i> Figure 3.2: Context Diagram</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-erd-diagram.html"><i class="fas fa-database"></i> Figure 3.3: ERD &amp; Schema</a>
+        <span style="color:#cbd5e1;">|</span>
+        <span style="color:#64748b; font-weight:600;"><i class="fas fa-sitemap"></i> Figure 3.4: DFD Level 1 (Active)</span>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-2-diagram.html"><i class="fas fa-diagram-project"></i> Figure 3.5: DFD Level 2</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="appendix-h-wireframes.html"><i class="fas fa-th-large"></i> Appendix H: Wireframes</a>
+    </div>
+
+    <div class="header-section">
+        <div class="title-group">
+            <h1>SnailShutter System — Data Flow Diagram (DFD) Level 1</h1>
+            <p>Decomposed Functional Processes, Data Stores &amp; Subsystem Flows (Academic Capstone - Figure 3.4)</p>
+        </div>
+        <div class="actions-group">
+            <a class="btn btn-primary" href="snailshutter-dfd-level-1-diagram.docx" download>
+                <i class="fas fa-file-word"></i> Download Word (.docx)
+            </a>
+            <button class="btn btn-green" onclick="copySVGForWord()">
+                <i class="fas fa-paste"></i> Copy for Word (Editable)
+            </button>
+            <a class="btn" href="snailshutter-dfd-level-1-diagram.svg" download>
+                <i class="fas fa-file-code"></i> Download SVG (White)
+            </a>
+            <a class="btn" href="snailshutter-dfd-level-1-diagram-transparent.svg" download>
+                <i class="fas fa-layer-group"></i> Download SVG (Transparent)
+            </a>
+            <button class="btn" onclick="exportPNG()">
+                <i class="fas fa-file-image"></i> Download PNG
+            </button>
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print / PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Word Editable Instructions Banner -->
+    <div class="info-banner">
+        <div class="icon"><i class="fas fa-lightbulb"></i></div>
+        <div class="content">
+            <strong>How to make this DFD Level 1 100% editable in Microsoft Word:</strong>
+            <ol>
+                <li>Click <strong>Download Word (.docx)</strong> above, or insert <code>snailshutter-dfd-level-1-diagram.svg</code> into Word (<strong>Insert &gt; Pictures &gt; This Device...</strong>).</li>
+                <li>Right-click the diagram in Word and select <strong>Convert to Shape</strong> (or click <em>Convert to Shape</em> on the <em>Graphics Format</em> ribbon).</li>
+                <li>Click <strong>Yes</strong> to confirm. Word will instantly turn all process circles, entity rectangles, data store bars, and flow arrows into native Word shapes! You can double-click any label to edit wording, change colors, or adjust lines.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Academic Chapter 3 Narrative Text (Matches Reference Photo) -->
+    <div class="narrative-card">
+        <p><strong>Data Flow Diagram (DFD) Level 1.</strong> A Data Flow Diagram Level 1 is a visual representation that shows how data moves through the different processes of the system. It illustrates the flow of information between the users, system processes, and database.</p>
+        <p style="margin-top: 0.5rem;">The developers will use the DFD Level 1 as a visual representation to understand how data moves through the different processes of the proposed SnailShutter Photography Studio Management System. Figure 3.4 represents the Data Flow Diagram Level 1 of the developers' proposed system.</p>
+    </div>
+
+    <!-- Diagram Canvas Wrapper -->
+    <div class="diagram-wrapper">
+        <div id="svg-container">
+            <!-- Included directly via fetch -->
+        </div>
+        <p style="margin-top: 1.25rem; font-family:'Times New Roman', Times, serif; font-size:1.05rem; font-style:italic; font-weight:700; color:#0f172a;">
+            Figure 3.4. Data Flow Diagram (DFD) Level 1 of SnailShutter Photography Studio Management System
+        </p>
+    </div>
+
+    <!-- Capstone Documentation Specifications Table -->
+    <div class="docs-section">
+        <h2><i class="fas fa-sitemap" style="color:#1e3a8a;"></i> DFD Level 1 Process &amp; Data Store Matrix (Chapter 3 Reference)</h2>
+        <p style="color:var(--text-muted); font-size: 0.9rem;">This table details the functional processes, associated data stores, input data flows, and output data flows depicted in Figure 3.4.</p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Process # &amp; Name</th>
+                        <th style="width: 18%;">Connected Data Store</th>
+                        <th style="width: 33%;">Inbound Flow (Inputs &amp; Writes)</th>
+                        <th style="width: 34%;">Outbound Flow (Outputs &amp; Reads)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge-proc">1.0</span> <strong>Manage User Accounts</strong></td>
+                        <td><span class="badge-ds">D1</span> <strong>tbl_user</strong></td>
+                        <td>
+                            • Search / View Request (from Guest / Public)<br>
+                            • User Data (written to D1 tbl_user)
+                        </td>
+                        <td>
+                            • Account Verification / Info (to Guest / Public)<br>
+                            • User Records (read from D1 tbl_user)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-proc">2.0</span> <strong>Manage Bookings</strong></td>
+                        <td><span class="badge-ds">D2</span> <strong>tbl_bookings</strong></td>
+                        <td>
+                            • Account Information (from Registered User)<br>
+                            • Booking Data (written to D2 tbl_bookings)
+                        </td>
+                        <td>
+                            • Account Details / Booking Information (to Registered User)<br>
+                            • Booking Records (read from D2 tbl_bookings)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-proc">3.0</span> <strong>Manage Studio Services</strong></td>
+                        <td><span class="badge-ds">D3</span> <strong>tbl_services</strong></td>
+                        <td>
+                            • Service Inquiry / Reservation (from Registered User)<br>
+                            • Service Data (written to D3 tbl_services)
+                        </td>
+                        <td>
+                            • Package Availability / Details (to Registered User)<br>
+                            • Service Records (read from D3 tbl_services)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-proc">4.0</span> <strong>Manage Payments</strong></td>
+                        <td><span class="badge-ds">D4</span> <strong>tbl_booking_payments</strong></td>
+                        <td>
+                            • Payment Information (from Registered User)<br>
+                            • Payment Data (written to D4 tbl_booking_payments)
+                        </td>
+                        <td>
+                            • Payment Status / Receipt (to Registered User)<br>
+                            • Pricing / Payment Records (read from D4)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-proc">5.0</span> <strong>Generate Reports</strong></td>
+                        <td><span style="color:#64748b; font-size:0.8rem; font-style:italic;">Central Reporting Engine</span></td>
+                        <td>
+                            • Report Request (from 4.0 Manage Payments)<br>
+                            • Report Parameters (from Administrator)
+                        </td>
+                        <td>
+                            • Generated Reports (to Administrator)<br>
+                            • Reports (to Guest / Public)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Load the SVG file directly into the container
+        fetch('snailshutter-dfd-level-1-diagram.svg')
+            .then(res => res.text())
+            .then(svgText => {
+                document.getElementById('svg-container').innerHTML = svgText;
+                const svgEl = document.querySelector('#svg-container svg');
+                if (svgEl) svgEl.setAttribute('id', 'diagram-svg');
+            })
+            .catch(err => {
+                console.error('Error loading SVG:', err);
+            });
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3500);
+        }
+
+        function copySVGForWord() {
+            const svgEl = document.getElementById('diagram-svg');
+            if (!svgEl) return;
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                    const textBlob = new Blob([svgString], { type: 'text/plain' });
+                    const item = new ClipboardItem({ 'image/svg+xml': blob, 'text/plain': textBlob });
+                    navigator.clipboard.write([item]).then(() => {
+                        showToast('Copied! In Word: Paste (Ctrl+V) -> Right-Click -> "Convert to Shape" to edit!');
+                    }).catch(() => {
+                        navigator.clipboard.writeText(svgString).then(() => {
+                            showToast('SVG code copied! In Word, Insert the SVG file and click "Convert to Shape".');
+                        });
+                    });
+                } catch(e) {
+                    navigator.clipboard.writeText(svgString).then(() => {
+                        showToast('SVG code copied to clipboard!');
+                    });
+                }
+            } else {
+                navigator.clipboard.writeText(svgString).then(() => {
+                    showToast('SVG code copied to clipboard!');
+                });
+            }
+        }
+
+        function exportPNG() {
+            const svgEl = document.getElementById('diagram-svg');
+            if (!svgEl) return;
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(svgBlob);
+            
+            const image = new Image();
+            image.onload = function() {
+                const canvas = document.createElement('canvas');
+                const scale = 2.0;
+                canvas.width = 1380 * scale;
+                canvas.height = 920 * scale;
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.scale(scale, scale);
+                context.drawImage(image, 0, 0);
+                
+                const pngURL = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pngURL;
+                downloadLink.download = 'Figure_3_4_DFD_Level_1_SnailShutter.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                showToast('High-Res PNG downloaded successfully!');
+            };
+            image.src = blobURL;
+        }
+    </script>
+</body>
+</html>

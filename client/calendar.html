@@ -324,14 +324,20 @@
                         <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
                     </a>
                 </div>
-
-                <div class="sidebar-section" style="margin-top:auto;">
-                    <div class="sidebar-section-title">Account</div>
-                    <a href="#" class="sidebar-link" data-logout>
-                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
-                    </a>
-                </div>
             </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="avatar" data-user-initial></div>
+                    <div class="sidebar-user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role" data-user-role></div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
         </aside>
 
         <main class="main-content">
@@ -367,7 +373,7 @@
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color" style="background: var(--color-danger);"></div>
-                                <span>Booked</span>
+                                <span>Has Bookings</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color" style="background: var(--color-warning);"></div>
@@ -468,9 +474,10 @@
             // Add current month days
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const date = new Date(dateStr);
+                const date = new Date(dateStr + 'T00:00:00');
+                const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                 const isToday = date.toDateString() === today.toDateString();
-                const isPast = date < today;
+                const isPast = date < todayStart;
 
                 let classes = 'calendar-day';
                 let indicator = '';
@@ -523,10 +530,11 @@
         }
 
         function selectDate(dateStr) {
-            const date = new Date(dateStr);
+            const date = new Date(dateStr + 'T00:00:00');
             const today = new Date();
+            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-            if (date < today) {
+            if (date < todayStart) {
                 showAlert('Cannot select past dates', 'warning');
                 return;
             }

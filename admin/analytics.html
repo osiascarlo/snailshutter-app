@@ -164,7 +164,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="/admin/dashboard.html" class="sidebar-logo">
-                    <img src="/assets/images/logo.png" alt="SnailShutter" style="height: 80px;">
+                    <img src="/assets/images/logo.png" alt="SnailShutter">
                 </a>
             </div>
 
@@ -175,10 +175,10 @@
                         <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
                     </a>
                     <a href="/admin/bookings.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-calendar"></i></span> All Bookings
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> All Bookings
                     </a>
                     <a href="/admin/calendar.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                        <span class="icon"><i class="fas fa-calendar"></i></span> Calendar
                     </a>
                     <a href="/admin/gallery.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
@@ -203,10 +203,10 @@
                     <div class="avatar" data-user-initial></div>
                     <div class="sidebar-user-info">
                         <div class="name" data-user-name></div>
-                        <div class="role">Administrator</div>
+                        <div class="role" data-user-role>Administrator</div>
                     </div>
                 </div>
-                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;">
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
                     <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
                 </a>
             </div>
@@ -318,6 +318,7 @@
 
             // Update UI
             document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name);
+            document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = 'Administrator');
             document.querySelectorAll('[data-user-initial]').forEach(el => el.textContent = (user.name || 'A').charAt(0).toUpperCase());
 
             // Handle logout

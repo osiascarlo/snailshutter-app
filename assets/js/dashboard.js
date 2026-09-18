@@ -365,7 +365,7 @@ class Dashboard {
         });
 
         userRoleElements.forEach(el => {
-            el.textContent = auth.getUserRole();
+            el.textContent = (typeof auth.getFormattedRole === 'function') ? auth.getFormattedRole() : auth.getUserRole();
         });
 
         userInitialElements.forEach(el => {

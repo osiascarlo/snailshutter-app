@@ -1,0 +1,367 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 825" width="100%" height="100%" style="background:transparent; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Arrow marker for <<include>> and <<extend>> -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#1e3a8a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#1b5e20" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+
+    <!-- Filters & Shadows -->
+    <filter id="soft-shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.04" />
+    </filter>
+  </defs>
+
+  <!-- ============================================================== -->
+  <!-- SYSTEM BOUNDARY RECTANGLE                                      -->
+  <!-- ============================================================== -->
+  <rect x="170" y="25" width="860" height="785" rx="2" fill="none" stroke="#1e293b" stroke-width="2" />
+  <text x="600" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a" letter-spacing="0.5">
+    SnailShutter Photography Studio Booking &amp; Management System
+  </text>
+  <line x1="170" y1="62" x2="1030" y2="62" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 4" />
+
+  <!-- ============================================================== -->
+  <!-- STICK FIGURE: GUEST (Top-Left)                                 -->
+  <!-- ============================================================== -->
+  <g id="actor-guest" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Head -->
+    <circle cx="85" cy="115" r="15" fill="none" />
+    <!-- Spine -->
+    <line x1="85" y1="130" x2="85" y2="180" />
+    <!-- Arms -->
+    <line x1="55" y1="150" x2="115" y2="150" />
+    <!-- Legs -->
+    <line x1="85" y1="180" x2="65" y2="225" />
+    <line x1="85" y1="180" x2="105" y2="225" />
+    <!-- Label -->
+    <text x="85" y="248" font-size="14" font-weight="700" fill="#0f172a" stroke="none" text-anchor="middle">Guest</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- STICK FIGURE: REGISTERED USER (Bottom-Left)                    -->
+  <!-- ============================================================== -->
+  <g id="actor-client" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Head -->
+    <circle cx="85" cy="460" r="15" fill="none" />
+    <!-- Spine -->
+    <line x1="85" y1="475" x2="85" y2="525" />
+    <!-- Arms -->
+    <line x1="55" y1="495" x2="115" y2="495" />
+    <!-- Legs -->
+    <line x1="85" y1="525" x2="65" y2="570" />
+    <line x1="85" y1="525" x2="105" y2="570" />
+    <!-- Label -->
+    <text x="85" y="595" font-size="14" font-weight="700" fill="#0f172a" stroke="none" text-anchor="middle">Registered User</text>
+    <text x="85" y="612" font-size="12" font-weight="500" fill="#64748b" stroke="none" text-anchor="middle">(Client)</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- STICK FIGURE: ADMINISTRATOR / STAFF (Right)                   -->
+  <!-- ============================================================== -->
+  <g id="actor-admin-staff" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Head -->
+    <circle cx="1115" cy="330" r="15" fill="none" />
+    <!-- Spine -->
+    <line x1="1115" y1="345" x2="1115" y2="395" />
+    <!-- Arms -->
+    <line x1="1085" y1="365" x2="1145" y2="365" />
+    <!-- Legs -->
+    <line x1="1115" y1="395" x2="1095" y2="440" />
+    <line x1="1115" y1="395" x2="1135" y2="440" />
+    <!-- Label -->
+    <text x="1115" y="465" font-size="14" font-weight="700" fill="#0f172a" stroke="none" text-anchor="middle">Administrator / Staff</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- SOLID ASSOCIATION LINES: GUEST -> USE CASES                   -->
+  <!-- ============================================================== -->
+  <g stroke="#334155" stroke-width="1.2">
+    <line x1="115" y1="150" x2="205" y2="92" />
+    <line x1="115" y1="150" x2="198" y2="148" />
+    <line x1="115" y1="150" x2="202" y2="205" />
+    <line x1="115" y1="150" x2="202" y2="262" />
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- GUEST USE CASES (Column Left - Top)                            -->
+  <!-- ============================================================== -->
+  <!-- 1. View Portfolio -->
+  <g transform="translate(290, 92)">
+    <ellipse cx="0" cy="0" rx="85" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">View Studio Portfolio</text>
+  </g>
+
+  <!-- 2. Search Photography Packages -->
+  <g transform="translate(290, 148)">
+    <ellipse cx="0" cy="0" rx="92" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Search Packages &amp; Rates</text>
+    <text x="0" y="12" text-anchor="middle" font-size="9.5" fill="#475569">(by name, price, category)</text>
+  </g>
+
+  <!-- 3. Check Studio Availability -->
+  <g transform="translate(290, 205)">
+    <ellipse cx="0" cy="0" rx="88" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Check Studio Availability</text>
+  </g>
+
+  <!-- 4. View Services & FAQs -->
+  <g transform="translate(290, 262)">
+    <ellipse cx="0" cy="0" rx="88" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">View Services &amp; Studio FAQs</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- SOLID ASSOCIATION LINES: REGISTERED USER -> USE CASES          -->
+  <!-- ============================================================== -->
+  <g stroke="#334155" stroke-width="1.2">
+    <line x1="115" y1="495" x2="218" y2="330" />
+    <line x1="115" y1="495" x2="238" y2="385" />
+    <line x1="115" y1="495" x2="198" y2="440" />
+    <line x1="115" y1="495" x2="208" y2="495" />
+    <line x1="115" y1="495" x2="200" y2="550" />
+    <line x1="115" y1="495" x2="198" y2="605" />
+    <line x1="115" y1="495" x2="202" y2="660" />
+    <line x1="115" y1="495" x2="205" y2="715" />
+    <line x1="115" y1="495" x2="218" y2="768" />
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- REGISTERED USER USE CASES (Column Left - Bottom)               -->
+  <!-- ============================================================== -->
+  <!-- 5. Register Account -->
+  <g transform="translate(290, 330)">
+    <ellipse cx="0" cy="0" rx="72" ry="18" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Register Account</text>
+  </g>
+
+  <!-- 6. Log In -->
+  <g transform="translate(290, 385)">
+    <ellipse cx="0" cy="0" rx="52" ry="18" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Log In</text>
+  </g>
+
+  <!-- 7. Book Photography Session -->
+  <g transform="translate(290, 440)">
+    <ellipse cx="0" cy="0" rx="92" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Book Photography Session</text>
+  </g>
+
+  <!-- 8. View My Bookings -->
+  <g transform="translate(290, 495)">
+    <ellipse cx="0" cy="0" rx="82" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">View My Bookings</text>
+  </g>
+
+  <!-- 9. Upload Proof of Payment -->
+  <g transform="translate(290, 550)">
+    <ellipse cx="0" cy="0" rx="90" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Upload Proof of Payment</text>
+  </g>
+
+  <!-- 10. View Payment Status & Receipts -->
+  <g transform="translate(290, 605)">
+    <ellipse cx="0" cy="0" rx="92" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">View Payment &amp; Receipts</text>
+  </g>
+
+  <!-- 11. Download Delivered Photos -->
+  <g transform="translate(290, 660)">
+    <ellipse cx="0" cy="0" rx="88" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Download Delivered Photos</text>
+  </g>
+
+  <!-- 12. Update Profile -->
+  <g transform="translate(290, 715)">
+    <ellipse cx="0" cy="0" rx="85" ry="18" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Update Profile / Avatar</text>
+  </g>
+
+  <!-- 13. Reset Password -->
+  <g transform="translate(290, 768)">
+    <ellipse cx="0" cy="0" rx="72" ry="18" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Reset Password</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- CENTER CORE SYSTEM RELATIONSHIPS                               -->
+  <!-- ============================================================== -->
+
+  <!-- Top Center Pair -->
+  <!-- Manage Services -->
+  <g transform="translate(500, 115)">
+    <ellipse cx="0" cy="0" rx="82" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Services</text>
+    <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+  </g>
+
+  <!-- Manage Photo Deliveries -->
+  <g transform="translate(710, 115)">
+    <ellipse cx="0" cy="0" rx="84" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Deliveries</text>
+    <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(upload / set Drive links)</text>
+  </g>
+
+  <!-- Central Hub: Manage Records -->
+  <g transform="translate(605, 230)">
+    <ellipse cx="0" cy="0" rx="80" ry="22" fill="none" stroke="#1e3a8a" stroke-width="2" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">Manage Records</text>
+  </g>
+
+  <!-- Mid Center Pair -->
+  <!-- Manage Users -->
+  <g transform="translate(500, 335)">
+    <ellipse cx="0" cy="0" rx="80" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Users</text>
+    <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+  </g>
+
+  <!-- Manage Bookings -->
+  <g transform="translate(710, 335)">
+    <ellipse cx="0" cy="0" rx="84" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Bookings</text>
+    <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(view / update / cancel)</text>
+  </g>
+
+  <!-- Stereotype <<include>> Arrows pointing into Manage Records -->
+  <!-- 1. From Manage Services to Manage Records -->
+  <path d="M 525 137 L 580 210" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="522" y="165" width="56" height="15" fill="none" rx="2" />
+  <text x="550" y="176" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+  <!-- 2. From Manage Deliveries to Manage Records -->
+  <path d="M 685 137 L 630 210" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="635" y="165" width="56" height="15" fill="none" rx="2" />
+  <text x="663" y="176" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+  <!-- 3. From Manage Users to Manage Records -->
+  <path d="M 530 314 L 580 252" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="520" y="275" width="56" height="15" fill="none" rx="2" />
+  <text x="548" y="286" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+  <!-- 4. From Manage Bookings to Manage Records -->
+  <path d="M 680 314 L 630 252" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="638" y="275" width="56" height="15" fill="none" rx="2" />
+  <text x="666" y="286" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+  <!-- Lower Center: Process Payment -->
+  <g transform="translate(640, 445)">
+    <ellipse cx="0" cy="0" rx="80" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Process Payment</text>
+  </g>
+
+  <!-- Dashed arrow: Manage Bookings -> Process Payment (<<extend>>) -->
+  <path d="M 695 357 L 655 425" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="650" y="382" width="56" height="15" fill="none" rx="2" />
+  <text x="678" y="393" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;extend&gt;&gt;</text>
+
+  <!-- Lower Center: Generate Reports -->
+  <g transform="translate(640, 545)">
+    <ellipse cx="0" cy="0" rx="80" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Generate Reports</text>
+  </g>
+
+  <!-- Dashed arrow: Process Payment -> Generate Reports (<<include>>) -->
+  <path d="M 640 465 L 640 525" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="612" y="488" width="56" height="15" fill="none" rx="2" />
+  <text x="640" y="499" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+  <!-- Bottom Fan-out Leaves (Specific Reports) -->
+  <!-- Leaf 1: Payment & Revenue Report -->
+  <g transform="translate(480, 665)">
+    <ellipse cx="0" cy="0" rx="76" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.5" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0f172a">Payment Report</text>
+  </g>
+
+  <!-- Leaf 2: Schedule & Availability Report -->
+  <g transform="translate(640, 665)">
+    <ellipse cx="0" cy="0" rx="74" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.5" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0f172a">Availability Report</text>
+  </g>
+
+  <!-- Leaf 3: Booking History & Analytics Report -->
+  <g transform="translate(798, 665)">
+    <ellipse cx="0" cy="0" rx="74" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.5" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0f172a">Booking Analytics</text>
+  </g>
+
+  <!-- Fan-out Arrows: Generate Reports -> 3 Reports (<<extend>>) -->
+  <!-- To Payment Report -->
+  <path d="M 605 563 L 505 647" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="525" y="598" width="56" height="15" fill="none" rx="2" />
+  <text x="553" y="609" text-anchor="middle" font-size="9" font-weight="600" fill="#1e3a8a">&lt;&lt;extend&gt;&gt;</text>
+
+  <!-- To Availability Report -->
+  <path d="M 640 565 L 640 645" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="612" y="598" width="56" height="15" fill="none" rx="2" />
+  <text x="640" y="609" text-anchor="middle" font-size="9" font-weight="600" fill="#1e3a8a">&lt;&lt;extend&gt;&gt;</text>
+
+  <!-- To Booking Analytics -->
+  <path d="M 675 563 L 775 647" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+  <rect x="702" y="598" width="56" height="15" fill="none" rx="2" />
+  <text x="730" y="609" text-anchor="middle" font-size="9" font-weight="600" fill="#1e3a8a">&lt;&lt;extend&gt;&gt;</text>
+
+  <!-- ============================================================== -->
+  <!-- ADMINISTRATOR / STAFF USE CASES (Right Column)                 -->
+  <!-- ============================================================== -->
+  <!-- 1. Manage Services -->
+  <g transform="translate(915, 125)">
+    <ellipse cx="0" cy="0" rx="84" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Services</text>
+    <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+  </g>
+
+  <!-- 2. Manage Deliveries -->
+  <g transform="translate(915, 205)">
+    <ellipse cx="0" cy="0" rx="84" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Deliveries</text>
+    <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+  </g>
+
+  <!-- 3. Manage Users -->
+  <g transform="translate(915, 285)">
+    <ellipse cx="0" cy="0" rx="84" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Users</text>
+    <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+  </g>
+
+  <!-- 4. Manage Bookings -->
+  <g transform="translate(915, 365)">
+    <ellipse cx="0" cy="0" rx="86" ry="22" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Bookings</text>
+    <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(view / update / cancel)</text>
+  </g>
+
+  <!-- 5. Verify Payments -->
+  <g transform="translate(915, 445)">
+    <ellipse cx="0" cy="0" rx="78" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Verify Payments</text>
+  </g>
+
+  <!-- 6. Generate Reports -->
+  <g transform="translate(915, 520)">
+    <ellipse cx="0" cy="0" rx="78" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Generate Reports</text>
+  </g>
+
+  <!-- 7. System Settings -->
+  <g transform="translate(915, 595)">
+    <ellipse cx="0" cy="0" rx="78" ry="20" fill="none" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+    <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">System Settings</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- SOLID ASSOCIATION LINES: ADMINISTRATOR/STAFF -> USE CASES      -->
+  <!-- ============================================================== -->
+  <g stroke="#334155" stroke-width="1.2">
+    <line x1="1085" y1="365" x2="998" y2="132" />
+    <line x1="1085" y1="365" x2="996" y2="210" />
+    <line x1="1085" y1="365" x2="996" y2="288" />
+    <line x1="1085" y1="365" x2="1000" y2="365" />
+    <line x1="1085" y1="365" x2="992" y2="442" />
+    <line x1="1085" y1="365" x2="992" y2="518" />
+    <line x1="1085" y1="365" x2="992" y2="592" />
+  </g>
+</svg>

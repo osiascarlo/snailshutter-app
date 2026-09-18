@@ -739,15 +739,33 @@
             pointer-events: none;
         }
 
-        .calendar-widget .calendar-day.today,
-        .calendar-widget .calendar-day.today.disabled {
+        .calendar-widget .calendar-day.today {
             border: 2px solid #000000 !important;
             font-weight: 800;
             color: #000000 !important;
             background: #e2e8f0 !important;
-            cursor: not-allowed;
+            cursor: pointer;
             opacity: 1 !important;
             box-shadow: inset 0 0 0 1px #000000 !important;
+        }
+
+        .calendar-widget .calendar-day.today:hover:not(.disabled):not(.selected) {
+            background: #cbd5e1 !important;
+            transform: translateY(-2px) scale(1.02);
+            color: #000000 !important;
+        }
+
+        .calendar-widget .calendar-day.today.disabled {
+            cursor: not-allowed;
+            opacity: 0.45 !important;
+            pointer-events: none;
+        }
+
+        .calendar-widget .calendar-day.today.selected {
+            background: var(--color-primary, #16a34a) !important;
+            color: white !important;
+            border: 2px solid #000000 !important;
+            box-shadow: 0 8px 20px -4px rgba(22, 163, 74, 0.3), inset 0 0 0 1px #000000 !important;
         }
 
         /* ── Day Availability Highlighting ── */
@@ -1064,14 +1082,20 @@
                         <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
                     </a>
                 </div>
-
-                <div class="sidebar-section" style="margin-top:auto;">
-                    <div class="sidebar-section-title">Account</div>
-                    <a href="#" class="sidebar-link" data-logout>
-                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
-                    </a>
-                </div>
             </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="avatar" data-user-initial></div>
+                    <div class="sidebar-user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role" data-user-role></div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
         </aside>
 
         <main class="main-content">
@@ -1174,7 +1198,7 @@
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 0.4rem;">
                                             <div style="width: 12px; height: 12px; border-radius: 3px; background: #ef4444;"></div>
-                                            <span>Booked</span>
+                                            <span>Has Bookings</span>
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 0.4rem;">
                                             <div style="width: 12px; height: 12px; border-radius: 3px; background: #8b5cf6;"></div>
@@ -1369,8 +1393,10 @@
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/dashboard-premium.js"></script>
     <script>
-        // Set minimum date to tomorrow
-        document.getElementById('bookingDate').min = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+        // Set minimum date to today
+        const todayDateObj = new Date();
+        const todayDateStr = `${todayDateObj.getFullYear()}-${String(todayDateObj.getMonth() + 1).padStart(2, '0')}-${String(todayDateObj.getDate()).padStart(2, '0')}`;
+        document.getElementById('bookingDate').min = todayDateStr;
 
         var selectedService = null, selectedDate = null, selectedSlot = null;
         var selectedServices = [];
@@ -1384,7 +1410,7 @@
 
         var allBookings = [];
         var calendarEvents = {};
-        var calendarCurrentDate = new Date(Date.now() + 86400000); // tomorrow
+        var calendarCurrentDate = new Date();
 
         function getLocalDateString(dateInput) {
             if (!dateInput) return '';
@@ -1648,19 +1674,19 @@
             loadAllBookings();
             
             const todayStart = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-            if (selectedDate && new Date(selectedDate + 'T00:00:00') > todayStart) {
+            if (selectedDate && new Date(selectedDate + 'T00:00:00') >= todayStart) {
                 updateSelectedDateInfo(selectedDate);
                 loadAvailableSlots();
             } else {
-                // Pre-select tomorrow's date by default (same-day booking not allowed)
-                const tomorrow = new Date(Date.now() + 86400000);
-                const year = tomorrow.getFullYear();
-                const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-                const day = String(tomorrow.getDate()).padStart(2, '0');
-                const tomorrowStr = `${year}-${month}-${day}`;
-                document.getElementById('bookingDate').value = tomorrowStr;
-                selectedDate = tomorrowStr;
-                updateSelectedDateInfo(tomorrowStr);
+                // Pre-select today's date by default
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const todayStr = `${year}-${month}-${day}`;
+                document.getElementById('bookingDate').value = todayStr;
+                selectedDate = todayStr;
+                updateSelectedDateInfo(todayStr);
                 loadAvailableSlots();
             }
         }
@@ -1721,7 +1747,7 @@
                 const date = new Date(dateStr + 'T00:00:00');
                 const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                 const isToday = today.toDateString() === date.toDateString();
-                const isNotBookable = date <= todayStart; // Disallow same-day and past bookings
+                const isNotBookable = date < todayStart; // Disallow past bookings
 
                 let classes = 'calendar-day';
                 let indicator = '';
@@ -1779,8 +1805,8 @@
             const today = new Date();
             const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-            if (selDate <= todayStart) {
-                showAlert('Same-day bookings are not allowed. Please select tomorrow or a future date.', 'warning');
+            if (selDate < todayStart) {
+                showAlert('Past dates cannot be selected. Please select today or a future date.', 'warning');
                 return;
             }
 

@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figure 3.1 Use Case Diagram — SnailShutter Capstone Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --border: #e2e8f0;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-links {
+            max-width: 1200px;
+            width: 100%;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.85rem;
+            font-size: 0.88rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .header-section {
+            max-width: 1200px;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .title-group h1 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .title-group p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.55rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            background: #172554;
+            border-color: #172554;
+        }
+
+        .btn-green {
+            background: #1b5e20;
+            color: white;
+            border-color: #1b5e20;
+        }
+
+        .btn-green:hover {
+            background: #144617;
+            border-color: #144617;
+        }
+
+        /* Diagram Canvas Container */
+        .diagram-wrapper {
+            max-width: 1240px;
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem 1.5rem 1.5rem;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        #diagram-svg {
+            max-width: 1160px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Documentation & Specifications Accordion */
+        .docs-section {
+            max-width: 1240px;
+            width: 100%;
+            margin-top: 2rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.75rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .docs-section h2 {
+            font-size: 1.25rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-guest { background: #e0f2fe; color: #0369a1; }
+        .badge-client { background: #dcfce7; color: #15803d; }
+        .badge-admin { background: #fef3c7; color: #b45309; }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #0f172a;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Links -->
+    <div class="nav-links">
+        <span style="color:#64748b; font-weight:600;"><i class="fas fa-project-diagram"></i> Figure 3.1: Use Case (Active)</span>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-context-diagram.html"><i class="fas fa-project-diagram"></i> Figure 3.2: Context Diagram</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-erd-diagram.html"><i class="fas fa-database"></i> Figure 3.3: ERD &amp; Schema</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-1-diagram.html"><i class="fas fa-sitemap"></i> Figure 3.4: DFD Level 1</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-2-diagram.html"><i class="fas fa-diagram-project"></i> Figure 3.5: DFD Level 2</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="appendix-h-wireframes.html"><i class="fas fa-th-large"></i> Appendix H: Wireframes</a>
+    </div>
+
+    <div class="header-section">
+        <div class="title-group">
+            <h1>SnailShutter System — UML Use Case Diagram</h1>
+            <p>System Architecture &amp; Actor Interactions (Academic Capstone Format - Figure 3.1)</p>
+        </div>
+        <div class="actions-group">
+            <a class="btn btn-primary" href="snailshutter-use-case-diagram.docx" download style="text-decoration:none;">
+                <i class="fas fa-file-word"></i> Download Word (.docx)
+            </a>
+            <button class="btn btn-green" onclick="copySVGForWord()">
+                <i class="fas fa-paste"></i> Copy for Word (Editable)
+            </button>
+            <a class="btn" href="snailshutter-use-case-diagram.svg" download style="text-decoration:none;">
+                <i class="fas fa-file-code"></i> Download SVG
+            </a>
+            <button class="btn" onclick="exportPNG()">
+                <i class="fas fa-file-image"></i> Download PNG
+            </button>
+            <button class="btn" onclick="copyMermaid()">
+                <i class="fas fa-code"></i> Mermaid Code
+            </button>
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print / PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Word Editable Instructions Banner -->
+    <div style="max-width: 1240px; width: 100%; margin-bottom: 1.25rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 1rem;">
+        <div style="font-size: 1.5rem; color: #1e40af; line-height: 1;"><i class="fas fa-lightbulb"></i></div>
+        <div style="font-size: 0.88rem; color: #1e3a8a; line-height: 1.5;">
+            <strong>How to make this 100% editable inside Microsoft Word:</strong>
+            <ol style="margin-top: 0.35rem; margin-left: 1.25rem; color: #1e293b;">
+                <li>Click <strong>Download SVG</strong> (or <strong>Download Word (.docx)</strong>).</li>
+                <li>In Microsoft Word, click <strong>Insert &gt; Pictures &gt; This Device...</strong> and select <code>snailshutter-use-case-diagram.svg</code>.</li>
+                <li>Right-click the diagram in Word and select <strong>Convert to Shape</strong> (or click <em>Convert to Shape</em> under the <em>Graphics Format</em> ribbon).</li>
+                <li>Click <strong>Yes</strong> to confirm. Word will instantly break the diagram into native shapes — every single oval, stick figure, and text box is now fully editable directly in Word!</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Diagram Canvas Wrapper -->
+    <div class="diagram-wrapper">
+        <svg id="diagram-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 825" width="100%" height="100%" style="background:#ffffff; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+            <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9" fill="none" stroke="#1e3a8a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </marker>
+                <filter id="soft-shadow" x="-5%" y="-5%" width="110%" height="110%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.04" />
+                </filter>
+            </defs>
+
+            <!-- SYSTEM BOUNDARY RECTANGLE -->
+            <rect x="170" y="25" width="860" height="785" rx="2" fill="#ffffff" stroke="#1e293b" stroke-width="2" />
+            <text x="600" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a" letter-spacing="0.5">
+                SnailShutter Photography Studio Booking &amp; Management System
+            </text>
+            <line x1="170" y1="62" x2="1030" y2="62" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 4" />
+
+            <!-- ACTOR: GUEST -->
+            <g id="actor-guest" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="85" cy="115" r="15" fill="#ffffff" />
+                <line x1="85" y1="130" x2="85" y2="180" />
+                <line x1="55" y1="150" x2="115" y2="150" />
+                <line x1="85" y1="180" x2="65" y2="225" />
+                <line x1="85" y1="180" x2="105" y2="225" />
+                <text x="85" y="248" font-size="14" font-weight="700" fill="#0f172a" stroke="none" text-anchor="middle">Guest</text>
+            </g>
+
+            <!-- ACTOR: REGISTERED USER (Client) -->
+            <g id="actor-client" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="85" cy="460" r="15" fill="#ffffff" />
+                <line x1="85" y1="475" x2="85" y2="525" />
+                <line x1="55" y1="495" x2="115" y2="495" />
+                <line x1="85" y1="525" x2="65" y2="570" />
+                <line x1="85" y1="525" x2="105" y2="570" />
+                <text x="85" y="595" font-size="14" font-weight="700" fill="#0f172a" stroke="none" text-anchor="middle">Registered User</text>
+                <text x="85" y="612" font-size="12" font-weight="500" fill="#64748b" stroke="none" text-anchor="middle">(Client)</text>
+            </g>
+
+            <!-- ACTOR: ADMINISTRATOR / STAFF -->
+            <g id="actor-admin-staff" stroke="#0f172a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="1115" cy="330" r="15" fill="#ffffff" />
+                <line x1="1115" y1="345" x2="1115" y2="395" />
+                <line x1="1085" y1="365" x2="1145" y2="365" />
+                <line x1="1115" y1="395" x2="1095" y2="440" />
+                <line x1="1115" y1="395" x2="1135" y2="440" />
+                <text x="1115" y="465" font-size="14" font-weight="700" fill="#0f172a" stroke="none" text-anchor="middle">Administrator / Staff</text>
+            </g>
+
+            <!-- ASSOCIATION LINES: GUEST -->
+            <g stroke="#334155" stroke-width="1.2">
+                <line x1="115" y1="150" x2="205" y2="92" />
+                <line x1="115" y1="150" x2="198" y2="148" />
+                <line x1="115" y1="150" x2="202" y2="205" />
+                <line x1="115" y1="150" x2="202" y2="262" />
+            </g>
+
+            <!-- GUEST USE CASES -->
+            <g transform="translate(290, 92)">
+                <ellipse cx="0" cy="0" rx="85" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">View Studio Portfolio</text>
+            </g>
+
+            <g transform="translate(290, 148)">
+                <ellipse cx="0" cy="0" rx="92" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Search Packages &amp; Rates</text>
+                <text x="0" y="12" text-anchor="middle" font-size="9.5" fill="#475569">(by name, price, category)</text>
+            </g>
+
+            <g transform="translate(290, 205)">
+                <ellipse cx="0" cy="0" rx="88" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Check Studio Availability</text>
+            </g>
+
+            <g transform="translate(290, 262)">
+                <ellipse cx="0" cy="0" rx="88" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">View Services &amp; Studio FAQs</text>
+            </g>
+
+            <!-- ASSOCIATION LINES: REGISTERED USER -->
+            <g stroke="#334155" stroke-width="1.2">
+                <line x1="115" y1="495" x2="218" y2="330" />
+                <line x1="115" y1="495" x2="238" y2="385" />
+                <line x1="115" y1="495" x2="198" y2="440" />
+                <line x1="115" y1="495" x2="208" y2="495" />
+                <line x1="115" y1="495" x2="200" y2="550" />
+                <line x1="115" y1="495" x2="198" y2="605" />
+                <line x1="115" y1="495" x2="202" y2="660" />
+                <line x1="115" y1="495" x2="205" y2="715" />
+                <line x1="115" y1="495" x2="218" y2="768" />
+            </g>
+
+            <!-- REGISTERED USER USE CASES -->
+            <g transform="translate(290, 330)">
+                <ellipse cx="0" cy="0" rx="72" ry="18" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Register Account</text>
+            </g>
+
+            <g transform="translate(290, 385)">
+                <ellipse cx="0" cy="0" rx="52" ry="18" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Log In</text>
+            </g>
+
+            <g transform="translate(290, 440)">
+                <ellipse cx="0" cy="0" rx="92" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Book Photography Session</text>
+            </g>
+
+            <g transform="translate(290, 495)">
+                <ellipse cx="0" cy="0" rx="82" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">View My Bookings</text>
+            </g>
+
+            <g transform="translate(290, 550)">
+                <ellipse cx="0" cy="0" rx="90" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Upload Proof of Payment</text>
+            </g>
+
+            <g transform="translate(290, 605)">
+                <ellipse cx="0" cy="0" rx="92" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">View Payment &amp; Receipts</text>
+            </g>
+
+            <g transform="translate(290, 660)">
+                <ellipse cx="0" cy="0" rx="88" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Download Delivered Photos</text>
+            </g>
+
+            <g transform="translate(290, 715)">
+                <ellipse cx="0" cy="0" rx="85" ry="18" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Update Profile / Avatar</text>
+            </g>
+
+            <g transform="translate(290, 768)">
+                <ellipse cx="0" cy="0" rx="72" ry="18" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Reset Password</text>
+            </g>
+
+            <!-- CENTER CORE BUSINESS LOGIC -->
+            <g transform="translate(500, 115)">
+                <ellipse cx="0" cy="0" rx="82" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Services</text>
+                <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+            </g>
+
+            <g transform="translate(710, 115)">
+                <ellipse cx="0" cy="0" rx="84" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Deliveries</text>
+                <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(upload / set Drive links)</text>
+            </g>
+
+            <g transform="translate(605, 230)">
+                <ellipse cx="0" cy="0" rx="80" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="2" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">Manage Records</text>
+            </g>
+
+            <g transform="translate(500, 335)">
+                <ellipse cx="0" cy="0" rx="80" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Users</text>
+                <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+            </g>
+
+            <g transform="translate(710, 335)">
+                <ellipse cx="0" cy="0" rx="84" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Bookings</text>
+                <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(view / update / cancel)</text>
+            </g>
+
+            <!-- <<include>> Arrows to Manage Records -->
+            <path d="M 525 137 L 580 210" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="522" y="165" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="550" y="176" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+            <path d="M 685 137 L 630 210" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="635" y="165" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="663" y="176" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+            <path d="M 530 314 L 580 252" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="520" y="275" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="548" y="286" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+            <path d="M 680 314 L 630 252" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="638" y="275" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="666" y="286" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+            <!-- Process Payment -->
+            <g transform="translate(640, 445)">
+                <ellipse cx="0" cy="0" rx="80" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Process Payment</text>
+            </g>
+
+            <path d="M 695 357 L 655 425" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="650" y="382" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="678" y="393" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;extend&gt;&gt;</text>
+
+            <!-- Generate Reports -->
+            <g transform="translate(640, 545)">
+                <ellipse cx="0" cy="0" rx="80" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Generate Reports</text>
+            </g>
+
+            <path d="M 640 465 L 640 525" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="612" y="488" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="640" y="499" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1e3a8a">&lt;&lt;include&gt;&gt;</text>
+
+            <!-- Specific Reports -->
+            <g transform="translate(480, 665)">
+                <ellipse cx="0" cy="0" rx="76" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.5" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0f172a">Payment Report</text>
+            </g>
+
+            <g transform="translate(640, 665)">
+                <ellipse cx="0" cy="0" rx="74" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.5" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0f172a">Availability Report</text>
+            </g>
+
+            <g transform="translate(798, 665)">
+                <ellipse cx="0" cy="0" rx="74" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.5" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0f172a">Booking Analytics</text>
+            </g>
+
+            <!-- <<extend>> Arrows to 3 Reports -->
+            <path d="M 605 563 L 505 647" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="525" y="598" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="553" y="609" text-anchor="middle" font-size="9" font-weight="600" fill="#1e3a8a">&lt;&lt;extend&gt;&gt;</text>
+
+            <path d="M 640 565 L 640 645" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="612" y="598" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="640" y="609" text-anchor="middle" font-size="9" font-weight="600" fill="#1e3a8a">&lt;&lt;extend&gt;&gt;</text>
+
+            <path d="M 675 563 L 775 647" fill="none" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+            <rect x="702" y="598" width="56" height="15" fill="#ffffff" rx="2" />
+            <text x="730" y="609" text-anchor="middle" font-size="9" font-weight="600" fill="#1e3a8a">&lt;&lt;extend&gt;&gt;</text>
+
+            <!-- ADMINISTRATOR / STAFF USE CASES -->
+            <g transform="translate(915, 125)">
+                <ellipse cx="0" cy="0" rx="84" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Services</text>
+                <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+            </g>
+
+            <g transform="translate(915, 205)">
+                <ellipse cx="0" cy="0" rx="84" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Deliveries</text>
+                <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+            </g>
+
+            <g transform="translate(915, 285)">
+                <ellipse cx="0" cy="0" rx="84" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Users</text>
+                <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(add / update / delete)</text>
+            </g>
+
+            <g transform="translate(915, 365)">
+                <ellipse cx="0" cy="0" rx="86" ry="22" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="-2" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Manage Bookings</text>
+                <text x="0" y="11" text-anchor="middle" font-size="9.5" fill="#475569">(view / update / cancel)</text>
+            </g>
+
+            <g transform="translate(915, 445)">
+                <ellipse cx="0" cy="0" rx="78" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Verify Payments</text>
+            </g>
+
+            <g transform="translate(915, 520)">
+                <ellipse cx="0" cy="0" rx="78" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">Generate Reports</text>
+            </g>
+
+            <g transform="translate(915, 595)">
+                <ellipse cx="0" cy="0" rx="78" ry="20" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6" filter="url(#soft-shadow)" />
+                <text x="0" y="4" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f172a">System Settings</text>
+            </g>
+
+            <!-- ASSOCIATION LINES: ADMIN / STAFF -->
+            <g stroke="#334155" stroke-width="1.2">
+                <line x1="1085" y1="365" x2="998" y2="132" />
+                <line x1="1085" y1="365" x2="996" y2="210" />
+                <line x1="1085" y1="365" x2="996" y2="288" />
+                <line x1="1085" y1="365" x2="1000" y2="365" />
+                <line x1="1085" y1="365" x2="992" y2="442" />
+                <line x1="1085" y1="365" x2="992" y2="518" />
+                <line x1="1085" y1="365" x2="992" y2="592" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- Capstone Documentation Specifications Table -->
+    <div class="docs-section">
+        <h2><i class="fas fa-book-open" style="color:#1e3a8a;"></i> Use Case Specification Table (Chapter 3 Reference)</h2>
+        <p style="color:var(--text-muted); font-size: 0.9rem;">This table details the primary actors, descriptions, and functional relationships depicted in Figure 3.1.</p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Actor</th>
+                        <th>Use Case</th>
+                        <th>Description</th>
+                        <th>Type / Stereotype</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-guest">Guest</span></td>
+                        <td>View Studio Portfolio</td>
+                        <td>Browse public photographs, gallery items, and past shoots.</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-guest">Guest</span></td>
+                        <td>Search Packages &amp; Rates</td>
+                        <td>Filter photography packages by name, price range, or category.</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-guest">Guest</span></td>
+                        <td>Check Studio Availability</td>
+                        <td>Inspect real-time calendar slots and operating days before booking.</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-guest">Guest</span></td>
+                        <td>View Services &amp; Studio FAQs</td>
+                        <td>Read package inclusions, studio guidelines, and FAQs.</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-client">Registered User</span></td>
+                        <td>Register Account &amp; Log In</td>
+                        <td>Create personal credentials and authenticate with JWT / session.</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-client">Registered User</span></td>
+                        <td>Book Photography Session</td>
+                        <td>Select packages, date, time slot, and input special requests/notes.</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-client">Registered User</span></td>
+                        <td>Upload Proof of Payment</td>
+                        <td>Upload GCash receipt image (strictly restricted to JPG/PNG up to 2MB).</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-client">Registered User</span></td>
+                        <td>View My Bookings &amp; Status</td>
+                        <td>Track pending, confirmed, completed, or cancelled bookings.</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-client">Registered User</span></td>
+                        <td>Download Delivered Photos</td>
+                        <td>Access delivered high-res photos via authorized Google Drive link.</td>
+                        <td>Primary</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-admin">Admin / Staff</span></td>
+                        <td>Manage Services</td>
+                        <td>Create, update, or archive studio photography packages and pricing.</td>
+                        <td>&lt;&lt;include&gt;&gt; Manage Records</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-admin">Admin / Staff</span></td>
+                        <td>Manage Deliveries</td>
+                        <td>Attach and update Google Drive photo delivery links for completed sessions.</td>
+                        <td>&lt;&lt;include&gt;&gt; Manage Records</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-admin">Admin / Staff</span></td>
+                        <td>Manage Users</td>
+                        <td>Add, modify, or deactivate client, photographer, and admin accounts.</td>
+                        <td>&lt;&lt;include&gt;&gt; Manage Records</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-admin">Admin / Staff</span></td>
+                        <td>Manage Bookings</td>
+                        <td>Search, filter, confirm, complete, or cancel bookings in real-time.</td>
+                        <td>&lt;&lt;include&gt;&gt; Manage Records</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-admin">Admin / Staff</span></td>
+                        <td>Verify Payments</td>
+                        <td>Inspect uploaded payment receipts, verify GCash reference, and approve downpayment.</td>
+                        <td>&lt;&lt;extend&gt;&gt; Process Payment</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-admin">Admin / Staff</span></td>
+                        <td>Generate Reports</td>
+                        <td>Compile studio analytics: revenue, availability, and popular packages.</td>
+                        <td>&lt;&lt;extend&gt;&gt; 3 Sub-Reports</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Code copied to clipboard!</div>
+
+    <script>
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2800);
+        }
+
+        function exportSVG() {
+            const svgEl = document.getElementById('diagram-svg');
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'snailshutter-figure-3-1-use-case-diagram.svg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('SVG downloaded successfully!');
+        }
+
+        function copySVGForWord() {
+            const svgEl = document.getElementById('diagram-svg');
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                    const textBlob = new Blob([svgString], { type: 'text/plain' });
+                    const item = new ClipboardItem({ 'image/svg+xml': blob, 'text/plain': textBlob });
+                    navigator.clipboard.write([item]).then(() => {
+                        showToast('Copied! In Word: Paste (Ctrl+V) -> Right-Click -> "Convert to Shape" to edit!');
+                    }).catch(() => {
+                        navigator.clipboard.writeText(svgString).then(() => {
+                            showToast('SVG code copied! In Word, Insert the SVG file and click "Convert to Shape".');
+                        });
+                    });
+                } catch(e) {
+                    navigator.clipboard.writeText(svgString).then(() => {
+                        showToast('SVG code copied to clipboard!');
+                    });
+                }
+            } else {
+                navigator.clipboard.writeText(svgString).then(() => {
+                    showToast('SVG code copied to clipboard!');
+                });
+            }
+        }
+
+        function exportPNG() {
+            const svgEl = document.getElementById('diagram-svg');
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(svgBlob);
+            
+            const image = new Image();
+            image.onload = function() {
+                const canvas = document.createElement('canvas');
+                // High resolution scaling (2.5x) for crisp print/paper quality
+                const scale = 2.5;
+                canvas.width = 1200 * scale;
+                canvas.height = 825 * scale;
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.scale(scale, scale);
+                context.drawImage(image, 0, 0);
+                
+                const pngURL = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pngURL;
+                downloadLink.download = 'Figure_3_1_Use_Case_Diagram_SnailShutter.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                showToast('High-Res PNG downloaded successfully!');
+            };
+            image.src = blobURL;
+        }
+
+        function copyMermaid() {
+            const mermaidCode = `graph TD
+    subgraph SnailShutter ["SnailShutter Photography Studio Booking System"]
+        %% Guest Use Cases
+        UC_Guest1(["View Studio Portfolio"])
+        UC_Guest2(["Search Packages & Rates<br/>(by name, price, category)"])
+        UC_Guest3(["Check Studio Availability"])
+        UC_Guest4(["View Services & FAQs"])
+
+        %% Registered User Use Cases
+        UC_Reg1(["Register Account"])
+        UC_Reg2(["Log In"])
+        UC_Reg3(["Book Photography Session"])
+        UC_Reg4(["View My Bookings"])
+        UC_Reg5(["Upload Proof of Payment"])
+        UC_Reg6(["View Payment & Receipts"])
+        UC_Reg7(["Download Delivered Photos"])
+        UC_Reg8(["Update Profile / Avatar"])
+        UC_Reg9(["Reset Password"])
+
+        %% Core Center Records Hub
+        UC_Rec(["Manage Records"])
+        UC_Srv(["Manage Services<br/>(add / update / delete)"])
+        UC_Del(["Manage Deliveries<br/>(upload / set Drive links)"])
+        UC_Usr(["Manage Users<br/>(add / update / delete)"])
+        UC_Bkg(["Manage Bookings<br/>(view / update / cancel)"])
+
+        UC_Srv -.->|&lt;&lt;include&gt;&gt;| UC_Rec
+        UC_Del -.->|&lt;&lt;include&gt;&gt;| UC_Rec
+        UC_Usr -.->|&lt;&lt;include&gt;&gt;| UC_Rec
+        UC_Bkg -.->|&lt;&lt;include&gt;&gt;| UC_Rec
+
+        %% Payments and Reports
+        UC_Pay(["Process Payment"])
+        UC_Bkg -.->|&lt;&lt;extend&gt;&gt;| UC_Pay
+
+        UC_Rep(["Generate Reports"])
+        UC_Pay -.->|&lt;&lt;include&gt;&gt;| UC_Rep
+
+        UC_Rep1(["Payment Report"])
+        UC_Rep2(["Availability Report"])
+        UC_Rep3(["Booking Analytics"])
+
+        UC_Rep -.->|&lt;&lt;extend&gt;&gt;| UC_Rep1
+        UC_Rep -.->|&lt;&lt;extend&gt;&gt;| UC_Rep2
+        UC_Rep -.->|&lt;&lt;extend&gt;&gt;| UC_Rep3
+
+        %% Admin/Staff Use Cases
+        UC_Adm_Srv(["Manage Services<br/>(add / update / delete)"])
+        UC_Adm_Del(["Manage Deliveries<br/>(add / update / delete)"])
+        UC_Adm_Usr(["Manage Users<br/>(add / update / delete)"])
+        UC_Adm_Bkg(["Manage Bookings<br/>(view / update / cancel)"])
+        UC_Adm_Pay(["Verify Payments"])
+        UC_Adm_Rep(["Generate Reports"])
+        UC_Adm_Set(["System Settings"])
+    end
+
+    %% Actors
+    Actor_Guest["👤 Guest"]
+    Actor_Client["👤 Registered User (Client)"]
+    Actor_Admin["👤 Administrator / Staff"]
+
+    %% Guest Connections
+    Actor_Guest --- UC_Guest1
+    Actor_Guest --- UC_Guest2
+    Actor_Guest --- UC_Guest3
+    Actor_Guest --- UC_Guest4
+
+    %% Registered User Connections
+    Actor_Client --- UC_Reg1
+    Actor_Client --- UC_Reg2
+    Actor_Client --- UC_Reg3
+    Actor_Client --- UC_Reg4
+    Actor_Client --- UC_Reg5
+    Actor_Client --- UC_Reg6
+    Actor_Client --- UC_Reg7
+    Actor_Client --- UC_Reg8
+    Actor_Client --- UC_Reg9
+
+    %% Admin/Staff Connections
+    Actor_Admin --- UC_Adm_Srv
+    Actor_Admin --- UC_Adm_Del
+    Actor_Admin --- UC_Adm_Usr
+    Actor_Admin --- UC_Adm_Bkg
+    Actor_Admin --- UC_Adm_Pay
+    Actor_Admin --- UC_Adm_Rep
+    Actor_Admin --- UC_Adm_Set`;
+
+            navigator.clipboard.writeText(mermaidCode).then(() => {
+                showToast('Mermaid code copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy. Please select text manually.');
+            });
+        }
+    </script>
+</body>
+</html>

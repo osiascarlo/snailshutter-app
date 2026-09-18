@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figure 3.2 Context Diagram — SnailShutter Capstone Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --border: #e2e8f0;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-links {
+            max-width: 1240px;
+            width: 100%;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            font-size: 0.88rem;
+        }
+
+        .nav-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .header-section {
+            max-width: 1240px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .title-group h1 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .title-group p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.55rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            background: #172554;
+            border-color: #172554;
+        }
+
+        .btn-green {
+            background: #15803d;
+            color: white;
+            border-color: #15803d;
+        }
+
+        .btn-green:hover {
+            background: #166534;
+            border-color: #166534;
+        }
+
+        /* Instructions Banner */
+        .info-banner {
+            max-width: 1240px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .info-banner .icon {
+            font-size: 1.5rem;
+            color: #1e40af;
+            line-height: 1;
+        }
+
+        .info-banner .content {
+            font-size: 0.88rem;
+            color: #1e3a8a;
+            line-height: 1.5;
+        }
+
+        .info-banner ol {
+            margin-top: 0.35rem;
+            margin-left: 1.25rem;
+            color: #1e293b;
+        }
+
+        /* Diagram Canvas Container */
+        .diagram-wrapper {
+            max-width: 1240px;
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem 1.5rem 1.5rem;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        #diagram-svg {
+            max-width: 1140px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Documentation & Specifications Table */
+        .docs-section {
+            max-width: 1240px;
+            width: 100%;
+            margin-top: 2rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.75rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .docs-section h2 {
+            font-size: 1.25rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.8rem 1rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-client { background: #dcfce7; color: #15803d; }
+        .badge-admin { background: #fef3c7; color: #b45309; }
+        .badge-guest { background: #e0f2fe; color: #0369a1; }
+
+        .flow-list {
+            list-style: disc;
+            margin-left: 1.2rem;
+            font-size: 0.85rem;
+            line-height: 1.45;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #0f172a;
+            color: white;
+            padding: 0.85rem 1.4rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Links -->
+    <div class="nav-links">
+        <a href="snailshutter-use-case-diagram.html"><i class="fas fa-arrow-left"></i> Figure 3.1: Use Case</a>
+        <span style="color:#cbd5e1;">|</span>
+        <span style="color:#64748b; font-weight:600;"><i class="fas fa-project-diagram"></i> Figure 3.2: Context Diagram (Active)</span>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-erd-diagram.html"><i class="fas fa-database"></i> Figure 3.3: ERD &amp; Schema</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-1-diagram.html"><i class="fas fa-sitemap"></i> Figure 3.4: DFD Level 1</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-2-diagram.html"><i class="fas fa-diagram-project"></i> Figure 3.5: DFD Level 2</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="appendix-h-wireframes.html"><i class="fas fa-th-large"></i> Appendix H: Wireframes</a>
+    </div>
+
+    <div class="header-section">
+        <div class="title-group">
+            <h1>SnailShutter System — UML Context Diagram</h1>
+            <p>DFD Level 0 System Boundary &amp; External Entity Data Flows (Academic Capstone - Figure 3.2)</p>
+        </div>
+        <div class="actions-group">
+            <a class="btn btn-primary" href="snailshutter-context-diagram.docx" download>
+                <i class="fas fa-file-word"></i> Download Word (.docx)
+            </a>
+            <button class="btn btn-green" onclick="copySVGForWord()">
+                <i class="fas fa-paste"></i> Copy for Word (Editable)
+            </button>
+            <a class="btn" href="snailshutter-context-diagram.svg" download>
+                <i class="fas fa-file-code"></i> Download SVG (White)
+            </a>
+            <a class="btn" href="snailshutter-context-diagram-transparent.svg" download>
+                <i class="fas fa-layer-group"></i> Download SVG (Transparent)
+            </a>
+            <button class="btn" onclick="exportPNG()">
+                <i class="fas fa-file-image"></i> Download PNG
+            </button>
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print / PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Word Editable Instructions Banner -->
+    <div class="info-banner">
+        <div class="icon"><i class="fas fa-lightbulb"></i></div>
+        <div class="content">
+            <strong>How to make this Context Diagram 100% editable in Microsoft Word:</strong>
+            <ol>
+                <li>Click <strong>Download Word (.docx)</strong> above, or insert <code>snailshutter-context-diagram.svg</code> directly into your Word document (<strong>Insert &gt; Pictures &gt; This Device</strong>).</li>
+                <li>Right-click the diagram in Word and choose <strong>Convert to Shape</strong> (or click <em>Convert to Shape</em> in the <em>Graphics Format</em> ribbon).</li>
+                <li>Click <strong>Yes</strong> to confirm. Word will convert all boxes, the center circle, arrows, and text into native Word Shapes! You can double-click any text to edit words, adjust font sizes, recolor boxes, or set <strong>Shape Fill &gt; No Fill</strong> for a transparent background.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Diagram Canvas Wrapper -->
+    <div class="diagram-wrapper">
+        <svg id="diagram-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 760" width="100%" height="100%" style="background:#ffffff; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+            <defs>
+                <marker id="arrow-right" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#1e293b"/>
+                </marker>
+                <marker id="arrow-left" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 10 1.5 L 1 5 L 10 8.5 z" fill="#1e293b"/>
+                </marker>
+                <marker id="arrow-down" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 1.5 0 L 5 9 L 8.5 0 z" fill="#1e293b"/>
+                </marker>
+                <marker id="arrow-up" viewBox="0 0 10 10" refX="5" refY="1" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 1.5 10 L 5 1 L 8.5 10 z" fill="#1e293b"/>
+                </marker>
+                <filter id="box-shadow" x="-5%" y="-5%" width="110%" height="110%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06" />
+                </filter>
+            </defs>
+
+            <!-- White Sheet Background -->
+            <rect id="canvas-bg" width="1180" height="760" fill="#ffffff" />
+
+            <!-- CENTER PROCESS 0 (THE SYSTEM) -->
+            <g id="system-process">
+                <circle cx="590" cy="350" r="130" fill="#ffffff" stroke="#1e293b" stroke-width="2.5" filter="url(#box-shadow)" />
+                <text x="590" y="322" text-anchor="middle" font-size="15.5" font-weight="700" fill="#0f172a" letter-spacing="0.2">
+                    SnailShutter
+                </text>
+                <text x="590" y="344" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">
+                    Photography Studio
+                </text>
+                <text x="590" y="366" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">
+                    Booking &amp; Management
+                </text>
+                <text x="590" y="386" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1e3a8a">
+                    System
+                </text>
+            </g>
+
+            <!-- ENTITY 1: REGISTERED USER (CLIENT) -->
+            <g id="entity-client">
+                <rect x="50" y="295" width="185" height="110" rx="2" fill="#ffffff" stroke="#1e293b" stroke-width="2" filter="url(#box-shadow)" />
+                <text x="142" y="345" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">
+                    Registered User
+                </text>
+                <text x="142" y="368" text-anchor="middle" font-size="13" font-weight="600" fill="#475569">
+                    (Client)
+                </text>
+            </g>
+
+            <!-- DATA FLOWS: CLIENT <--> SYSTEM -->
+            <!-- Client -> System (Top Arrow) -->
+            <line x1="235" y1="325" x2="455" y2="325" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-right)" />
+            <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">
+                <text x="345" y="260">Account Registration &amp; Login Details,</text>
+                <text x="345" y="278">Booking &amp; Reservation Details,</text>
+                <text x="345" y="296">Proof of Payment (GCash / Bank),</text>
+                <text x="345" y="314">Special Requests / Notes</text>
+            </g>
+
+            <!-- System -> Client (Bottom Arrow) -->
+            <line x1="455" y1="375" x2="238" y2="375" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-left)" />
+            <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">
+                <text x="345" y="398">Account Confirmation &amp; Profile Updates,</text>
+                <text x="345" y="416">Booking Status (Confirmed / Cancelled),</text>
+                <text x="345" y="434">Payment Verification &amp; Official Receipts,</text>
+                <text x="345" y="452">Delivered Photos &amp; Google Drive Links</text>
+            </g>
+
+            <!-- ENTITY 2: ADMINISTRATOR (ADMIN/STAFF) -->
+            <g id="entity-admin">
+                <rect x="945" y="295" width="185" height="110" rx="2" fill="#ffffff" stroke="#1e293b" stroke-width="2" filter="url(#box-shadow)" />
+                <text x="1037" y="345" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">
+                    Administrator
+                </text>
+                <text x="1037" y="368" text-anchor="middle" font-size="13" font-weight="600" fill="#475569">
+                    (Admin / Staff)
+                </text>
+            </g>
+
+            <!-- DATA FLOWS: ADMIN <--> SYSTEM -->
+            <!-- Admin -> System (Top Arrow) -->
+            <line x1="945" y1="325" x2="728" y2="325" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-left)" />
+            <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">
+                <text x="835" y="260">Manage Packages, Rates &amp; Services,</text>
+                <text x="835" y="278">Update Information &amp; Schedule Settings,</text>
+                <text x="835" y="296">Reservation Approval &amp; Rescheduling,</text>
+                <text x="835" y="314">Upload Photos &amp; Set Drive Links</text>
+            </g>
+
+            <!-- System -> Admin (Bottom Arrow) -->
+            <line x1="725" y1="375" x2="942" y2="375" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-right)" />
+            <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">
+                <text x="835" y="398">Client Accounts &amp; Booking Inquiries,</text>
+                <text x="835" y="416">Uploaded Proof of Payment for Review,</text>
+                <text x="835" y="434">System Data, Reports &amp; Analytics,</text>
+                <text x="835" y="452">Payment Audit Logs &amp; Notifications</text>
+            </g>
+
+            <!-- ENTITY 3: GUEST / PUBLIC -->
+            <g id="entity-guest">
+                <rect x="490" y="615" width="200" height="85" rx="2" fill="#ffffff" stroke="#1e293b" stroke-width="2" filter="url(#box-shadow)" />
+                <text x="590" y="655" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">
+                    Guest / Public
+                </text>
+                <text x="590" y="676" text-anchor="middle" font-size="12" font-weight="500" fill="#64748b">
+                    (Unregistered Visitor)
+                </text>
+            </g>
+
+            <!-- DATA FLOWS: GUEST <--> SYSTEM -->
+            <!-- Guest -> System (Left Arrow, Up) -->
+            <line x1="550" y1="615" x2="550" y2="483" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-up)" />
+            <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="end">
+                <text x="535" y="522">View Information &amp; Portfolio,</text>
+                <text x="535" y="542">Search Packages &amp; Pricing,</text>
+                <text x="535" y="562">Check Real-time Studio Availability,</text>
+                <text x="535" y="582">View Studio FAQs &amp; Rules</text>
+            </g>
+
+            <!-- System -> Guest (Right Arrow, Down) -->
+            <line x1="630" y1="480" x2="630" y2="612" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-down)" />
+            <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="start">
+                <text x="645" y="522">Studio Information &amp; Portfolios,</text>
+                <text x="645" y="542">Package Details, Rates &amp; Inclusions,</text>
+                <text x="645" y="562">Live Availability Calendar,</text>
+                <text x="645" y="582">Studio Policies, FAQs &amp; Guidelines</text>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Capstone Documentation Specifications Table -->
+    <div class="docs-section">
+        <h2><i class="fas fa-book-open" style="color:#1e3a8a;"></i> Context Diagram Data Flow Matrix (Chapter 3 Reference)</h2>
+        <p style="color:var(--text-muted); font-size: 0.9rem;">This table details the boundary external entities, their inbound input data flows, and outbound system response data flows depicted in Figure 3.2.</p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 18%;">External Entity</th>
+                        <th style="width: 15%;">Entity Classification</th>
+                        <th style="width: 33%;">Inbound Data Flow (Entity &rarr; System)</th>
+                        <th style="width: 34%;">Outbound Data Flow (System &rarr; Entity)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Registered User</strong><br><span style="font-size:0.8rem; color:#64748b;">(Client)</span></td>
+                        <td><span class="badge badge-client">Primary Actor</span></td>
+                        <td>
+                            <ul class="flow-list">
+                                <li>Account Registration &amp; Login Credentials</li>
+                                <li>Booking Details (Desired Date, Time Slot, Photography Package)</li>
+                                <li>Proof of Payment (Uploaded GCash / Bank Transfer Receipt Image &le; 2MB)</li>
+                                <li>Special Client Requests, Props, or Session Notes</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="flow-list">
+                                <li>Account Creation &amp; Password Reset Confirmations</li>
+                                <li>Real-time Booking Status (Pending, Confirmed, Completed, Cancelled)</li>
+                                <li>Verified Digital Receipts &amp; Payment Verification Updates</li>
+                                <li>Delivered Photography Photos &amp; Downloadable Google Drive Link</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Administrator</strong><br><span style="font-size:0.8rem; color:#64748b;">(Admin / Staff)</span></td>
+                        <td><span class="badge badge-admin">Administrative Actor</span></td>
+                        <td>
+                            <ul class="flow-list">
+                                <li>Manage Photography Services, Package Inclusions &amp; Pricing Rates</li>
+                                <li>Booking Confirmations, Rescheduling &amp; Cancellations</li>
+                                <li>Payment Receipt Verification &amp; Official Approval</li>
+                                <li>Upload High-Resolution Delivered Photos &amp; Google Drive Links</li>
+                                <li>Custom Analytics &amp; Revenue Report Queries</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="flow-list">
+                                <li>Comprehensive Client Profile &amp; Booking Records</li>
+                                <li>Uploaded Proof of Payment Receipts Queue for Verification</li>
+                                <li>Master Studio Calendar &amp; Slot Availability Logs</li>
+                                <li>Automated Sales, Monthly Revenue &amp; Audit Trail Reports</li>
+                                <li>Real-time System Notifications &amp; Booking Alerts</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Guest / Public</strong><br><span style="font-size:0.8rem; color:#64748b;">(Unregistered Visitor)</span></td>
+                        <td><span class="badge badge-guest">Public Actor</span></td>
+                        <td>
+                            <ul class="flow-list">
+                                <li>Studio Portfolio Inquiries &amp; Category Filters</li>
+                                <li>Package Search Queries &amp; Pricing Information Requests</li>
+                                <li>Check Real-time Studio Date and Time Availability</li>
+                                <li>Studio Guidelines, Rules &amp; FAQ Inquiries</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="flow-list">
+                                <li>Studio Portfolio Showcase &amp; Sample High-Res Shots</li>
+                                <li>Photography Packages, Rates, Add-ons &amp; Inclusions</li>
+                                <li>Live Studio Booking Availability Calendar</li>
+                                <li>Studio Policies, Location Map, FAQs &amp; Contact Information</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3500);
+        }
+
+        function copySVGForWord() {
+            const svgEl = document.getElementById('diagram-svg');
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                    const textBlob = new Blob([svgString], { type: 'text/plain' });
+                    const item = new ClipboardItem({ 'image/svg+xml': blob, 'text/plain': textBlob });
+                    navigator.clipboard.write([item]).then(() => {
+                        showToast('Copied! In Word: Paste (Ctrl+V) -> Right-Click -> "Convert to Shape" to edit!');
+                    }).catch(() => {
+                        navigator.clipboard.writeText(svgString).then(() => {
+                            showToast('SVG code copied! In Word, Insert the SVG file and click "Convert to Shape".');
+                        });
+                    });
+                } catch(e) {
+                    navigator.clipboard.writeText(svgString).then(() => {
+                        showToast('SVG code copied to clipboard!');
+                    });
+                }
+            } else {
+                navigator.clipboard.writeText(svgString).then(() => {
+                    showToast('SVG code copied to clipboard!');
+                });
+            }
+        }
+
+        function exportPNG() {
+            const svgEl = document.getElementById('diagram-svg');
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(svgBlob);
+            
+            const image = new Image();
+            image.onload = function() {
+                const canvas = document.createElement('canvas');
+                const scale = 2.5;
+                canvas.width = 1180 * scale;
+                canvas.height = 760 * scale;
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.scale(scale, scale);
+                context.drawImage(image, 0, 0);
+                
+                const pngURL = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pngURL;
+                downloadLink.download = 'Figure_3_2_Context_Diagram_SnailShutter.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                showToast('High-Res PNG downloaded successfully!');
+            };
+            image.src = blobURL;
+        }
+    </script>
+</body>
+</html>

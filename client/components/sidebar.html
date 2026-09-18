@@ -18,15 +18,24 @@
             <a href="/client/bookings.html" class="sidebar-link" id="nav-bookings">
                 <span class="icon"><i class="fas fa-history"></i></span> My Bookings
             </a>
-        </div>
-
-        <div class="sidebar-section" style="margin-top:auto;">
-            <div class="sidebar-section-title">Account</div>
-            <a href="#" class="sidebar-link" id="nav-logout" onclick="auth.logout(); return false;">
-                <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+            <a href="/client/settings.html" class="sidebar-link" id="nav-settings">
+                <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
             </a>
         </div>
     </nav>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="avatar" data-user-initial></div>
+            <div class="sidebar-user-info">
+                <div class="name" data-user-name></div>
+                <div class="role" data-user-role></div>
+            </div>
+        </div>
+        <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+            <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+        </a>
+    </div>
 </aside>
 
 <script>

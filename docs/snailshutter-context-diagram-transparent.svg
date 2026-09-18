@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 760" width="100%" height="100%" style="background:transparent; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Arrow marker pointing right -->
+    <marker id="arrow-right" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#1e293b"/>
+    </marker>
+    <!-- Arrow marker pointing left -->
+    <marker id="arrow-left" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 10 1.5 L 1 5 L 10 8.5 z" fill="#1e293b"/>
+    </marker>
+    <!-- Arrow marker pointing down -->
+    <marker id="arrow-down" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1.5 0 L 5 9 L 8.5 0 z" fill="#1e293b"/>
+    </marker>
+    <!-- Arrow marker pointing up -->
+    <marker id="arrow-up" viewBox="0 0 10 10" refX="5" refY="1" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1.5 10 L 5 1 L 8.5 10 z" fill="#1e293b"/>
+    </marker>
+
+    <!-- Soft drop shadow for entities -->
+    <filter id="box-shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+  </defs>
+
+
+  <!-- ============================================================== -->
+  <!-- CENTER CIRCLE: 0 (THE SYSTEM)                                  -->
+  <!-- ============================================================== -->
+  <g id="system-process">
+    <circle cx="590" cy="350" r="130" fill="none" stroke="#1e293b" stroke-width="2.5" filter="url(#box-shadow)" />
+    
+    <!-- System Title inside Circle -->
+    <text x="590" y="322" text-anchor="middle" font-size="15.5" font-weight="700" fill="#0f172a" letter-spacing="0.2">
+      SnailShutter
+    </text>
+    <text x="590" y="344" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">
+      Photography Studio
+    </text>
+    <text x="590" y="366" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">
+      Booking &amp; Management
+    </text>
+    <text x="590" y="386" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1e3a8a">
+      System
+    </text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- EXTERNAL ENTITY 1: REGISTERED USER (CLIENT) - LEFT             -->
+  <!-- ============================================================== -->
+  <g id="entity-client">
+    <rect x="50" y="295" width="185" height="110" rx="2" fill="none" stroke="#1e293b" stroke-width="2" filter="url(#box-shadow)" />
+    <text x="142" y="345" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">
+      Registered User
+    </text>
+    <text x="142" y="368" text-anchor="middle" font-size="13" font-weight="600" fill="#475569">
+      (Client)
+    </text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- DATA FLOWS: CLIENT <--> SYSTEM                                 -->
+  <!-- ============================================================== -->
+  <!-- Top Arrow: Client -> System (x: 235 to 460, y: 325) -->
+  <line x1="235" y1="325" x2="455" y2="325" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-right)" />
+  <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">
+    <text x="345" y="260">Account Registration &amp; Login Details,</text>
+    <text x="345" y="278">Booking &amp; Reservation Details,</text>
+    <text x="345" y="296">Proof of Payment (GCash / Bank),</text>
+    <text x="345" y="314">Special Requests / Notes</text>
+  </g>
+
+  <!-- Bottom Arrow: System -> Client (x: 460 to 235, y: 375) -->
+  <line x1="455" y1="375" x2="238" y2="375" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-left)" />
+  <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">
+    <text x="345" y="398">Account Confirmation &amp; Profile Updates,</text>
+    <text x="345" y="416">Booking Status (Confirmed / Cancelled),</text>
+    <text x="345" y="434">Payment Verification &amp; Official Receipts,</text>
+    <text x="345" y="452">Delivered Photos &amp; Google Drive Links</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- EXTERNAL ENTITY 2: ADMINISTRATOR (ADMIN/STAFF) - RIGHT         -->
+  <!-- ============================================================== -->
+  <g id="entity-admin">
+    <rect x="945" y="295" width="185" height="110" rx="2" fill="none" stroke="#1e293b" stroke-width="2" filter="url(#box-shadow)" />
+    <text x="1037" y="345" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">
+      Administrator
+    </text>
+    <text x="1037" y="368" text-anchor="middle" font-size="13" font-weight="600" fill="#475569">
+      (Admin / Staff)
+    </text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- DATA FLOWS: ADMIN <--> SYSTEM                                  -->
+  <!-- ============================================================== -->
+  <!-- Top Arrow: Admin -> System (x: 945 to 725, y: 325) -->
+  <line x1="945" y1="325" x2="728" y2="325" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-left)" />
+  <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">
+    <text x="835" y="260">Manage Packages, Rates &amp; Services,</text>
+    <text x="835" y="278">Update Information &amp; Schedule Settings,</text>
+    <text x="835" y="296">Reservation Approval &amp; Rescheduling,</text>
+    <text x="835" y="314">Upload Photos &amp; Set Drive Links</text>
+  </g>
+
+  <!-- Bottom Arrow: System -> Admin (x: 725 to 945, y: 375) -->
+  <line x1="725" y1="375" x2="942" y2="375" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-right)" />
+  <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="middle">
+    <text x="835" y="398">Client Accounts &amp; Booking Inquiries,</text>
+    <text x="835" y="416">Uploaded Proof of Payment for Review,</text>
+    <text x="835" y="434">System Data, Reports &amp; Analytics,</text>
+    <text x="835" y="452">Payment Audit Logs &amp; Notifications</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- EXTERNAL ENTITY 3: GUEST / PUBLIC - BOTTOM                     -->
+  <!-- ============================================================== -->
+  <g id="entity-guest">
+    <rect x="490" y="615" width="200" height="85" rx="2" fill="none" stroke="#1e293b" stroke-width="2" filter="url(#box-shadow)" />
+    <text x="590" y="655" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">
+      Guest / Public
+    </text>
+    <text x="590" y="676" text-anchor="middle" font-size="12" font-weight="500" fill="#64748b">
+      (Unregistered Visitor)
+    </text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- DATA FLOWS: GUEST <--> SYSTEM                                  -->
+  <!-- ============================================================== -->
+  <!-- Left Arrow: Guest -> System (x: 550, y: 615 up to 485) -->
+  <line x1="550" y1="615" x2="550" y2="483" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-up)" />
+  <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="end">
+    <text x="535" y="522">View Information &amp; Portfolio,</text>
+    <text x="535" y="542">Search Packages &amp; Pricing,</text>
+    <text x="535" y="562">Check Real-time Studio Availability,</text>
+    <text x="535" y="582">View Studio FAQs &amp; Rules</text>
+  </g>
+
+  <!-- Right Arrow: System -> Guest (x: 630, y: 485 down to 615) -->
+  <line x1="630" y1="480" x2="630" y2="612" stroke="#1e293b" stroke-width="1.6" marker-end="url(#arrow-down)" />
+  <g font-size="10" font-weight="600" fill="#1e293b" text-anchor="start">
+    <text x="645" y="522">Studio Information &amp; Portfolios,</text>
+    <text x="645" y="542">Package Details, Rates &amp; Inclusions,</text>
+    <text x="645" y="562">Live Availability Calendar,</text>
+    <text x="645" y="582">Studio Policies, FAQs &amp; Guidelines</text>
+  </g>
+</svg>

@@ -223,13 +223,20 @@
                         <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
                     </a>
                 </div>
-                <div class="sidebar-section" style="margin-top:auto;">
-                    <div class="sidebar-section-title">Account</div>
-                    <a href="#" class="sidebar-link" data-logout>
-                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
-                    </a>
-                </div>
             </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="avatar" data-user-initial></div>
+                    <div class="sidebar-user-info">
+                        <div class="name" data-user-name></div>
+                        <div class="role" data-user-role></div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
         </aside>
 
         <main class="main-content">

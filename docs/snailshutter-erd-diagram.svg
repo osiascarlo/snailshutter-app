@@ -1,0 +1,462 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 790" width="100%" height="100%" style="background:#ffffff; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Table Drop Shadow -->
+    <filter id="table-shadow" x="-3%" y="-2%" width="106%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.07" />
+    </filter>
+  </defs>
+
+  <!-- Solid Canvas Sheet Background -->
+  <rect width="1100" height="790" fill="#ffffff" />
+
+  <!-- ============================================================== -->
+  <!-- RELATIONSHIP LINES (CROW'S FOOT NOTATION)                      -->
+  <!-- ============================================================== -->
+  <g id="relationship-lines" stroke="#1e293b" stroke-width="1.6" fill="none">
+    
+    <!-- 1. users (1) <====> (0..*) bookings (client_id) -->
+    <path d="M 320 104 L 350 104 L 350 128 L 380 128" />
+    <!-- Crow's foot at bookings (client_id, y=128) -->
+    <line x1="380" y1="128" x2="368" y2="122" />
+    <line x1="380" y1="128" x2="368" y2="134" />
+    <circle cx="360" cy="128" r="3.5" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
+    <!-- Exact '1' ticks at users -->
+    <line x1="326" y1="98" x2="326" y2="110" stroke-width="1.5" />
+    <line x1="331" y1="98" x2="331" y2="110" stroke-width="1.5" />
+    <text x="323" y="94" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">1</text>
+    <text x="362" y="122" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">0..*</text>
+
+    <!-- 2. users (1) <====> (0..*) bookings (staff_id) -->
+    <path d="M 320 104 L 362 104 L 362 152 L 380 152" />
+    <!-- Crow's foot at bookings (staff_id, y=152) -->
+    <line x1="380" y1="152" x2="368" y2="146" />
+    <line x1="380" y1="152" x2="368" y2="158" />
+    <circle cx="360" cy="152" r="3.5" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
+    <text x="362" y="144" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">0..*</text>
+
+    <!-- 3. services (1) <====> (0..*) bookings (service_id) -->
+    <!-- services.id (x=535, y=540) straight up to bookings bottom (y=500) -->
+    <path d="M 535 540 L 535 500" />
+    <!-- '1' ticks at services top -->
+    <line x1="529" y1="532" x2="541" y2="532" stroke-width="1.5" />
+    <line x1="529" y1="527" x2="541" y2="527" stroke-width="1.5" />
+    <!-- Crow's foot at bookings bottom (y=500) -->
+    <line x1="535" y1="500" x2="529" y2="512" />
+    <line x1="535" y1="500" x2="541" y2="512" />
+    <circle cx="535" cy="519" r="3.5" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
+    <text x="546" y="534" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">1</text>
+    <text x="546" y="513" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">0..*</text>
+
+    <!-- 4. time_slots (1) <====> (0..*) bookings -->
+    <!-- time_slots.id (y=374) to bookings.start_time / end_time (y=248) -->
+    <path d="M 760 374 L 725 374 L 725 248 L 690 248" />
+    <!-- '1' ticks at time_slots -->
+    <line x1="752" y1="368" x2="752" y2="380" stroke-width="1.5" />
+    <line x1="747" y1="368" x2="747" y2="380" stroke-width="1.5" />
+    <!-- Crow's foot at bookings (y=248) -->
+    <line x1="690" y1="248" x2="702" y2="242" />
+    <line x1="690" y1="248" x2="702" y2="254" />
+    <circle cx="710" cy="248" r="3.5" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
+    <text x="735" y="368" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">1</text>
+    <text x="702" y="240" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">0..*</text>
+
+    <!-- 5. users (1) <====> (0..*) otp_verifications (email) -->
+    <path d="M 185 60 L 185 28 L 900 28 L 900 60" />
+    <!-- '1' ticks at users top -->
+    <line x1="179" y1="48" x2="191" y2="48" stroke-width="1.5" />
+    <line x1="179" y1="43" x2="191" y2="43" stroke-width="1.5" />
+    <!-- Crow's foot at otp_verifications top -->
+    <line x1="900" y1="60" x2="894" y2="48" />
+    <line x1="900" y1="60" x2="906" y2="48" />
+    <circle cx="900" cy="41" r="3.5" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
+    <text x="195" y="47" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">1</text>
+    <text x="912" y="49" font-size="10" font-weight="700" fill="#1e3a8a" stroke="none">0..*</text>
+  </g>
+
+  <!-- ============================================================== -->
+  <!-- RENDER TABLES (MATCHING PHYSICAL MYSQL DATABASE)                -->
+  <!-- ============================================================== -->
+
+  <!-- ==================== TABLE 1: users ==================== -->
+  <g id="table-users">
+    <!-- Table Outer Box -->
+    <rect x="50" y="60" width="270" height="320" fill="#ffffff" stroke="#1e293b" stroke-width="1.8" filter="url(#table-shadow)" />
+    
+    <!-- Table Header (Academic Blue) -->
+    <rect x="50" y="60" width="270" height="32" fill="#1e3a8a" stroke="#1e293b" stroke-width="1.8" />
+    <text x="185" y="81" text-anchor="middle" font-size="13.5" font-weight="700" fill="#ffffff" letter-spacing="0.3">users</text>
+    
+    <!-- Vertical Divider between Key & Column Name -->
+    <line x1="88" y1="92" x2="88" y2="380" stroke="#cbd5e1" stroke-width="1" />
+    
+    <!-- Row 1: id -->
+    <rect x="50" y="92" width="270" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="69" y="108" text-anchor="middle" font-size="10.5" font-weight="700" fill="#b45309">PK</text>
+    <text x="94" y="108" font-size="11.5" font-weight="600" fill="#0f172a">id</text>
+    <text x="310" y="108" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT (AUTO)</text>
+
+    <!-- Row 2: first_name -->
+    <rect x="50" y="116" width="270" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="132" font-size="11.5" font-weight="400" fill="#0f172a">first_name</text>
+    <text x="310" y="132" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(50)</text>
+
+    <!-- Row 3: last_name -->
+    <rect x="50" y="140" width="270" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="156" font-size="11.5" font-weight="400" fill="#0f172a">last_name</text>
+    <text x="310" y="156" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(50)</text>
+
+    <!-- Row 4: email -->
+    <rect x="50" y="164" width="270" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="180" font-size="11.5" font-weight="400" fill="#0f172a">email</text>
+    <text x="310" y="180" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(100) UQ</text>
+
+    <!-- Row 5: password -->
+    <rect x="50" y="188" width="270" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="204" font-size="11.5" font-weight="400" fill="#0f172a">password</text>
+    <text x="310" y="204" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(255)</text>
+
+    <!-- Row 6: phone -->
+    <rect x="50" y="212" width="270" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="228" font-size="11.5" font-weight="400" fill="#0f172a">phone</text>
+    <text x="310" y="228" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(20)</text>
+
+    <!-- Row 7: role -->
+    <rect x="50" y="236" width="270" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="252" font-size="11.5" font-weight="400" fill="#0f172a">role</text>
+    <text x="310" y="252" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">ENUM</text>
+
+    <!-- Row 8: status -->
+    <rect x="50" y="260" width="270" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="276" font-size="11.5" font-weight="400" fill="#0f172a">status</text>
+    <text x="310" y="276" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">ENUM</text>
+
+    <!-- Row 9: notes -->
+    <rect x="50" y="284" width="270" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="300" font-size="11.5" font-weight="400" fill="#0f172a">notes</text>
+    <text x="310" y="300" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TEXT</text>
+
+    <!-- Row 10: avatar -->
+    <rect x="50" y="308" width="270" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="324" font-size="11.5" font-weight="400" fill="#0f172a">avatar</text>
+    <text x="310" y="324" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(255)</text>
+
+    <!-- Row 11: created_at -->
+    <rect x="50" y="332" width="270" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="348" font-size="11.5" font-weight="400" fill="#0f172a">created_at</text>
+    <text x="310" y="348" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIMESTAMP</text>
+
+    <!-- Row 12: updated_at -->
+    <rect x="50" y="356" width="270" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="372" font-size="11.5" font-weight="400" fill="#0f172a">updated_at</text>
+    <text x="310" y="372" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIMESTAMP</text>
+  </g>
+
+  <!-- ==================== TABLE 2: settings ==================== -->
+  <g id="table-settings">
+    <!-- Table Outer Box -->
+    <rect x="50" y="430" width="270" height="80" fill="#ffffff" stroke="#1e293b" stroke-width="1.8" filter="url(#table-shadow)" />
+    
+    <!-- Table Header (Academic Blue) -->
+    <rect x="50" y="430" width="270" height="32" fill="#1e3a8a" stroke="#1e293b" stroke-width="1.8" />
+    <text x="185" y="451" text-anchor="middle" font-size="13.5" font-weight="700" fill="#ffffff" letter-spacing="0.3">settings</text>
+    
+    <!-- Vertical Divider between Key & Column Name -->
+    <line x1="88" y1="462" x2="88" y2="510" stroke="#cbd5e1" stroke-width="1" />
+    
+    <!-- Row 1: setting_key -->
+    <rect x="50" y="462" width="270" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="69" y="478" text-anchor="middle" font-size="10.5" font-weight="700" fill="#b45309">PK</text>
+    <text x="94" y="478" font-size="11.5" font-weight="600" fill="#0f172a">setting_key</text>
+    <text x="310" y="478" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(50)</text>
+
+    <!-- Row 2: setting_value -->
+    <rect x="50" y="486" width="270" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="94" y="502" font-size="11.5" font-weight="400" fill="#0f172a">setting_value</text>
+    <text x="310" y="502" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TEXT</text>
+  </g>
+
+  <!-- ==================== BOX: Architecture & Role Model Info ==================== -->
+  <g id="box-role-architecture" transform="translate(50, 540)">
+    <rect x="0" y="0" width="270" height="200" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2" />
+    <text x="14" y="24" font-size="11" font-weight="700" fill="#0f172a">Physical Database Design Notes:</text>
+    <text x="14" y="48" font-size="10" font-weight="600" fill="#1e3a8a">• Single-Table Role Architecture:</text>
+    <text x="24" y="65" font-size="9.5" fill="#475569">Admin, staff, and clients share the</text>
+    <text x="24" y="79" font-size="9.5" fill="#475569"><tspan font-weight="600" fill="#0f172a">users</tspan> table with RBAC role filtering.</text>
+    
+    <text x="14" y="105" font-size="10" font-weight="600" fill="#1e3a8a">• Embedded Transaction Ledger:</text>
+    <text x="24" y="122" font-size="9.5" fill="#475569">Payments &amp; photo delivery URLs are</text>
+    <text x="24" y="136" font-size="9.5" fill="#475569">consolidated in <tspan font-weight="600" fill="#0f172a">bookings</tspan> for speed.</text>
+    
+    <text x="14" y="162" font-size="10" font-weight="600" fill="#1e3a8a">• Multi-Package Support:</text>
+    <text x="24" y="179" font-size="9.5" fill="#475569"><tspan font-weight="600" fill="#0f172a">service_ids</tspan> enables multi-service booking.</text>
+  </g>
+
+  <!-- ==================== TABLE 3: bookings ==================== -->
+  <g id="table-bookings">
+    <!-- Table Outer Box -->
+    <rect x="380" y="60" width="310" height="440" fill="#ffffff" stroke="#1e293b" stroke-width="1.8" filter="url(#table-shadow)" />
+    
+    <!-- Table Header (Academic Blue) -->
+    <rect x="380" y="60" width="310" height="32" fill="#1e3a8a" stroke="#1e293b" stroke-width="1.8" />
+    <text x="535" y="81" text-anchor="middle" font-size="13.5" font-weight="700" fill="#ffffff" letter-spacing="0.3">bookings</text>
+    
+    <!-- Vertical Divider between Key & Column Name -->
+    <line x1="418" y1="92" x2="418" y2="500" stroke="#cbd5e1" stroke-width="1" />
+    
+    <!-- Row 1: id -->
+    <rect x="380" y="92" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="399" y="108" text-anchor="middle" font-size="10.5" font-weight="700" fill="#b45309">PK</text>
+    <text x="424" y="108" font-size="11.5" font-weight="600" fill="#0f172a">id</text>
+    <text x="678" y="108" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT (AUTO)</text>
+
+    <!-- Row 2: client_id -->
+    <rect x="380" y="116" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="399" y="132" text-anchor="middle" font-size="10.5" font-weight="700" fill="#15803d">FK</text>
+    <text x="424" y="132" font-size="11.5" font-weight="600" fill="#0f172a">client_id</text>
+    <text x="678" y="132" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT &rarr; users(id)</text>
+
+    <!-- Row 3: staff_id -->
+    <rect x="380" y="140" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="399" y="156" text-anchor="middle" font-size="10.5" font-weight="700" fill="#15803d">FK</text>
+    <text x="424" y="156" font-size="11.5" font-weight="600" fill="#0f172a">staff_id</text>
+    <text x="678" y="156" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT &rarr; users(id)</text>
+
+    <!-- Row 4: service_id -->
+    <rect x="380" y="164" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="399" y="180" text-anchor="middle" font-size="10.5" font-weight="700" fill="#15803d">FK</text>
+    <text x="424" y="180" font-size="11.5" font-weight="600" fill="#0f172a">service_id</text>
+    <text x="678" y="180" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT &rarr; services(id)</text>
+
+    <!-- Row 5: service_ids -->
+    <rect x="380" y="188" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="204" font-size="11.5" font-weight="400" fill="#0f172a">service_ids</text>
+    <text x="678" y="204" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(255)</text>
+
+    <!-- Row 6: booking_date -->
+    <rect x="380" y="212" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="228" font-size="11.5" font-weight="400" fill="#0f172a">booking_date</text>
+    <text x="678" y="228" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">DATE</text>
+
+    <!-- Row 7: start_time -->
+    <rect x="380" y="236" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="252" font-size="11.5" font-weight="400" fill="#0f172a">start_time</text>
+    <text x="678" y="252" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIME</text>
+
+    <!-- Row 8: end_time -->
+    <rect x="380" y="260" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="276" font-size="11.5" font-weight="400" fill="#0f172a">end_time</text>
+    <text x="678" y="276" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIME</text>
+
+    <!-- Row 9: status -->
+    <rect x="380" y="284" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="300" font-size="11.5" font-weight="400" fill="#0f172a">status</text>
+    <text x="678" y="300" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">ENUM</text>
+
+    <!-- Row 10: notes -->
+    <rect x="380" y="308" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="324" font-size="11.5" font-weight="400" fill="#0f172a">notes</text>
+    <text x="678" y="324" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TEXT</text>
+
+    <!-- Row 11: total_price -->
+    <rect x="380" y="332" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="348" font-size="11.5" font-weight="400" fill="#0f172a">total_price</text>
+    <text x="678" y="348" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">DECIMAL(10,2)</text>
+
+    <!-- Row 12: downpayment_amount -->
+    <rect x="380" y="356" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="372" font-size="11.5" font-weight="400" fill="#0f172a">downpayment_amount</text>
+    <text x="678" y="372" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">DECIMAL(10,2)</text>
+
+    <!-- Row 13: proof_of_payment -->
+    <rect x="380" y="380" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="396" font-size="11.5" font-weight="400" fill="#0f172a">proof_of_payment</text>
+    <text x="678" y="396" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(255)</text>
+
+    <!-- Row 14: google_drive_link -->
+    <rect x="380" y="404" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="420" font-size="11.5" font-weight="400" fill="#0f172a">google_drive_link</text>
+    <text x="678" y="420" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(1024)</text>
+
+    <!-- Row 15: payment_status -->
+    <rect x="380" y="428" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="444" font-size="11.5" font-weight="400" fill="#0f172a">payment_status</text>
+    <text x="678" y="444" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">ENUM</text>
+
+    <!-- Row 16: created_at -->
+    <rect x="380" y="452" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="468" font-size="11.5" font-weight="400" fill="#0f172a">created_at</text>
+    <text x="678" y="468" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIMESTAMP</text>
+
+    <!-- Row 17: updated_at -->
+    <rect x="380" y="476" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="492" font-size="11.5" font-weight="400" fill="#0f172a">updated_at</text>
+    <text x="678" y="492" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIMESTAMP</text>
+  </g>
+
+  <!-- ==================== TABLE 4: services ==================== -->
+  <g id="table-services">
+    <!-- Table Outer Box -->
+    <rect x="380" y="540" width="310" height="200" fill="#ffffff" stroke="#1e293b" stroke-width="1.8" filter="url(#table-shadow)" />
+    
+    <!-- Table Header (Academic Blue) -->
+    <rect x="380" y="540" width="310" height="32" fill="#1e3a8a" stroke="#1e293b" stroke-width="1.8" />
+    <text x="535" y="561" text-anchor="middle" font-size="13.5" font-weight="700" fill="#ffffff" letter-spacing="0.3">services</text>
+    
+    <!-- Vertical Divider between Key & Column Name -->
+    <line x1="418" y1="572" x2="418" y2="740" stroke="#cbd5e1" stroke-width="1" />
+    
+    <!-- Row 1: id -->
+    <rect x="380" y="572" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="399" y="588" text-anchor="middle" font-size="10.5" font-weight="700" fill="#b45309">PK</text>
+    <text x="424" y="588" font-size="11.5" font-weight="600" fill="#0f172a">id</text>
+    <text x="678" y="588" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT (AUTO)</text>
+
+    <!-- Row 2: name -->
+    <rect x="380" y="596" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="612" font-size="11.5" font-weight="400" fill="#0f172a">name</text>
+    <text x="678" y="612" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(100)</text>
+
+    <!-- Row 3: description -->
+    <rect x="380" y="620" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="636" font-size="11.5" font-weight="400" fill="#0f172a">description</text>
+    <text x="678" y="636" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TEXT</text>
+
+    <!-- Row 4: duration_minutes -->
+    <rect x="380" y="644" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="660" font-size="11.5" font-weight="400" fill="#0f172a">duration_minutes</text>
+    <text x="678" y="660" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT (MINS)</text>
+
+    <!-- Row 5: price -->
+    <rect x="380" y="668" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="684" font-size="11.5" font-weight="400" fill="#0f172a">price</text>
+    <text x="678" y="684" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">DECIMAL(10,2)</text>
+
+    <!-- Row 6: is_active -->
+    <rect x="380" y="692" width="310" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="708" font-size="11.5" font-weight="400" fill="#0f172a">is_active</text>
+    <text x="678" y="708" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TINYINT(1)</text>
+
+    <!-- Row 7: created_at -->
+    <rect x="380" y="716" width="310" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="424" y="732" font-size="11.5" font-weight="400" fill="#0f172a">created_at</text>
+    <text x="678" y="732" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIMESTAMP</text>
+  </g>
+
+  <!-- ==================== TABLE 5: otp_verifications ==================== -->
+  <g id="table-otp_verifications">
+    <!-- Table Outer Box -->
+    <rect x="760" y="60" width="280" height="224" fill="#ffffff" stroke="#1e293b" stroke-width="1.8" filter="url(#table-shadow)" />
+    
+    <!-- Table Header (Academic Blue) -->
+    <rect x="760" y="60" width="280" height="32" fill="#1e3a8a" stroke="#1e293b" stroke-width="1.8" />
+    <text x="900" y="81" text-anchor="middle" font-size="13.5" font-weight="700" fill="#ffffff" letter-spacing="0.3">otp_verifications</text>
+    
+    <!-- Vertical Divider between Key & Column Name -->
+    <line x1="798" y1="92" x2="798" y2="284" stroke="#cbd5e1" stroke-width="1" />
+    
+    <!-- Row 1: id -->
+    <rect x="760" y="92" width="280" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="779" y="108" text-anchor="middle" font-size="10.5" font-weight="700" fill="#b45309">PK</text>
+    <text x="804" y="108" font-size="11.5" font-weight="600" fill="#0f172a">id</text>
+    <text x="1028" y="108" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT (AUTO)</text>
+
+    <!-- Row 2: email -->
+    <rect x="760" y="116" width="280" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="132" font-size="11.5" font-weight="400" fill="#0f172a">email</text>
+    <text x="1028" y="132" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(255)</text>
+
+    <!-- Row 3: otp_code -->
+    <rect x="760" y="140" width="280" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="156" font-size="11.5" font-weight="400" fill="#0f172a">otp_code</text>
+    <text x="1028" y="156" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">CHAR(6)</text>
+
+    <!-- Row 4: purpose -->
+    <rect x="760" y="164" width="280" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="180" font-size="11.5" font-weight="400" fill="#0f172a">purpose</text>
+    <text x="1028" y="180" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">ENUM</text>
+
+    <!-- Row 5: is_used -->
+    <rect x="760" y="188" width="280" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="204" font-size="11.5" font-weight="400" fill="#0f172a">is_used</text>
+    <text x="1028" y="204" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TINYINT(1)</text>
+
+    <!-- Row 6: attempts -->
+    <rect x="760" y="212" width="280" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="228" font-size="11.5" font-weight="400" fill="#0f172a">attempts</text>
+    <text x="1028" y="228" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TINYINT(1)</text>
+
+    <!-- Row 7: expires_at -->
+    <rect x="760" y="236" width="280" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="252" font-size="11.5" font-weight="400" fill="#0f172a">expires_at</text>
+    <text x="1028" y="252" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">DATETIME</text>
+
+    <!-- Row 8: created_at -->
+    <rect x="760" y="260" width="280" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="276" font-size="11.5" font-weight="400" fill="#0f172a">created_at</text>
+    <text x="1028" y="276" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">DATETIME</text>
+  </g>
+
+  <!-- ==================== TABLE 6: time_slots ==================== -->
+  <g id="table-time_slots">
+    <!-- Table Outer Box -->
+    <rect x="760" y="330" width="280" height="152" fill="#ffffff" stroke="#1e293b" stroke-width="1.8" filter="url(#table-shadow)" />
+    
+    <!-- Table Header (Academic Blue) -->
+    <rect x="760" y="330" width="280" height="32" fill="#1e3a8a" stroke="#1e293b" stroke-width="1.8" />
+    <text x="900" y="351" text-anchor="middle" font-size="13.5" font-weight="700" fill="#ffffff" letter-spacing="0.3">time_slots</text>
+    
+    <!-- Vertical Divider between Key & Column Name -->
+    <line x1="798" y1="362" x2="798" y2="482" stroke="#cbd5e1" stroke-width="1" />
+    
+    <!-- Row 1: id -->
+    <rect x="760" y="362" width="280" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="779" y="378" text-anchor="middle" font-size="10.5" font-weight="700" fill="#b45309">PK</text>
+    <text x="804" y="378" font-size="11.5" font-weight="600" fill="#0f172a">id</text>
+    <text x="1028" y="378" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">INT (AUTO)</text>
+
+    <!-- Row 2: slot_label -->
+    <rect x="760" y="386" width="280" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="402" font-size="11.5" font-weight="400" fill="#0f172a">slot_label</text>
+    <text x="1028" y="402" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">VARCHAR(50)</text>
+
+    <!-- Row 3: start_time -->
+    <rect x="760" y="410" width="280" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="426" font-size="11.5" font-weight="400" fill="#0f172a">start_time</text>
+    <text x="1028" y="426" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIME</text>
+
+    <!-- Row 4: end_time -->
+    <rect x="760" y="434" width="280" height="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="450" font-size="11.5" font-weight="400" fill="#0f172a">end_time</text>
+    <text x="1028" y="450" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TIME</text>
+
+    <!-- Row 5: is_active -->
+    <rect x="760" y="458" width="280" height="24" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.75" />
+    <text x="804" y="474" font-size="11.5" font-weight="400" fill="#0f172a">is_active</text>
+    <text x="1028" y="474" text-anchor="end" font-size="10" font-family="Consolas, monospace" fill="#64748b">TINYINT(1)</text>
+  </g>
+
+  <!-- ==================== Diagram Legend ==================== -->
+  <g id="erd-legend" transform="translate(760, 540)">
+    <rect x="0" y="0" width="280" height="200" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2" />
+    <text x="16" y="24" font-size="11" font-weight="700" fill="#0f172a">ERD Notation &amp; Cardinality Legend:</text>
+    
+    <text x="16" y="48" font-size="10.5" font-weight="700" fill="#b45309">PK</text>
+    <text x="44" y="48" font-size="10" fill="#475569">= Primary Key (Single surrogate ID)</text>
+    
+    <text x="16" y="72" font-size="10.5" font-weight="700" fill="#15803d">FK</text>
+    <text x="44" y="72" font-size="10" fill="#475569">= Foreign Key (Relational constraint)</text>
+    
+    <text x="16" y="96" font-size="10" font-weight="700" fill="#64748b">UQ</text>
+    <text x="44" y="96" font-size="10" fill="#475569">= Unique Index (Email verification)</text>
+
+    <line x1="16" y1="112" x2="264" y2="112" stroke="#e2e8f0" stroke-width="1" />
+    
+    <text x="16" y="132" font-size="10.5" font-weight="600" fill="#1e3a8a">1 — 0..*</text>
+    <text x="74" y="132" font-size="10" fill="#475569">= One-to-Many Relationship</text>
+    
+    <text x="16" y="154" font-size="10.5" font-weight="600" fill="#1e3a8a">1 — 1</text>
+    <text x="74" y="154" font-size="10" fill="#475569">= Mandatory One-to-One Match</text>
+
+    <text x="16" y="180" font-size="9.5" font-style="italic" fill="#64748b">Notation: Crow's Foot / Information Engineering</text>
+  </g>
+</svg>

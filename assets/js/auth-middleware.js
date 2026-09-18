@@ -76,7 +76,10 @@ class AuthMiddleware {
 
         // Update user role elements
         document.querySelectorAll('[data-user-role]').forEach(el => {
-            el.textContent = userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'User';
+            if (userRole === 'admin') el.textContent = 'Administrator';
+            else if (userRole === 'staff') el.textContent = 'Staff Member';
+            else if (userRole === 'client') el.textContent = 'Client';
+            else el.textContent = userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'User';
         });
 
         // Update user initial elements

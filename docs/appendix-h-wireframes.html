@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appendix H — Full System Wireframes — SnailShutter Capstone Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #1e3a8a;
+            --primary-light: #eff6ff;
+            --border: #e2e8f0;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-links {
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.85rem;
+            font-size: 0.88rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .header-section {
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .title-group h1 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .title-group p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.55rem 1.1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            background: #172554;
+            border-color: #172554;
+        }
+
+        .btn-green {
+            background: #15803d;
+            color: white;
+            border-color: #15803d;
+        }
+
+        .btn-green:hover {
+            background: #166534;
+            border-color: #166534;
+        }
+
+        /* Toggle Button Group */
+        .toggle-group {
+            display: inline-flex;
+            background: #e2e8f0;
+            border-radius: 8px;
+            padding: 3px;
+            gap: 3px;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            padding: 0.45rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Sheet Selector Tabs */
+        .sheet-tabs-container {
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .sheet-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .sheet-tab {
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: #334155;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+        }
+
+        .sheet-tab:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: var(--primary);
+        }
+
+        .sheet-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(30, 58, 138, 0.25);
+        }
+
+        .sheet-info-badge {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .sheet-info-badge strong {
+            color: var(--text-dark);
+        }
+
+        /* Notice Banner */
+        .notice-banner {
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 1.25rem;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #1e3a8a;
+        }
+
+        .notice-banner i {
+            font-size: 1.25rem;
+            color: #2563eb;
+            margin-top: 0.1rem;
+        }
+
+        /* Canvas Wrapper */
+        .canvas-wrapper {
+            max-width: 1400px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: auto;
+            min-height: 900px;
+            position: relative;
+        }
+
+        .svg-container {
+            width: 100%;
+            max-width: 920px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            transition: opacity 0.2s ease;
+        }
+
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Documentation Section */
+        .doc-section {
+            max-width: 1400px;
+            width: 100%;
+            margin-top: 2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 2.2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .doc-section h2 {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .doc-section h3 {
+            font-size: 1.08rem;
+            color: var(--text-dark);
+            margin: 1.5rem 0 0.6rem 0;
+        }
+
+        .doc-section p {
+            color: #334155;
+            line-height: 1.65;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0;
+            font-size: 0.9rem;
+        }
+
+        .spec-table th, .spec-table td {
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+
+        .spec-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .spec-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .code-badge {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #0f172a;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #0f172a;
+            color: white;
+            padding: 0.85rem 1.4rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        @media print {
+            .nav-links, .actions-group, .sheet-tabs-container, .notice-banner, .toast {
+                display: none !important;
+            }
+            body {
+                background: white;
+                padding: 0;
+            }
+            .canvas-wrapper {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+            .svg-container {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Links -->
+    <div class="nav-links">
+        <a href="snailshutter-use-case-diagram.html"><i class="fas fa-arrow-left"></i> Figure 3.1: Use Case</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-context-diagram.html"><i class="fas fa-project-diagram"></i> Figure 3.2: Context Diagram</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-erd-diagram.html"><i class="fas fa-database"></i> Figure 3.3: ERD &amp; Schema</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-1-diagram.html"><i class="fas fa-sitemap"></i> Figure 3.4: DFD Level 1</a>
+        <span style="color:#cbd5e1;">|</span>
+        <a href="snailshutter-dfd-level-2-diagram.html"><i class="fas fa-diagram-project"></i> Figure 3.5: DFD Level 2</a>
+        <span style="color:#cbd5e1;">|</span>
+        <span style="color:#64748b; font-weight:600;"><i class="fas fa-th-large"></i> Appendix H: Full System Wireframes (Active)</span>
+    </div>
+
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="title-group">
+            <h1>Appendix H — Full System User Interface Wireframes</h1>
+            <p>Comprehensive Conceptual UI Wireframes (Public Booking, Client Portal, Staff Schedule &amp; Admin Suite)</p>
+        </div>
+        <div class="actions-group">
+            <!-- Master Word Download -->
+            <a id="btn-download-docx" class="btn btn-primary" href="appendix-h-full-wireframes.docx" download>
+                <i class="fas fa-file-word"></i> Download Word (.docx)
+            </a>
+
+            <!-- Copy for Word -->
+            <button class="btn btn-green" onclick="copySVGForWord()">
+                <i class="fas fa-paste"></i> Copy Current Sheet (Word)
+            </button>
+
+            <!-- Sheet SVG Download -->
+            <a id="btn-download-svg-white" class="btn" href="appendix-h-sheet1-public-booking.svg" download>
+                <i class="fas fa-file-code"></i> SVG (White)
+            </a>
+            <a id="btn-download-svg-trans" class="btn" href="appendix-h-sheet1-public-booking-transparent.svg" download>
+                <i class="fas fa-layer-group"></i> SVG (Trans)
+            </a>
+
+            <!-- Print / PDF -->
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print / PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Sheet Tabs Selector -->
+    <div class="sheet-tabs-container">
+        <div class="sheet-tabs">
+            <button id="tab-sheet1" class="sheet-tab active" onclick="switchSheet('sheet1')">
+                <i class="fas fa-globe"></i> Sheet 1: Public Landing &amp; Online Booking
+            </button>
+            <button id="tab-sheet2" class="sheet-tab" onclick="switchSheet('sheet2')">
+                <i class="fas fa-user"></i> Sheet 2: Client Portal &amp; Google Drive Deliveries
+            </button>
+            <button id="tab-sheet3" class="sheet-tab" onclick="switchSheet('sheet3')">
+                <i class="fas fa-camera"></i> Sheet 3: Staff Schedule &amp; Drive Link Attachment
+            </button>
+            <button id="tab-sheet4" class="sheet-tab" onclick="switchSheet('sheet4')">
+                <i class="fas fa-shield-alt"></i> Sheet 4: Admin Add User &amp; Users Table
+            </button>
+        </div>
+        <div class="sheet-info-badge">
+            Current Sheet: <strong id="current-sheet-label">Sheet 1 of 4 — Public Landing &amp; Online Booking Flow</strong>
+        </div>
+    </div>
+
+    <!-- Notice Banner -->
+    <div class="notice-banner">
+        <i class="fas fa-check-circle"></i>
+        <div>
+            <strong>100% Codebase Exact Wireframes:</strong> All 4 sheets strictly depict what is written on the SnailShutter website and database schema (<span class="code-badge">index.html</span>, <span class="code-badge">client/book.html</span>, <span class="code-badge">client/dashboard.html</span>, <span class="code-badge">staff/dashboard.html</span>, <span class="code-badge">staff/gallery.html</span>, <span class="code-badge">admin/users.html</span>). Download the multi-sheet Word document or click <strong>Copy Current Sheet (Word)</strong> for your thesis documentation.
+        </div>
+    </div>
+
+    <!-- Canvas Wrapper -->
+    <div class="canvas-wrapper">
+        <div class="svg-container" id="svg-container">
+            <!-- Inline SVG loaded via JS -->
+        </div>
+    </div>
+
+    <!-- Documentation & Specifications Section -->
+    <div class="doc-section">
+        <h2><i class="fas fa-clipboard-list"></i> SnailShutter Wireframe Architecture &amp; Specifications</h2>
+        
+        <h3>1. Multi-Sheet Screen Breakdown</h3>
+        <p>
+            The SnailShutter user interface is partitioned into four major subsystem sheets covering all core user roles (Public Visitors, Clients, Staff Photographers, and System Administrators):
+        </p>
+
+        <table class="spec-table">
+            <thead>
+                <tr>
+                    <th>Sheet &amp; Screen</th>
+                    <th>Subsystem Module</th>
+                    <th>Target Role</th>
+                    <th>Key UI Components (SnailShutter Website Exact)</th>
+                    <th>Mapped Codebase Files &amp; DB Tables</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Sheet 1.1: Public Landing Page</strong></td>
+                    <td>Public Studio Website</td>
+                    <td>Guest / Public</td>
+                    <td>Logo, Services, Visit Studio, Sign Up/Login buttons, "Mindful Photography Studio" hero, "Capture Your Most Mindful Moments", 3 studio highlights, Real services catalog (Portrait Session ₱2,500, Family Portrait ₱4,000, Wedding Pre-nup ₱12,000)</td>
+                    <td><span class="code-badge">index.html</span>, <span class="code-badge">tbl_services</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Sheet 1.2: Online Booking Flow</strong></td>
+                    <td>Online Booking &amp; Downpayment</td>
+                    <td>Client / Guest</td>
+                    <td>3-Step Stepper (1. Service, 2. Date &amp; Time, 3. Confirm), Month Calendar with Availability Legend, Time Slot Grid (10AM - 7PM), 10% GCash Downpayment (₱250.00), QR Code, GCash Number (0912 345 6789), Account Name (SnailShutter Studio), Proof of Payment File Upload (JPG/PNG max 2MB)</td>
+                    <td><span class="code-badge">client/book.html</span>, <span class="code-badge">tbl_bookings</span>, <span class="code-badge">tbl_booking_payments</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Sheet 2.1: Client Dashboard &amp; My Bookings</strong></td>
+                    <td>Client Management Portal</td>
+                    <td>Registered Client</td>
+                    <td>Sidebar (Dashboard, Book Session, My Bookings, Profile Settings), Stat Cards (Total Bookings, Upcoming Sessions, Pending Review, Completed Shoots), Bookings History Table with Booking ID, Service, Date &amp; Time, Total Price, Status, Payment, and Action buttons</td>
+                    <td><span class="code-badge">client/dashboard.html</span>, <span class="code-badge">client/bookings.html</span>, <span class="code-badge">tbl_bookings</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Sheet 2.2: Photo Deliveries (Google Drive)</strong></td>
+                    <td>Client Photo Deliveries</td>
+                    <td>Registered Client</td>
+                    <td>Sidebar, Photo Deliveries Header, Booking Delivery Cards (#BK-28 Family Portrait, #BK-22 Wedding Pre-nup), "Ready to Download" Status Badge, Google Drive Link Container (<span class="code-badge">tbl_bookings.google_drive_link</span>), "Open Google Drive Gallery" and "View Receipt" buttons</td>
+                    <td><span class="code-badge">client/dashboard.html</span>, <span class="code-badge">tbl_bookings</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Sheet 3.1: Staff Daily Shoot Schedule</strong></td>
+                    <td>Photographer Operations</td>
+                    <td>Photographer / Staff</td>
+                    <td>Sidebar (Dashboard, Calendar, My Bookings, Photo Deliveries), Quick Action buttons (Calendar, Photo Deliveries), Today's Schedule Agenda Cards with Session Time, Client Name, Phone, Package, Status Badge, and "Shoot Details" action</td>
+                    <td><span class="code-badge">staff/dashboard.html</span>, <span class="code-badge">bookings</span>, <span class="code-badge">users</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Sheet 3.2: Staff Photo Deliveries Form</strong></td>
+                    <td>Digital Asset Delivery</td>
+                    <td>Photographer / Staff</td>
+                    <td>Sidebar, Send Google Drive Gallery Link Header, Booking Selector Dropdown, Google Drive Link URL Input (<span class="code-badge">bookings.google_drive_link</span>), Notes to Client Textarea, "Save Drive Link &amp; Notify Client" button, Recently Delivered Sessions List</td>
+                    <td><span class="code-badge">staff/gallery.html</span>, <span class="code-badge">bookings</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Sheet 4.1: Admin Add New User Form</strong></td>
+                    <td>User Administration</td>
+                    <td>Administrator</td>
+                    <td>Sidebar (Dashboard, All Bookings, Calendar, Photo Deliveries, Analytics, Users, Services, Settings), Centered Form Container, First Name, Last Name, Email Address, Role (admin/staff/client), Status (active/inactive/pending), Password, Phone, Notes, "Cancel" and "Save User" buttons</td>
+                    <td><span class="code-badge">admin/users.html</span>, <span class="code-badge">users</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Sheet 4.2: Admin Manage Users Table</strong></td>
+                    <td>User Administration</td>
+                    <td>Administrator</td>
+                    <td>Sidebar, 7-Column Users Data Grid (User, Email, Role, Status, Joined, Bookings, Actions) with View, Edit, and Delete action buttons, populated with database users (Studio Admin, Maria Santos, Carlos Rivera, Juan Dela Cruz)</td>
+                    <td><span class="code-badge">admin/users.html</span>, <span class="code-badge">users</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>2. Microsoft Word Conversion &amp; Formatting Guide</h3>
+        <p>
+            All wireframe SVGs are crafted using standard SVG vector primitives (<code>&lt;rect&gt;</code>, <code>&lt;line&gt;</code>, <code>&lt;text&gt;</code>, <code>&lt;circle&gt;</code>)
+            without raster images, external font dependencies, or complex clip paths. This guarantees 100% fidelity when importing into Microsoft Word:
+        </p>
+        <ul style="margin-left: 1.5rem; line-height: 1.8; color: #334155; font-size: 0.95rem;">
+            <li><strong>Method 1 (Recommended):</strong> Download <code>appendix-h-full-wireframes.docx</code> directly. It comes pre-formatted in standard Letter Portrait (8.5" &times; 11") with 0.5" academic margins, containing all 4 sheets.</li>
+            <li><strong>Method 2 (Clipboard Paste):</strong> Click <strong>"Copy Current Sheet (Word)"</strong>, open Microsoft Word, and press <code>Ctrl + V</code>.</li>
+            <li><strong>To Edit Text or Lines:</strong> Right-click the wireframe drawing inside Microsoft Word and select <strong>"Convert to Shape"</strong>. Word will automatically ungroup the drawing into native shapes and editable text boxes.</li>
+        </ul>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let currentSheet = 'sheet1';
+
+        const sheetConfig = {
+            'sheet1': {
+                label: 'Sheet 1 of 4 — Public Landing & Online Booking Flow',
+                file: 'appendix-h-sheet1-public-booking.svg',
+                trans: 'appendix-h-sheet1-public-booking-transparent.svg'
+            },
+            'sheet2': {
+                label: 'Sheet 2 of 4 — Client Portal Dashboard & Google Drive Deliveries',
+                file: 'appendix-h-sheet2-client-portal.svg',
+                trans: 'appendix-h-sheet2-client-portal-transparent.svg'
+            },
+            'sheet3': {
+                label: 'Sheet 3 of 4 — Staff / Photographer Daily Schedule & Drive Link Attachment',
+                file: 'appendix-h-sheet3-staff-portal.svg',
+                trans: 'appendix-h-sheet3-staff-portal-transparent.svg'
+            },
+            'sheet4': {
+                label: 'Sheet 4 of 4 — Admin User Account Creation & Manage Users Table',
+                file: 'appendix-h-sheet4-admin-users.svg',
+                trans: 'appendix-h-sheet4-admin-users-transparent.svg'
+            }
+        };
+
+        function getCurrentSvgFile() {
+            return sheetConfig[currentSheet].file;
+        }
+
+        function getCurrentTransSvgFile() {
+            return sheetConfig[currentSheet].trans;
+        }
+
+        function loadActiveSVG() {
+            const svgFile = getCurrentSvgFile();
+            const container = document.getElementById('svg-container');
+            container.style.opacity = '0.4';
+
+            fetch(svgFile + '?v=' + Date.now())
+                .then(res => {
+                    if (!res.ok) throw new Error("Failed to load " + svgFile);
+                    return res.text();
+                })
+                .then(svgText => {
+                    container.innerHTML = svgText;
+                    const svgEl = container.querySelector('svg');
+                    if (svgEl) {
+                        svgEl.id = 'diagram-svg';
+                        svgEl.style.width = '100%';
+                        svgEl.style.height = 'auto';
+                    }
+                    container.style.opacity = '1';
+                    updateDownloadLinks();
+                })
+                .catch(err => {
+                    container.innerHTML = `<div style="padding:3rem; color:#dc2626; text-align:center;">Failed to load SVG: ${err.message}</div>`;
+                    container.style.opacity = '1';
+                });
+        }
+
+        function updateDownloadLinks() {
+            const whiteLink = document.getElementById('btn-download-svg-white');
+            const transLink = document.getElementById('btn-download-svg-trans');
+            const docxLink = document.getElementById('btn-download-docx');
+
+            whiteLink.href = getCurrentSvgFile();
+            whiteLink.download = getCurrentSvgFile();
+
+            transLink.href = getCurrentTransSvgFile();
+            transLink.download = getCurrentTransSvgFile();
+
+            docxLink.href = 'appendix-h-full-wireframes.docx';
+        }
+
+        function switchSheet(sheetKey) {
+            currentSheet = sheetKey;
+            document.querySelectorAll('.sheet-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + sheetKey).classList.add('active');
+            document.getElementById('current-sheet-label').textContent = sheetConfig[sheetKey].label;
+            loadActiveSVG();
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = isError ? '#b91c1c' : '#0f172a';
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3500);
+        }
+
+        function copySVGForWord() {
+            const svgEl = document.getElementById('diagram-svg');
+            if (!svgEl) {
+                showToast("Diagram not found. Please download the .docx file directly.", true);
+                return;
+            }
+
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgEl);
+
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                    const textBlob = new Blob([svgString], { type: 'text/plain' });
+                    const item = new ClipboardItem({ 'image/svg+xml': blob, 'text/plain': textBlob });
+                    navigator.clipboard.write([item]).then(() => {
+                        showToast('✓ Copied Current Sheet! In Word: Paste (Ctrl+V) -> Right-Click -> "Convert to Shape"');
+                    }).catch(() => {
+                        navigator.clipboard.writeText(svgString).then(() => {
+                            showToast('✓ Copied! In Word: Paste (Ctrl+V) -> Right-Click -> "Convert to Shape".');
+                        });
+                    });
+                } catch(e) {
+                    navigator.clipboard.writeText(svgString).then(() => {
+                        showToast('✓ Copied! In Word: Paste (Ctrl+V) -> Right-Click -> "Convert to Shape".');
+                    });
+                }
+            } else {
+                navigator.clipboard.writeText(svgString).then(() => {
+                    showToast('✓ Copied! In Word: Paste (Ctrl+V) -> Right-Click -> "Convert to Shape".');
+                });
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadActiveSVG();
+        });
+    </script>
+</body>
+</html>

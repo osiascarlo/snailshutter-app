@@ -1,0 +1,236 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 760" width="100%" height="100%" style="background:transparent; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Arrow marker pointing right -->
+    <marker id="arrow-right" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#0f172a"/>
+    </marker>
+    <!-- Arrow marker pointing left -->
+    <marker id="arrow-left" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 10 1.5 L 1 5 L 10 8.5 z" fill="#0f172a"/>
+    </marker>
+    <!-- Arrow marker pointing down -->
+    <marker id="arrow-down" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1.5 0 L 5 9 L 8.5 0 z" fill="#0f172a"/>
+    </marker>
+
+    <!-- Soft drop shadow for elements -->
+    <filter id="soft-shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.05" />
+    </filter>
+  </defs>
+
+
+  <!-- ============================================================== -->
+  <!-- EXTERNAL ENTITIES                                              -->
+  <!-- ============================================================== -->
+  
+  <!-- Entity: Guest / Public (Top Left) -->
+  <g id="entity-guest-top">
+    <rect x="70" y="42" width="180" height="56" rx="1" fill="none" stroke="#0f172a" stroke-width="1.8" filter="url(#soft-shadow)" />
+    <text x="160" y="75" text-anchor="middle" font-size="13.5" font-weight="700" fill="#0f172a">
+      Guest / Public
+    </text>
+  </g>
+
+  <!-- Entity: Registered User (Mid Left) -->
+  <g id="entity-registered-user">
+    <rect x="70" y="162" width="180" height="56" rx="1" fill="none" stroke="#0f172a" stroke-width="1.8" filter="url(#soft-shadow)" />
+    <text x="160" y="195" text-anchor="middle" font-size="13.5" font-weight="700" fill="#0f172a">
+      Registered User
+    </text>
+  </g>
+
+  <!-- Extended Bus Trunk Bar descending from Registered User -->
+  <!-- Matches reference photo: vertical hollow rectangular bracket/bar dropping to Row 4 bottom line -->
+  <g id="user-bus-trunk">
+    <rect x="150" y="218" width="18" height="227" fill="none" stroke="#0f172a" stroke-width="1.8" />
+  </g>
+
+  <!-- Entity: Administrator (Row 5 Right) -->
+  <g id="entity-administrator">
+    <rect x="940" y="552" width="190" height="56" rx="1" fill="none" stroke="#0f172a" stroke-width="1.8" filter="url(#soft-shadow)" />
+    <text x="1035" y="585" text-anchor="middle" font-size="13.5" font-weight="700" fill="#0f172a">
+      Administrator
+    </text>
+  </g>
+
+  <!-- Entity: Guest / Public (Row 6 Bottom Center) -->
+  <g id="entity-guest-bottom">
+    <rect x="545" y="682" width="190" height="50" rx="1" fill="none" stroke="#0f172a" stroke-width="1.8" filter="url(#soft-shadow)" />
+    <text x="640" y="713" text-anchor="middle" font-size="13.5" font-weight="700" fill="#0f172a">
+      Guest / Public
+    </text>
+  </g>
+
+
+  <!-- ============================================================== -->
+  <!-- PROCESSES (CENTER COLUMN)                                      -->
+  <!-- ============================================================== -->
+
+  <!-- Process 1.0: Manage User Accounts -->
+  <g id="process-1">
+    <circle cx="640" cy="70" r="48" fill="none" stroke="#0f172a" stroke-width="2" filter="url(#soft-shadow)" />
+    <line x1="595" y1="56" x2="685" y2="56" stroke="#0f172a" stroke-width="1" />
+    <text x="640" y="49" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">1.0</text>
+    <text x="640" y="75" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Manage User</text>
+    <text x="640" y="91" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Accounts</text>
+  </g>
+
+  <!-- Process 2.0: Manage Bookings -->
+  <g id="process-2">
+    <circle cx="640" cy="190" r="48" fill="none" stroke="#0f172a" stroke-width="2" filter="url(#soft-shadow)" />
+    <line x1="595" y1="176" x2="685" y2="176" stroke="#0f172a" stroke-width="1" />
+    <text x="640" y="169" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">2.0</text>
+    <text x="640" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Manage</text>
+    <text x="640" y="211" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Bookings</text>
+  </g>
+
+  <!-- Process 3.0: Manage Studio Services -->
+  <g id="process-3">
+    <circle cx="640" cy="310" r="48" fill="none" stroke="#0f172a" stroke-width="2" filter="url(#soft-shadow)" />
+    <line x1="595" y1="296" x2="685" y2="296" stroke="#0f172a" stroke-width="1" />
+    <text x="640" y="289" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">3.0</text>
+    <text x="640" y="315" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Manage Studio</text>
+    <text x="640" y="331" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Services</text>
+  </g>
+
+  <!-- Process 4.0: Manage Payments -->
+  <g id="process-4">
+    <circle cx="640" cy="430" r="48" fill="none" stroke="#0f172a" stroke-width="2" filter="url(#soft-shadow)" />
+    <line x1="595" y1="416" x2="685" y2="416" stroke="#0f172a" stroke-width="1" />
+    <text x="640" y="409" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">4.0</text>
+    <text x="640" y="435" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Manage</text>
+    <text x="640" y="451" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Payments</text>
+  </g>
+
+  <!-- Process 5.0: Generate Reports -->
+  <g id="process-5">
+    <circle cx="640" cy="580" r="48" fill="none" stroke="#0f172a" stroke-width="2" filter="url(#soft-shadow)" />
+    <line x1="595" y1="566" x2="685" y2="566" stroke="#0f172a" stroke-width="1" />
+    <text x="640" y="559" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">5.0</text>
+    <text x="640" y="585" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Generate</text>
+    <text x="640" y="601" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Reports</text>
+  </g>
+
+
+  <!-- ============================================================== -->
+  <!-- DATA STORES (RIGHT COLUMN)                                     -->
+  <!-- ============================================================== -->
+
+  <!-- D1: tbl_user -->
+  <g id="ds-1">
+    <rect x="910" y="48" width="260" height="44" rx="1" fill="none" stroke="#0f172a" stroke-width="1.8" filter="url(#soft-shadow)" />
+    <line x1="958" y1="48" x2="958" y2="92" stroke="#0f172a" stroke-width="1.8" />
+    <text x="934" y="75" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">D1</text>
+    <text x="976" y="75" font-size="12.5" font-weight="700" fill="#0f172a">tbl_user</text>
+  </g>
+
+  <!-- D2: tbl_bookings -->
+  <g id="ds-2">
+    <rect x="910" y="168" width="260" height="44" rx="1" fill="none" stroke="#0f172a" stroke-width="1.8" filter="url(#soft-shadow)" />
+    <line x1="958" y1="168" x2="958" y2="212" stroke="#0f172a" stroke-width="1.8" />
+    <text x="934" y="195" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">D2</text>
+    <text x="976" y="195" font-size="12.5" font-weight="700" fill="#0f172a">tbl_bookings</text>
+  </g>
+
+  <!-- D3: tbl_services -->
+  <g id="ds-3">
+    <rect x="910" y="288" width="260" height="44" rx="1" fill="none" stroke="#0f172a" stroke-width="1.8" filter="url(#soft-shadow)" />
+    <line x1="958" y1="288" x2="958" y2="332" stroke="#0f172a" stroke-width="1.8" />
+    <text x="934" y="315" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">D3</text>
+    <text x="976" y="315" font-size="12.5" font-weight="700" fill="#0f172a">tbl_services</text>
+  </g>
+
+  <!-- D4: tbl_booking_payments -->
+  <g id="ds-4">
+    <rect x="910" y="408" width="260" height="44" rx="1" fill="none" stroke="#0f172a" stroke-width="1.8" filter="url(#soft-shadow)" />
+    <line x1="958" y1="408" x2="958" y2="452" stroke="#0f172a" stroke-width="1.8" />
+    <text x="934" y="435" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">D4</text>
+    <text x="976" y="435" font-size="12.5" font-weight="700" fill="#0f172a">tbl_booking_payments</text>
+  </g>
+
+
+  <!-- ============================================================== -->
+  <!-- DATA FLOW LINES & LABELS                                       -->
+  <!-- ============================================================== -->
+
+  <!-- ROW 1: Guest / Public <===> Process 1.0 -->
+  <line x1="250" y1="56" x2="590" y2="56" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="420" y="49" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Search / View Request</text>
+
+  <line x1="591" y1="84" x2="252" y2="84" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="420" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Studio / Service Information</text>
+
+  <!-- ROW 1: Process 1.0 <===> D1 tbl_user -->
+  <line x1="689" y1="56" x2="908" y2="56" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="800" y="49" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">User Data</text>
+
+  <line x1="909" y1="84" x2="691" y2="84" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="800" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">User Records</text>
+
+
+  <!-- ROW 2: Registered User <===> Process 2.0 -->
+  <line x1="250" y1="176" x2="590" y2="176" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="420" y="169" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Account Information</text>
+
+  <line x1="591" y1="204" x2="252" y2="204" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="420" y="219" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Account Details / Booking Information</text>
+
+  <!-- ROW 2: Process 2.0 <===> D2 tbl_bookings -->
+  <line x1="689" y1="176" x2="908" y2="176" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="800" y="169" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Booking Data</text>
+
+  <line x1="909" y1="204" x2="691" y2="204" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="800" y="219" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Booking Records</text>
+
+
+  <!-- ROW 3: Registered User Bus Trunk <===> Process 3.0 -->
+  <line x1="168" y1="296" x2="590" y2="296" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="380" y="289" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Service Inquiry / Reservation</text>
+
+  <line x1="591" y1="324" x2="170" y2="324" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="380" y="339" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Package Availability / Details</text>
+
+  <!-- ROW 3: Process 3.0 <===> D3 tbl_services -->
+  <line x1="689" y1="296" x2="908" y2="296" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="800" y="289" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Service Data</text>
+
+  <line x1="909" y1="324" x2="691" y2="324" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="800" y="339" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Service Records</text>
+
+
+  <!-- ROW 4: Registered User Bus Trunk <===> Process 4.0 -->
+  <line x1="168" y1="416" x2="590" y2="416" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="380" y="409" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Payment Information</text>
+
+  <line x1="591" y1="444" x2="170" y2="444" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="380" y="459" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Payment Status / Receipt</text>
+
+  <!-- ROW 4: Process 4.0 <===> D4 tbl_booking_payments -->
+  <line x1="689" y1="416" x2="908" y2="416" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="800" y="409" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Payment Data</text>
+
+  <line x1="909" y1="444" x2="691" y2="444" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="800" y="459" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Pricing / Payment Records</text>
+
+
+  <!-- VERTICAL FLOW: Process 4.0 ===> Process 5.0 -->
+  <line x1="640" y1="479" x2="640" y2="530" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-down)" />
+  <text x="648" y="508" text-anchor="start" font-size="9.5" font-weight="600" fill="#0f172a">Report Request</text>
+
+
+  <!-- ROW 5: Process 5.0 <===> Administrator -->
+  <!-- Report Parameters (Admin -> 5.0) -->
+  <line x1="938" y1="566" x2="690" y2="566" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-left)" />
+  <text x="814" y="558" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Report Parameters</text>
+
+  <!-- Generated Reports (5.0 -> Admin) -->
+  <line x1="689" y1="594" x2="938" y2="594" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-right)" />
+  <text x="814" y="609" text-anchor="middle" font-size="10" font-weight="600" fill="#0f172a">Generated Reports</text>
+
+
+  <!-- VERTICAL FLOW: Process 5.0 ===> Guest / Public (Bottom) -->
+  <line x1="640" y1="629" x2="640" y2="680" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-down)" />
+  <text x="648" y="658" text-anchor="start" font-size="9.5" font-weight="600" fill="#0f172a">Reports</text>
+
+</svg>

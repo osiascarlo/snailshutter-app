@@ -25,5 +25,8 @@
     "mysql2": "^3.19.1",
     "nodemailer": "^8.0.2",
     "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "docx": "^9.7.1"
   }
 }

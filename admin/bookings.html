@@ -60,6 +60,7 @@
 
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-confirmed { background: #dbeafe; color: #1e40af; }
+        .status-finished { background: #ccfbf1; color: #0f766e; }
         .status-completed { background: #d1fae5; color: #065f46; }
         .status-cancelled { background: #fee2e2; color: #b91c1c; }
 
@@ -106,6 +107,7 @@
 
         .section-title.status-pending { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
         .section-title.status-confirmed { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+        .section-title.status-finished { background: #ccfbf1; color: #0f766e; border-left: 4px solid #0d9488; }
         .section-title.status-completed { background: #f3e8ff; color: #6b21a8; border-left: 4px solid #7c3aed; }
         .section-title.status-cancelled { background: #fee2e2; color: #b91c1c; border-left: 4px solid #ef4444; }
 
@@ -370,6 +372,35 @@
             color: white !important;
         }
 
+        /* Finished Filter (Teal) */
+        .filter-tab.filter-finished,
+        .filter-pill[data-filter="finished"] {
+            background: #f0fdfa;
+            color: #0f766e;
+            border-color: #99f6e4;
+        }
+        .filter-tab.filter-finished .filter-count,
+        .filter-pill[data-filter="finished"] .filter-count {
+            background: #ccfbf1;
+            color: #115e59;
+        }
+        .filter-tab.filter-finished:hover,
+        .filter-tab.filter-finished.active,
+        .filter-pill[data-filter="finished"]:hover,
+        .filter-pill[data-filter="finished"].active {
+            background: #0d9488 !important;
+            color: white !important;
+            border-color: #0f766e !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+        .filter-tab.filter-finished:hover .filter-count,
+        .filter-tab.filter-finished.active .filter-count,
+        .filter-pill[data-filter="finished"]:hover .filter-count,
+        .filter-pill[data-filter="finished"].active .filter-count {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
         /* Completed Filter (Purple) */
         .filter-tab.filter-completed,
         .filter-pill[data-filter="completed"] {
@@ -520,15 +551,15 @@
 
             <nav class="sidebar-nav">
                 <div class="sidebar-section">
-                    <div class="sidebar-section-title">Admin</div>
+                    <div class="sidebar-section-title">Main</div>
                     <a href="/admin/dashboard.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
+                        <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
                     </a>
                     <a href="/admin/bookings.html" class="sidebar-link active">
-                        <span class="icon"><i class="fas fa-calendar"></i></span> All Bookings
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> All Bookings
                     </a>
                     <a href="/admin/calendar.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                        <span class="icon"><i class="fas fa-calendar"></i></span> Calendar
                     </a>
                     <a href="/admin/gallery.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
@@ -549,13 +580,11 @@
             </nav>
 
             <div class="sidebar-footer">
-                <div class="user-profile">
-                    <div class="user-avatar">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <div class="user-info">
+                <div class="sidebar-user">
+                    <div class="avatar" data-user-initial></div>
+                    <div class="sidebar-user-info">
                         <div class="name" data-user-name></div>
-                        <div class="role">Administrator</div>
+                        <div class="role" data-user-role>Administrator</div>
                     </div>
                 </div>
                 <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;">
@@ -608,6 +637,9 @@
                             <button class="filter-tab filter-pill filter-confirmed" data-filter="confirmed">
                                 Confirmed <span class="filter-count" id="countConfirmed">0</span>
                             </button>
+                            <button class="filter-tab filter-pill filter-finished" data-filter="finished">
+                                Finished <span class="filter-count" id="countFinished">0</span>
+                            </button>
                             <button class="filter-tab filter-pill filter-completed" data-filter="completed">
                                 Completed <span class="filter-count" id="countCompleted">0</span>
                             </button>
@@ -629,8 +661,13 @@
                     <div class="bookings-grid" id="grid-confirmed"></div>
                 </div>
 
+                <div class="booking-section" id="section-finished">
+                    <h2 class="section-title status-finished"><i class="fas fa-camera"></i> Finished Bookings (Awaiting Photo Link) <span class="count">0</span></h2>
+                    <div class="bookings-grid" id="grid-finished"></div>
+                </div>
+
                 <div class="booking-section" id="section-completed">
-                    <h2 class="section-title status-completed"><i class="fas fa-flag-checkered"></i> Completed Bookings <span class="count">0</span></h2>
+                    <h2 class="section-title status-completed"><i class="fas fa-check-double"></i> Completed Bookings (Link Set) <span class="count">0</span></h2>
                     <div class="bookings-grid" id="grid-completed"></div>
                 </div>
 
@@ -694,6 +731,12 @@
             applyFiltersAndSearch(false);
         }
 
+        function hasDriveLink(b) {
+            if (!b || !b.google_drive_link) return false;
+            const linkStr = String(b.google_drive_link).trim();
+            return linkStr.length > 0 && linkStr !== 'null' && linkStr !== 'undefined';
+        }
+
         function renderGrid(gridId, sectionId, list, query = '') {
             const grid = document.getElementById(gridId);
             const section = document.getElementById(sectionId);
@@ -705,7 +748,26 @@
             if (list.length === 0) {
                 grid.innerHTML = `<div class="empty-section-message">${query ? 'No matching bookings in this category' : 'No bookings in this category'}</div>`;
             } else {
-                grid.innerHTML = list.map(booking => `
+                grid.innerHTML = list.map(booking => {
+                    const hasLink = hasDriveLink(booking);
+                    const isFinishedNoLink = booking.status === 'completed' && !hasLink;
+                    const isCompletedWithLink = booking.status === 'completed' && hasLink;
+                    
+                    let badgeClass = `status-${booking.status}`;
+                    let badgeLabel = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+                    let badgeIcon = '';
+                    
+                    if (isFinishedNoLink) {
+                        badgeClass = 'status-finished';
+                        badgeLabel = 'Finished';
+                        badgeIcon = '<i class="fas fa-camera" style="font-size:0.75rem; margin-right:0.3rem;"></i>';
+                    } else if (isCompletedWithLink) {
+                        badgeClass = 'status-completed';
+                        badgeLabel = 'Completed';
+                        badgeIcon = '<i class="fas fa-check-double" style="font-size:0.75rem; margin-right:0.3rem;"></i>';
+                    }
+
+                    return `
                     <div class="booking-card" id="booking-${booking.id}" onclick="openBookingDetailsModal(${booking.id})">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
                             <div style="font-weight:700; color:var(--color-primary); font-size:1.05rem; line-height:1.2; word-break:break-word;">
@@ -725,18 +787,28 @@
                                     <span style="overflow:hidden; text-overflow:ellipsis;">${escapeHtml(booking.notes)}</span>
                                 </div>
                             ` : ''}
+                            ${hasLink ? `
+                                <div style="font-size:0.78rem; color:#059669; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:0.2rem 0.45rem; margin-top:0.2rem; display:flex; align-items:center; gap:0.3rem; width:fit-content;">
+                                    <i class="fab fa-google-drive" style="color:#10b981;"></i> Google Drive Link Set
+                                </div>
+                            ` : (booking.status === 'completed' ? `
+                                <div style="font-size:0.78rem; color:#0f766e; background:#f0fdfa; border:1px dashed #99f6e4; border-radius:6px; padding:0.2rem 0.45rem; margin-top:0.2rem; display:flex; align-items:center; gap:0.3rem; width:fit-content;">
+                                    <i class="fas fa-clock" style="color:#0d9488;"></i> Waiting for Photo Link
+                                </div>
+                            ` : '')}
                         </div>
                         
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--color-border-soft);">
-                            <span class="booking-status status-${booking.status}" style="margin:0; font-size:0.8rem; padding:0.2rem 0.6rem; border-radius:50px; font-weight:600;">
-                                ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            <span class="booking-status ${badgeClass}" style="margin:0; font-size:0.8rem; padding:0.2rem 0.6rem; border-radius:50px; font-weight:600; display:inline-flex; align-items:center;">
+                                ${badgeIcon}${badgeLabel}
                             </span>
                             <span style="font-size:0.8rem; color:var(--color-primary); font-weight:600; display:flex; align-items:center; gap:0.25rem;">
                                 Details <i class="fas fa-arrow-right" style="font-size:0.75rem; width:auto; color:inherit; margin:0;"></i>
                             </span>
                         </div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
             }
         }
 
@@ -781,6 +853,10 @@
                     const staffName = (b.staff_name || '').toLowerCase();
                     const clientEmail = (b.client_email || '').toLowerCase();
                     const clientPhone = (b.client_phone || '').toLowerCase();
+                    const driveLink = (b.google_drive_link || '').toLowerCase();
+                    const hasLink = hasDriveLink(b);
+                    const isFinished = b.status === 'completed' && !hasLink;
+                    const isCompleted = b.status === 'completed' && hasLink;
                     
                     let dateStr = '';
                     if (b.booking_date) {
@@ -801,6 +877,9 @@
                         staffName.includes(query) ||
                         clientEmail.includes(query) ||
                         clientPhone.includes(query) ||
+                        driveLink.includes(query) ||
+                        (isFinished && 'finished'.includes(query)) ||
+                        (isCompleted && 'completed'.includes(query)) ||
                         dateStr.includes(query)
                     );
                 });
@@ -819,19 +898,22 @@
             // Group filtered bookings by status
             const pending = filtered.filter(b => b.status === 'pending');
             const confirmed = filtered.filter(b => b.status === 'confirmed');
-            const completed = filtered.filter(b => b.status === 'completed');
+            const finished = filtered.filter(b => b.status === 'completed' && !hasDriveLink(b));
+            const completed = filtered.filter(b => b.status === 'completed' && hasDriveLink(b));
             const cancelled = filtered.filter(b => b.status === 'cancelled');
 
             // Update count badges on filter tabs
             if (document.getElementById('countAll')) document.getElementById('countAll').textContent = filtered.length;
             if (document.getElementById('countPending')) document.getElementById('countPending').textContent = pending.length;
             if (document.getElementById('countConfirmed')) document.getElementById('countConfirmed').textContent = confirmed.length;
+            if (document.getElementById('countFinished')) document.getElementById('countFinished').textContent = finished.length;
             if (document.getElementById('countCompleted')) document.getElementById('countCompleted').textContent = completed.length;
             if (document.getElementById('countCancelled')) document.getElementById('countCancelled').textContent = cancelled.length;
 
             // Render status grids
             renderGrid('grid-pending', 'section-pending', pending, query);
             renderGrid('grid-confirmed', 'section-confirmed', confirmed, query);
+            renderGrid('grid-finished', 'section-finished', finished, query);
             renderGrid('grid-completed', 'section-completed', completed, query);
             renderGrid('grid-cancelled', 'section-cancelled', cancelled, query);
 
@@ -869,8 +951,12 @@
             if (!window.currentBookings) {
                 const gridPending = document.getElementById('grid-pending');
                 const gridConfirmed = document.getElementById('grid-confirmed');
+                const gridFinished = document.getElementById('grid-finished');
+                const gridCompleted = document.getElementById('grid-completed');
                 if (gridPending) gridPending.innerHTML = getBookingSkeletonHTML(2);
                 if (gridConfirmed) gridConfirmed.innerHTML = getBookingSkeletonHTML(2);
+                if (gridFinished) gridFinished.innerHTML = getBookingSkeletonHTML(2);
+                if (gridCompleted) gridCompleted.innerHTML = getBookingSkeletonHTML(2);
             }
             try {
                 const response = await api.getBookings();
@@ -1067,6 +1153,20 @@
                 `;
             }
 
+            const hasLink = hasDriveLink(booking);
+            const isFinishedNoLink = booking.status === 'completed' && !hasLink;
+            const isCompletedWithLink = booking.status === 'completed' && hasLink;
+
+            let modalStatusDisplay = statusCap;
+            let modalStatusClass = `status-${booking.status}`;
+            if (isFinishedNoLink) {
+                modalStatusDisplay = 'Finished (No Link)';
+                modalStatusClass = 'status-finished';
+            } else if (isCompletedWithLink) {
+                modalStatusDisplay = 'Completed (Link Set)';
+                modalStatusClass = 'status-completed';
+            }
+
             overlay.innerHTML = `
                 <div class="modal" style="max-width: 580px;">
                     <div class="modal-header">
@@ -1082,8 +1182,8 @@
                             <div>
                                 <h2 style="font-size: 1.3rem; font-weight: 700; margin: 0; line-height: 1.2;">${booking.service_name}</h2>
                             </div>
-                            <span class="booking-status status-${booking.status}" style="margin: 0; font-size: 0.85rem; padding: 0.3rem 0.8rem; border-radius: 50px; white-space: nowrap;">
-                                ${statusCap}
+                            <span class="booking-status ${modalStatusClass}" style="margin: 0; font-size: 0.85rem; padding: 0.3rem 0.8rem; border-radius: 50px; white-space: nowrap;">
+                                ${modalStatusDisplay}
                             </span>
                         </div>
 
@@ -1093,12 +1193,6 @@
                                 <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Client Name</label>
                                 <div style="font-weight: 600; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
                                     <i class="fas fa-user" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${booking.client_name}
-                                </div>
-                            </div>
-                            <div>
-                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Photographer</label>
-                                <div style="font-weight: 600; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
-                                    <i class="fas fa-user-tie" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${booking.staff_name || 'TBD'}
                                 </div>
                             </div>
                             <div>
@@ -1114,6 +1208,14 @@
                                     <i class="fas fa-wallet" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ₱${Number(booking.downpayment_amount || 0).toLocaleString()}
                                 </div>
                             </div>
+                            ${booking.total_price ? `
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Total Price</label>
+                                <div style="font-weight: 700; color: var(--color-text); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fas fa-tag" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ₱${Number(booking.total_price || 0).toLocaleString()}
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
 
                         <!-- Payment Status Section -->
@@ -1125,6 +1227,35 @@
                                 ${payStatusCap}
                             </span>
                         </div>
+
+                        <!-- Google Drive Delivery Section -->
+                        ${hasLink ? `
+                            <div style="background: #ecfdf5; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #a7f3d0; margin-top: 0.25rem;">
+                                <div style="font-size: 0.75rem; color: #065f46; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fab fa-google-drive" style="color: #10b981;"></i> Google Drive Gallery Link:
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+                                    <a href="${booking.google_drive_link}" target="_blank" style="font-size: 0.85rem; color: #047857; text-decoration: underline; word-break: break-all; font-weight: 600;">
+                                        ${booking.google_drive_link}
+                                    </a>
+                                    <a href="${booking.google_drive_link}" target="_blank" class="btn btn-sm" style="background:#10b981; color:white; padding:0.25rem 0.65rem; font-size:0.78rem; border-radius:6px; text-decoration:none; white-space:nowrap; display:inline-flex; align-items:center; gap:0.25rem;">
+                                        <i class="fas fa-external-link-alt"></i> Open Gallery
+                                    </a>
+                                </div>
+                            </div>
+                        ` : (booking.status === 'completed' ? `
+                            <div style="background: #f0fdfa; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #99f6e4; margin-top: 0.25rem;">
+                                <div style="font-size: 0.75rem; color: #0f766e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fas fa-camera" style="color: #0d9488;"></i> Photo Delivery Status:
+                                </div>
+                                <div style="font-size: 0.85rem; color: #115e59; line-height: 1.4; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                                    <span>Photoshoot is finished, but Google Drive link has not been assigned yet.</span>
+                                    <a href="gallery.html" class="btn btn-sm" style="background:#0d9488; color:white; padding:0.3rem 0.75rem; font-size:0.8rem; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:0.35rem;">
+                                        <i class="fas fa-cloud-upload-alt"></i> Set in Photo Deliveries
+                                    </a>
+                                </div>
+                            </div>
+                        ` : '')}
 
                         <!-- Special Requests / Notes Section -->
                         <div style="background: var(--color-bg-soft); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-soft); margin-top: 0.25rem;">

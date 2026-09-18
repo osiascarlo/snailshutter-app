@@ -1,0 +1,293 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 1060" width="850" height="1060">
+    <rect width="850" height="1060" fill="#ffffff" />
+    
+    <!-- Top Thesis Headers -->
+    <text x="425" y="42" font-family="'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#1e293b" letter-spacing="4">Appendix  H</text>
+    <text x="425" y="72" font-family="'Segoe UI', Arial, sans-serif" font-size="16" font-weight="700" text-anchor="middle" fill="#1e293b" letter-spacing="1.5">Admin User Management Wireframes</text>
+    <text x="790" y="42" font-family="'Segoe UI', Arial, sans-serif" font-size="11" font-weight="600" text-anchor="end" fill="#64748b">Sheet 4 of 4</text>
+    
+    
+    <!-- Window Title -->
+    <text x="60" y="98" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="700" fill="#1e293b">Admin Add New User Form (admin/users.html)</text>
+    
+    <!-- Outer Window Frame -->
+    <rect x="60" y="110" width="730" height="420" fill="#ffffff" stroke="#1e293b" stroke-width="1.5" />
+    
+    <!-- Sidebar Divider -->
+    <line x1="205" y1="110" x2="205" y2="530" stroke="#1e293b" stroke-width="1.2" />
+    
+    <!-- Sidebar Header -->
+    <rect x="72" y="122" width="20" height="20" rx="3" fill="#0f172a" />
+    <text x="98" y="137" font-family="'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">SnailShutter</text>
+    <text x="76" y="160" font-family="'Segoe UI', Arial, sans-serif" font-size="9" font-weight="700" fill="#94a3b8" letter-spacing="1">MAIN</text>
+    <line x1="76" y1="166" x2="189" y2="166" stroke="#e2e8f0" stroke-width="1" />
+    
+        <!-- Sidebar Item 1 -->
+        <rect x="70" y="174" width="125" height="22" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" />
+        <circle cx="82" cy="185" r="4" fill="#0f172a" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="188" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#0f172a">Dashboard</text>
+        
+        <!-- Sidebar Item 2 -->
+        
+        <circle cx="82" cy="211" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="214" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">All Bookings</text>
+        
+        <!-- Sidebar Item 3 -->
+        
+        <circle cx="82" cy="237" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="240" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Calendar</text>
+        
+        <!-- Sidebar Item 4 -->
+        
+        <circle cx="82" cy="263" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="266" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Photo Deliveries</text>
+        
+        <!-- Sidebar Item 5 -->
+        
+        <circle cx="82" cy="289" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="292" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Analytics</text>
+        
+        <!-- Sidebar Item 6 -->
+        
+        <circle cx="82" cy="315" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="318" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Users</text>
+        
+        <!-- Sidebar Item 7 -->
+        
+        <circle cx="82" cy="341" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="344" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Services</text>
+        
+        <!-- Sidebar Item 8 -->
+        
+        <circle cx="82" cy="367" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="370" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Settings</text>
+        
+    <line x1="76" y1="490" x2="189" y2="490" stroke="#e2e8f0" stroke-width="1" />
+    <circle cx="82" cy="508" r="4" fill="none" stroke="#ef4444" stroke-width="1.2" />
+    <text x="94" y="512" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="600" fill="#ef4444">Logout</text>
+    
+    <!-- Centered Form Container -->
+    <rect x="245" y="135" width="495" height="375" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" rx="4" />
+    
+    <!-- Title: Add New User from admin/users.html line 447 -->
+    <text x="492" y="162" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="800" text-anchor="middle" fill="#1e293b">Add New User (admin/users.html)</text>
+    <line x1="245" y1="172" x2="740" y2="172" stroke="#e2e8f0" stroke-width="1" />
+    
+        <!-- Row 1: First Name & Last Name -->
+        <text x="270" y="192" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="700" fill="#475569">First Name *</text>
+        <rect x="270" y="198" width="210" height="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="3" />
+        <text x="280" y="214" font-size="9.5" fill="#0f172a">Juan</text>
+
+        <text x="500" y="192" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="700" fill="#475569">Last Name *</text>
+        <rect x="500" y="198" width="215" height="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="3" />
+        <text x="510" y="214" font-size="9.5" fill="#0f172a">Dela Cruz</text>
+
+        <!-- Row 2: Email -->
+        <text x="270" y="238" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="700" fill="#475569">Email Address *</text>
+        <rect x="270" y="244" width="445" height="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="3" />
+        <text x="280" y="260" font-size="9.5" fill="#0f172a">juan@gmail.com</text>
+
+        <!-- Row 3: Role & Status -->
+        <text x="270" y="284" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="700" fill="#475569">Role (admin / staff / client) *</text>
+        <rect x="270" y="290" width="210" height="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="3" />
+        <text x="280" y="306" font-size="9.5" fill="#0f172a">client</text>
+
+        <text x="500" y="284" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="700" fill="#475569">Status (active / inactive / pending) *</text>
+        <rect x="500" y="290" width="215" height="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="3" />
+        <text x="510" y="306" font-size="9.5" fill="#0f172a">active</text>
+
+        <!-- Row 4: Password -->
+        <text x="270" y="330" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="700" fill="#475569">Password</text>
+        <rect x="270" y="336" width="445" height="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="3" />
+        <text x="280" y="352" font-size="9.5" fill="#64748b">Leave blank to keep current password</text>
+
+        <!-- Row 5: Phone (Optional) -->
+        <text x="270" y="376" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="700" fill="#475569">Phone (Optional)</text>
+        <rect x="270" y="382" width="445" height="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="3" />
+        <text x="280" y="398" font-size="9.5" fill="#0f172a">09181112233</text>
+
+        <!-- Row 6: Notes -->
+        <text x="270" y="422" font-family="'Segoe UI', Arial, sans-serif" font-size="10" font-weight="700" fill="#475569">Notes</text>
+        <rect x="270" y="428" width="445" height="32" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="3" />
+        <text x="280" y="448" font-size="9" fill="#64748b">Regular portrait client from Alaminos City.</text>
+
+        <!-- Buttons from admin/users.html lines 500-503 -->
+        <rect x="560" y="472" width="65" height="26" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+        <text x="592" y="489" font-size="9.5" font-weight="600" text-anchor="middle" fill="#475569">Cancel</text>
+
+        <rect x="635" y="472" width="80" height="26" rx="4" fill="#16a34a" />
+        <text x="675" y="489" font-size="9.5" font-weight="700" text-anchor="middle" fill="#ffffff">Save User</text>
+        
+    
+    <!-- Window Title -->
+    <text x="60" y="578" font-family="'Segoe UI', Arial, sans-serif" font-size="14" font-weight="700" fill="#1e293b">Admin Users Table &amp; Management (admin/users.html)</text>
+    
+    <!-- Outer Window Frame -->
+    <rect x="60" y="590" width="730" height="420" fill="#ffffff" stroke="#1e293b" stroke-width="1.5" />
+    
+    <!-- Sidebar Divider -->
+    <line x1="205" y1="590" x2="205" y2="1010" stroke="#1e293b" stroke-width="1.2" />
+    
+    <!-- Sidebar Header -->
+    <rect x="72" y="602" width="20" height="20" rx="3" fill="#0f172a" />
+    <text x="98" y="617" font-family="'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" fill="#0f172a">SnailShutter</text>
+    <text x="76" y="640" font-family="'Segoe UI', Arial, sans-serif" font-size="9" font-weight="700" fill="#94a3b8" letter-spacing="1">MAIN</text>
+    <line x1="76" y1="646" x2="189" y2="646" stroke="#e2e8f0" stroke-width="1" />
+    
+        <!-- Sidebar Item 1 -->
+        <rect x="70" y="654" width="125" height="22" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" />
+        <circle cx="82" cy="665" r="4" fill="#0f172a" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="668" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#0f172a">Dashboard</text>
+        
+        <!-- Sidebar Item 2 -->
+        
+        <circle cx="82" cy="691" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="694" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">All Bookings</text>
+        
+        <!-- Sidebar Item 3 -->
+        
+        <circle cx="82" cy="717" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="720" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Calendar</text>
+        
+        <!-- Sidebar Item 4 -->
+        
+        <circle cx="82" cy="743" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="746" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Photo Deliveries</text>
+        
+        <!-- Sidebar Item 5 -->
+        
+        <circle cx="82" cy="769" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="772" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Analytics</text>
+        
+        <!-- Sidebar Item 6 -->
+        
+        <circle cx="82" cy="795" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="798" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Users</text>
+        
+        <!-- Sidebar Item 7 -->
+        
+        <circle cx="82" cy="821" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="824" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Services</text>
+        
+        <!-- Sidebar Item 8 -->
+        
+        <circle cx="82" cy="847" r="4" fill="none" stroke="#475569" stroke-width="1.2" />
+        <text x="94" y="850" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="500" fill="#334155">Settings</text>
+        
+    <line x1="76" y1="970" x2="189" y2="970" stroke="#e2e8f0" stroke-width="1" />
+    <circle cx="82" cy="988" r="4" fill="none" stroke="#ef4444" stroke-width="1.2" />
+    <text x="94" y="992" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="600" fill="#ef4444">Logout</text>
+    
+    <!-- Data Table Container -->
+    <rect x="220" y="620" width="550" height="340" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+    <line x1="310" y1="620" x2="310" y2="865" stroke="#1e293b" stroke-width="1.2" />
+<line x1="400" y1="620" x2="400" y2="865" stroke="#1e293b" stroke-width="1.2" />
+<line x1="470" y1="620" x2="470" y2="865" stroke="#1e293b" stroke-width="1.2" />
+<line x1="535" y1="620" x2="535" y2="865" stroke="#1e293b" stroke-width="1.2" />
+<line x1="605" y1="620" x2="605" y2="865" stroke="#1e293b" stroke-width="1.2" />
+<line x1="680" y1="620" x2="680" y2="865" stroke="#1e293b" stroke-width="1.2" />
+<line x1="220" y1="665" x2="770" y2="665" stroke="#1e293b" stroke-width="1.2" />
+<line x1="220" y1="715" x2="770" y2="715" stroke="#1e293b" stroke-width="1.2" />
+<line x1="220" y1="765" x2="770" y2="765" stroke="#1e293b" stroke-width="1.2" />
+<line x1="220" y1="815" x2="770" y2="815" stroke="#1e293b" stroke-width="1.2" />
+<line x1="220" y1="865" x2="770" y2="865" stroke="#1e293b" stroke-width="1.2" />
+
+            <text x="265" y="647" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle" fill="#1e293b">User</text>
+            
+            <text x="355" y="647" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle" fill="#1e293b">Email</text>
+            
+            <text x="435" y="647" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle" fill="#1e293b">Role</text>
+            
+            <text x="502.5" y="647" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle" fill="#1e293b">Status</text>
+            
+            <text x="570" y="647" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle" fill="#1e293b">Joined</text>
+            
+            <text x="642.5" y="647" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle" fill="#1e293b">Bookings</text>
+            
+            <text x="725" y="647" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle" fill="#1e293b">Actions</text>
+            
+                <text x="265" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">Studio Admin</text>
+                
+                <text x="355" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">admin@studio.com</text>
+                
+                <text x="435" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">admin</text>
+                
+                <text x="502.5" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">active</text>
+                
+                <text x="570" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">2026-09-01</text>
+                
+                <text x="642.5" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">12</text>
+                
+        <rect x="686" y="679" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="697" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">View</text>
+
+        <rect x="713" y="679" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="724" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">Edit</text>
+
+        <rect x="740" y="679" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="751" y="693" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">Del</text>
+        
+                <text x="265" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">Maria Santos</text>
+                
+                <text x="355" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">maria@studio.com</text>
+                
+                <text x="435" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">staff</text>
+                
+                <text x="502.5" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">active</text>
+                
+                <text x="570" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">2026-09-02</text>
+                
+                <text x="642.5" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">8</text>
+                
+        <rect x="686" y="729" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="697" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">View</text>
+
+        <rect x="713" y="729" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="724" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">Edit</text>
+
+        <rect x="740" y="729" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="751" y="743" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">Del</text>
+        
+                <text x="265" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">Carlos Rivera</text>
+                
+                <text x="355" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">carlos@studio.com</text>
+                
+                <text x="435" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">staff</text>
+                
+                <text x="502.5" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">active</text>
+                
+                <text x="570" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">2026-09-02</text>
+                
+                <text x="642.5" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">15</text>
+                
+        <rect x="686" y="779" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="697" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">View</text>
+
+        <rect x="713" y="779" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="724" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">Edit</text>
+
+        <rect x="740" y="779" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="751" y="793" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">Del</text>
+        
+                <text x="265" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">Juan Dela Cruz</text>
+                
+                <text x="355" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">juan@gmail.com</text>
+                
+                <text x="435" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">client</text>
+                
+                <text x="502.5" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">active</text>
+                
+                <text x="570" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">2026-09-03</text>
+                
+                <text x="642.5" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="9.5" text-anchor="middle" fill="#1e293b">4</text>
+                
+        <rect x="686" y="829" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="697" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">View</text>
+
+        <rect x="713" y="829" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="724" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">Edit</text>
+
+        <rect x="740" y="829" width="22" height="22" fill="#ffffff" stroke="#1e293b" stroke-width="1.2" />
+        <text x="751" y="843" font-family="'Segoe UI', Arial, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="#1e293b">Del</text>
+        
+</svg>
