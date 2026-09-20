@@ -867,6 +867,10 @@
             transform: translateY(-2px);
         }
 
+        .calendar-sidebar-section .time-slot.selected .lunch-pause-subtext {
+            color: #fef08a !important;
+        }
+
         .calendar-sidebar-section .time-slot.unavailable {
             background: #f1f5f9;
             border-color: #e2e8f0;
@@ -1224,6 +1228,16 @@
                                     <!-- Time slots will be dynamically loaded here -->
                                 </div>
 
+                                <!-- Step 2 Lunch Break Reminder Notice -->
+                                <div id="step2LunchBreakNotice" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.82rem; color: #92400e; line-height: 1.5;">
+                                    <div style="font-weight: 700; display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem; color: #b45309;">
+                                        <i class="fas fa-utensils"></i> Studio Lunch Break Notice (12:01 PM – 12:59 PM)
+                                    </div>
+                                    <div id="step2LunchBreakNoticeText">
+                                        Your selected time (<strong id="step2LunchSlotLabel">11:00 AM – 2:00 PM</strong>) overlaps with the studio lunch break. The session will pause from <strong>12:01 PM to 12:59 PM</strong> and continue smoothly from <strong>1:00 PM onwards</strong> to complete your full service time.
+                                    </div>
+                                </div>
+
                                 <!-- Custom Time Form -->
                                 <div id="customTimeForm" class="custom-time-form" style="display:none; background: var(--color-bg-soft, #f8fafc); padding: 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--color-border-soft); margin-top: 1rem;">
                                     <h4 style="font-family: var(--font-body); font-weight: 700; margin-top: 0; margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--color-text);">Set Custom Time Range</h4>
@@ -1247,8 +1261,9 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <p style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.4; margin-bottom: 0;">
+                                    <p style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 0;">
                                         <i class="fas fa-info-circle"></i> Service duration: <strong><span id="customDurationText"></span> minutes</strong>. Studio hours: <strong>10:00 AM - 7:00 PM</strong>.
+                                        <br><span style="color: #d97706;"><i class="fas fa-utensils"></i> <strong>Lunch Break: 12:01 PM - 12:59 PM</strong> (cannot be booked; sessions starting before 12:00 PM resume at 1:00 PM).</span>
                                     </p>
                                 </div>
 
@@ -1296,6 +1311,16 @@
                                     <label class="stat-label" style="font-size: 0.85rem; font-weight: 700; margin: 0;">Downpayment Required (10%)</label>
                                     <div class="stat-value" style="font-size: 1.6rem; color: var(--color-primary);" id="confirmDownpayment">-</div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Confirmation Lunch Break Notice -->
+                        <div id="confirmLunchBreakNotice" style="display: none; margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 10px; font-size: 0.85rem; color: #92400e; line-height: 1.55;">
+                            <div style="font-weight: 700; display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.3rem; color: #b45309; font-size: 0.9rem;">
+                                <i class="fas fa-utensils"></i> Studio Lunch Break Notice (12:01 PM – 12:59 PM)
+                            </div>
+                            <div>
+                                Your booked session is scheduled for <strong id="confirmLunchTimeSpan">11:00 AM – 2:00 PM</strong>. Because the studio observes a lunch break from <strong>12:01 PM to 12:59 PM</strong>, your session will pause during this hour and continue from <strong>1:00 PM onwards</strong> to complete your full booked service time.
                             </div>
                         </div>
 
@@ -1845,6 +1870,20 @@
             }
         }
 
+        function updateStep2LunchNotice(show, label) {
+            const noticeEl = document.getElementById('step2LunchBreakNotice');
+            const labelEl = document.getElementById('step2LunchSlotLabel');
+            if (!noticeEl) return;
+            if (show) {
+                if (labelEl && label) {
+                    labelEl.textContent = label;
+                }
+                noticeEl.style.display = 'block';
+            } else {
+                noticeEl.style.display = 'none';
+            }
+        }
+
         function renderTimeSlots(bookedSlots) {
             const container = document.getElementById('timeSlotsContainer');
             const noSlotsMsg = document.getElementById('noSlotsMessage');
@@ -1854,24 +1893,54 @@
 
             timeSlots.forEach(slot => {
                 const isBooked = bookedSlots.includes(slot.start_time);
+                const isLunch = slot.start_time === '12:00:00' || (slot.slot_label && slot.slot_label.includes('Lunch Break'));
+                
+                // Check if slot spans lunch break (starts before 12:00 PM and ends after 1:00 PM)
+                const [sh, sm] = String(slot.start_time).split(':');
+                const [eh, em] = String(slot.end_time).split(':');
+                const sMins = parseInt(sh) * 60 + parseInt(sm);
+                const eMins = parseInt(eh) * 60 + parseInt(em);
+                const spansLunch = sMins < 720 && eMins > 780;
+
                 const slotDiv = document.createElement('div');
                 slotDiv.id = 'slot-' + slot.id;
-                slotDiv.className = 'time-slot' + (isBooked ? ' unavailable' : '');
-                slotDiv.textContent = slot.slot_label;
+                slotDiv.className = 'time-slot' + ((isBooked || isLunch) ? ' unavailable' : '');
 
-                if (!isBooked) {
+                if (isLunch) {
+                    const cleanLabel = (slot.slot_label || '12:00 PM - 1:00 PM').replace(/\s*\(Lunch Break\)/i, '');
+                    slotDiv.innerHTML = `<div>${cleanLabel}</div><div style="font-size:0.7rem; color:#f59e0b; margin-top:2px;"><i class="fas fa-utensils"></i> Lunch Break</div>`;
+                } else if (spansLunch) {
+                    slotDiv.innerHTML = `<div>${slot.slot_label}</div><div class="lunch-pause-subtext" style="font-size:0.68rem; color:#d97706; margin-top:3px; font-weight:600; line-height:1.2;"><i class="fas fa-utensils"></i> Resumes 1:00 PM</div>`;
+                } else {
+                    slotDiv.textContent = slot.slot_label;
+                }
+
+                if (!isBooked && !isLunch) {
                     availableCount++;
                     slotDiv.onclick = function () {
                         document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
                         slotDiv.classList.add('selected');
                         hideCustomTimeForm();
                         selectedSlot = { id: slot.id, label: slot.slot_label, start: slot.start_time, end: slot.end_time };
+                        updateStep2LunchNotice(spansLunch, slot.slot_label);
                         showConfirmation();
                     };
                 }
 
                 container.appendChild(slotDiv);
             });
+
+            // Restore selection and notice if selectedSlot is already chosen
+            if (selectedSlot) {
+                const [sh, sm] = String(selectedSlot.start).split(':');
+                const [eh, em] = String(selectedSlot.end).split(':');
+                const sMins = parseInt(sh) * 60 + parseInt(sm);
+                const eMins = parseInt(eh) * 60 + parseInt(em);
+                const spansLunch = sMins < 720 && eMins > 780;
+                updateStep2LunchNotice(spansLunch, selectedSlot.label);
+            } else {
+                updateStep2LunchNotice(false);
+            }
 
             // Add Custom Time Button
             const customBtn = document.createElement('div');
@@ -1886,6 +1955,7 @@
 
         function showCustomTimeForm() {
             document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            updateStep2LunchNotice(false);
             const form = document.getElementById('customTimeForm');
             const totalDuration = selectedServices.reduce((sum, s) => sum + Number(s.duration_minutes || s.duration || 60), 0);
             document.getElementById('customDurationText').textContent = totalDuration;
@@ -1906,15 +1976,42 @@
             const startTimeStr = document.getElementById('customStartTime').value;
             if (!startTimeStr) return;
             const [h, m] = startTimeStr.split(':');
+            const startMins = parseInt(h) * 60 + parseInt(m);
             const totalDuration = selectedServices.reduce((sum, s) => sum + Number(s.duration_minutes || s.duration || 60), 0);
             
-            const date = new Date();
-            date.setHours(parseInt(h), parseInt(m), 0, 0);
-            const endDate = new Date(date.getTime() + totalDuration * 60000);
-            
-            const eh = String(endDate.getHours()).padStart(2, '0');
-            const em = String(endDate.getMinutes()).padStart(2, '0');
+            // Check if start time is during lunch break (12:01 - 12:59 or 12:00)
+            if (startMins >= 720 && startMins < 780) {
+                showAlert('12:01 PM to 12:59 PM is the lunch break for admin/staff and cannot be booked. Please choose a time before 12:00 PM or from 1:00 PM onwards.', 'warning');
+                document.getElementById('customStartTime').value = '';
+                document.getElementById('customEndTime').value = '';
+                updateStep2LunchNotice(false);
+                return;
+            }
+
+            let endMins;
+            let spansLunch = false;
+            if (startMins < 720 && (startMins + totalDuration) > 720) {
+                // Crosses lunch break: remaining time continues from 1:00 PM (780 mins) onwards
+                const timeBeforeLunch = 720 - startMins;
+                const remainingDuration = totalDuration - timeBeforeLunch;
+                endMins = 780 + remainingDuration;
+                spansLunch = true;
+            } else {
+                endMins = startMins + totalDuration;
+            }
+
+            const eh = String(Math.floor(endMins / 60)).padStart(2, '0');
+            const em = String(endMins % 60).padStart(2, '0');
             document.getElementById('customEndTime').value = `${eh}:${em}`;
+
+            if (spansLunch) {
+                const startTime = startTimeStr + ':00';
+                const endTime = `${eh}:${em}:00`;
+                const customLabel = formatTimeLabel(startTime) + ' – ' + formatTimeLabel(endTime);
+                updateStep2LunchNotice(true, customLabel);
+            } else {
+                updateStep2LunchNotice(false);
+            }
         }
 
         function applyCustomTime() {
@@ -1953,6 +2050,16 @@
                 return;
             }
 
+            // Lunch break validation: 12:01 PM to 12:59 PM cannot be booked
+            if (startMinutes >= 720 && startMinutes < 780) {
+                showAlert('12:01 PM to 12:59 PM is the lunch break for admin/staff and cannot be booked. Please select a time before 12:00 PM or from 1:00 PM onwards.', 'warning');
+                return;
+            }
+            if (endMinutes > 720 && endMinutes < 780) {
+                showAlert('12:01 PM to 12:59 PM is the lunch break for admin/staff and cannot be booked. Any session extending past 12:00 PM must resume from 1:00 PM onwards.', 'warning');
+                return;
+            }
+
             const startTime = startTimeStr + ':00';
             const endTime = endTimeStr + ':00';
 
@@ -1965,7 +2072,19 @@
                 const bStartMins = parseInt(bsh) * 60 + parseInt(bsm);
                 const bEndMins = parseInt(beh) * 60 + parseInt(bem);
 
-                if (startMinutes < bEndMins && endMinutes > bStartMins) {
+                let hasConflict = false;
+                if (startMinutes < 720 && endMinutes > 780) {
+                    // Session spans across lunch break
+                    if ((bStartMins < 720 && bEndMins > startMinutes) || (bStartMins < endMinutes && bEndMins > 780)) {
+                        hasConflict = true;
+                    }
+                } else {
+                    if (startMinutes < bEndMins && endMinutes > bStartMins) {
+                        hasConflict = true;
+                    }
+                }
+
+                if (hasConflict) {
                     const bStartLabel = formatTimeLabel(bStartStr);
                     const bEndLabel = formatTimeLabel(bEndStr);
                     showAlert(`The selected custom time (${formatTimeLabel(startTime)} - ${formatTimeLabel(endTime)}) overlaps with an existing booking (${bStartLabel} - ${bEndLabel}). Please select an available time range.`, 'warning');
@@ -1983,7 +2102,18 @@
                     const sStartMins = parseInt(ssh) * 60 + parseInt(ssm);
                     const sEndMins = parseInt(seh) * 60 + parseInt(sem);
 
-                    if (startMinutes < sEndMins && endMinutes > sStartMins) {
+                    let hasConflict = false;
+                    if (startMinutes < 720 && endMinutes > 780) {
+                        if ((sStartMins < 720 && sEndMins > startMinutes) || (sStartMins < endMinutes && sEndMins > 780)) {
+                            hasConflict = true;
+                        }
+                    } else {
+                        if (startMinutes < sEndMins && endMinutes > sStartMins) {
+                            hasConflict = true;
+                        }
+                    }
+
+                    if (hasConflict) {
                         showAlert(`The selected custom time (${formatTimeLabel(startTime)} - ${formatTimeLabel(endTime)}) overlaps with a booked time slot (${slot.slot_label}). Please select an available time range.`, 'warning');
                         return;
                     }
@@ -1991,6 +2121,8 @@
             }
 
             const label = formatTimeLabel(startTime) + ' - ' + formatTimeLabel(endTime) + ' (Custom)';
+            const spansLunch = startMinutes < 720 && endMinutes > 780;
+            updateStep2LunchNotice(spansLunch, label);
 
             selectedSlot = {
                 id: 'custom',
@@ -2021,6 +2153,27 @@
             });
             document.getElementById('confirmTime').textContent = selectedSlot.label;
             refreshConfirmPrice();
+
+            // Check if selectedSlot spans lunch break (starts before 12:00 PM and ends after 1:00 PM)
+            const confirmLunchNotice = document.getElementById('confirmLunchBreakNotice');
+            const confirmLunchSpan = document.getElementById('confirmLunchTimeSpan');
+            if (selectedSlot && selectedSlot.start && selectedSlot.end) {
+                const [sh, sm] = String(selectedSlot.start).split(':');
+                const [eh, em] = String(selectedSlot.end).split(':');
+                const sMins = parseInt(sh) * 60 + parseInt(sm);
+                const eMins = parseInt(eh) * 60 + parseInt(em);
+                const spansLunch = sMins < 720 && eMins > 780;
+                if (confirmLunchNotice) {
+                    if (spansLunch) {
+                        if (confirmLunchSpan) confirmLunchSpan.textContent = selectedSlot.label;
+                        confirmLunchNotice.style.display = 'block';
+                    } else {
+                        confirmLunchNotice.style.display = 'none';
+                    }
+                }
+            } else if (confirmLunchNotice) {
+                confirmLunchNotice.style.display = 'none';
+            }
 
             // Dynamically load active GCash QR code and number from settings
             fetch('/api/bookings/payment-settings')

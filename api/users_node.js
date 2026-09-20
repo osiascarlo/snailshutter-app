@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const { sendEmail } = require('../utils/mailer');
 
 /**
  * GET /api/users
@@ -35,6 +36,16 @@ router.get('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
     }
 });
 
+// Helper to validate password complexity: at least 8 characters, 1 uppercase, 1 number, 1 special character
+function isStrongPassword(pwd) {
+    if (!pwd || typeof pwd !== 'string') return false;
+    const isLengthValid = pwd.length >= 8;
+    const isCapitalValid = /[A-Z]/.test(pwd);
+    const isNumberValid = /[0-9]/.test(pwd);
+    const isSpecialValid = /[^a-zA-Z0-9]/.test(pwd);
+    return isLengthValid && isCapitalValid && isNumberValid && isSpecialValid;
+}
+
 /**
  * POST /api/users
  * Admin Only - Create a new user
@@ -48,6 +59,18 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
 
     if (!first_name || !last_name || !email || !password || !role) {
         return res.status(400).json({ success: false, error: 'Required fields missing' });
+    }
+
+    const cleanPhone = phone ? String(phone).trim() : '';
+    if (!cleanPhone || !/^\d{11}$/.test(cleanPhone)) {
+        return res.status(400).json({ success: false, error: 'Phone number must be exactly 11 digits (e.g. 09171234567).' });
+    }
+
+    if (!isStrongPassword(password)) {
+        return res.status(400).json({
+            success: false,
+            error: 'Password must be at least 8 characters, include a capital letter, a number, and a special character.'
+        });
     }
 
     try {
@@ -83,7 +106,86 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
             [first_name, last_name, email, hashedPassword, phone || null, role, userStatus, notes || null]
         );
 
-        res.json({ success: true, message: 'User created successfully' });
+        // Determine login URL
+        const baseUrl = process.env.APP_URL || (req.headers && req.headers.host ? `${req.protocol || 'http'}://${req.headers.host}` : 'https://snailshutter-app.onrender.com');
+        const loginUrl = `${baseUrl}/auth/login.html`;
+        const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+
+        const emailHtml = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #2e7d32;">
+                    <h1 style="color: #2e7d32; margin: 0; font-size: 24px; font-weight: 700;">SnailShutter Studio</h1>
+                    <p style="color: #64748b; margin: 5px 0 0 0; font-size: 14px;">Photography Studio Management</p>
+                </div>
+                
+                <div style="padding: 25px 0;">
+                    <h2 style="color: #1e293b; font-size: 20px; margin-top: 0;">Welcome, ${first_name}!</h2>
+                    <p style="color: #475569; font-size: 15px; line-height: 1.6;">
+                        An account has been created for you at <strong>SnailShutter Studio</strong> by the administrator. Below are your account credentials to log in:
+                    </p>
+                    
+                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 22px; margin: 22px 0;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px 0; color: #64748b; font-size: 14px; font-weight: 600; width: 130px;">Full Name:</td>
+                                <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 500;">${first_name} ${last_name}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #64748b; font-size: 14px; font-weight: 600;">Email:</td>
+                                <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">${email}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #64748b; font-size: 14px; font-weight: 600;">Password:</td>
+                                <td style="padding: 8px 0; color: #2e7d32; font-size: 15px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; display: inline-block;">${password}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #64748b; font-size: 14px; font-weight: 600;">Role:</td>
+                                <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 500;">${roleLabel}</td>
+                            </tr>
+                            ${phone ? `
+                            <tr>
+                                <td style="padding: 8px 0; color: #64748b; font-size: 14px; font-weight: 600;">Phone Number:</td>
+                                <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 500;">${phone}</td>
+                            </tr>
+                            ` : ''}
+                        </table>
+                    </div>
+
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${loginUrl}" 
+                           style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);">
+                           Log In to Your Account
+                        </a>
+                    </div>
+
+                    <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin-top: 20px;">
+                        <p style="margin: 0; color: #92400e; font-size: 13px; line-height: 1.5;">
+                            <strong>Security Tip:</strong> For your protection, we recommend logging in and changing your password in your profile settings.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #94a3b8; font-size: 12px;">
+                    <p style="margin: 0 0 5px 0;">&copy; ${new Date().getFullYear()} SnailShutter Studio. All rights reserved.</p>
+                    <p style="margin: 0;">This is an automated message, please do not reply directly to this email.</p>
+                </div>
+            </div>
+        `;
+
+        const emailText = `Hello ${first_name},\n\nAn account has been created for you at SnailShutter Studio by the administrator.\n\nHere are your account credentials:\nFull Name: ${first_name} ${last_name}\nEmail: ${email}\nPassword: ${password}\nRole: ${roleLabel}\n${phone ? `Phone Number: ${phone}\n` : ''}\nLogin here: ${loginUrl}\n\nFor security, we recommend changing your password after logging in.\n\nBest regards,\nSnailShutter Studio`;
+
+        // Send credentials email
+        try {
+            await sendEmail(email, 'Your SnailShutter Studio Account Details', emailHtml, emailText);
+            console.log(`✅ Account details email sent to ${email}`);
+        } catch (mailErr) {
+            console.error('⚠️ Failed to send account details email:', mailErr.message || mailErr);
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'User created successfully! Account details have been sent to their email.' 
+        });
     } catch (error) {
         console.error('Create User Error:', error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
@@ -149,14 +251,24 @@ router.post('/update_role', authMiddleware, roleMiddleware(['admin']), async (re
             values.push(status);
         }
         if (phone !== undefined) {
+            const cleanPhone = String(phone).trim();
+            if (!cleanPhone || !/^\d{11}$/.test(cleanPhone)) {
+                return res.status(400).json({ success: false, error: 'Phone number must be exactly 11 digits (e.g. 09171234567).' });
+            }
             fields.push('phone = ?');
-            values.push(phone);
+            values.push(cleanPhone);
         }
         if (notes !== undefined) {
             fields.push('notes = ?');
             values.push(notes);
         }
         if (password !== undefined && password !== '') {
+            if (!isStrongPassword(password)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Password must be at least 8 characters, include a capital letter, a number, and a special character.'
+                });
+            }
             const hashedPassword = await bcrypt.hash(password, 10);
             fields.push('password = ?');
             values.push(hashedPassword);

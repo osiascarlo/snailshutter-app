@@ -780,12 +780,18 @@
                         </div>
                         
                         <div style="font-size:0.9rem; color:var(--color-text-soft); display:flex; flex-direction:column; gap:0.3rem; margin-top:0.4rem;">
-                            <div><i class="fas fa-calendar-alt"></i> ${new Date(booking.booking_date).toLocaleDateString()} at ${booking.start_time}</div>
+                            <div><i class="fas fa-calendar-alt"></i> ${typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(booking.booking_date) : new Date(booking.booking_date).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' })} at ${booking.start_time}</div>
                             <div><i class="fas fa-user"></i> Client: <strong>${booking.client_name}</strong></div>
                             ${booking.notes && booking.notes.trim() ? `
                                 <div style="font-size:0.8rem; color:var(--color-text-muted); margin-top:0.15rem; display:flex; align-items:center; gap:0.35rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(booking.notes)}">
                                     <i class="fas fa-sticky-note" style="color:var(--color-primary); font-size:0.75rem; flex-shrink:0;"></i> 
                                     <span style="overflow:hidden; text-overflow:ellipsis;">${escapeHtml(booking.notes)}</span>
+                                </div>
+                            ` : ''}
+                            ${booking.status === 'cancelled' && booking.cancellation_reason ? `
+                                <div style="font-size:0.78rem; color:#991b1b; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; padding:0.25rem 0.5rem; margin-top:0.25rem; display:flex; align-items:center; gap:0.35rem;" title="${escapeHtml(booking.cancellation_reason)}">
+                                    <i class="fas fa-ban" style="color:#ef4444; font-size:0.75rem; flex-shrink:0;"></i>
+                                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><strong>Reason:</strong> ${escapeHtml(booking.cancellation_reason)}</span>
                                 </div>
                             ` : ''}
                             ${hasLink ? `
@@ -862,8 +868,11 @@
                     let dateStr = '';
                     if (b.booking_date) {
                         try {
-                            const d = new Date(b.booking_date);
-                            dateStr = `${d.toLocaleDateString()} ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} ${d.toLocaleDateString('en-US', { month: 'long' })}`.toLowerCase();
+                            const d = typeof parseAsiaManilaDate === 'function' ? parseAsiaManilaDate(b.booking_date) : new Date(b.booking_date);
+                            const f1 = typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(b.booking_date) : d.toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+                            const f2 = typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(b.booking_date, { month: 'short', day: 'numeric', year: 'numeric' }) : d.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' });
+                            const f3 = typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(b.booking_date, { month: 'long' }) : d.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'long' });
+                            dateStr = `${f1} ${f2} ${f3}`.toLowerCase();
                         } catch (e) {}
                     }
 
@@ -1048,25 +1057,42 @@
         });
 
         async function updateStatus(bookingId, action) {
-            let title = `${action.charAt(0).toUpperCase() + action.slice(1)} Booking`;
-            let message = `Are you sure you want to ${action} this booking?`;
-            
-            if (action === 'uncomplete') {
-                title = 'Undo Booking Completion';
-                message = 'Are you sure you want to undo completion and mark this booking as confirmed?';
+            let cancellationReason = null;
+            if (action === 'cancel') {
+                if (typeof showCancellationModal === 'function') {
+                    const res = await showCancellationModal({ role: 'staff', bookingId });
+                    if (!res || !res.confirmed) return;
+                    cancellationReason = res.reason;
+                } else {
+                    const confirmed = await showConfirm({
+                        title: 'Cancel Booking',
+                        message: 'Are you sure you want to cancel this booking?',
+                        confirmText: 'Cancel Booking',
+                        type: 'danger'
+                    });
+                    if (!confirmed) return;
+                }
+            } else {
+                let title = `${action.charAt(0).toUpperCase() + action.slice(1)} Booking`;
+                let message = `Are you sure you want to ${action} this booking?`;
+                
+                if (action === 'uncomplete') {
+                    title = 'Undo Booking Completion';
+                    message = 'Are you sure you want to undo completion and mark this booking as confirmed?';
+                }
+
+                const confirmed = await showConfirm({
+                    title: title,
+                    message: message,
+                    confirmText: 'Confirm',
+                    type: 'confirm'
+                });
+
+                if (!confirmed) return;
             }
 
-            const confirmed = await showConfirm({
-                title: title,
-                message: message,
-                confirmText: 'Confirm',
-                type: action === 'cancel' ? 'danger' : 'confirm'
-            });
-
-            if (!confirmed) return;
-
             try {
-                const response = await api.updateBooking(bookingId, action);
+                const response = await api.updateBooking(bookingId, action, null, null, cancellationReason);
                 if (response.success) {
                     let actionPast;
                     if (action === 'cancel') actionPast = 'cancelled';
@@ -1075,6 +1101,7 @@
                     else actionPast = 'completed';
 
                     showAlert(`Booking ${actionPast} successfully`, 'success');
+                    window.dispatchEvent(new CustomEvent('bookingStatusChanged', { detail: { bookingId, status: actionPast } }));
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     showAlert(response.error || `Failed to update booking status`, 'error');
@@ -1199,9 +1226,10 @@
                             <div>
                                 <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Date & Time</label>
                                 <div style="font-weight: 600; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
-                                    <i class="fas fa-calendar" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${new Date(booking.booking_date).toLocaleDateString()}
+                                    <i class="fas fa-calendar" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(booking.booking_date) : new Date(booking.booking_date).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' })}
                                 </div>
                                 <div style="font-weight: 600; margin-top: 0.1rem; font-size: 0.9rem; color: var(--color-text-soft); padding-left: 1.3rem;">at ${booking.start_time}</div>
+                                ${booking.created_at ? `<div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem; padding-left: 1.3rem;">Booked: ${typeof formatAsiaManilaDateTime === 'function' ? formatAsiaManilaDateTime(booking.created_at) : new Date(booking.created_at).toLocaleString('en-US', { timeZone: 'Asia/Manila' })}</div>` : ''}
                             </div>
                             <div>
                                 <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Downpayment Amount</label>
@@ -1228,6 +1256,21 @@
                                 ${payStatusCap}
                             </span>
                         </div>
+
+                        <!-- Cancellation Reason Section (if cancelled) -->
+                        ${booking.status === 'cancelled' ? `
+                            <div style="background: #fef2f2; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #fecaca; margin-top: 0.25rem;">
+                                <div style="font-size: 0.75rem; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+                                    <span style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-ban" style="color: #ef4444;"></i> Cancellation Reason:
+                                    </span>
+                                    ${booking.cancelled_by ? `<span style="font-size: 0.7rem; background: #fee2e2; color: #b91c1c; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: capitalize; font-weight: 600;">Cancelled by: ${escapeHtml(booking.cancelled_by)}</span>` : ''}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #7f1d1d; line-height: 1.5; white-space: pre-wrap; word-break: break-word; font-weight: 500;">
+                                    ${booking.cancellation_reason && booking.cancellation_reason.trim() ? escapeHtml(booking.cancellation_reason) : '<span style="font-style: italic; color: #991b1b;">No cancellation reason specified.</span>'}
+                                </div>
+                            </div>
+                        ` : ''}
 
                         <!-- Google Drive Delivery Section -->
                         ${hasLink ? `

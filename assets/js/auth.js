@@ -84,7 +84,11 @@ class Auth {
 
             // Redirect to login only if we were logged in or are on a protected page
             if (wasLoggedIn || window.location.pathname.includes('/admin/') || window.location.pathname.includes('/client/')) {
-                this.redirectToLogin();
+                if (error.response && error.response.deactivated) {
+                    window.location.href = '/auth/login.html?error=deactivated';
+                } else {
+                    this.redirectToLogin();
+                }
             }
         }
     }
@@ -106,7 +110,8 @@ class Auth {
             return { success: false, error: response.error || 'Login failed' };
         } catch (error) {
             console.log('Auth.js: Login exception:', error);
-            return { success: false, error: error.message };
+            const errorMsg = error.response?.error || error.message || 'Login failed';
+            return { success: false, error: errorMsg, deactivated: error.response?.deactivated || false };
         }
     }
 

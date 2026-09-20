@@ -833,6 +833,12 @@
                             <strong>Notes:</strong> ${escapeHtml(b.notes)}
                         </div>
                         ` : ''}
+                        ${b.status === 'cancelled' && b.cancellation_reason ? `
+                        <div class="booking-detail-notes" style="background:#fef2f2; border-color:#fecaca; color:#991b1b; grid-column: span 2;">
+                            <strong>Cancellation Reason:</strong> ${escapeHtml(b.cancellation_reason)}
+                            ${b.cancelled_by ? `<span style="font-size:0.75rem; color:#b91c1c; display:block; margin-top:0.2rem;">Cancelled by: ${escapeHtml(b.cancelled_by)}</span>` : ''}
+                        </div>
+                        ` : ''}
                     </div>
                 `;
                 listContainer.appendChild(card);

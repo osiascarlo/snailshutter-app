@@ -376,8 +376,32 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
 
         slots.forEach(slot => {
             const startMins = timeToMinutes(slot.start_time);
-            const endMins = startMins + totalDuration;
-            
+            let endMins;
+
+            // Lunch break handling: 12:01 PM - 12:59 PM (720 to 780 mins)
+            if (startMins >= 720 && startMins < 780) {
+                // Slot starts during lunch break (e.g. 12:00 PM) - cannot be booked!
+                bookedSlots.push(slot.start_time);
+                const adjustedSlot = {
+                    id: slot.id,
+                    start_time: slot.start_time,
+                    end_time: minutesToTime(startMins + totalDuration),
+                    slot_label: `${formatTime12Hour(startMins)} - ${formatTime12Hour(startMins + totalDuration)} (Lunch Break)`,
+                    is_active: slot.is_active
+                };
+                adjustedSlots.push(adjustedSlot);
+                return;
+            }
+
+            if (startMins < 720 && (startMins + totalDuration) > 720) {
+                // Crosses lunch break: remaining time continues from 1:00 PM (780 mins) onwards
+                const timeBeforeLunch = 720 - startMins;
+                const remainingDuration = totalDuration - timeBeforeLunch;
+                endMins = 780 + remainingDuration;
+            } else {
+                endMins = startMins + totalDuration;
+            }
+
             const adjustedSlot = {
                 id: slot.id,
                 start_time: slot.start_time,
@@ -397,8 +421,20 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
             for (let b of bookings) {
                 const bStart = timeToMinutes(b.start_time);
                 const bEnd = timeToMinutes(b.end_time);
-                
-                if (startMins < bEnd && endMins > bStart) {
+
+                let hasConflict = false;
+                if (startMins < 720 && endMins > 780) {
+                    // Session spans across lunch: active in [startMins, 720] and [780, endMins]
+                    if ((bStart < 720 && bEnd > startMins) || (bStart < endMins && bEnd > 780)) {
+                        hasConflict = true;
+                    }
+                } else {
+                    if (startMins < bEnd && endMins > bStart) {
+                        hasConflict = true;
+                    }
+                }
+
+                if (hasConflict) {
                     bookedSlots.push(slot.start_time);
                     break;
                 }
@@ -444,11 +480,9 @@ router.post('/', authMiddleware, (req, res, next) => {
         return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
 
-    const reqDate = new Date(bookingDate + 'T00:00:00');
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    if (reqDate < todayStart) {
+    // Check date against Asia/Manila current date
+    const todayManilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    if (bookingDate < todayManilaStr) {
         return res.status(400).json({ success: false, error: 'Past dates cannot be booked. Please select today or a future date.' });
     }
 
@@ -489,14 +523,48 @@ router.post('/', authMiddleware, (req, res, next) => {
         });
     }
 
+    const startMins = timeToMinutes(startTime);
+    const endMins = timeToMinutes(endTime);
+
+    // Lunch break validation: 12:01 PM - 12:59 PM (720 to 780 mins) cannot be booked
+    if (startMins >= 720 && startMins < 780) {
+        return res.status(400).json({ 
+            success: false, 
+            error: '12:01 PM to 12:59 PM is the lunch break for admin/staff and cannot be booked. Please choose a time before 12:00 PM or from 1:00 PM onwards.' 
+        });
+    }
+    if (endMins > 720 && endMins < 780) {
+        return res.status(400).json({ 
+            success: false, 
+            error: '12:01 PM to 12:59 PM is the lunch break for admin/staff and cannot be booked. Any session extending past 12:00 PM must resume from 1:00 PM onwards.' 
+        });
+    }
+
     try {
         // Conflict Detection: check if [startTime, endTime] overlaps with any existing non-cancelled booking
-        const [conflicts] = await pool.execute(
-            `SELECT id FROM bookings 
-             WHERE booking_date = ? AND status != 'cancelled' 
-             AND (start_time < ? AND end_time > ?)`,
-            [bookingDate, endTime, startTime]
-        );
+        let conflictQuery;
+        let conflictParams;
+        if (startMins < 720 && endMins > 780) {
+            // Spans lunch break: active in [startTime, 12:00:00] and [13:00:00, endTime]
+            conflictQuery = `
+                SELECT id FROM bookings 
+                WHERE booking_date = ? AND status != 'cancelled' 
+                AND (
+                    (start_time < '12:00:00' AND end_time > ?) OR 
+                    (start_time < ? AND end_time > '13:00:00')
+                )
+            `;
+            conflictParams = [bookingDate, startTime, endTime];
+        } else {
+            conflictQuery = `
+                SELECT id FROM bookings 
+                WHERE booking_date = ? AND status != 'cancelled' 
+                AND (start_time < ? AND end_time > ?)
+            `;
+            conflictParams = [bookingDate, endTime, startTime];
+        }
+
+        const [conflicts] = await pool.execute(conflictQuery, conflictParams);
 
         if (conflicts.length > 0) {
             return res.status(409).json({ success: false, error: 'The selected time slot/range overlaps with an existing booking. Please choose a different time.' });
@@ -609,16 +677,68 @@ router.put('/', authMiddleware, async (req, res) => {
     const userId = req.session.user_id;
     const userRole = req.session.user_role;
 
+    const reason = req.body.reason || req.body.cancellation_reason || null;
+
     if (!bookingId) {
         return res.status(400).json({ success: false, error: 'Missing booking ID' });
     }
 
     try {
         if (action === 'cancel') {
+            const cancelReason = reason ? String(reason).trim() : null;
+            const cancelledBy = userRole || 'client';
+
             if (userRole === 'client') {
-                await pool.execute("UPDATE bookings SET status = 'cancelled' WHERE id = ? AND client_id = ?", [bookingId, userId]);
+                await pool.execute(
+                    "UPDATE bookings SET status = 'cancelled', cancellation_reason = ?, cancelled_by = 'client' WHERE id = ? AND client_id = ?",
+                    [cancelReason, bookingId, userId]
+                );
             } else {
-                await pool.execute("UPDATE bookings SET status = 'cancelled' WHERE id = ?", [bookingId]);
+                await pool.execute(
+                    "UPDATE bookings SET status = 'cancelled', cancellation_reason = ?, cancelled_by = ? WHERE id = ?",
+                    [cancelReason, cancelledBy, bookingId]
+                );
+            }
+
+            // Fetch booking info for email notification
+            try {
+                const [info] = await pool.execute(`
+                    SELECT b.*, s.name as service_name, u.email, CONCAT(u.first_name, ' ', u.last_name) as full_name 
+                    FROM bookings b 
+                    JOIN services s ON b.service_id = s.id 
+                    JOIN users u ON b.client_id = u.id 
+                    WHERE b.id = ?
+                `, [bookingId]);
+
+                if (info.length > 0) {
+                    const b = info[0];
+                    const sendAllowed = await shouldSendEmailNotification('important');
+
+                    if (userRole !== 'client' && b.email && sendAllowed) {
+                        // Admin/Staff cancelled: Notify client
+                        const reasonHtml = cancelReason ? `<p style="margin: 5px 0;"><strong>Reason for Cancellation:</strong> ${cancelReason}</p>` : '';
+                        const cancelHtml = `
+                            <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-top: 5px solid #dc2626;">
+                                <h2 style="color: #dc2626;">Booking Cancelled</h2>
+                                <p>Hi <strong>${b.full_name}</strong>,</p>
+                                <p>Your booking for <strong>${b.service_name}</strong> has been cancelled by our studio team.</p>
+                                <div style="background: #fef2f2; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #fecaca;">
+                                    <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date(b.booking_date).toLocaleDateString()}</p>
+                                    <p style="margin: 5px 0;"><strong>Time:</strong> ${b.start_time}</p>
+                                    ${reasonHtml}
+                                </div>
+                                <p>If you have questions or wish to schedule a different session, please contact us or visit your dashboard.</p>
+                                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                                <p style="font-size: 12px; color: #999;">SnailShutter Photography Studio</p>
+                            </div>
+                        `;
+                        sendEmail(b.email, 'Booking Cancelled - SnailShutter Studio', cancelHtml)
+                            .then(res => console.log(`Cancellation email sent to ${b.email}:`, res.messageId))
+                            .catch(err => console.error(`Cancellation email failed to ${b.email}:`, err));
+                    }
+                }
+            } catch (emailErr) {
+                console.warn('Cancellation email notification error:', emailErr.message);
             }
         } else if (action === 'confirm' && userRole !== 'client') {
             await pool.execute("UPDATE bookings SET status = 'confirmed', payment_status = 'paid' WHERE id = ?", [bookingId]);
@@ -711,6 +831,8 @@ router.put('/', authMiddleware, async (req, res) => {
             if (b) {
                 if (action === 'cancel') {
                     b.status = 'cancelled';
+                    b.cancellation_reason = reason ? String(reason).trim() : null;
+                    b.cancelled_by = userRole || 'client';
                 } else if (action === 'confirm' && userRole !== 'client') {
                     b.status = 'confirmed';
                     b.payment_status = 'paid';

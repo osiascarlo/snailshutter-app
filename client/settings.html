@@ -284,18 +284,22 @@
                         <form id="profileForm">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="fullName">Full Name</label>
-                                    <input type="text" id="fullName" class="form-control" required>
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" class="form-control" placeholder="Enter first name" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="email">Email Address</label>
-                                    <input type="email" id="email" class="form-control" required>
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" class="form-control" placeholder="Enter last name" required>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" class="form-control" required>
+                                </div>
+                                <div class="form-group">
                                     <label for="phone">Phone Number</label>
-                                    <input type="tel" id="phone" class="form-control">
+                                    <input type="tel" id="phone" class="form-control" placeholder="e.g. 09123456789">
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -448,9 +452,17 @@
             // Profile Update Form Submission
             document.getElementById('profileForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                const fullName = document.getElementById('fullName').value;
-                const email = document.getElementById('email').value;
-                const phone = document.getElementById('phone').value;
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+
+                if (!firstName || !lastName) {
+                    showAlert('First name and last name are required.', 'error');
+                    return;
+                }
+
+                const fullName = `${firstName} ${lastName}`.trim();
 
                 openConfirmModal(
                     'Confirm Personal Details Update',
@@ -459,13 +471,21 @@
                     'Confirm & Save',
                     async () => {
                         try {
-                            const response = await api.updateUserProfile({ full_name: fullName, email, phone });
+                            const response = await api.updateUserProfile({ 
+                                first_name: firstName, 
+                                last_name: lastName, 
+                                full_name: fullName, 
+                                email, 
+                                phone 
+                            });
                             if (response.success) {
                                 showAlert('Profile updated successfully', 'success');
                                 await loadProfile();
                                 
                                 // Update storage
-                                const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                                const storedUser = JSON.parse(sessionStorage.getItem('currentUser')) || {};
+                                storedUser.first_name = firstName;
+                                storedUser.last_name = lastName;
                                 storedUser.name = fullName;
                                 storedUser.email = email;
                                 sessionStorage.setItem('currentUser', JSON.stringify(storedUser));
@@ -650,21 +670,31 @@
                 if (response.success) {
                     const user = response.user;
                     
-                    document.getElementById('displayFullName').textContent = user.full_name;
+                    let firstName = user.first_name || '';
+                    let lastName = user.last_name || '';
+                    if (!firstName && user.full_name) {
+                        const parts = user.full_name.trim().split(/\s+/);
+                        firstName = parts[0] || '';
+                        lastName = parts.slice(1).join(' ') || '';
+                    }
+
+                    const computedFullName = user.full_name || `${firstName} ${lastName}`.trim() || 'User';
+
+                    document.getElementById('displayFullName').textContent = computedFullName;
                     document.getElementById('displayEmail').textContent = user.email;
                     
-                    document.getElementById('fullName').value = user.full_name;
+                    document.getElementById('firstName').value = firstName;
+                    document.getElementById('lastName').value = lastName;
                     document.getElementById('email').value = user.email;
                     document.getElementById('phone').value = user.phone || '';
 
                     // Update Avatar Preview
                     const preview = document.getElementById('avatarPreview');
-                    const initials = document.getElementById('initialsContainer');
                     
                     if (user.avatar) {
                         preview.innerHTML = `<img src="${user.avatar}" alt="Profile avatar">`;
                     } else {
-                        preview.innerHTML = `<span id="initialsContainer">${user.full_name.charAt(0).toUpperCase()}</span>`;
+                        preview.innerHTML = `<span id="initialsContainer">${(firstName || computedFullName).charAt(0).toUpperCase()}</span>`;
                     }
                 }
             } catch (error) {

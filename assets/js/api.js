@@ -17,24 +17,26 @@ class API {
 
         try {
             const response = await fetch(url, config);
+            const data = await response.json();
             
-            // Handle 401 Unauthorized globally
-            // Don't redirect if we're already on login/register pages OR if it's a session check OR login attempt
+            // Handle 401 Unauthorized globally or 403 Deactivated
+            // Don't redirect if we're already on login/register pages OR if it's a login attempt
             const isAuthPage = window.location.pathname.includes('/auth/');
-            const isAuthEndpoint = url.includes('/auth/session') || url.includes('/auth/login');
+            const isLoginEndpoint = url.includes('/auth/login');
+            const isSessionEndpoint = url.includes('/auth/session');
             
-            if (response.status === 401 && !isAuthPage && !isAuthEndpoint) {
-                console.warn('API: Session expired or invalid. Redirecting to login...');
+            if ((response.status === 401 && !isAuthPage && !isSessionEndpoint && !isLoginEndpoint) ||
+                (response.status === 403 && data && data.deactivated && !isAuthPage && !isLoginEndpoint)) {
+                console.warn('API: Session expired, invalid, or deactivated. Redirecting to login...');
                 if (window.auth) {
                     window.auth.currentUser = null;
                     sessionStorage.removeItem('currentUser');
+                    const errorParam = data && data.deactivated ? '?error=deactivated' : '';
                     setTimeout(() => {
-                        window.location.href = '/auth/login.html';
-                    }, 1000);
+                        window.location.href = `/auth/login.html${errorParam}`;
+                    }, 500);
                 }
             }
-
-            const data = await response.json();
 
             if (!response.ok) {
                 const error = new Error(data.error || 'Request failed');
@@ -45,8 +47,8 @@ class API {
 
             return data;
         } catch (error) {
-            // Only log if not a standard "not logged in" check
-            if (!(error.status === 401 && url.includes('/auth/session'))) {
+            // Only log if not a standard "not logged in" or "deactivated" session check
+            if (!(error.status === 401 && url.includes('/auth/session')) && !(error.status === 403 && error.response?.deactivated)) {
                 console.error('API Error:', error);
             }
             throw error;
@@ -160,10 +162,10 @@ class API {
         });
     }
 
-    async updateBooking(bookingId, action, status = null, staffId = null) {
+    async updateBooking(bookingId, action, status = null, staffId = null, reason = null) {
         return this.request('/bookings', {
             method: 'PUT',
-            body: JSON.stringify({ bookingId, action, status, staffId })
+            body: JSON.stringify({ bookingId, action, status, staffId, reason })
         });
     }
 

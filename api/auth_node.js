@@ -271,6 +271,15 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, error: 'Invalid email or password' });
         }
 
+        // Check if user status is deactivated / inactive
+        if (user.status && user.status !== 'active') {
+            return res.status(403).json({
+                success: false,
+                deactivated: true,
+                error: 'Your account has been deactivated. Please contact the administrator for assistance.'
+            });
+        }
+
         const uFullName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User';
 
         // Set Session
@@ -279,6 +288,7 @@ router.post('/login', async (req, res) => {
         req.session.user_name = uFullName;
         req.session.first_name = user.first_name;
         req.session.last_name = user.last_name;
+        req.session.status = user.status || 'active';
 
         res.json({
             success: true,
@@ -304,6 +314,7 @@ router.post('/login', async (req, res) => {
         req.session.user_name = demoUser.full_name;
         req.session.first_name = demoUser.first_name;
         req.session.last_name = demoUser.last_name;
+        req.session.status = 'active';
 
         res.json({
             success: true,
@@ -316,18 +327,54 @@ router.post('/login', async (req, res) => {
 /**
  * GET /api/auth/session.php (Ported to /api/auth/session)
  */
-router.get('/session', (req, res) => {
+router.get('/session', async (req, res) => {
     if (req.session.user_id) {
-        res.json({
-            success: true,
-            data: {
-                id: req.session.user_id,
-                role: req.session.user_role,
-                name: req.session.user_name,
-                first_name: req.session.first_name,
-                last_name: req.session.last_name
+        try {
+            const [users] = await pool.execute(
+                "SELECT id, status, role, first_name, last_name, CONCAT(first_name, ' ', last_name) as full_name FROM users WHERE id = ?",
+                [req.session.user_id]
+            );
+            if (users.length === 0 || (users[0].status && users[0].status !== 'active')) {
+                req.session.destroy(() => {});
+                return res.status(403).json({
+                    success: false,
+                    deactivated: true,
+                    error: 'Your account has been deactivated. Please contact the administrator for assistance.'
+                });
             }
-        });
+            const user = users[0];
+            res.json({
+                success: true,
+                data: {
+                    id: user.id,
+                    role: user.role,
+                    name: user.full_name || req.session.user_name,
+                    first_name: user.first_name || req.session.first_name,
+                    last_name: user.last_name || req.session.last_name,
+                    status: user.status
+                }
+            });
+        } catch (err) {
+            console.error('Session DB check error:', err);
+            if (req.session.status && req.session.status !== 'active') {
+                req.session.destroy(() => {});
+                return res.status(403).json({
+                    success: false,
+                    deactivated: true,
+                    error: 'Your account has been deactivated. Please contact the administrator for assistance.'
+                });
+            }
+            res.json({
+                success: true,
+                data: {
+                    id: req.session.user_id,
+                    role: req.session.user_role,
+                    name: req.session.user_name,
+                    first_name: req.session.first_name,
+                    last_name: req.session.last_name
+                }
+            });
+        }
     } else {
         res.status(401).json({ success: false, error: 'Not logged in' });
     }
@@ -358,10 +405,19 @@ router.post('/forgot-password', async (req, res) => {
 
     try {
         // Check if user exists
-        const [users] = await pool.execute("SELECT CONCAT(first_name, ' ', last_name) as full_name FROM users WHERE email = ?", [email]);
+        const [users] = await pool.execute("SELECT id, status, CONCAT(first_name, ' ', last_name) as full_name FROM users WHERE email = ?", [email]);
         if (users.length === 0) {
             // We return success anyway to avoid email harvesting, but don't send anything
             return res.json({ success: true, message: 'If an account exists, a reset code has been sent.' });
+        }
+
+        // Check if account is deactivated
+        if (users[0].status && users[0].status !== 'active') {
+            return res.status(403).json({
+                success: false,
+                deactivated: true,
+                error: 'This account has been deactivated. Please contact the administrator for assistance.'
+            });
         }
 
         const userName = users[0].full_name;
@@ -444,10 +500,18 @@ router.post('/reset-password', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Invalid or expired reset code' });
         }
 
-        // Get current password to ensure it's not the same
-        const [users] = await pool.execute('SELECT password FROM users WHERE email = ?', [email]);
+        // Get current password and status to ensure user is active and password differs
+        const [users] = await pool.execute('SELECT password, status FROM users WHERE email = ?', [email]);
         if (users.length === 0) {
             return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        if (users[0].status && users[0].status !== 'active') {
+            return res.status(403).json({
+                success: false,
+                deactivated: true,
+                error: 'This account has been deactivated. Please contact the administrator for assistance.'
+            });
         }
 
         const isOldPassword = await bcrypt.compare(new_password, users[0].password);

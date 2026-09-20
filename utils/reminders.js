@@ -86,12 +86,12 @@ async function processBookingReminders() {
             return { success: true, processed: 0, sent: 0, reason: 'Email notifications disabled' };
         }
 
-        // Target window: bookings occurring between NOW and NOW + reminderHours
+        // Target window: bookings occurring between NOW and NOW + reminderHours (in Asia/Manila)
         const now = new Date();
         const targetEndTime = new Date(now.getTime() + (reminderHours * 60 * 60 * 1000));
 
-        const nowStr = now.toISOString().slice(0, 10);
-        const targetStr = targetEndTime.toISOString().slice(0, 10);
+        const nowStr = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+        const targetStr = targetEndTime.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
 
         let bookings = [];
         try {

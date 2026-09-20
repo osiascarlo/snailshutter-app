@@ -485,6 +485,9 @@
                         Google Drive Folder URL:
                     </label>
                     <input type="url" id="modalDriveUrlInput" placeholder="https://drive.google.com/drive/folders/..." class="form-control" style="width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0.65rem 0.85rem; font-size: 0.9rem;" required>
+                    <div id="modalDriveError" style="color: #dc2626; font-size: 0.78rem; margin-top: 0.35rem; display: none; align-items: center; gap: 0.35rem; font-weight: 500;">
+                        <i class="fas fa-exclamation-circle" style="flex-shrink:0;"></i> <span>Only Google Drive links are allowed (e.g., https://drive.google.com/drive/folders/...).</span>
+                    </div>
                     <span style="font-size: 0.75rem; color: #64748b; margin-top: 0.35rem; display: block;">
                         <i class="fas fa-paper-plane" style="color: #2e7d32;"></i> Client will receive an automatic email notification with this link upon saving.
                     </span>
@@ -758,9 +761,13 @@
         document.getElementById('modalClientTitle').textContent = `Google Drive Link: ${booking.client_name}`;
         document.getElementById('modalClientDetails').innerHTML = `
             <strong>Service:</strong> ${booking.service_name || 'Photography Session'}<br>
-            <strong>Date:</strong> ${booking.booking_date ? new Date(booking.booking_date).toLocaleDateString() : '—'} | <strong>Status:</strong> Completed
+            <strong>Date:</strong> ${booking.booking_date ? (typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(booking.booking_date) : new Date(booking.booking_date).toLocaleDateString()) : '—'} | <strong>Status:</strong> Completed
         `;
-        document.getElementById('modalDriveUrlInput').value = booking.google_drive_link || '';
+        const input = document.getElementById('modalDriveUrlInput');
+        input.value = booking.google_drive_link || '';
+        input.style.borderColor = '#cbd5e1';
+        const errEl = document.getElementById('modalDriveError');
+        if (errEl) errEl.style.display = 'none';
 
         const modal = document.getElementById('editDriveModal');
         modal.style.display = 'flex';
@@ -777,6 +784,10 @@
             modal.classList.remove('show');
             modal.style.display = 'none';
         }
+        const errEl = document.getElementById('modalDriveError');
+        if (errEl) errEl.style.display = 'none';
+        const input = document.getElementById('modalDriveUrlInput');
+        if (input) input.style.borderColor = '#cbd5e1';
         document.documentElement.classList.remove('modal-open');
         document.body.classList.remove('modal-open');
         document.body.style.overflow = '';
@@ -785,11 +796,34 @@
 
     async function saveDriveLinkFromModal() {
         if (!currentBookingId) return;
-        const url = document.getElementById('modalDriveUrlInput').value.trim();
-        if (!url) {
-            alert('Please enter a valid Google Drive URL.');
+        const input = document.getElementById('modalDriveUrlInput');
+        const errEl = document.getElementById('modalDriveError');
+        const rawUrl = input.value.trim();
+
+        if (!rawUrl) {
+            if (errEl) {
+                errEl.querySelector('span').textContent = 'Please enter a Google Drive URL.';
+                errEl.style.display = 'flex';
+            }
+            input.style.borderColor = '#ef4444';
+            input.focus();
             return;
         }
+
+        const isGdrive = typeof isGoogleDriveLink === 'function' ? isGoogleDriveLink(rawUrl) : (rawUrl.includes('drive.google.com') || rawUrl.includes('docs.google.com'));
+        if (!isGdrive) {
+            if (errEl) {
+                errEl.querySelector('span').textContent = 'Only Google Drive links are allowed (e.g., https://drive.google.com/drive/folders/...).';
+                errEl.style.display = 'flex';
+            }
+            input.style.borderColor = '#ef4444';
+            input.focus();
+            return;
+        }
+
+        if (errEl) errEl.style.display = 'none';
+        input.style.borderColor = '#cbd5e1';
+        const url = typeof normalizeGoogleDriveLink === 'function' ? normalizeGoogleDriveLink(rawUrl) : rawUrl;
 
         const btn = document.getElementById('modalSaveBtn');
         btn.disabled = true;
@@ -820,7 +854,17 @@
                 if (typeof loadOverview === 'function') await loadOverview();
                 if (typeof loadBookings === 'function') await loadBookings();
             } else {
-                alert(data.error || data.message || 'Failed to save link.');
+                const errMsg = data.error || data.message || 'Failed to save link.';
+                if (errEl) {
+                    errEl.querySelector('span').textContent = errMsg;
+                    errEl.style.display = 'flex';
+                }
+                input.style.borderColor = '#ef4444';
+                if (typeof showAlert === 'function') {
+                    showAlert(errMsg, 'error');
+                } else {
+                    alert(errMsg);
+                }
             }
         } catch (e) {
             alert('Error saving link: ' + e.message);
@@ -868,12 +912,24 @@
 
         const saveBtn = document.getElementById('saveLinkBtn');
         const driveUrlInput = document.getElementById('driveUrlInput');
-        const link = driveUrlInput.value.trim();
+        const rawLink = driveUrlInput.value.trim();
 
-        if (link !== '' && !link.startsWith('http://') && !link.startsWith('https://')) {
-            showAlert('Please enter a valid URL (starting with http:// or https://)', 'error');
+        if (!rawLink) {
+            showAlert('Please enter a Google Drive URL.', 'error');
+            driveUrlInput.focus();
             return;
         }
+
+        const isGdrive = typeof isGoogleDriveLink === 'function' ? isGoogleDriveLink(rawLink) : (rawLink.includes('drive.google.com') || rawLink.includes('docs.google.com'));
+        if (!isGdrive) {
+            showAlert('Only Google Drive links are allowed (e.g., https://drive.google.com/drive/folders/...)', 'error');
+            driveUrlInput.style.borderColor = '#ef4444';
+            driveUrlInput.focus();
+            return;
+        }
+
+        driveUrlInput.style.borderColor = '';
+        const link = typeof normalizeGoogleDriveLink === 'function' ? normalizeGoogleDriveLink(rawLink) : rawLink;
 
         saveBtn.disabled = true;
         const originalText = saveBtn.innerHTML;
@@ -905,6 +961,33 @@
             saveBtn.innerHTML = originalText;
         }
     }
+
+    // Live validation listener for modal input
+    document.addEventListener('DOMContentLoaded', () => {
+        const modalInput = document.getElementById('modalDriveUrlInput');
+        if (modalInput) {
+            modalInput.addEventListener('input', () => {
+                const val = modalInput.value.trim();
+                const errEl = document.getElementById('modalDriveError');
+                if (!val) {
+                    if (errEl) errEl.style.display = 'none';
+                    modalInput.style.borderColor = '#cbd5e1';
+                    return;
+                }
+                const isGdrive = typeof isGoogleDriveLink === 'function' ? isGoogleDriveLink(val) : (val.includes('drive.google.com') || val.includes('docs.google.com'));
+                if (!isGdrive) {
+                    if (errEl) {
+                        errEl.querySelector('span').textContent = 'Only Google Drive links are allowed (e.g., https://drive.google.com/drive/folders/...).';
+                        errEl.style.display = 'flex';
+                    }
+                    modalInput.style.borderColor = '#ef4444';
+                } else {
+                    if (errEl) errEl.style.display = 'none';
+                    modalInput.style.borderColor = '#10b981';
+                }
+            });
+        }
+    });
     </script>
 </body>
 

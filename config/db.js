@@ -10,6 +10,7 @@ const poolOpts = {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
+    timezone: '+08:00', // Forces mysql2 to convert and treat all datetimes as UTC+8 (Asia/Manila)
     dateStrings: true
 };
 
@@ -19,5 +20,10 @@ if (process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB
 }
 
 const pool = mysql.createPool(poolOpts);
+
+// Ensure every connection session in the pool operates in Asia/Manila (UTC+8)
+pool.on('connection', (connection) => {
+    connection.query("SET time_zone = '+08:00'");
+});
 
 module.exports = pool;

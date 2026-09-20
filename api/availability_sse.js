@@ -67,6 +67,12 @@ async function buildSlotPayload(date) {
 
     const bookedSlots = [];
     slots.forEach(slot => {
+        // 12:01 PM - 12:59 PM is lunch break (cannot be booked)
+        if (slot.start_time >= '12:00:00' && slot.start_time < '13:00:00') {
+            bookedSlots.push(slot.start_time);
+            return;
+        }
+
         const slotStart = new Date(`1970-01-01T${slot.start_time}Z`);
         const slotEnd   = new Date(`1970-01-01T${slot.end_time}Z`);
 

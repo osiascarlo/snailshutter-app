@@ -96,74 +96,40 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             z-index: 8000;
             opacity: 0;
-            display: none;
-            transition: opacity 0.3s ease;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.25s ease-out;
+            pointer-events: none;
         }
 
         .user-modal-overlay.show {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
             opacity: 1;
-            animation: fadeIn 0.3s ease;
+            pointer-events: auto;
         }
 
         .user-modal-content {
             background: white;
             padding: 30px;
-            border-radius: 12px;
+            border-radius: 14px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             position: relative;
             max-height: 90vh;
             overflow-y: auto;
-            transform: scale(0.9);
-            animation: scaleIn 0.3s ease forwards;
+            transform: scale(0.94) translateY(10px);
+            opacity: 0;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .user-modal-wrapper {
-            display: table-cell;
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        @keyframes userModalSlideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .user-modal-overlay.show .user-modal-content {
+            transform: scale(1) translateY(0);
+            opacity: 1;
         }
 
         .modal-header {
@@ -202,6 +168,71 @@
             color: #dc3545;
             background: #fff;
             transform: rotate(90deg);
+        }
+
+        /* Password toggle & requirements */
+        .password-toggle-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .password-toggle-group .form-control.with-toggle {
+            padding-right: 2.8rem;
+            width: 100%;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: color 0.2s;
+            z-index: 10;
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--green-600);
+        }
+
+        .password-requirements {
+            margin-top: 0.6rem;
+            padding: 0.75rem 0.9rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: #64748b;
+            font-size: 0.78rem;
+            transition: color 0.2s;
+        }
+
+        .requirement-item.valid {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .requirement-item.invalid {
+            color: #dc2626;
         }
 
         .form-row {
@@ -461,39 +492,52 @@
                 <div class="form-group">
                     <label>Email</label>
                     <input type="email" id="email" class="form-control" required>
+                    <small id="emailHelperText" style="color: #64748b; font-size: 0.8rem; margin-top: 5px; display: block;">
+                        <i class="fas fa-info-circle" style="color: var(--green-600);"></i> Account details and password will be sent to this email.
+                    </small>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Role</label>
-                        <select id="role" class="form-control" required>
-                            <option value="">Select Role</option>
-                            <option value="admin">Admin</option>
-                            <option value="staff">Staff</option>
-                            <option value="client">Client</option>
-                        </select>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="role" class="form-control" required>
+                        <option value="">Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="staff">Staff</option>
+                        <option value="client">Client</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password <span id="passwordRequiredStar" style="color:#dc2626;">*</span></label>
+                    <div class="password-toggle-group">
+                        <input type="password" id="password" class="form-control with-toggle"
+                            placeholder="Min. 8 characters"
+                            oninput="validateUserPassword(this.value)">
+                        <button type="button" class="password-toggle-btn" onclick="toggleUserPasswordVisibility()" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="status" class="form-control" required>
-                            <option value="">Select Status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="pending">Pending</option>
-                        </select>
+                    <div class="password-requirements" id="userPasswordRequirements">
+                        <div class="requirement-item" id="lengthReq">
+                            <i class="far fa-circle"></i> 8+ characters
+                        </div>
+                        <div class="requirement-item" id="capitalReq">
+                            <i class="far fa-circle"></i> Capital letter
+                        </div>
+                        <div class="requirement-item" id="numberReq">
+                            <i class="far fa-circle"></i> One number
+                        </div>
+                        <div class="requirement-item" id="specialReq">
+                            <i class="far fa-circle"></i> Special char
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" class="form-control"
-                        placeholder="Leave blank to keep current password">
-                </div>
-                <div class="form-group">
-                    <label>Phone (Optional)</label>
-                    <input type="tel" id="phone" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea id="notes" class="form-control" rows="3"></textarea>
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" class="form-control"
+                        placeholder="09171234567" required
+                        maxlength="11" minlength="11"
+                        pattern="[0-9]{11}"
+                        title="Phone number must be exactly 11 digits (e.g. 09171234567)"
+                        oninput="this.value=this.value.replace(/\D/g,'').slice(0,11)">
                 </div>
                 <div class="flex gap-2" style="justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
@@ -619,6 +663,9 @@
                             <button class="btn btn-sm btn-warning" onclick="toggleUserStatus(${user.id})" title="Block / Unblock User">
                                 <i class="fas fa-ban"></i>
                             </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})" title="Delete User" style="background:#dc2626; color:white; border-color:#dc2626;">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -659,15 +706,130 @@
             renderUsers();
         }
 
+        function validateUserPassword(password) {
+            const lengthReq = document.getElementById('lengthReq');
+            const capitalReq = document.getElementById('capitalReq');
+            const numberReq = document.getElementById('numberReq');
+            const specialReq = document.getElementById('specialReq');
+
+            if (!lengthReq || !capitalReq || !numberReq || !specialReq) return false;
+
+            // In edit mode with empty password, keep requirements neutral
+            const userId = document.getElementById('userId').value;
+            if (userId && (!password || password.trim() === '')) {
+                resetPasswordRequirements();
+                return true;
+            }
+
+            let isValid = true;
+
+            // 1. Length (8+)
+            if (password && password.length >= 8) {
+                lengthReq.innerHTML = '<i class="fas fa-circle-check"></i> 8+ characters';
+                lengthReq.className = 'requirement-item valid';
+            } else if (password && password.length > 0) {
+                lengthReq.innerHTML = '<i class="fas fa-circle-xmark"></i> 8+ characters';
+                lengthReq.className = 'requirement-item invalid';
+                isValid = false;
+            } else {
+                lengthReq.innerHTML = '<i class="far fa-circle"></i> 8+ characters';
+                lengthReq.className = 'requirement-item';
+                isValid = false;
+            }
+
+            // 2. Capital letter
+            if (password && /[A-Z]/.test(password)) {
+                capitalReq.innerHTML = '<i class="fas fa-circle-check"></i> Capital letter';
+                capitalReq.className = 'requirement-item valid';
+            } else if (password && password.length > 0) {
+                capitalReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Capital letter';
+                capitalReq.className = 'requirement-item invalid';
+                isValid = false;
+            } else {
+                capitalReq.innerHTML = '<i class="far fa-circle"></i> Capital letter';
+                capitalReq.className = 'requirement-item';
+                isValid = false;
+            }
+
+            // 3. Number
+            if (password && /\d/.test(password)) {
+                numberReq.innerHTML = '<i class="fas fa-circle-check"></i> One number';
+                numberReq.className = 'requirement-item valid';
+            } else if (password && password.length > 0) {
+                numberReq.innerHTML = '<i class="fas fa-circle-xmark"></i> One number';
+                numberReq.className = 'requirement-item invalid';
+                isValid = false;
+            } else {
+                numberReq.innerHTML = '<i class="far fa-circle"></i> One number';
+                numberReq.className = 'requirement-item';
+                isValid = false;
+            }
+
+            // 4. Special character (any non-alphanumeric character)
+            if (password && /[^a-zA-Z0-9]/.test(password)) {
+                specialReq.innerHTML = '<i class="fas fa-circle-check"></i> Special char';
+                specialReq.className = 'requirement-item valid';
+            } else if (password && password.length > 0) {
+                specialReq.innerHTML = '<i class="fas fa-circle-xmark"></i> Special char';
+                specialReq.className = 'requirement-item invalid';
+                isValid = false;
+            } else {
+                specialReq.innerHTML = '<i class="far fa-circle"></i> Special char';
+                specialReq.className = 'requirement-item';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function resetPasswordRequirements() {
+            const lengthReq = document.getElementById('lengthReq');
+            const capitalReq = document.getElementById('capitalReq');
+            const numberReq = document.getElementById('numberReq');
+            const specialReq = document.getElementById('specialReq');
+            if (lengthReq) { lengthReq.innerHTML = '<i class="far fa-circle"></i> 8+ characters'; lengthReq.className = 'requirement-item'; }
+            if (capitalReq) { capitalReq.innerHTML = '<i class="far fa-circle"></i> Capital letter'; capitalReq.className = 'requirement-item'; }
+            if (numberReq) { numberReq.innerHTML = '<i class="far fa-circle"></i> One number'; numberReq.className = 'requirement-item'; }
+            if (specialReq) { specialReq.innerHTML = '<i class="far fa-circle"></i> Special char'; specialReq.className = 'requirement-item'; }
+        }
+
+        function toggleUserPasswordVisibility() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('togglePasswordIcon');
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         function openAddUserModal() {
             const modal = document.getElementById('userModal');
             document.getElementById('modalTitle').textContent = 'Add New User';
             document.getElementById('userForm').reset();
             document.getElementById('userId').value = '';
-            document.getElementById('password').required = true;
+            
+            const pwdInput = document.getElementById('password');
+            pwdInput.required = true;
+            pwdInput.placeholder = 'Min. 8 characters';
+            pwdInput.type = 'password';
+            
+            const pwdIcon = document.getElementById('togglePasswordIcon');
+            if (pwdIcon) { pwdIcon.classList.remove('fa-eye-slash'); pwdIcon.classList.add('fa-eye'); }
+            
+            document.getElementById('passwordRequiredStar').style.display = 'inline';
+            const emailHelper = document.getElementById('emailHelperText');
+            if (emailHelper) emailHelper.style.display = 'block';
+            resetPasswordRequirements();
             
             modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
+            void modal.offsetHeight;
+            modal.classList.add('show');
         }
 
         function editUser(userId) {
@@ -682,44 +844,80 @@
             document.getElementById('lastName').value = user.last_name || '';
             document.getElementById('email').value = user.email || '';
             document.getElementById('role').value = user.role || '';
-            document.getElementById('status').value = user.status || 'active';
             document.getElementById('phone').value = user.phone || '';
-            document.getElementById('notes').value = user.notes || '';
-            document.getElementById('password').value = '';
-            document.getElementById('password').required = false;
+            
+            const pwdInput = document.getElementById('password');
+            pwdInput.value = '';
+            pwdInput.required = false;
+            pwdInput.placeholder = 'Leave blank to keep current password';
+            pwdInput.type = 'password';
+
+            const pwdIcon = document.getElementById('togglePasswordIcon');
+            if (pwdIcon) { pwdIcon.classList.remove('fa-eye-slash'); pwdIcon.classList.add('fa-eye'); }
+
+            document.getElementById('passwordRequiredStar').style.display = 'none';
+            const emailHelper = document.getElementById('emailHelperText');
+            if (emailHelper) emailHelper.style.display = 'none';
+            resetPasswordRequirements();
 
             modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
+            void modal.offsetHeight;
+            modal.classList.add('show');
         }
 
         function closeUserModal() {
             const modalOverlay = document.getElementById('userModal');
             if (modalOverlay) {
                 modalOverlay.classList.remove('show');
-                const content = modalOverlay.querySelector('.user-modal-content');
-                if (content) content.style.transform = 'scale(0.9)';
                 setTimeout(() => {
                     modalOverlay.style.display = 'none';
-                }, 300);
+                    document.getElementById('userForm').reset();
+                    resetPasswordRequirements();
+                }, 250);
             }
-            document.getElementById('userForm').reset();
         }
 
         async function handleUserSubmit(e) {
             e.preventDefault();
 
             const userId = document.getElementById('userId').value;
-            const userData = {
-                first_name: document.getElementById('firstName').value,
-                last_name: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                role: document.getElementById('role').value,
-                status: document.getElementById('status').value,
-                phone: document.getElementById('phone').value,
-                notes: document.getElementById('notes').value
-            };
-
             const password = document.getElementById('password').value;
+
+            // Validate password complexity
+            if (!userId) {
+                // New user - password required
+                if (!password || !validateUserPassword(password)) {
+                    showAlert('Password must be at least 8 characters, include a capital letter, a number, and a special character.', 'error');
+                    document.getElementById('password').focus();
+                    return;
+                }
+            } else {
+                // Existing user - validate only if changing password
+                if (password && !validateUserPassword(password)) {
+                    showAlert('Password must be at least 8 characters, include a capital letter, a number, and a special character.', 'error');
+                    document.getElementById('password').focus();
+                    return;
+                }
+            }
+
+            const phone = document.getElementById('phone').value.trim();
+            if (!phone || phone.length !== 11) {
+                showAlert('Phone number must be exactly 11 digits (e.g. 09171234567).', 'error');
+                document.getElementById('phone').focus();
+                return;
+            }
+
+            const userData = {
+                first_name: document.getElementById('firstName').value.trim(),
+                last_name: document.getElementById('lastName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                role: document.getElementById('role').value,
+                phone: phone
+            };
+            if (!userId) {
+                userData.status = 'active';
+            }
+
             if (password) {
                 userData.password = password;
             }
@@ -733,15 +931,15 @@
                 }
 
                 if (response.success) {
-                    showAlert(userId ? 'User updated successfully!' : 'User created successfully!', 'success');
+                    showAlert(userId ? 'User updated successfully!' : (response.message || 'User created successfully! Account details sent to their email.'), 'success');
                     closeUserModal();
                     loadUsers();
                 } else {
-                    showAlert(response.message || 'Operation failed', 'error');
+                    showAlert(response.message || response.error || 'Operation failed', 'error');
                 }
             } catch (error) {
                 console.error('Error saving user:', error);
-                showAlert('Operation failed', 'error');
+                showAlert(error.message || 'Operation failed', 'error');
             }
         }
 

@@ -1,3 +1,6 @@
+// Force server process timezone to Asia/Manila (UTC+8) for all environments (including Render / Cloud / Docker)
+process.env.TZ = 'Asia/Manila';
+
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
@@ -131,6 +134,24 @@ async function runDatabaseMigration() {
       }
     } catch (colErr) {
       logs.push(`Booking proof column check warning: ${colErr.message}`);
+    }
+
+    // Ensure bookings.cancellation_reason and bookings.cancelled_by exist for cancellation notes
+    try {
+      const [bookingCols] = await pool.execute("SHOW COLUMNS FROM bookings");
+      const bColNames = bookingCols.map(c => c.Field.toLowerCase());
+      if (!bColNames.includes('cancellation_reason')) {
+        logs.push('Adding cancellation_reason column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN cancellation_reason TEXT NULL AFTER notes');
+        logs.push('Added cancellation_reason column to bookings successfully.');
+      }
+      if (!bColNames.includes('cancelled_by')) {
+        logs.push('Adding cancelled_by column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN cancelled_by VARCHAR(50) NULL AFTER cancellation_reason');
+        logs.push('Added cancelled_by column to bookings successfully.');
+      }
+    } catch (cancelColErr) {
+      logs.push(`Cancellation columns check warning: ${cancelColErr.message}`);
     }
 
     // Ensure settings table exists & sync official SnailShutter details

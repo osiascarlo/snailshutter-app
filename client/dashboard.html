@@ -391,7 +391,7 @@
                 const bookings = await api.getBookings();
                 const bookingData = (bookings && bookings.data) || [];
                 const completed = bookingData.filter(b => b.status === 'completed').length;
-                const upcoming = bookingData.filter(b => b.status === 'confirmed' || b.status === 'pending').length;
+                const upcoming = bookingData.filter(b => b.status === 'confirmed').length;
                 const totalBookings = bookingData.length;
 
                 if (statsGrid) {
@@ -424,32 +424,52 @@
                     }
                 }
 
-                // Session countdown — show next upcoming session
+                // Session countdown — show next upcoming session (only confirmed bookings)
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
                 const upcomingBookings = bookingData.filter(b => {
-                    const bDate = new Date(b.booking_date);
-                    return (b.status === 'confirmed' || b.status === 'pending') && bDate >= new Date();
-                }).sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date));
+                    if (b.status !== 'confirmed') return false;
+                    const bDateParts = String(b.booking_date).split('T')[0].split('-');
+                    const bDate = new Date(parseInt(bDateParts[0]), parseInt(bDateParts[1]) - 1, parseInt(bDateParts[2]));
+                    bDate.setHours(0, 0, 0, 0);
+                    return bDate >= today;
+                }).sort((a, b) => {
+                    const da = new Date(String(a.booking_date).split('T')[0]);
+                    const db = new Date(String(b.booking_date).split('T')[0]);
+                    return da - db;
+                });
 
                 const countdownEl = document.getElementById('sessionCountdown');
-                if (upcomingBookings.length > 0 && countdownEl) {
-                    const nextDate = new Date(upcomingBookings[0].booking_date);
-                    const now = new Date();
-                    const diffDays = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
-                    
-                    if (diffDays > 0) {
-                        countdownEl.innerHTML = `
-                            <div class="session-countdown">
-                                <i class="fas fa-camera"></i>
-                                <span>Your next session is in ${diffDays} day${diffDays > 1 ? 's' : ''} — ${upcomingBookings[0].service_name}</span>
-                            </div>
-                        `;
-                    } else if (diffDays === 0) {
-                        countdownEl.innerHTML = `
-                            <div class="session-countdown">
-                                <i class="fas fa-sparkles"></i>
-                                <span>You have a session today! — ${upcomingBookings[0].service_name}</span>
-                            </div>
-                        `;
+                if (countdownEl) {
+                    if (upcomingBookings.length > 0) {
+                        const next = upcomingBookings[0];
+                        const bDateParts = String(next.booking_date).split('T')[0].split('-');
+                        const nextDate = new Date(parseInt(bDateParts[0]), parseInt(bDateParts[1]) - 1, parseInt(bDateParts[2]));
+                        nextDate.setHours(0, 0, 0, 0);
+                        
+                        const diffTime = nextDate.getTime() - today.getTime();
+                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays > 0) {
+                            countdownEl.innerHTML = `
+                                <div class="session-countdown">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Your next session is in ${diffDays} day${diffDays > 1 ? 's' : ''} — ${next.service_name}</span>
+                                </div>
+                            `;
+                        } else if (diffDays === 0) {
+                            countdownEl.innerHTML = `
+                                <div class="session-countdown">
+                                    <i class="fas fa-sparkles"></i>
+                                    <span>You have a session today! — ${next.service_name}</span>
+                                </div>
+                            `;
+                        } else {
+                            countdownEl.innerHTML = '';
+                        }
+                    } else {
+                        countdownEl.innerHTML = '';
                     }
                 }
 

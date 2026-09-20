@@ -658,10 +658,16 @@
                 // Is it booked by the current client themselves (conflict)?
                 const isMyBooking = myBookingsOnDate.some(b => normalizeTime(b.start_time) === slotStartTime);
 
+                // Is it lunch break (12:01 PM - 12:59 PM)?
+                const isLunch = (slotStartTime >= '12:00' && slotStartTime < '13:00') || label.includes('Lunch Break');
+
                 let classes = 'time-slot';
                 let status = '';
 
-                if (isMyBooking) {
+                if (isLunch) {
+                    classes += ' booked';
+                    status = 'Lunch Break';
+                } else if (isMyBooking) {
                     classes += ' conflict';
                     status = 'Conflict';
                 } else if (isBooked) {

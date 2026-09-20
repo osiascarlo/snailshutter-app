@@ -173,7 +173,7 @@
          * Format a date to relative time string
          */
         relativeTime(dateStr) {
-            const date = new Date(dateStr);
+            const date = (typeof window.parseAsiaManilaDate === 'function' ? window.parseAsiaManilaDate(dateStr) : null) || new Date(dateStr);
             const now = new Date();
             const diff = Math.floor((now - date) / 1000);
 
@@ -182,7 +182,9 @@
             if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
             if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
             
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            return (typeof window.formatAsiaManilaDate === 'function')
+                ? window.formatAsiaManilaDate(date, { month: 'short', day: 'numeric' })
+                : date.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' });
         },
 
         /**
@@ -190,9 +192,18 @@
          */
         formatDate(dateStr) {
             if (!dateStr) return '—';
+            if (typeof window.formatAsiaManilaDate === 'function') {
+                return window.formatAsiaManilaDate(dateStr, { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+            }
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr;
             return d.toLocaleDateString('en-US', { 
+                timeZone: 'Asia/Manila',
                 weekday: 'short', 
                 month: 'short', 
                 day: 'numeric', 

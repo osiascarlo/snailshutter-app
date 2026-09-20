@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     end_time TIME NOT NULL,
     status ENUM('pending', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
     notes TEXT,
+    cancellation_reason TEXT DEFAULT NULL,
+    cancelled_by VARCHAR(50) DEFAULT NULL,
     total_price DECIMAL(10,2) DEFAULT 0.00,
     downpayment_amount DECIMAL(10,2) DEFAULT 0.00,
     proof_of_payment VARCHAR(255) DEFAULT NULL,

@@ -2,18 +2,12 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
 const { sendEmail } = require('../utils/mailer');
+const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 
-// ── Auth middleware (admin & staff check) ──────────────────────────────────
-function requireAdmin(req, res, next) {
-    if (req.session && (req.session.user_role === 'admin' || req.session.user_role === 'staff')) return next();
-    if (!req.session || !req.session.user_id) {
-        return res.status(401).json({ success: false, error: 'Unauthorized' });
-    }
-    next();
-}
+const adminOrStaff = [authMiddleware, roleMiddleware(['admin', 'staff'])];
 
 // ── GET /api/gallery — list all bookings with their Google Drive links ─────
-router.get('/', requireAdmin, async (req, res) => {
+router.get('/', adminOrStaff, async (req, res) => {
     try {
         const query = `
             SELECT b.id, b.client_id, b.staff_id, b.service_ids, b.service_id, b.booking_date, b.start_time, b.status, b.google_drive_link,
@@ -51,10 +45,54 @@ router.get('/', requireAdmin, async (req, res) => {
     }
 });
 
+// Helper to validate Google Drive URLs
+function isGoogleDriveLink(url) {
+    if (!url || typeof url !== 'string') return false;
+    let trimmed = url.trim();
+    if (!trimmed) return false;
+    if (!/^https?:\/\//i.test(trimmed)) {
+        trimmed = 'https://' + trimmed;
+    }
+    try {
+        const parsed = new URL(trimmed);
+        const host = parsed.hostname.toLowerCase();
+        return host === 'drive.google.com' || host === 'docs.google.com';
+    } catch (e) {
+        return false;
+    }
+}
+
+function normalizeGoogleDriveLink(url) {
+    if (!url || typeof url !== 'string') return '';
+    let trimmed = url.trim();
+    if (!trimmed) return '';
+    if (!/^https?:\/\//i.test(trimmed)) {
+        trimmed = 'https://' + trimmed;
+    }
+    return trimmed;
+}
+
 // ── POST & PUT /api/gallery/:bookingId — save or update Google Drive Link ───
 async function saveDriveLinkHandler(req, res) {
     const { bookingId } = req.params;
-    const googleDriveLink = req.body.googleDriveLink || req.body.google_drive_link || req.body.url || '';
+    let rawLink = req.body.googleDriveLink || req.body.google_drive_link || req.body.url || '';
+    rawLink = typeof rawLink === 'string' ? rawLink.trim() : '';
+
+    if (!rawLink) {
+        return res.status(400).json({
+            success: false,
+            error: 'Google Drive URL is required.'
+        });
+    }
+
+    if (!isGoogleDriveLink(rawLink)) {
+        return res.status(400).json({
+            success: false,
+            error: 'Only Google Drive links are allowed (e.g., https://drive.google.com/drive/folders/...)'
+        });
+    }
+
+    const googleDriveLink = normalizeGoogleDriveLink(rawLink);
 
     try {
         // 1. Get the current booking details including client info and old link
@@ -77,11 +115,11 @@ async function saveDriveLinkHandler(req, res) {
         // 2. Update the Google Drive Link in the database
         await pool.execute(
             'UPDATE bookings SET google_drive_link = ? WHERE id = ?',
-            [googleDriveLink || null, bookingId]
+            [googleDriveLink, bookingId]
         );
 
         // 3. Send email if a new link is uploaded or the link is changed to a non-empty value
-        const linkAddedOrChanged = googleDriveLink && googleDriveLink.trim() !== '' && googleDriveLink !== oldLink;
+        const linkAddedOrChanged = googleDriveLink && googleDriveLink !== oldLink;
 
         if (linkAddedOrChanged) {
             const clientEmail = booking.email;
@@ -137,7 +175,7 @@ async function saveDriveLinkHandler(req, res) {
     }
 }
 
-router.post('/:bookingId', requireAdmin, saveDriveLinkHandler);
-router.put('/:bookingId', requireAdmin, saveDriveLinkHandler);
+router.post('/:bookingId', adminOrStaff, saveDriveLinkHandler);
+router.put('/:bookingId', adminOrStaff, saveDriveLinkHandler);
 
 module.exports = router;

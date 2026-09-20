@@ -352,6 +352,17 @@
                     </a>
                 </div>
 
+                <!-- Cancellation Section -->
+                <div id="modalCancellationSection" style="display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+                    <div style="font-size: 0.75rem; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fas fa-ban" style="color: #ef4444;"></i> Cancellation Reason
+                        </span>
+                        <span id="modalCancelledByBadge" style="font-size: 0.7rem; background: #fee2e2; color: #b91c1c; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: capitalize; font-weight: 600;"></span>
+                    </div>
+                    <div id="modalCancellationReasonText" style="font-size: 0.88rem; color: #7f1d1d; line-height: 1.5; font-weight: 500;"></div>
+                </div>
+
                 <!-- Notes -->
                 <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
                     <div id="modalNotesRow" style="padding: 0.85rem 1rem; background: #f8fafc; border-radius: 10px; font-size: 0.85rem; border: 1px solid #e2e8f0;">
@@ -493,10 +504,12 @@
             }
 
             const rows = filtered.map((b, i) => {
-                const sessionDate = new Date(b.booking_date).toLocaleDateString('en-US',
-                    { month: 'short', day: 'numeric', year: 'numeric' });
-                const bookedOn = b.created_at ? new Date(b.created_at).toLocaleDateString('en-US',
-                    { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+                const sessionDate = typeof formatAsiaManilaDate === 'function'
+                    ? formatAsiaManilaDate(b.booking_date, { month: 'short', day: 'numeric', year: 'numeric' })
+                    : new Date(b.booking_date).toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' });
+                const bookedOn = b.created_at ? (typeof formatAsiaManilaDate === 'function'
+                    ? formatAsiaManilaDate(b.created_at, { month: 'short', day: 'numeric', year: 'numeric' })
+                    : new Date(b.created_at).toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' })) : '—';
                 const start = formatTime(b.start_time);
                 const end = formatTime(b.end_time);
                 const status = (b.status || 'pending').toLowerCase();
@@ -504,7 +517,10 @@
 
                 return `<tr class="booking-row-item" onclick="openBookingModal(${b.id})">
                     <td style="font-weight:700; color:var(--color-primary, #2e7d32);">#${i + 1}</td>
-                    <td style="font-weight:600; color:#1e293b;">${b.service_name || b.service || '—'}</td>
+                    <td style="font-weight:600; color:#1e293b;">
+                        ${b.service_name || b.service || '—'}
+                        ${status === 'cancelled' && b.cancellation_reason ? `<div style="font-size:0.75rem; color:#dc2626; font-weight:400; margin-top:0.25rem; display:flex; align-items:flex-start; gap:0.3rem;"><i class="fas fa-ban" style="margin-top:0.15rem; flex-shrink:0;"></i> <span><strong>Reason:</strong> ${escapeHtml(b.cancellation_reason)}</span></div>` : ''}
+                    </td>
                     <td style="white-space:nowrap; color:#64748b; font-size:0.88rem;">${bookedOn}</td>
                     <td style="white-space:nowrap; font-weight:600; color:#0f172a;">${sessionDate}</td>
                     <td style="white-space:nowrap;">${start} – ${end}</td>
@@ -542,8 +558,9 @@
             const booking = allClientBookings.find(b => b.id == bookingId);
             if (!booking) return;
 
-            const dateObj = new Date(booking.booking_date + 'T00:00:00');
-            const fullDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            const fullDate = typeof formatAsiaManilaDate === 'function'
+                ? formatAsiaManilaDate(booking.booking_date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+                : new Date(booking.booking_date + 'T00:00:00+08:00').toLocaleDateString('en-US', { timeZone: 'Asia/Manila', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
             const start = formatTime(booking.start_time);
             const end = formatTime(booking.end_time);
             const status = (booking.status || 'pending').toLowerCase();
@@ -571,10 +588,11 @@
             // Notes
             document.getElementById('modalNotesText').textContent = booking.notes || 'No special requests or notes.';
 
-            // Created At
+            // Created At (Strictly Asia/Manila)
             if (booking.created_at) {
-                const createdDate = new Date(booking.created_at);
-                document.getElementById('modalCreatedAt').textContent = createdDate.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+                document.getElementById('modalCreatedAt').textContent = typeof formatAsiaManilaDateTime === 'function'
+                    ? formatAsiaManilaDateTime(booking.created_at)
+                    : new Date(booking.created_at).toLocaleString('en-US', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
             } else {
                 document.getElementById('modalCreatedAt').textContent = '—';
             }
@@ -587,6 +605,27 @@
                 driveBtn.href = booking.google_drive_link;
             } else {
                 gallerySection.style.display = 'none';
+            }
+
+            // Cancellation Section
+            const cancelSection = document.getElementById('modalCancellationSection');
+            const cancelReasonText = document.getElementById('modalCancellationReasonText');
+            const cancelledByBadge = document.getElementById('modalCancelledByBadge');
+            if (cancelSection && cancelReasonText) {
+                if (status === 'cancelled') {
+                    cancelSection.style.display = 'block';
+                    cancelReasonText.textContent = booking.cancellation_reason && booking.cancellation_reason.trim() 
+                        ? booking.cancellation_reason 
+                        : 'No cancellation reason specified.';
+                    if (booking.cancelled_by) {
+                        cancelledByBadge.style.display = 'inline-block';
+                        cancelledByBadge.textContent = `Cancelled by: ${booking.cancelled_by}`;
+                    } else {
+                        cancelledByBadge.style.display = 'none';
+                    }
+                } else {
+                    cancelSection.style.display = 'none';
+                }
             }
 
             // Cancel action
@@ -624,7 +663,12 @@
         }
 
         async function cancelBooking(bookingId) {
-            if (typeof showConfirm === 'function') {
+            let cancellationReason = null;
+            if (typeof showCancellationModal === 'function') {
+                const res = await showCancellationModal({ role: 'client', bookingId });
+                if (!res || !res.confirmed) return;
+                cancellationReason = res.reason;
+            } else if (typeof showConfirm === 'function') {
                 const ok = await showConfirm({
                     title: 'Cancel Booking',
                     message: 'Are you sure you want to cancel this booking?',
@@ -635,7 +679,7 @@
                 if (!ok) return;
             }
             try {
-                const res = await api.updateBooking(bookingId, 'cancel');
+                const res = await api.updateBooking(bookingId, 'cancel', null, null, cancellationReason);
                 if (res.success) {
                     showAlert('Booking cancelled successfully.', 'success');
                     await loadBookings();
