@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const { logSystemEvent } = require('../utils/logger');
 
 /**
  * GET /api/admin/analytics
@@ -284,6 +285,16 @@ router.post('/settings', authMiddleware, roleMiddleware(['admin']), (req, res, n
         }
 
         console.log('[POST /settings] All settings saved successfully. Sending JSON response.');
+        
+        // Audit log for settings update
+        logSystemEvent({
+            req,
+            action: 'SETTINGS_UPDATED',
+            module: 'Settings',
+            details: 'Studio configuration and operational settings updated by Administrator.',
+            status: 'info'
+        });
+
         res.json({ success: true, message: 'Settings saved successfully' });
     } catch (error) {
         console.error('[POST /settings] Save Settings Error:', error);
@@ -291,4 +302,110 @@ router.post('/settings', authMiddleware, roleMiddleware(['admin']), (req, res, n
     }
 });
 
+/**
+ * GET /api/admin/logs
+ * Fetches paginated system audit logs with filtering and summary statistics
+ */
+router.get('/logs', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
+    try {
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 15));
+        const offset = (page - 1) * limit;
+        const moduleFilter = req.query.module || 'all';
+        const statusFilter = req.query.status || 'all';
+        const search = (req.query.search || '').trim();
+
+        let whereClauses = [];
+        let params = [];
+
+        if (moduleFilter && moduleFilter !== 'all') {
+            whereClauses.push('module = ?');
+            params.push(moduleFilter);
+        }
+
+        if (statusFilter && statusFilter !== 'all') {
+            whereClauses.push('status = ?');
+            params.push(statusFilter);
+        }
+
+        if (search) {
+            whereClauses.push('(details LIKE ? OR action LIKE ? OR user_name LIKE ? OR ip_address LIKE ?)');
+            const searchParam = `%${search}%`;
+            params.push(searchParam, searchParam, searchParam, searchParam);
+        }
+
+        const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // Total count for pagination
+        const [countRows] = await pool.execute(`SELECT COUNT(*) as total FROM system_logs ${whereSql}`, params);
+        const total = countRows[0]?.total || 0;
+
+        // Fetch paginated logs
+        const [logs] = await pool.query(`
+            SELECT id, user_id, user_name, user_role, action, module, details, ip_address, status, created_at
+            FROM system_logs
+            ${whereSql}
+            ORDER BY created_at DESC, id DESC
+            LIMIT ? OFFSET ?
+        `, [...params, limit, offset]);
+
+        // Aggregate statistics
+        const [statsRows] = await pool.execute(`
+            SELECT 
+                COUNT(*) as total_count,
+                SUM(CASE WHEN DATE(created_at) = CURDATE() THEN 1 ELSE 0 END) as today_count,
+                SUM(CASE WHEN status = 'danger' OR module = 'Security' THEN 1 ELSE 0 END) as security_alerts,
+                SUM(CASE WHEN module = 'Bookings' THEN 1 ELSE 0 END) as bookings_count,
+                SUM(CASE WHEN module = 'Authentication' THEN 1 ELSE 0 END) as auth_count
+            FROM system_logs
+        `);
+
+        res.json({
+            success: true,
+            logs,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit) || 1
+            },
+            stats: {
+                totalCount: statsRows[0]?.total_count || 0,
+                todayCount: statsRows[0]?.today_count || 0,
+                securityAlerts: statsRows[0]?.security_alerts || 0,
+                bookingsCount: statsRows[0]?.bookings_count || 0,
+                authCount: statsRows[0]?.auth_count || 0
+            }
+        });
+    } catch (error) {
+        console.error('Fetch System Logs Error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch system logs' });
+    }
+});
+
+/**
+ * DELETE /api/admin/logs
+ * Prune or clear old system logs (admin only)
+ */
+router.delete('/logs', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
+    try {
+        const keepDays = parseInt(req.query.keep_days) || 30;
+        await pool.execute('DELETE FROM system_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)', [keepDays]);
+        
+        logSystemEvent({
+            req,
+            action: 'LOGS_PRUNED',
+            module: 'Settings',
+            details: `Admin pruned system audit logs older than ${keepDays} days.`,
+            status: 'warning'
+        });
+
+        res.json({ success: true, message: `Logs older than ${keepDays} days cleared successfully.` });
+    } catch (error) {
+        console.error('Clear Logs Error:', error);
+        res.status(500).json({ success: false, error: 'Failed to clear system logs' });
+    }
+});
+
 module.exports = router;
+

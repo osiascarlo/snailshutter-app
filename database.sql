@@ -127,3 +127,20 @@ INSERT INTO settings (setting_key, setting_value) VALUES
 ('studioMapEmbed', 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d958.1126989311325!2d119.9756506!3d16.1456869!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3393dd09643fcad5%3A0x24a5ac354149095!2sSnailshutter%20Alaminos%20Photography%20Studio!5e0!3m2!1sen!2sph!4v1782822704080!5m2!1sen!2sph'),
 ('studioDirectionsLink', 'https://www.google.com/maps/dir/?api=1&destination=Snailshutter+Alaminos+Photography+Studio');
 
+-- System Logs & Audit Trail Table
+CREATE TABLE IF NOT EXISTS system_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,
+    user_name VARCHAR(150) NULL,
+    user_role VARCHAR(50) NULL,
+    action VARCHAR(100) NOT NULL,
+    module VARCHAR(50) NOT NULL,
+    details TEXT NULL,
+    ip_address VARCHAR(50) NULL,
+    status VARCHAR(20) DEFAULT 'success',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_created_at (created_at),
+    INDEX idx_module (module),
+    INDEX idx_user_id (user_id),
+    INDEX idx_action (action)
+) ENGINE=InnoDB;

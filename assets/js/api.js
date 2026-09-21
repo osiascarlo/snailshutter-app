@@ -265,6 +265,12 @@ class API {
             method: 'POST'
         });
     }
+
+    // Admin System Logs endpoints
+    async getSystemLogs(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/admin/logs${query ? `?${query}` : ''}`);
+    }
 }
 
 const api = new API();

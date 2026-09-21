@@ -190,6 +190,96 @@ async function runDatabaseMigration() {
     }
     logs.push('Studio settings verified and synced.');
 
+    // Ensure system_logs table exists
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS system_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NULL,
+        user_name VARCHAR(150) NULL,
+        user_role VARCHAR(50) NULL,
+        action VARCHAR(100) NOT NULL,
+        module VARCHAR(50) NOT NULL,
+        details TEXT NULL,
+        ip_address VARCHAR(50) NULL,
+        status VARCHAR(20) DEFAULT 'success',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_created_at (created_at),
+        INDEX idx_module (module),
+        INDEX idx_user_id (user_id),
+        INDEX idx_action (action)
+      ) ENGINE=InnoDB
+    `);
+    logs.push('system_logs table verified.');
+
+    // Seed initial historical audit logs if table is currently empty
+    try {
+      const [countResult] = await pool.execute('SELECT COUNT(*) as count FROM system_logs');
+      if (countResult[0].count === 0) {
+        logs.push('Seeding initial system activity logs...');
+        
+        // Initial Admin login & system startup log
+        await pool.execute(`
+          INSERT INTO system_logs (user_id, user_name, user_role, action, module, details, ip_address, status, created_at)
+          VALUES (1, 'Studio Admin', 'admin', 'SYSTEM_INITIALIZED', 'Settings', 'SnailShutter studio system initialized and security rules applied.', '127.0.0.1', 'info', DATE_SUB(NOW(), INTERVAL 3 DAY))
+        `);
+
+        // Check users and add creation logs
+        const [existingUsers] = await pool.execute('SELECT id, first_name, last_name, role, status, created_at FROM users');
+        for (const u of existingUsers) {
+          const uName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'User';
+          await pool.execute(`
+            INSERT INTO system_logs (user_id, user_name, user_role, action, module, details, ip_address, status, created_at)
+            VALUES (1, 'Studio Admin', 'admin', 'USER_RECORD_SYNC', 'Users', ?, '127.0.0.1', 'success', ?)
+          `, [`User account verified: ${uName} (${u.role}) - Status: ${u.status}`, u.created_at || new Date()]);
+        }
+
+        // Check bookings and add logs
+        const [existingBookings] = await pool.execute(`
+          SELECT b.id, b.client_id, b.status, b.booking_date, b.google_drive_link, b.created_at,
+                 CONCAT(c.first_name, ' ', c.last_name) as client_name, s.name as service_name
+          FROM bookings b
+          LEFT JOIN users c ON b.client_id = c.id
+          LEFT JOIN services s ON b.service_id = s.id
+          ORDER BY b.id ASC
+        `);
+
+        for (const b of existingBookings) {
+          const clientName = b.client_name || `Client #${b.client_id}`;
+          const serviceName = b.service_name || 'Studio Session';
+          // 1. Booking created log
+          await pool.execute(`
+            INSERT INTO system_logs (user_id, user_name, user_role, action, module, details, ip_address, status, created_at)
+            VALUES (?, ?, 'client', 'BOOKING_CREATED', 'Bookings', ?, '127.0.0.1', 'info', ?)
+          `, [b.client_id, clientName, `Client booked ${serviceName} (Booking #${b.id}) scheduled for ${b.booking_date}`, b.created_at || new Date()]);
+
+          // 2. Booking status log
+          if (b.status === 'confirmed' || b.status === 'completed') {
+            await pool.execute(`
+              INSERT INTO system_logs (user_id, user_name, user_role, action, module, details, ip_address, status, created_at)
+              VALUES (1, 'Studio Admin', 'admin', 'BOOKING_CONFIRMED', 'Bookings', ?, '127.0.0.1', 'success', ?)
+            `, [`Booking #${b.id} for ${clientName} was approved and confirmed`, b.created_at || new Date()]);
+          }
+
+          if (b.status === 'completed') {
+            await pool.execute(`
+              INSERT INTO system_logs (user_id, user_name, user_role, action, module, details, ip_address, status, created_at)
+              VALUES (1, 'Studio Admin', 'admin', 'BOOKING_COMPLETED', 'Bookings', ?, '127.0.0.1', 'success', ?)
+            `, [`Booking #${b.id} for ${clientName} marked as completed after photo session`, b.created_at || new Date()]);
+          }
+
+          if (b.google_drive_link) {
+            await pool.execute(`
+              INSERT INTO system_logs (user_id, user_name, user_role, action, module, details, ip_address, status, created_at)
+              VALUES (1, 'Studio Admin', 'admin', 'PHOTO_LINK_SET', 'Photo Deliveries', ?, '127.0.0.1', 'success', ?)
+            `, [`Assigned Google Drive photo gallery link for completed booking #${b.id}`, b.created_at || new Date()]);
+          }
+        }
+        logs.push('Initial system activity logs seeded successfully.');
+      }
+    } catch (seedErr) {
+      logs.push(`System logs seeding warning: ${seedErr.message}`);
+    }
+
     return { success: true, logs };
   } catch (error) {
     logs.push(`Migration Error: ${error.message}`);

@@ -5,6 +5,7 @@ const { authMiddleware } = require('../middleware/auth');
 const { sendEmail } = require('../utils/mailer');
 const { isMaintenanceModeActive, shouldSendEmailNotification } = require('../utils/reminders');
 const { notifyDate, notifyAdminBooking, notifyPopularServices } = require('./availability_sse');
+const { logSystemEvent } = require('../utils/logger');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -646,6 +647,14 @@ router.post('/', authMiddleware, (req, res, next) => {
             end_time: endTime
         });
 
+        logSystemEvent({
+            req,
+            action: 'BOOKING_CREATED',
+            module: 'Bookings',
+            details: `${req.session.user_name || 'Client'} submitted new booking #${result.insertId} for ${serviceNames} on ${bookingDate} (${startTime} - ${endTime}).`,
+            status: 'info'
+        });
+
         res.json({ success: true, message: 'Booking created successfully', bookingId: result.insertId });
 
     } catch (error) {
@@ -725,6 +734,14 @@ router.put('/', authMiddleware, async (req, res) => {
                 );
             }
 
+            logSystemEvent({
+                req,
+                action: 'BOOKING_CANCELLED',
+                module: 'Bookings',
+                details: `Booking #${bookingId} was cancelled by ${userRole} (${req.session.user_name || 'User'}). Reason: ${cancelReason || 'No reason specified'}`,
+                status: 'danger'
+            });
+
             // Fetch booking info for email notification
             try {
                 const [info] = await pool.execute(`
@@ -768,6 +785,14 @@ router.put('/', authMiddleware, async (req, res) => {
         } else if (action === 'confirm' && userRole !== 'client') {
             await pool.execute("UPDATE bookings SET status = 'confirmed', payment_status = 'paid' WHERE id = ?", [bookingId]);
             
+            logSystemEvent({
+                req,
+                action: 'BOOKING_CONFIRMED',
+                module: 'Bookings',
+                details: `Booking #${bookingId} approved and marked as confirmed by ${req.session.user_name || 'Staff'}.`,
+                status: 'success'
+            });
+
             // Get booking and client info for email
             const [info] = await pool.execute(`
                 SELECT b.*, s.name as service_name, u.email, CONCAT(u.first_name, ' ', u.last_name) as full_name 
@@ -810,6 +835,14 @@ router.put('/', authMiddleware, async (req, res) => {
             }
             if (!finalStatus) return res.status(400).json({ success: false, error: 'Missing status' });
             await pool.execute('UPDATE bookings SET status = ? WHERE id = ?', [finalStatus, bookingId]);
+
+            logSystemEvent({
+                req,
+                action: 'BOOKING_STATUS_CHANGED',
+                module: 'Bookings',
+                details: `Booking #${bookingId} status updated to "${finalStatus}" by ${req.session.user_name || 'Staff'}.`,
+                status: finalStatus === 'confirmed' || finalStatus === 'completed' ? 'success' : 'info'
+            });
         } else if (action === 'assign_staff' && userRole === 'admin') {
             if (!staffId) return res.status(400).json({ success: false, error: 'Missing staff ID' });
 
@@ -830,10 +863,34 @@ router.put('/', authMiddleware, async (req, res) => {
             }
 
             await pool.execute('UPDATE bookings SET staff_id = ? WHERE id = ?', [staffId, bookingId]);
+
+            logSystemEvent({
+                req,
+                action: 'STAFF_ASSIGNED',
+                module: 'Bookings',
+                details: `Staff member #${staffId} assigned to booking #${bookingId} by Administrator.`,
+                status: 'info'
+            });
         } else if (action === 'complete' && userRole !== 'client') {
             await pool.execute("UPDATE bookings SET status = 'completed' WHERE id = ?", [bookingId]);
+
+            logSystemEvent({
+                req,
+                action: 'BOOKING_COMPLETED',
+                module: 'Bookings',
+                details: `Booking #${bookingId} marked as completed by ${req.session.user_name || 'Staff'}.`,
+                status: 'success'
+            });
         } else if (action === 'uncomplete' && userRole !== 'client') {
             await pool.execute("UPDATE bookings SET status = 'confirmed' WHERE id = ?", [bookingId]);
+
+            logSystemEvent({
+                req,
+                action: 'BOOKING_STATUS_CHANGED',
+                module: 'Bookings',
+                details: `Booking #${bookingId} status changed back to confirmed by ${req.session.user_name || 'Staff'}.`,
+                status: 'info'
+            });
         } else {
             return res.status(400).json({ success: false, error: 'Invalid action or insufficient permissions' });
         }

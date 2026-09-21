@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const { sendEmail } = require('../utils/mailer');
+const { logSystemEvent } = require('../utils/logger');
 
 // Helper function to generate OTP
 const generateOTP = () => {
@@ -261,6 +262,13 @@ router.post('/login', async (req, res) => {
     try {
         const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
         if (users.length === 0) {
+            logSystemEvent({
+                req,
+                action: 'LOGIN_FAILED',
+                module: 'Security',
+                details: `Failed login attempt with non-existent email: ${email}`,
+                status: 'danger'
+            });
             return res.status(401).json({ success: false, error: 'Invalid email or password' });
         }
 
@@ -268,19 +276,39 @@ router.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
+            logSystemEvent({
+                req,
+                userId: user.id,
+                userName: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User',
+                userRole: user.role,
+                action: 'LOGIN_FAILED',
+                module: 'Security',
+                details: `Incorrect password attempt for user account: ${email}`,
+                status: 'danger'
+            });
             return res.status(401).json({ success: false, error: 'Invalid email or password' });
         }
 
+        const uFullName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User';
+
         // Check if user status is deactivated / inactive
         if (user.status && user.status !== 'active') {
+            logSystemEvent({
+                req,
+                userId: user.id,
+                userName: uFullName,
+                userRole: user.role,
+                action: 'LOGIN_BLOCKED_DEACTIVATED',
+                module: 'Security',
+                details: `Blocked login attempt by deactivated account: ${uFullName} (${user.email})`,
+                status: 'warning'
+            });
             return res.status(403).json({
                 success: false,
                 deactivated: true,
                 error: 'Your account has been deactivated. Please contact the administrator for assistance.'
             });
         }
-
-        const uFullName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User';
 
         // Set Session
         req.session.user_id = user.id;
@@ -289,6 +317,17 @@ router.post('/login', async (req, res) => {
         req.session.first_name = user.first_name;
         req.session.last_name = user.last_name;
         req.session.status = user.status || 'active';
+
+        logSystemEvent({
+            req,
+            userId: user.id,
+            userName: uFullName,
+            userRole: user.role,
+            action: 'USER_LOGIN',
+            module: 'Authentication',
+            details: `${uFullName} (${user.role}) logged in successfully.`,
+            status: 'success'
+        });
 
         res.json({
             success: true,
@@ -384,6 +423,21 @@ router.get('/session', async (req, res) => {
  * POST /api/auth/logout.php (Ported to /api/auth/logout)
  */
 router.post('/logout', (req, res) => {
+    const uName = req.session?.user_name || 'User';
+    const uRole = req.session?.user_role || 'client';
+    const uId = req.session?.user_id || null;
+
+    logSystemEvent({
+        req,
+        userId: uId,
+        userName: uName,
+        userRole: uRole,
+        action: 'USER_LOGOUT',
+        module: 'Authentication',
+        details: `${uName} (${uRole}) logged out of the system.`,
+        status: 'info'
+    });
+
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).json({ success: false, error: 'Failed to logout' });
@@ -525,6 +579,14 @@ router.post('/reset-password', async (req, res) => {
 
         // Invalidate OTP
         await pool.execute('UPDATE otp_verifications SET is_used = 1 WHERE id = ?', [records[0].id]);
+
+        logSystemEvent({
+            req,
+            action: 'PASSWORD_RESET',
+            module: 'Authentication',
+            details: `Password was reset successfully for account: ${email}`,
+            status: 'info'
+        });
 
         res.json({ success: true, message: 'Password has been reset successfully. You can now log in.' });
 

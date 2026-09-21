@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../config/db');
 const { sendEmail } = require('../utils/mailer');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const { logSystemEvent } = require('../utils/logger');
 
 const adminOrStaff = [authMiddleware, roleMiddleware(['admin', 'staff'])];
 
@@ -167,6 +168,14 @@ async function saveDriveLinkHandler(req, res) {
                 });
             }
         }
+
+        logSystemEvent({
+            req,
+            action: 'PHOTO_LINK_SET',
+            module: 'Photo Deliveries',
+            details: `${req.session.user_name || 'Staff'} assigned Google Drive photo gallery link for booking #${bookingId} (${booking.full_name}).`,
+            status: 'success'
+        });
 
         res.json({ success: true, message: 'Google Drive link saved successfully and client notified.' });
     } catch (err) {

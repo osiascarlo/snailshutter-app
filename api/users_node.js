@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 const { sendEmail } = require('../utils/mailer');
+const { logSystemEvent } = require('../utils/logger');
 
 /**
  * GET /api/users
@@ -182,6 +183,14 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
             console.error('⚠️ Failed to send account details email:', mailErr.message || mailErr);
         }
 
+        logSystemEvent({
+            req,
+            action: 'USER_CREATED',
+            module: 'Users',
+            details: `Admin created new ${roleLabel} account for ${first_name} ${last_name} (${email}).`,
+            status: 'success'
+        });
+
         res.json({ 
             success: true, 
             message: 'User created successfully! Account details have been sent to their email.' 
@@ -282,6 +291,28 @@ router.post('/update_role', authMiddleware, roleMiddleware(['admin']), async (re
         const query = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
         await pool.execute(query, values);
 
+        const isDeactivation = status === 'inactive';
+        const isActivation = status === 'active';
+        let actionCode = 'USER_UPDATED';
+        let logStatus = 'info';
+        if (isDeactivation) {
+            actionCode = 'USER_DEACTIVATED';
+            logStatus = 'warning';
+        } else if (isActivation) {
+            actionCode = 'USER_ACTIVATED';
+            logStatus = 'success';
+        }
+
+        logSystemEvent({
+            req,
+            action: actionCode,
+            module: 'Users',
+            details: isDeactivation
+                ? `User account #${user_id} was deactivated by Administrator.`
+                : (isActivation ? `User account #${user_id} was activated by Administrator.` : `User account #${user_id} details updated by Administrator.`),
+            status: logStatus
+        });
+
         res.json({ success: true, message: 'User updated successfully' });
     } catch (error) {
         console.error('Update User Error:', error);
@@ -306,6 +337,15 @@ router.post('/delete', authMiddleware, roleMiddleware(['admin']), async (req, re
 
     try {
         await pool.execute('DELETE FROM users WHERE id = ?', [user_id]);
+
+        logSystemEvent({
+            req,
+            action: 'USER_DELETED',
+            module: 'Users',
+            details: `User account #${user_id} was permanently deleted by Administrator.`,
+            status: 'danger'
+        });
+
         res.json({ success: true, message: 'User deleted successfully' });
     } catch (error) {
         console.error('Delete User Error:', error);
