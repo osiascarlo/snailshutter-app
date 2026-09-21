@@ -907,11 +907,32 @@
                 return;
             }
 
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const role = document.getElementById('role').value;
+            const fullName = `${firstName} ${lastName}`.trim() || 'this user';
+            const roleTitle = role ? role.charAt(0).toUpperCase() + role.slice(1) : '';
+            const isEdit = !!userId;
+
+            // Prompt confirmation modal before proceeding
+            const confirmed = await showConfirm({
+                title: isEdit ? 'Save Changes' : 'Save New User',
+                message: isEdit
+                    ? `Are you sure you want to save the updated details for <strong>${fullName}</strong>?`
+                    : `Are you sure you want to create a new <strong>${roleTitle}</strong> account for <strong>${fullName}</strong>?<br><br><span style="font-size: 0.85rem; color: #64748b; display: inline-flex; align-items: center; gap: 0.35rem;"><i class="fas fa-envelope" style="color: var(--green-600);"></i> Account details and password will be sent to <strong>${email}</strong>.</span>`,
+                confirmText: isEdit ? 'Save Changes' : 'Save User',
+                type: 'confirm',
+                icon: isEdit ? 'fa-user-pen' : 'fa-user-plus'
+            });
+
+            if (!confirmed) return;
+
             const userData = {
-                first_name: document.getElementById('firstName').value.trim(),
-                last_name: document.getElementById('lastName').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                role: document.getElementById('role').value,
+                first_name: firstName,
+                last_name: lastName,
+                email: email,
+                role: role,
                 phone: phone
             };
             if (!userId) {
@@ -920,6 +941,13 @@
 
             if (password) {
                 userData.password = password;
+            }
+
+            const submitBtn = document.querySelector('#userForm button[type="submit"]');
+            const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             }
 
             try {
@@ -940,6 +968,11 @@
             } catch (error) {
                 console.error('Error saving user:', error);
                 showAlert(error.message || 'Operation failed', 'error');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origBtnHtml;
+                }
             }
         }
 
@@ -1008,6 +1041,9 @@
 
         // Close modal when clicking outside
         window.onclick = function (event) {
+            if (document.querySelector('.custom-confirm-overlay')) {
+                return; // Let confirmation modal handle its own backdrop click
+            }
             const modal = document.getElementById('userModal');
             if (event.target === modal) {
                 closeUserModal();
@@ -1017,6 +1053,11 @@
         // Close modal with Escape key
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
+                if (document.querySelector('.custom-confirm-overlay')) {
+                    const cancelBtn = document.querySelector('.custom-confirm-overlay #modalCancel');
+                    if (cancelBtn) cancelBtn.click();
+                    return;
+                }
                 closeUserModal();
             }
         });
