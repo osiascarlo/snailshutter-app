@@ -336,29 +336,72 @@ router.get('/logs', authMiddleware, roleMiddleware(['admin']), async (req, res) 
 
         const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
+        // Ensure table exists defensively before querying
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS system_logs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NULL,
+                user_name VARCHAR(150) NULL,
+                user_role VARCHAR(50) NULL,
+                action VARCHAR(100) NOT NULL,
+                module VARCHAR(50) NOT NULL,
+                details TEXT NULL,
+                ip_address VARCHAR(50) NULL,
+                status VARCHAR(20) DEFAULT 'success',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_created_at (created_at),
+                INDEX idx_module (module),
+                INDEX idx_user_id (user_id),
+                INDEX idx_action (action)
+            ) ENGINE=InnoDB
+        `);
+
         // Total count for pagination
         const [countRows] = await pool.execute(`SELECT COUNT(*) as total FROM system_logs ${whereSql}`, params);
         const total = countRows[0]?.total || 0;
 
         // Fetch paginated logs
+        const safeLimit = parseInt(limit, 10);
+        const safeOffset = parseInt(offset, 10);
         const [logs] = await pool.query(`
             SELECT id, user_id, user_name, user_role, action, module, details, ip_address, status, created_at
             FROM system_logs
             ${whereSql}
             ORDER BY created_at DESC, id DESC
-            LIMIT ? OFFSET ?
-        `, [...params, limit, offset]);
+            LIMIT ${safeLimit} OFFSET ${safeOffset}
+        `, params);
 
-        // Aggregate statistics
-        const [statsRows] = await pool.execute(`
-            SELECT 
-                COUNT(*) as total_count,
-                SUM(CASE WHEN DATE(created_at) = CURDATE() THEN 1 ELSE 0 END) as today_count,
-                SUM(CASE WHEN status = 'danger' OR module = 'Security' THEN 1 ELSE 0 END) as security_alerts,
-                SUM(CASE WHEN module = 'Bookings' THEN 1 ELSE 0 END) as bookings_count,
-                SUM(CASE WHEN module = 'Authentication' THEN 1 ELSE 0 END) as auth_count
-            FROM system_logs
-        `);
+        // Aggregate statistics (wrapped in try-catch to guarantee logs are returned even if stats calculation has edge cases)
+        let stats = {
+            totalCount: total,
+            todayCount: 0,
+            securityAlerts: 0,
+            bookingsCount: 0,
+            authCount: 0
+        };
+
+        try {
+            const [statsRows] = await pool.execute(`
+                SELECT 
+                    COUNT(*) as total_count,
+                    SUM(CASE WHEN DATE(created_at) = CURDATE() THEN 1 ELSE 0 END) as today_count,
+                    SUM(CASE WHEN status = 'danger' OR module = 'Security' THEN 1 ELSE 0 END) as security_alerts,
+                    SUM(CASE WHEN module = 'Bookings' THEN 1 ELSE 0 END) as bookings_count,
+                    SUM(CASE WHEN module = 'Authentication' THEN 1 ELSE 0 END) as auth_count
+                FROM system_logs
+            `);
+            if (statsRows && statsRows[0]) {
+                stats = {
+                    totalCount: Number(statsRows[0].total_count) || 0,
+                    todayCount: Number(statsRows[0].today_count) || 0,
+                    securityAlerts: Number(statsRows[0].security_alerts) || 0,
+                    bookingsCount: Number(statsRows[0].bookings_count) || 0,
+                    authCount: Number(statsRows[0].auth_count) || 0
+                };
+            }
+        } catch (statsErr) {
+            console.warn('System logs stats calculation warning:', statsErr.message);
+        }
 
         res.json({
             success: true,
@@ -366,20 +409,14 @@ router.get('/logs', authMiddleware, roleMiddleware(['admin']), async (req, res) 
             pagination: {
                 total,
                 page,
-                limit,
-                totalPages: Math.ceil(total / limit) || 1
+                limit: safeLimit,
+                totalPages: Math.ceil(total / safeLimit) || 1
             },
-            stats: {
-                totalCount: statsRows[0]?.total_count || 0,
-                todayCount: statsRows[0]?.today_count || 0,
-                securityAlerts: statsRows[0]?.security_alerts || 0,
-                bookingsCount: statsRows[0]?.bookings_count || 0,
-                authCount: statsRows[0]?.auth_count || 0
-            }
+            stats
         });
     } catch (error) {
         console.error('Fetch System Logs Error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch system logs' });
+        res.status(500).json({ success: false, error: 'Failed to fetch system logs: ' + error.message });
     }
 });
 

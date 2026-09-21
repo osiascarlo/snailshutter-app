@@ -182,13 +182,17 @@ async function runDatabaseMigration() {
       ['gcashName', 'SnailShutter Studio']
     ];
 
-    for (const [key, val] of defaultSettings) {
-      await pool.execute(
-        'INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = IF(setting_value IS NULL OR setting_value = "" OR setting_value LIKE "%123 Photography%", ?, setting_value)',
-        [key, val, val]
-      );
+    try {
+      for (const [key, val] of defaultSettings) {
+        await pool.execute(
+          "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = IF(setting_value IS NULL OR setting_value = '' OR setting_value LIKE '%123 Photography%', ?, setting_value)",
+          [key, val, val]
+        );
+      }
+      logs.push('Studio settings verified and synced.');
+    } catch (settingsErr) {
+      logs.push(`Settings sync note: ${settingsErr.message}`);
     }
-    logs.push('Studio settings verified and synced.');
 
     // Ensure system_logs table exists
     await pool.execute(`
