@@ -10,6 +10,7 @@ const poolOpts = {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
+    connectTimeout: 10000,
     timezone: '+08:00', // Forces mysql2 to convert and treat all datetimes as UTC+8 (Asia/Manila)
     dateStrings: true
 };

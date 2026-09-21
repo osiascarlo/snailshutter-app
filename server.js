@@ -44,6 +44,11 @@ app.use(express.static(path.join(__dirname, '.'), {
   }
 }));
 
+// Health check endpoints for Render, cloud monitors, and container orchestrators
+app.get(['/health', '/healthz', '/api/health'], (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
 // Root redirect to index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -260,25 +265,29 @@ app.use((err, req, res, next) => {
 
 const { processBookingReminders } = require('./utils/reminders');
 
-// Check DB schema and start server
-runDatabaseMigration().then((res) => {
-  if (!res.success) {
-    console.error('⚠️ Startup database migration warning:', res.error);
-  } else {
-    console.log('✅ Startup database schema check passed:', res.logs[res.logs.length - 1]);
-  }
-  app.listen(PORT, () => {
-    console.log(`\n🚀 SnailShutter Node.js Server running at http://localhost:${PORT}`);
-    console.log(`📁 Serving files from: ${__dirname}`);
-    console.log(`\n📋 Access the application:`);
-    console.log(`   • Main page: http://localhost:${PORT}`);
-    console.log(`   • Login: http://localhost:${PORT}/auth/login.html`);
-    console.log(`\n⚠️  Press Ctrl+C to stop server\n`);
+// Start HTTP server IMMEDIATELY so Render / Cloud container detects listening port within seconds
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🚀 SnailShutter Node.js Server running on port ${PORT} (0.0.0.0:${PORT})`);
+  console.log(`📁 Serving files from: ${__dirname}`);
+  console.log(`\n📋 Access the application:`);
+  console.log(`   • Main: http://localhost:${PORT}`);
+  console.log(`   • Login: http://localhost:${PORT}/auth/login.html`);
+  console.log(`   • Health: http://localhost:${PORT}/health\n`);
 
-    // Start automated booking reminder scheduler (runs on startup + every 30 mins)
-    processBookingReminders().catch(err => console.error('[Startup Reminders Error]:', err));
-    setInterval(() => {
-      processBookingReminders().catch(err => console.error('[Scheduled Reminders Error]:', err));
-    }, 30 * 60 * 1000);
+  // Run database migration check in the background after port is open
+  runDatabaseMigration().then((res) => {
+    if (!res.success) {
+      console.error('⚠️ Startup database migration warning:', res.error);
+    } else {
+      console.log('✅ Startup database schema check passed:', res.logs[res.logs.length - 1]);
+    }
+  }).catch((err) => {
+    console.error('⚠️ Startup database migration error:', err.message);
   });
+
+  // Start automated booking reminder scheduler (runs on startup + every 30 mins)
+  processBookingReminders().catch(err => console.error('[Startup Reminders Error]:', err));
+  setInterval(() => {
+    processBookingReminders().catch(err => console.error('[Scheduled Reminders Error]:', err));
+  }, 30 * 60 * 1000);
 });
