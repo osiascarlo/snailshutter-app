@@ -386,6 +386,34 @@ function getStatCardSkeletonHTML(count = 4) {
     `).join('');
 }
 
+function getGallerySkeletonHTML(count = 6) {
+    return Array.from({ length: count }).map(() => `
+        <div class="booking-overview-card gallery-card-skeleton">
+            <div>
+                <div class="card-header" style="justify-content: center; margin-bottom: 0.85rem;">
+                    <div class="skeleton skeleton-badge" style="width: 90px; height: 22px; border-radius: 999px;"></div>
+                </div>
+                <div class="skeleton skeleton-title" style="width: 60%; height: 1.15rem; margin-bottom: 0.65rem;"></div>
+                <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.65rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
+                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.85rem; margin: 0;"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
+                        <div class="skeleton skeleton-text" style="width: 45%; height: 0.85rem; margin: 0;"></div>
+                    </div>
+                </div>
+                <div class="skeleton" style="width: 100%; height: 26px; border-radius: 4px; margin-top: 0.35rem;"></div>
+            </div>
+            <div class="card-actions" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.5rem;">
+                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
+                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
 // Navigation and UI helpers
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');

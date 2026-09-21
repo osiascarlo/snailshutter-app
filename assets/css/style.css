@@ -3835,3 +3835,23 @@ body.maintenance-active .calendar-widget .calendar-day {
     gap: 1rem;
     pointer-events: none;
 }
+
+/* Gallery / Photo Deliveries Card Skeleton */
+.gallery-card-skeleton {
+    background: #ffffff;
+    border-radius: var(--radius-md, 10px);
+    border: 1.5px solid var(--color-border-soft, #e2e8f0);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+    cursor: default;
+}
+
+.gallery-card-skeleton:hover {
+    transform: none !important;
+    border-color: var(--color-border-soft, #e2e8f0) !important;
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05)) !important;
+}
