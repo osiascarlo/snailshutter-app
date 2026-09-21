@@ -57,6 +57,16 @@ async function notifyDate(date) {
  * Query the DB and build the slot availability payload for one date.
  */
 async function buildSlotPayload(date) {
+    const todayManilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    const isToday = (date === todayManilaStr);
+
+    let currentHourMins = -1;
+    if (isToday) {
+        const nowManilaStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour12: false });
+        const [nowH] = nowManilaStr.split(':').map(Number);
+        currentHourMins = nowH * 60;
+    }
+
     const [slots] = await pool.execute(
         'SELECT * FROM time_slots WHERE is_active = 1 ORDER BY start_time'
     );
@@ -65,8 +75,16 @@ async function buildSlotPayload(date) {
         [date, 'cancelled']
     );
 
+    // If today, only include remaining hours before closing
+    const filteredSlots = isToday
+        ? slots.filter(slot => {
+            const [sh, sm] = String(slot.start_time).split(':');
+            return (parseInt(sh) * 60 + parseInt(sm)) >= currentHourMins;
+        })
+        : slots;
+
     const bookedSlots = [];
-    slots.forEach(slot => {
+    filteredSlots.forEach(slot => {
         // 12:01 PM - 12:59 PM is lunch break (cannot be booked)
         if (slot.start_time >= '12:00:00' && slot.start_time < '13:00:00') {
             bookedSlots.push(slot.start_time);
@@ -93,7 +111,7 @@ async function buildSlotPayload(date) {
     return {
         date,
         timestamp: new Date().toISOString(),
-        available_slots: slots,
+        available_slots: filteredSlots,
         booked_slots: bookedSlots
     };
 }

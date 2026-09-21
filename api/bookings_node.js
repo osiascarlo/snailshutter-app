@@ -276,17 +276,22 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
         return res.status(400).json({ success: false, error: 'Missing date' });
     }
 
-    const slotDate = new Date(date + 'T00:00:00');
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    if (slotDate < todayStart) {
+    const todayManilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    if (date < todayManilaStr) {
         return res.json({
             success: true,
             available_slots: [],
             booked_slots: [],
             message: 'Past dates cannot be booked'
         });
+    }
+
+    const isToday = (date === todayManilaStr);
+    let currentHourMins = -1;
+    if (isToday) {
+        const nowManilaStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour12: false });
+        const [nowH] = nowManilaStr.split(':').map(Number);
+        currentHourMins = nowH * 60;
     }
 
     try {
@@ -376,6 +381,12 @@ router.get('/time-slots', authMiddleware, async (req, res) => {
 
         slots.forEach(slot => {
             const startMins = timeToMinutes(slot.start_time);
+
+            // If booking on current date, only show remaining hours before studio closes
+            if (isToday && startMins < currentHourMins) {
+                return; // Skip past hours completely
+            }
+
             let endMins;
 
             // Lunch break handling: 12:01 PM - 12:59 PM (720 to 780 mins)
@@ -484,6 +495,20 @@ router.post('/', authMiddleware, (req, res, next) => {
     const todayManilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
     if (bookingDate < todayManilaStr) {
         return res.status(400).json({ success: false, error: 'Past dates cannot be booked. Please select today or a future date.' });
+    }
+
+    // If booking for today, prevent booking past hours
+    if (bookingDate === todayManilaStr) {
+        const nowManilaStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour12: false });
+        const [nowH] = nowManilaStr.split(':').map(Number);
+        const currentHourMins = nowH * 60;
+        const bookingStartMins = timeToMinutes(startTime);
+        if (bookingStartMins < currentHourMins) {
+            return res.status(400).json({
+                success: false,
+                error: 'Cannot book past time slots for today. Only remaining studio hours before closing are available.'
+            });
+        }
     }
 
     if (!req.file) {

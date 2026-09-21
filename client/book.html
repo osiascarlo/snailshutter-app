@@ -1949,11 +1949,34 @@
             customBtn.onclick = showCustomTimeForm;
             container.appendChild(customBtn);
 
-            noSlotsMsg.style.display = (availableCount === 0 && timeSlots.length > 0) ? 'block' : 'none';
+            const todayManilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+            const isToday = (selectedDate === todayManilaStr);
+
+            if (availableCount === 0) {
+                noSlotsMsg.style.display = 'block';
+                const p = noSlotsMsg.querySelector('p');
+                if (p) {
+                    p.textContent = isToday && timeSlots.length === 0
+                        ? 'All operating hours for today (10:00 AM – 7:00 PM) have already passed. Please select a future date.'
+                        : 'All time slots for this date are already booked. Please try another date.';
+                }
+            } else {
+                noSlotsMsg.style.display = 'none';
+            }
             container.style.display = 'grid';
         }
 
         function showCustomTimeForm() {
+            const todayManilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+            const isToday = (selectedDate === todayManilaStr);
+            const nowManilaStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour12: false });
+            const [nowH] = nowManilaStr.split(':').map(Number);
+
+            if (isToday && nowH >= 19) {
+                showAlert('The studio is closed for today. Operating hours are 10:00 AM to 7:00 PM. Please select an upcoming date.', 'warning');
+                return;
+            }
+
             document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
             updateStep2LunchNotice(false);
             const form = document.getElementById('customTimeForm');
@@ -1961,8 +1984,20 @@
             document.getElementById('customDurationText').textContent = totalDuration;
             
             // Clear inputs
-            document.getElementById('customStartTime').value = '';
-            document.getElementById('customEndTime').value = '';
+            const startInput = document.getElementById('customStartTime');
+            const endInput = document.getElementById('customEndTime');
+            startInput.value = '';
+            endInput.value = '';
+
+            if (isToday) {
+                const minH = Math.max(10, nowH);
+                startInput.min = String(minH).padStart(2, '0') + ':00';
+            } else {
+                startInput.min = '10:00';
+            }
+            startInput.max = '19:00';
+            endInput.min = '10:00';
+            endInput.max = '19:00';
             
             form.style.display = 'block';
             form.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1978,6 +2013,22 @@
             const [h, m] = startTimeStr.split(':');
             const startMins = parseInt(h) * 60 + parseInt(m);
             const totalDuration = selectedServices.reduce((sum, s) => sum + Number(s.duration_minutes || s.duration || 60), 0);
+
+            // Check remaining hours if booking for today
+            const todayManilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+            if (selectedDate === todayManilaStr) {
+                const nowManilaStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour12: false });
+                const [nowH] = nowManilaStr.split(':').map(Number);
+                const currentHourMins = nowH * 60;
+                if (startMins < currentHourMins) {
+                    const startLabel = formatTimeLabel(String(nowH).padStart(2, '0') + ':00');
+                    showAlert(`Cannot select a past start time for today. Studio remaining hours are from ${startLabel} to 7:00 PM.`, 'warning');
+                    document.getElementById('customStartTime').value = '';
+                    document.getElementById('customEndTime').value = '';
+                    updateStep2LunchNotice(false);
+                    return;
+                }
+            }
             
             // Check if start time is during lunch break (12:01 - 12:59 or 12:00)
             if (startMins >= 720 && startMins < 780) {
@@ -2035,6 +2086,19 @@
             if (endMinutes <= startMinutes) {
                 showAlert('End time must be after start time', 'warning');
                 return;
+            }
+
+            // If booking for today, prevent past hours
+            const todayManilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+            if (selectedDate === todayManilaStr) {
+                const nowManilaStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour12: false });
+                const [nowH] = nowManilaStr.split(':').map(Number);
+                const currentHourMins = nowH * 60;
+                if (startMinutes < currentHourMins) {
+                    const startLabel = formatTimeLabel(String(nowH).padStart(2, '0') + ':00');
+                    showAlert(`Cannot select a past time for today. Studio remaining hours are from ${startLabel} to 7:00 PM.`, 'warning');
+                    return;
+                }
             }
 
             // Validate studio hours: 10:00 AM (600 mins) to 7:00 PM (1140 mins)

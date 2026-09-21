@@ -637,16 +637,12 @@
             // Get client's own bookings for the selected date
             const myBookingsOnDate = selectedDate ? getBookingsForDate(selectedDate) : [];
 
-            // Generate time slots based on database configurations or default list
-            const slotsToRender = (availableSlots && availableSlots.length > 0) ? availableSlots : [
-                { start_time: '10:00:00', end_time: '11:00:00', slot_label: '10:00 AM - 11:00 AM' },
-                { start_time: '11:00:00', end_time: '12:00:00', slot_label: '11:00 AM - 12:00 PM' },
-                { start_time: '14:00:00', end_time: '15:00:00', slot_label: '2:00 PM - 3:00 PM' },
-                { start_time: '15:00:00', end_time: '16:00:00', slot_label: '3:00 PM - 4:00 PM' },
-                { start_time: '16:00:00', end_time: '17:00:00', slot_label: '4:00 PM - 5:00 PM' },
-                { start_time: '17:00:00', end_time: '18:00:00', slot_label: '5:00 PM - 6:00 PM' },
-                { start_time: '18:00:00', end_time: '19:00:00', slot_label: '6:00 PM - 7:00 PM' }
-            ];
+            if (!availableSlots || availableSlots.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding:2rem; text-align:center; color:var(--color-text-muted);"><i class="fas fa-clock" style="font-size:1.5rem; margin-bottom:0.5rem; display:block;"></i>No remaining time slots available for this date</div>';
+                return;
+            }
+
+            const slotsToRender = availableSlots;
 
             slotsToRender.forEach(slot => {
                 const slotStartTime = normalizeTime(slot.start_time);
