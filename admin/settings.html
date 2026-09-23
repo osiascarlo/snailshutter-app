@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .settings-header {
@@ -105,7 +105,7 @@
             text-align: center;
         }
     </style>
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.4">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.1">
 </head>
 
 <body class="premium-dashboard">
@@ -185,7 +185,7 @@
                             <i class="fas fa-cog"></i> General Settings
                         </div>
 
-                        <form id="generalSettings">
+                        <form id="generalSettings" onsubmit="event.preventDefault(); saveSettings();">
                             <div class="form-group">
                                 <label class="form-label">Studio Name</label>
                                 <input type="text" class="form-control" id="studioName" value="SnailShutter">
@@ -231,7 +231,7 @@
                             <i class="fas fa-bell"></i> Notification Settings
                         </div>
 
-                        <form id="notificationSettings">
+                        <form id="notificationSettings" onsubmit="event.preventDefault(); saveSettings();">
                             <div class="form-group">
                                 <label class="form-label">Email Notifications</label>
                                 <select class="form-control" id="emailNotifications">
@@ -273,7 +273,7 @@
                             <i class="fas fa-globe"></i> Localization & Timezone
                         </div>
 
-                        <form id="appearanceSettings" onsubmit="return false;">
+                        <form id="appearanceSettings" onsubmit="event.preventDefault(); saveSettings();">
                             <div class="form-group">
                                 <label class="form-label" style="font-weight: 700;">Studio Time Zone</label>
                                 <select class="form-control" id="timeZone" onchange="updateLiveStudioClock()">
@@ -310,7 +310,7 @@
                             <i class="fas fa-wallet"></i> Payment Settings
                         </div>
 
-                        <form id="paymentSettings">
+                        <form id="paymentSettings" onsubmit="event.preventDefault(); saveSettings();">
                             <div class="form-group">
                                 <label class="form-label" style="font-weight: 700;">GCash QR Code Image</label>
                                 <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
@@ -347,7 +347,7 @@
 
                 <!-- Save Button -->
                 <div style="text-align: center; margin-top: 2rem;">
-                    <button type="button" onclick="saveSettings()" class="btn btn-primary">
+                    <button type="button" id="saveSettingsBtn" onclick="saveSettings()" class="btn btn-primary">
                         <i class="fas fa-save"></i> Save Settings
                     </button>
                 </div>
@@ -377,9 +377,24 @@
         }
 
         async function saveSettings() {
+            // Prompt confirmation modal before proceeding
+            if (typeof showConfirm === 'function') {
+                const confirmed = await showConfirm({
+                    title: 'Save Studio Settings',
+                    message: 'Are you sure you want to save these changes? All studio information, notification preferences, timezone, and payment details will be updated.',
+                    confirmText: 'Save Settings',
+                    cancelText: 'Cancel',
+                    type: 'confirm',
+                    icon: 'fa-floppy-disk'
+                });
+                if (!confirmed) return;
+            } else if (!confirm('Are you sure you want to save these settings?')) {
+                return;
+            }
+
             console.log('Saving settings...');
 
-            const btn = document.querySelector('button[onclick="saveSettings()"]');
+            const btn = document.getElementById('saveSettingsBtn') || document.querySelector('button[onclick="saveSettings()"]');
             const originalHtml = btn ? btn.innerHTML : '<i class="fas fa-save"></i> Save Settings';
             if (btn) {
                 btn.disabled = true;
@@ -429,15 +444,27 @@
                         setTimeout(() => {
                             successMessage.style.display = 'none';
                         }, 4000);
+                    }
+                    
+                    if (typeof showAlert === 'function') {
+                        showAlert('Settings saved successfully!', 'success');
                     } else {
                         alert('Settings saved successfully!');
                     }
                 } else {
-                    alert(response.error || 'Failed to save settings');
+                    if (typeof showAlert === 'function') {
+                        showAlert(response.error || 'Failed to save settings', 'error');
+                    } else {
+                        alert(response.error || 'Failed to save settings');
+                    }
                 }
             } catch (error) {
                 console.error('Save settings error:', error);
-                alert('An error occurred while saving settings: ' + (error.message || 'Unknown error'));
+                if (typeof showAlert === 'function') {
+                    showAlert('An error occurred while saving settings: ' + (error.message || 'Unknown error'), 'error');
+                } else {
+                    alert('An error occurred while saving settings: ' + (error.message || 'Unknown error'));
+                }
             } finally {
                 if (btn) {
                     btn.disabled = false;

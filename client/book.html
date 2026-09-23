@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book a Session | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.7">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.7">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.7">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.1">
     <style>
         /* ── Book Service Filter Tabs ── */
         .book-service-filters {
@@ -28,6 +28,8 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.18s;
+            white-space: nowrap;
+            user-select: none;
         }
 
         .book-filter-btn:hover {
@@ -35,10 +37,15 @@
             color: var(--color-primary, #16a34a);
         }
 
+        .book-filter-btn:active {
+            transform: scale(0.96);
+        }
+
         .book-filter-btn.active {
             background: var(--color-primary, #16a34a);
             border-color: var(--color-primary, #16a34a);
             color: white;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
         }
 
         /* ── Services Grid (3-col) ── */
@@ -1020,6 +1027,31 @@
                 font-size: 0.72rem !important;
                 margin-top: 0.75rem !important;
             }
+
+            /* ── Service Category Filters (Horizontal swipe on mobile) ── */
+            .book-service-filters {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+                gap: 0.5rem !important;
+                padding: 0.2rem 0.15rem 0.65rem !important;
+                margin-bottom: 1.25rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .book-service-filters::-webkit-scrollbar {
+                display: none !important;
+            }
+            .book-filter-btn {
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+                padding: 0.45rem 1rem !important;
+                font-size: 0.82rem !important;
+                line-height: 1.2 !important;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1028,6 +1060,15 @@
             }
             #step2 .card-body {
                 padding: 0.4rem 0.15rem !important;
+            }
+            .book-service-filters {
+                gap: 0.4rem !important;
+                padding: 0.15rem 0.1rem 0.5rem !important;
+                margin-bottom: 1rem !important;
+            }
+            .book-filter-btn {
+                padding: 0.38rem 0.82rem !important;
+                font-size: 0.78rem !important;
             }
             .calendar-main-section {
                 padding: 0.5rem 0.25rem !important;
@@ -1591,7 +1632,13 @@
 
         function applyBookFilter(filter) {
             bookActiveFilter = filter;
-            document.querySelectorAll('.book-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+            document.querySelectorAll('.book-filter-btn').forEach(b => {
+                const isActive = b.dataset.filter === filter;
+                b.classList.toggle('active', isActive);
+                if (isActive) {
+                    b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
             renderBookServiceCards();
         }
 

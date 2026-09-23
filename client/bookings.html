@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Bookings | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.7">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.7">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.7">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.1">
     <style>
         .status-badge.payment-paid { background: #d1fae5; color: #065f46; }
         .status-badge.payment-pending { background: #fef3c7; color: #92400e; }
@@ -52,6 +52,15 @@
         }
 
         /* Filter Tabs Base */
+        .booking-filters-bar {
+            padding: 1rem 1.25rem 0.65rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+            border-bottom: 1px solid var(--color-border-soft, #f1f5f9);
+        }
+
         .filter-tab {
             padding: 0.45rem 1.1rem;
             border-radius: 50px;
@@ -66,7 +75,15 @@
             border: 1px solid #e2e8f0;
             background: white;
             color: #64748b;
+            white-space: nowrap;
+            flex-shrink: 0;
+            line-height: 1;
         }
+
+        .filter-tab:active {
+            transform: scale(0.96);
+        }
+
         .filter-tab .filter-count {
             padding: 0.15rem 0.5rem;
             border-radius: 50px;
@@ -189,6 +206,51 @@
             background: rgba(255, 255, 255, 0.25) !important;
             color: white !important;
         }
+
+        /* ── Mobile Responsive Filter Bar ── */
+        @media (max-width: 768px) {
+            .booking-filters-bar {
+                padding: 0.75rem 1rem 0.5rem !important;
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                gap: 0.45rem !important;
+            }
+            .booking-filters-bar::-webkit-scrollbar {
+                display: none !important;
+            }
+            .filter-tab {
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+                padding: 0.4rem 0.95rem !important;
+                font-size: 0.82rem !important;
+            }
+            .filter-tab .filter-count {
+                padding: 0.12rem 0.45rem !important;
+                font-size: 0.72rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .booking-filters-bar {
+                padding: 0.65rem 0.75rem 0.45rem !important;
+                gap: 0.35rem !important;
+            }
+            .filter-tab {
+                padding: 0.38rem 0.8rem !important;
+                font-size: 0.78rem !important;
+                gap: 0.35rem !important;
+            }
+            .filter-tab .filter-count {
+                padding: 0.1rem 0.4rem !important;
+                font-size: 0.7rem !important;
+            }
+        }
     </style>
 </head>
 
@@ -255,7 +317,7 @@
                     </div>
 
                     <!-- Status Filter Bar -->
-                    <div class="booking-filters-bar" style="padding: 1rem 1.25rem 0.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--color-border-soft, #f1f5f9);">
+                    <div class="booking-filters-bar">
                         <button class="filter-tab filter-all active" onclick="filterBookings('all', this)">
                             All <span class="filter-count" id="countAll">0</span>
                         </button>
@@ -452,7 +514,10 @@
         function filterBookings(status, btnEl) {
             currentStatusFilter = status;
             document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
-            if (btnEl) btnEl.classList.add('active');
+            if (btnEl) {
+                btnEl.classList.add('active');
+                btnEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
             renderBookingsList();
         }
 

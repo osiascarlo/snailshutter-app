@@ -271,7 +271,7 @@ class Auth {
     setupBackButtonInterceptor() {
         // Only run on dashboard home/landing pages to allow normal navigation on other pages
         const path = window.location.pathname;
-        const isDashboardHome = path.endsWith('/dashboard.html');
+        const isDashboardHome = path.endsWith('/dashboard.html') || path.endsWith('/dashboard');
         
         if (isDashboardHome) {
             if (this.backButtonInterceptorInitialized) {
@@ -289,10 +289,36 @@ class Auth {
             let isConfirming = false;
 
             window.addEventListener('popstate', async (event) => {
-                if (isConfirming) return;
+                if (isConfirming) {
+                    history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
+                    return;
+                }
 
-                // Prevent duplicate modals if one is already showing in the DOM
-                if (document.querySelector('.modal-overlay')) return;
+                // If confirmation modal is already active, prevent duplicate modals and maintain history lock
+                if (document.querySelector('.custom-confirm-overlay')) {
+                    history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
+                    return;
+                }
+
+                // If an in-page modal (like Log Details or Booking Details) is open, close it and stay on dashboard
+                const openPageModal = document.querySelector('.modal-overlay.active, .modal-overlay.show, #logDetailModal[style*="display: flex"], #logDetailModal[style*="display:flex"]');
+                if (openPageModal && !openPageModal.classList.contains('custom-confirm-overlay')) {
+                    if (typeof closeLogModal === 'function' && openPageModal.id === 'logDetailModal') {
+                        closeLogModal();
+                    } else if (typeof closeBookingModal === 'function') {
+                        closeBookingModal();
+                    } else if (typeof closeDriveModal === 'function') {
+                        closeDriveModal();
+                    } else {
+                        openPageModal.classList.remove('active', 'show');
+                        openPageModal.style.display = 'none';
+                        document.body.style.overflow = '';
+                        document.documentElement.classList.remove('modal-open');
+                        document.body.classList.remove('modal-open');
+                    }
+                    history.pushState({ page: 'dashboard-lock' }, null, window.location.href);
+                    return;
+                }
 
                 // Check if they are trying to go back (popped the 'dashboard-lock' state)
                 if (this.isLoggedIn() && (!event.state || event.state.page !== 'dashboard-lock')) {
@@ -301,11 +327,12 @@ class Auth {
                     // Show custom confirmation modal
                     if (typeof showConfirm === 'function') {
                         const confirmed = await showConfirm({
-                            title: 'Log Out',
-                            message: 'Are you sure you want to log out of your account?',
+                            title: 'Sign Out of SnailShutter?',
+                            message: 'Are you sure you want to log out of your session? You will need to sign back in to access your dashboard.',
                             confirmText: 'Log Out',
                             cancelText: 'Stay',
-                            type: 'danger'
+                            type: 'danger',
+                            icon: 'fa-right-from-bracket'
                         });
 
                         isConfirming = false;
@@ -317,7 +344,6 @@ class Auth {
                         }
                     } else {
                         // Native confirm fallback
-                        isConfirming = true;
                         const confirmed = confirm('Are you sure you want to log out of your account?');
                         if (confirmed) {
                             this.logout(true);

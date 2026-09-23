@@ -90,15 +90,28 @@ body.premium-dashboard .sidebar > * {
 }
 
 body.premium-dashboard .sidebar-header {
-    padding: 1.5rem 1.25rem 1.25rem;
+    padding: 1rem 1.25rem;
+    min-height: 88px;
     border-bottom: 1px solid var(--premium-border);
     background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+body.premium-dashboard .sidebar-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 body.premium-dashboard .sidebar-logo img {
-    height: 64px;
+    height: 95px;
     filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
     transition: all 0.4s var(--premium-ease);
+    margin: 0 auto;
 }
 
 body.premium-dashboard .sidebar-logo:hover img {
@@ -1247,8 +1260,22 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
 @media (max-width: 768px) {
     body.premium-dashboard .page-hero {
         margin: 1rem;
-        padding: 1.5rem 1.5rem 1.5rem 4.5rem;
+        padding: 1.5rem 3.75rem 1.5rem 4.5rem;
         border-radius: 16px;
+    }
+
+    body.premium-dashboard .admin-notification-center.in-hero {
+        position: absolute !important;
+        top: 1.25rem !important;
+        right: 1.25rem !important;
+        transform: none !important;
+        z-index: 10 !important;
+    }
+
+    body.premium-dashboard .notification-bell-btn {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.05rem !important;
     }
 
     body.premium-dashboard .page-hero h1 {
@@ -1297,6 +1324,21 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
 }
 
 @media (max-width: 480px) {
+    body.premium-dashboard .page-hero {
+        padding: 1.25rem 3.25rem 1.25rem 4rem;
+    }
+
+    body.premium-dashboard .admin-notification-center.in-hero {
+        top: 1rem !important;
+        right: 1rem !important;
+    }
+
+    body.premium-dashboard .notification-bell-btn {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 1rem !important;
+    }
+
     body.premium-dashboard .stats-grid {
         grid-template-columns: 1fr;
     }
@@ -1345,6 +1387,57 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
         top: 0.45rem !important;
         left: 0.75rem !important;
         z-index: 100005 !important;
+    }
+
+    /* Center the SnailShutter logo in the middle of the sidebar menu */
+    body.premium-dashboard .sidebar-header,
+    .sidebar-header {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0.65rem 1rem !important;
+        min-height: 88px !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
+        position: relative !important;
+    }
+
+    body.premium-dashboard .sidebar-logo,
+    .sidebar-logo {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin: 0 auto !important;
+        width: auto !important;
+    }
+
+    body.premium-dashboard .sidebar-logo img,
+    .sidebar-logo img {
+        height: 92px !important;
+        max-height: 92px !important;
+        width: auto !important;
+        object-fit: contain !important;
+        margin: 0 auto !important;
+        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08)) !important;
+    }
+
+    /* Transform hamburger icon into a close (X) icon when sidebar is active */
+    body:has(.sidebar.active) .mobile-menu-btn i::before {
+        content: "\f00d" !important;
+    }
+}
+
+@media (max-width: 480px) {
+    body.premium-dashboard .sidebar-header,
+    .sidebar-header {
+        padding: 0.5rem 1rem !important;
+        min-height: 84px !important;
+    }
+
+    body.premium-dashboard .sidebar-logo img,
+    .sidebar-logo img {
+        height: 86px !important;
+        max-height: 86px !important;
     }
 }
 

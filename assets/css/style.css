@@ -677,6 +677,17 @@ body.modal-open .dashboard-layout {
     pointer-events: none;
 }
 
+@media (max-width: 768px) {
+    #alertContainer {
+        top: 1rem;
+        top: max(1rem, env(safe-area-inset-top));
+        bottom: auto;
+        left: 1rem;
+        right: 1rem;
+        z-index: 9999;
+    }
+}
+
 .toast {
     pointer-events: auto;
     min-width: 300px;
@@ -790,8 +801,8 @@ body.modal-open .dashboard-layout {
     box-shadow: none !important;
 }
 
-.nav-logo img { height: 90px; object-fit: contain; transition: transform var(--transition-base); }
-.nav-logo:hover img { transform: translateY(-2px); }
+.nav-logo img { height: 125px; object-fit: contain; transition: transform var(--transition-base); }
+.nav-logo:hover img { transform: translateY(-2px) scale(1.03); }
 
 .nav-links {
     display: flex;
@@ -1543,11 +1554,14 @@ body.modal-open .dashboard-layout {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 90px;
+    height: 125px;
     transition: all 0.3s ease;
 }
 .landing-nav:not(.scrolled) .nav-logo img {
-    height: 90px;
+    height: 125px;
+    max-height: 125px;
+    width: auto;
+    object-fit: contain;
     filter: invert(1) hue-rotate(180deg) brightness(1.2) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
 }
 
@@ -1574,7 +1588,10 @@ body.modal-open .dashboard-layout {
 }
 
 .landing-nav.scrolled .nav-logo img {
-    height: 90px;
+    height: 95px;
+    max-height: 95px;
+    width: auto;
+    object-fit: contain;
     filter: none;
 }
 
@@ -2268,18 +2285,25 @@ body.modal-open .dashboard-layout {
     padding: 1.25rem 1.25rem 1rem;
     border-bottom: 1px solid var(--color-border-soft);
     flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .sidebar-logo {
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: 0.625rem;
+    width: 100%;
 }
 
 .sidebar-logo img {
-    height: 80px;
+    height: 95px;
     object-fit: contain;
     transition: transform var(--transition-base);
+    margin: 0 auto;
 }
 
 .sidebar-logo:hover img {
@@ -3524,13 +3548,99 @@ select.table-filters .form-control {
 /* Adjustments for mobile view */
 @media (max-width: 768px) {
     .admin-notification-center {
+        position: fixed;
+        top: 1.25rem;
+        right: 1rem;
+        z-index: 100005;
+    }
+
+    .admin-notification-center.in-hero {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        transform: none;
+        z-index: 10;
+    }
+
+    .notification-bell-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.05rem;
+    }
+
+    .notification-badge {
+        min-width: 18px;
+        height: 18px;
+        font-size: 0.65rem;
+        top: -3px;
+        right: -3px;
+    }
+
+    .notification-dropdown {
+        width: min(340px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
+    }
+
+    /* Center the SnailShutter logo in the middle of the sidebar menu */
+    .sidebar-header {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0.65rem 1rem !important;
+        min-height: 88px !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
+        position: relative !important;
+    }
+
+    .sidebar-logo {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin: 0 auto !important;
+        width: auto !important;
+    }
+
+    .sidebar-logo img {
+        height: 92px !important;
+        max-height: 92px !important;
+        width: auto !important;
+        object-fit: contain !important;
+        margin: 0 auto !important;
+        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08)) !important;
+    }
+
+    /* Transform hamburger icon into a close (X) icon when sidebar is active */
+    body:has(.sidebar.active) .mobile-menu-btn i::before {
+        content: "\f00d" !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-notification-center.in-hero {
         top: 1rem;
         right: 1rem;
     }
-    
+
+    .notification-bell-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+
     .notification-dropdown {
-        width: 300px;
-        right: -10px;
+        width: calc(100vw - 20px);
+        max-width: calc(100vw - 20px);
+    }
+
+    .sidebar-header {
+        padding: 0.5rem 1rem !important;
+        min-height: 84px !important;
+    }
+
+    .sidebar-logo img {
+        height: 86px !important;
+        max-height: 86px !important;
     }
 }
 

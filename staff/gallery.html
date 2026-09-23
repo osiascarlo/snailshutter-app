@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photo Deliveries | SnailShutter Staff</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.5">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ── Page Layout ── */
@@ -324,18 +324,39 @@
             box-shadow: 0 0 0 3px var(--color-primary-glow);
         }
 
-        /* ── Filter Pills ── */
+        /* ── Filter Bar & Pills ── */
+        .gallery-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            border-top: 1px solid var(--color-border-soft);
+            padding-top: 0.75rem;
+        }
+
+        .gallery-filter-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-text-soft);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .filter-pills {
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .filter-pill {
-            background: var(--color-bg-soft);
-            color: var(--color-text-soft);
-            border: 1px solid var(--color-border);
-            padding: 0.4rem 1rem;
+            background: var(--color-bg-soft, #f8fafc);
+            color: var(--color-text-soft, #475569);
+            border: 1px solid var(--color-border, #e2e8f0);
+            padding: 0.4rem 0.85rem;
             border-radius: 50px;
             font-size: 0.82rem;
             font-weight: 600;
@@ -346,14 +367,37 @@
             align-items: center;
             gap: 0.4rem;
             user-select: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            line-height: 1;
         }
 
         .filter-pill * {
             pointer-events: none;
         }
 
+        .filter-pill .filter-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.12rem 0.45rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.06);
+            color: inherit;
+            margin-left: 0.2rem;
+            line-height: 1.2;
+            transition: all 0.2s ease;
+        }
+
         .filter-pill:hover {
             border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .filter-pill:hover .filter-count {
+            background: rgba(46, 125, 50, 0.12);
             color: var(--color-primary);
         }
 
@@ -365,6 +409,11 @@
 
         .filter-pill.active i {
             color: white !important;
+        }
+
+        .filter-pill.active .filter-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
         }
 
         /* ── Mobile Responsive ── */
@@ -392,18 +441,64 @@
                 white-space: nowrap;
                 flex-shrink: 0;
             }
+
+            /* Responsive Filter Pills */
+            .gallery-filter-bar {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.5rem !important;
+            }
+            .gallery-filter-label {
+                font-size: 0.8rem !important;
+            }
+            .filter-pills {
+                width: 100% !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                flex-wrap: nowrap !important;
+                scrollbar-width: none !important;
+                padding-bottom: 4px !important;
+                gap: 0.4rem !important;
+            }
+            .filter-pills::-webkit-scrollbar { display: none !important; }
+            .filter-pill {
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+                padding: 0.38rem 0.75rem !important;
+                font-size: 0.8rem !important;
+                gap: 0.35rem !important;
+            }
+            .filter-pill .filter-count {
+                padding: 0.1rem 0.4rem !important;
+                font-size: 0.72rem !important;
+            }
         }
 
         @media (max-width: 480px) {
+            .search-container {
+                padding: 0.85rem !important;
+            }
             .booking-overview-grid {
                 grid-template-columns: 1fr !important;
             }
             .drive-link-card {
                 padding: 1rem;
             }
+            .gallery-filter-bar {
+                gap: 0.45rem !important;
+                padding-top: 0.65rem !important;
+            }
+            .filter-pill {
+                padding: 0.35rem 0.65rem !important;
+                font-size: 0.76rem !important;
+            }
+            .filter-pill .filter-count {
+                padding: 0.08rem 0.35rem !important;
+                font-size: 0.7rem !important;
+            }
         }
     </style>
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.0.5">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.1">
 </head>
 
 <body class="premium-dashboard">
@@ -481,14 +576,14 @@
                                 <i class="fas fa-search search-icon"></i>
                                 <input type="text" id="gallerySearch" placeholder="Search client name, booking ID, or service..." oninput="filterGalleryBookings()">
                             </div>
-                            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; border-top: 1px solid var(--color-border-soft); padding-top: 0.75rem;">
-                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--color-text-soft); display: flex; align-items: center; gap: 0.35rem;">
+                            <div class="gallery-filter-bar">
+                                <span class="gallery-filter-label">
                                     <i class="fas fa-filter" style="color: var(--color-primary);"></i> Filter Status:
                                 </span>
                                 <div class="filter-pills">
-                                    <button class="filter-pill active" data-link-filter="all" onclick="setLinkFilter('all', this)">All (<span id="count-all">0</span>)</button>
-                                    <button class="filter-pill" data-link-filter="with-link" onclick="setLinkFilter('with-link', this)"><i class="fas fa-check-circle" style="color:#10b981;"></i> Link Set (<span id="count-set">0</span>)</button>
-                                    <button class="filter-pill" data-link-filter="no-link" onclick="setLinkFilter('no-link', this)"><i class="fas fa-times-circle" style="color:#ef4444;"></i> No Link (<span id="count-nolink">0</span>)</button>
+                                    <button class="filter-pill active" data-link-filter="all" onclick="setLinkFilter('all', this)">All <span class="filter-count" id="count-all">0</span></button>
+                                    <button class="filter-pill" data-link-filter="with-link" onclick="setLinkFilter('with-link', this)"><i class="fas fa-check-circle" style="color:#10b981;"></i> Link Set <span class="filter-count" id="count-set">0</span></button>
+                                    <button class="filter-pill" data-link-filter="no-link" onclick="setLinkFilter('no-link', this)"><i class="fas fa-times-circle" style="color:#ef4444;"></i> No Link <span class="filter-count" id="count-nolink">0</span></button>
                                 </div>
                             </div>
                         </div>

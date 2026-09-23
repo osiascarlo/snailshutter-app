@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .password-toggle-group {
@@ -118,7 +118,7 @@
     </div>
 
     <script src="/assets/js/api.js"></script>
-    <script src="/assets/js/auth.js?v=1.0.3"></script>
+    <script src="/assets/js/auth.js?v=1.0.8"></script>
     <script src="/assets/js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -129,6 +129,13 @@
             // Check if redirected due to deactivated account or other errors
             const urlParams = new URLSearchParams(window.location.search);
             const errorParam = urlParams.get('error');
+
+            // If already logged in and no error specified, redirect to dashboard
+            if (typeof auth !== 'undefined' && auth.isLoggedIn() && !errorParam) {
+                auth.redirectToDashboard();
+                return;
+            }
+
             if (errorParam === 'deactivated') {
                 alertContainer.innerHTML = '<div class="alert alert-error" style="display:flex; align-items:center; gap:0.5rem;"><i class="fas fa-ban" style="font-size:1.1rem; color:#dc2626;"></i> <span>Your account has been deactivated. Please contact the administrator for assistance.</span></div>';
             } else if (errorParam) {
