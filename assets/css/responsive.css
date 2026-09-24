@@ -250,14 +250,20 @@ img, video, iframe { max-width: 100%; height: auto; }
         z-index: 9999;
     }
     .auth-container #alertContainer,
-    .auth-form-box #alertContainer {
-        position: static !important;
-        top: auto !important;
-        left: auto !important;
+    .auth-form-box #alertContainer,
+    #alertContainer.auth-alert-container,
+    body:has(.auth-container) #alertContainer {
+        position: fixed !important;
+        top: 1rem !important;
+        top: max(1rem, env(safe-area-inset-top)) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
         right: auto !important;
         bottom: auto !important;
-        width: 100% !important;
-        margin: 1.25rem 0 0.5rem 0 !important;
+        width: calc(100% - 2rem) !important;
+        max-width: 500px !important;
+        margin: 0 !important;
+        z-index: 99999 !important;
     }
     #alertContainer .alert,
     #alertContainer .toast {

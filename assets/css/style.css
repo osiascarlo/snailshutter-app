@@ -677,35 +677,55 @@ body.modal-open .dashboard-layout {
     pointer-events: none;
 }
 
-/* Scoped override for auth pages so alerts remain centered inside the auth card */
+/* Scoped override for auth pages so alerts appear floating at top center of screen */
 .auth-container #alertContainer,
-.auth-form-box #alertContainer {
-    position: static !important;
-    top: auto !important;
+.auth-form-box #alertContainer,
+#alertContainer.auth-alert-container,
+body:has(.auth-container) #alertContainer {
+    position: fixed !important;
+    top: 1.5rem !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
     right: auto !important;
-    left: auto !important;
     bottom: auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 1.25rem 0 0.5rem 0 !important;
+    width: 90% !important;
+    max-width: 500px !important;
+    margin: 0 !important;
     pointer-events: auto !important;
-    display: block !important;
-    z-index: 10 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    z-index: 99999 !important;
 }
 
 .auth-container #alertContainer .alert,
 .auth-form-box #alertContainer .alert,
 .auth-container #alertContainer .toast,
 .auth-form-box #alertContainer .toast,
-.auth-container .lockout-alert-card {
-    position: static !important;
+.auth-container .lockout-alert-card,
+#alertContainer.auth-alert-container .alert,
+#alertContainer.auth-alert-container .lockout-alert-card {
+    position: relative !important;
     transform: none !important;
-    animation: none !important;
+    animation: alertSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
     pointer-events: auto !important;
-    margin: 0 0 1rem 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.18), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+@keyframes alertSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 768px) {
@@ -719,14 +739,19 @@ body.modal-open .dashboard-layout {
     }
 
     .auth-container #alertContainer,
-    .auth-form-box #alertContainer {
-        position: static !important;
-        top: auto !important;
-        left: auto !important;
+    .auth-form-box #alertContainer,
+    #alertContainer.auth-alert-container,
+    body:has(.auth-container) #alertContainer {
+        position: fixed !important;
+        top: 1rem !important;
+        top: max(1rem, env(safe-area-inset-top)) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
         right: auto !important;
         bottom: auto !important;
-        width: 100% !important;
-        margin: 1.25rem 0 0.5rem 0 !important;
+        width: calc(100% - 2rem) !important;
+        max-width: 500px !important;
+        margin: 0 !important;
     }
 }
 

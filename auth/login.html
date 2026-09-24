@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.2">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.2">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.3">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .password-toggle-group {
@@ -45,14 +45,13 @@
         }
 
         .lockout-alert-card {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.03) 100%);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-left: 4px solid #ef4444;
+            background: #fef2f2 !important;
+            border: 1px solid #fecaca !important;
+            border-left: 4px solid #ef4444 !important;
             border-radius: 14px;
             padding: 1.1rem;
-            margin-bottom: 1.25rem;
-            animation: slideInDown 0.3s ease-out;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
+            margin-bottom: 0;
+            box-shadow: 0 12px 28px -6px rgba(220, 38, 38, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
 
         .cooldown-badge {
@@ -109,38 +108,57 @@
             opacity: 0.75 !important;
         }
 
-        /* Center Alert Container in Auth Form Box (Cancel fixed top-right positioning) */
+        /* Floating Top Center Alert Container (Circled area at top middle of viewport) */
+        #alertContainer,
         .auth-container #alertContainer,
-        .auth-form-box #alertContainer,
-        #alertContainer {
-            position: static !important;
-            top: auto !important;
+        .auth-form-box #alertContainer {
+            position: fixed !important;
+            top: 1.5rem !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
             right: auto !important;
-            left: auto !important;
             bottom: auto !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 1.25rem 0 0.5rem 0 !important;
+            width: 90% !important;
+            max-width: 500px !important;
+            margin: 0 !important;
             pointer-events: auto !important;
-            z-index: 10 !important;
-            display: block !important;
+            z-index: 99999 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
         }
 
         #alertContainer .alert,
         .auth-container #alertContainer .alert,
         .auth-form-box #alertContainer .alert,
         .auth-container .lockout-alert-card {
-            position: static !important;
+            position: relative !important;
             width: 100% !important;
             max-width: 100% !important;
-            margin: 0 0 1.25rem 0 !important;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            margin: 0 !important;
+            box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
             pointer-events: auto !important;
+            border-radius: 12px !important;
+            animation: alertSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        @keyframes alertSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 
 <body>
+    <div id="alertContainer"></div>
+
     <div class="auth-container">
         <!-- Left: Form -->
         <div class="auth-left">
@@ -151,8 +169,6 @@
 
                 <h1>Welcome Back</h1>
                 <p class="subtitle">Sign in to manage your mindful photography sessions</p>
-
-                <div id="alertContainer"></div>
 
                 <form id="loginForm" method="POST" onsubmit="return false;" style="margin-top:1.75rem;">
                     <div class="form-group">
@@ -223,9 +239,9 @@
         </div>
     </div>
 
-    <script src="/assets/js/api.js?v=1.1.2"></script>
-    <script src="/assets/js/auth.js?v=1.1.2"></script>
-    <script src="/assets/js/main.js?v=1.1.2"></script>
+    <script src="/assets/js/api.js?v=1.1.3"></script>
+    <script src="/assets/js/auth.js?v=1.1.3"></script>
+    <script src="/assets/js/main.js?v=1.1.3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const loginForm = document.getElementById('loginForm');
@@ -422,13 +438,25 @@
             }
 
             if (errorParam === 'deactivated') {
-                alertContainer.innerHTML = '<div class="alert alert-error" style="display:flex; align-items:center; gap:0.5rem;"><i class="fas fa-ban" style="font-size:1.1rem; color:#dc2626;"></i> <span>Your account has been deactivated. Please contact the administrator for assistance.</span></div>';
+                alertContainer.innerHTML = `
+                    <div class="alert alert-error" style="display: flex; align-items: flex-start; gap: 0.75rem; background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.95rem 1.15rem; border-radius: 12px; font-size: 0.86rem; width: 100%; box-sizing: border-box; box-shadow: 0 12px 28px -6px rgba(220, 38, 38, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+                        <i class="fas fa-ban" style="font-size: 1.25rem; margin-top: 1px; color: #dc2626; flex-shrink: 0;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #991b1b; font-size: 0.92rem;">Account Deactivated</div>
+                            <div style="font-size: 0.83rem; margin-top: 0.25rem; color: #b91c1c; line-height: 1.45;">Your account has been deactivated. Please contact the administrator for assistance.</div>
+                        </div>
+                    </div>
+                `;
             } else if (errorParam && !cooldownTimer) {
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-error';
-                alertDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ';
-                alertDiv.appendChild(document.createTextNode(errorParam));
-                alertContainer.appendChild(alertDiv);
+                alertContainer.innerHTML = `
+                    <div class="alert alert-error" style="display: flex; align-items: flex-start; gap: 0.75rem; background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.95rem 1.15rem; border-radius: 12px; font-size: 0.86rem; width: 100%; box-sizing: border-box; box-shadow: 0 12px 28px -6px rgba(220, 38, 38, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+                        <i class="fas fa-circle-exclamation" style="font-size: 1.25rem; margin-top: 1px; color: #dc2626; flex-shrink: 0;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #991b1b; font-size: 0.92rem;">Notice</div>
+                            <div style="font-size: 0.83rem; margin-top: 0.25rem; color: #b91c1c; line-height: 1.45;">${escapeHtml(errorParam)}</div>
+                        </div>
+                    </div>
+                `;
             }
 
             loginForm.addEventListener('submit', async function (event) {
@@ -452,33 +480,54 @@
                     if (result.success) {
                         clearEmailLockout(email);
                         resetLockoutState();
-                        alertContainer.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Login successful! Redirecting...</div>';
+                        alertContainer.innerHTML = `
+                            <div class="alert alert-success" style="display: flex; align-items: center; gap: 0.75rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #22c55e; color: #166534; padding: 0.9rem 1.15rem; border-radius: 12px; font-size: 0.88rem; width: 100%; box-sizing: border-box; box-shadow: 0 12px 28px -6px rgba(34, 197, 94, 0.2);">
+                                <i class="fas fa-check-circle" style="font-size: 1.25rem; color: #16a34a; flex-shrink: 0;"></i>
+                                <div><strong style="color: #166534;">Login successful! Redirecting...</strong></div>
+                            </div>
+                        `;
                         setTimeout(() => auth.redirectToDashboard(), 1000);
                     } else if (result.locked) {
                         // 3 wrong passwords in a row or lockout active
                         const seconds = result.retryAfter || 60;
                         renderLockoutUI(seconds, email);
                     } else if (result.attemptsLeft !== null && result.attemptsLeft !== undefined) {
-                        // 1 or 2 failed attempts
+                        // 1 or 2 failed attempts: light red background for error clarity
                         alertContainer.innerHTML = `
-                            <div class="alert alert-warning" style="display: flex; align-items: flex-start; gap: 0.65rem; background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.3); color: #92400e; padding: 0.85rem 1rem; border-radius: 12px; font-size: 0.85rem; margin-bottom: 1.25rem; width: 100%; box-sizing: border-box;">
-                                <i class="fas fa-exclamation-triangle" style="font-size: 1.1rem; margin-top: 1px; color: #d97706; flex-shrink: 0;"></i>
-                                <div>
-                                    <div style="font-weight: 700;">Invalid email or password</div>
-                                    <div style="font-size: 0.82rem; margin-top: 0.25rem; color: #b45309; line-height: 1.4;">
+                            <div class="alert alert-error" style="display: flex; align-items: flex-start; gap: 0.75rem; background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.95rem 1.15rem; border-radius: 12px; font-size: 0.86rem; width: 100%; box-sizing: border-box; box-shadow: 0 12px 28px -6px rgba(220, 38, 38, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+                                <i class="fas fa-circle-exclamation" style="font-size: 1.25rem; margin-top: 1px; color: #dc2626; flex-shrink: 0;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 700; color: #991b1b; font-size: 0.92rem;">Invalid email or password</div>
+                                    <div style="font-size: 0.83rem; margin-top: 0.25rem; color: #b91c1c; line-height: 1.45;">
                                         You have <strong>${result.attemptsLeft} attempt${result.attemptsLeft === 1 ? '' : 's'} remaining</strong> before your account is temporarily locked.
                                     </div>
-                                    <div style="margin-top: 0.4rem; font-size: 0.8rem;">
-                                        Need help? <a href="/auth/forgot-password.html?email=${encodeURIComponent(email)}" style="color: #b45309; font-weight: 700; text-decoration: underline;">Use 'Forgot Password'</a>
+                                    <div style="margin-top: 0.45rem; font-size: 0.82rem; color: #7f1d1d;">
+                                        Need help? <a href="/auth/forgot-password.html?email=${encodeURIComponent(email)}" style="color: #b91c1c; font-weight: 700; text-decoration: underline;">Use 'Forgot Password'</a>
                                     </div>
                                 </div>
                             </div>
                         `;
                     } else {
-                        alertContainer.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${result.error}</div>`;
+                        alertContainer.innerHTML = `
+                            <div class="alert alert-error" style="display: flex; align-items: flex-start; gap: 0.75rem; background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.95rem 1.15rem; border-radius: 12px; font-size: 0.86rem; width: 100%; box-sizing: border-box; box-shadow: 0 12px 28px -6px rgba(220, 38, 38, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+                                <i class="fas fa-circle-exclamation" style="font-size: 1.25rem; margin-top: 1px; color: #dc2626; flex-shrink: 0;"></i>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 700; color: #991b1b; font-size: 0.92rem;">Invalid email or password</div>
+                                    <div style="font-size: 0.83rem; margin-top: 0.25rem; color: #b91c1c; line-height: 1.45;">${escapeHtml(result.error || 'Please check your credentials and try again.')}</div>
+                                </div>
+                            </div>
+                        `;
                     }
                 } catch (error) {
-                    alertContainer.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${error.message}</div>`;
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-error" style="display: flex; align-items: flex-start; gap: 0.75rem; background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #ef4444; color: #991b1b; padding: 0.95rem 1.15rem; border-radius: 12px; font-size: 0.86rem; width: 100%; box-sizing: border-box; box-shadow: 0 12px 28px -6px rgba(220, 38, 38, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+                            <i class="fas fa-circle-exclamation" style="font-size: 1.25rem; margin-top: 1px; color: #dc2626; flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; color: #991b1b; font-size: 0.92rem;">Sign In Error</div>
+                                <div style="font-size: 0.83rem; margin-top: 0.25rem; color: #b91c1c; line-height: 1.45;">${escapeHtml(error.message)}</div>
+                            </div>
+                        </div>
+                    `;
                 } finally {
                     if (cooldownSeconds <= 0) {
                         loginBtn.disabled = false;
