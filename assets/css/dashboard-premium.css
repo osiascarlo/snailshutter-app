@@ -104,11 +104,16 @@ body.premium-dashboard .sidebar-logo {
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     width: 100%;
+    margin: 0 auto;
 }
 
 body.premium-dashboard .sidebar-logo img {
     height: 95px;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
     filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
     transition: all 0.4s var(--premium-ease);
     margin: 0 auto;
