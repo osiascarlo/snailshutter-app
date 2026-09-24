@@ -39,7 +39,7 @@ function checkLockout(email, req = null) {
     const clientIp = getClientIp(req);
     const now = Date.now();
 
-    // 1. Check Email Lockout
+    // 1. Check Email Lockout (per-account lockout)
     if (normEmail && emailAttempts.has(normEmail)) {
         const record = emailAttempts.get(normEmail);
         if (record.lockedUntil && record.lockedUntil > now) {
@@ -54,23 +54,6 @@ function checkLockout(email, req = null) {
             // Lockout period has elapsed: clear the lock state
             record.lockedUntil = 0;
             record.attempts = 0;
-        }
-    }
-
-    // 2. Check IP Lockout (for high frequency bot attacks)
-    if (clientIp && ipAttempts.has(clientIp)) {
-        const ipRecord = ipAttempts.get(clientIp);
-        if (ipRecord.lockedUntil && ipRecord.lockedUntil > now) {
-            const retryAfter = Math.ceil((ipRecord.lockedUntil - now) / 1000);
-            return {
-                isLocked: true,
-                retryAfter: Math.max(1, retryAfter),
-                attempts: ipRecord.attempts,
-                reason: 'ip'
-            };
-        } else if (ipRecord.lockedUntil && ipRecord.lockedUntil <= now) {
-            ipRecord.lockedUntil = 0;
-            ipRecord.attempts = 0;
         }
     }
 
