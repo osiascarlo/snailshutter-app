@@ -249,6 +249,16 @@ img, video, iframe { max-width: 100%; height: auto; }
         right: 1rem;
         z-index: 9999;
     }
+    .auth-container #alertContainer,
+    .auth-form-box #alertContainer {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 100% !important;
+        margin: 1.25rem 0 0.5rem 0 !important;
+    }
     #alertContainer .alert,
     #alertContainer .toast {
         min-width: auto;

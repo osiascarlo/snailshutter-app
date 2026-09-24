@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | SnailShutter</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.2">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .password-toggle-group {
@@ -108,6 +108,35 @@
             cursor: not-allowed !important;
             opacity: 0.75 !important;
         }
+
+        /* Center Alert Container in Auth Form Box (Cancel fixed top-right positioning) */
+        .auth-container #alertContainer,
+        .auth-form-box #alertContainer,
+        #alertContainer {
+            position: static !important;
+            top: auto !important;
+            right: auto !important;
+            left: auto !important;
+            bottom: auto !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 1.25rem 0 0.5rem 0 !important;
+            pointer-events: auto !important;
+            z-index: 10 !important;
+            display: block !important;
+        }
+
+        #alertContainer .alert,
+        .auth-container #alertContainer .alert,
+        .auth-form-box #alertContainer .alert,
+        .auth-container .lockout-alert-card {
+            position: static !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 0 1.25rem 0 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            pointer-events: auto !important;
+        }
     </style>
 </head>
 
@@ -194,9 +223,9 @@
         </div>
     </div>
 
-    <script src="/assets/js/api.js?v=1.0.9"></script>
-    <script src="/assets/js/auth.js?v=1.1.1"></script>
-    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/api.js?v=1.1.2"></script>
+    <script src="/assets/js/auth.js?v=1.1.2"></script>
+    <script src="/assets/js/main.js?v=1.1.2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const loginForm = document.getElementById('loginForm');
@@ -432,12 +461,12 @@
                     } else if (result.attemptsLeft !== null && result.attemptsLeft !== undefined) {
                         // 1 or 2 failed attempts
                         alertContainer.innerHTML = `
-                            <div class="alert alert-warning" style="display: flex; align-items: flex-start; gap: 0.65rem; background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.3); color: #92400e; padding: 0.85rem 1rem; border-radius: 12px; font-size: 0.85rem; margin-bottom: 1.25rem;">
+                            <div class="alert alert-warning" style="display: flex; align-items: flex-start; gap: 0.65rem; background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.3); color: #92400e; padding: 0.85rem 1rem; border-radius: 12px; font-size: 0.85rem; margin-bottom: 1.25rem; width: 100%; box-sizing: border-box;">
                                 <i class="fas fa-exclamation-triangle" style="font-size: 1.1rem; margin-top: 1px; color: #d97706; flex-shrink: 0;"></i>
                                 <div>
                                     <div style="font-weight: 700;">Invalid email or password</div>
-                                    <div style="font-size: 0.8rem; margin-top: 0.2rem; color: #b45309;">
-                                        You have <strong>${result.attemptsLeft} attempt${result.attemptsLeft === 1 ? '' : 's'} remaining</strong> before your account is temporarily locked to prevent brute force attacks.
+                                    <div style="font-size: 0.82rem; margin-top: 0.25rem; color: #b45309; line-height: 1.4;">
+                                        You have <strong>${result.attemptsLeft} attempt${result.attemptsLeft === 1 ? '' : 's'} remaining</strong> before your account is temporarily locked.
                                     </div>
                                     <div style="margin-top: 0.4rem; font-size: 0.8rem;">
                                         Need help? <a href="/auth/forgot-password.html?email=${encodeURIComponent(email)}" style="color: #b45309; font-weight: 700; text-decoration: underline;">Use 'Forgot Password'</a>
