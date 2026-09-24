@@ -125,7 +125,7 @@
 
                 <div id="alertContainer"></div>
 
-                <form id="loginForm" style="margin-top:1.75rem;">
+                <form id="loginForm" method="POST" onsubmit="return false;" style="margin-top:1.75rem;">
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <input type="email" id="email" name="email" class="form-control"
@@ -195,7 +195,7 @@
     </div>
 
     <script src="/assets/js/api.js?v=1.0.9"></script>
-    <script src="/assets/js/auth.js?v=1.1.0"></script>
+    <script src="/assets/js/auth.js?v=1.1.1"></script>
     <script src="/assets/js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -371,6 +371,21 @@
             const urlParams = new URLSearchParams(window.location.search);
             const errorParam = urlParams.get('error');
 
+            // Support credentials if URL has query parameters from previous GET submission
+            const queryEmail = urlParams.get('email');
+            const queryPassword = urlParams.get('password');
+            if (queryEmail && emailInput && !emailInput.value) {
+                emailInput.value = queryEmail.trim();
+            }
+            if (queryPassword && passwordInput && !passwordInput.value) {
+                passwordInput.value = queryPassword;
+            }
+            if (queryEmail || queryPassword) {
+                try {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (e) {}
+            }
+
             // If already logged in and no error specified, redirect to dashboard
             if (typeof auth !== 'undefined' && auth.isLoggedIn() && !errorParam && !cooldownTimer) {
                 auth.redirectToDashboard();
@@ -445,7 +460,6 @@
 
             // Password toggle logic
             const togglePassword = document.getElementById('togglePassword');
-            const passwordInput = document.getElementById('password');
 
             togglePassword.addEventListener('click', function () {
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
