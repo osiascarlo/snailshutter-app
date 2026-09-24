@@ -190,11 +190,22 @@ class Auth {
                 return { success: true, data: response.data, message: 'Login successful' };
             }
             console.log('Auth.js: Login failed, API returned success:false');
-            return { success: false, error: response.error || 'Login failed' };
+            return { success: false, error: response.error || 'Login failed', ...response };
         } catch (error) {
             console.log('Auth.js: Login exception:', error);
             const errorMsg = error.response?.error || error.message || 'Login failed';
-            return { success: false, error: errorMsg, deactivated: error.response?.deactivated || false };
+            return {
+                success: false,
+                error: errorMsg,
+                deactivated: error.response?.deactivated || false,
+                locked: error.response?.locked || false,
+                retryAfter: error.response?.retryAfter || 0,
+                attempts: error.response?.attempts || 0,
+                attemptsLeft: error.response?.attemptsLeft !== undefined ? error.response.attemptsLeft : null,
+                suggestForgotPassword: error.response?.suggestForgotPassword || false,
+                status: error.status,
+                ...(error.response || {})
+            };
         }
     }
 

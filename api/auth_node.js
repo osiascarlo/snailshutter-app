@@ -4,6 +4,12 @@ const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const { sendEmail } = require('../utils/mailer');
 const { logSystemEvent } = require('../utils/logger');
+const {
+    checkLockout,
+    recordFailedAttempt,
+    recordSuccessfulLogin,
+    resetLockout
+} = require('../utils/loginLimiter');
 
 // Helper function to generate OTP
 const generateOTP = () => {
@@ -259,34 +265,105 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({ success: false, error: 'Email and password required' });
     }
 
+    const cleanEmail = (email || '').trim().toLowerCase();
+
+    // 1. Check if the user / IP is currently locked out by brute-force cooldown
+    const lockout = checkLockout(cleanEmail, req);
+    if (lockout.isLocked) {
+        logSystemEvent({
+            req,
+            action: 'LOGIN_BLOCKED_LOCKOUT',
+            module: 'Security',
+            details: `Blocked login attempt for locked account: ${cleanEmail} (${lockout.retryAfter}s cooldown remaining)`,
+            status: 'danger'
+        });
+        return res.status(429).json({
+            success: false,
+            locked: true,
+            retryAfter: lockout.retryAfter,
+            attempts: lockout.attempts,
+            suggestForgotPassword: true,
+            email: cleanEmail,
+            error: `Too many failed login attempts. Please wait ${lockout.retryAfter} seconds before trying again, or use 'Forgot Password' to reset your credentials.`
+        });
+    }
+
     try {
-        const [users] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+        const [users] = await pool.execute('SELECT * FROM users WHERE LOWER(email) = ?', [cleanEmail]);
         if (users.length === 0) {
+            const attempt = recordFailedAttempt(cleanEmail, req);
             logSystemEvent({
                 req,
-                action: 'LOGIN_FAILED',
+                action: attempt.isLocked ? 'LOGIN_LOCKED_ATTEMPTS' : 'LOGIN_FAILED',
                 module: 'Security',
-                details: `Failed login attempt with non-existent email: ${email}`,
+                details: attempt.isLocked
+                    ? `Account locked for 60s cooldown after 3 failed login attempts with non-existent email: ${cleanEmail}`
+                    : `Failed login attempt with non-existent email: ${cleanEmail} (${attempt.attemptsLeft} attempts remaining)`,
                 status: 'danger'
             });
-            return res.status(401).json({ success: false, error: 'Invalid email or password' });
+
+            if (attempt.isLocked) {
+                return res.status(429).json({
+                    success: false,
+                    locked: true,
+                    retryAfter: attempt.retryAfter,
+                    attempts: attempt.attempts,
+                    suggestForgotPassword: true,
+                    email: cleanEmail,
+                    error: `You have entered invalid credentials 3 times in a row. For your security, this account is temporarily locked for ${attempt.retryAfter} seconds. If you've forgotten your account details, please use 'Forgot Password'.`
+                });
+            }
+
+            return res.status(401).json({
+                success: false,
+                locked: false,
+                attempts: attempt.attempts,
+                attemptsLeft: attempt.attemptsLeft,
+                suggestForgotPassword: false,
+                error: `Invalid email or password. ${attempt.attemptsLeft} attempt${attempt.attemptsLeft === 1 ? '' : 's'} remaining before temporary account lock.`
+            });
         }
 
         const user = users[0];
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
+            const attempt = recordFailedAttempt(cleanEmail, req);
+            const uFullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User';
+
             logSystemEvent({
                 req,
                 userId: user.id,
-                userName: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User',
+                userName: uFullName,
                 userRole: user.role,
-                action: 'LOGIN_FAILED',
+                action: attempt.isLocked ? 'LOGIN_LOCKED_ATTEMPTS' : 'LOGIN_FAILED',
                 module: 'Security',
-                details: `Incorrect password attempt for user account: ${email}`,
+                details: attempt.isLocked
+                    ? `Account locked for 60s cooldown after 3 consecutive incorrect password attempts for user: ${cleanEmail} (${uFullName})`
+                    : `Incorrect password attempt #${attempt.attempts} for user account: ${cleanEmail} (${attempt.attemptsLeft} attempts remaining)`,
                 status: 'danger'
             });
-            return res.status(401).json({ success: false, error: 'Invalid email or password' });
+
+            if (attempt.isLocked) {
+                return res.status(429).json({
+                    success: false,
+                    locked: true,
+                    retryAfter: attempt.retryAfter,
+                    attempts: attempt.attempts,
+                    suggestForgotPassword: true,
+                    email: cleanEmail,
+                    error: `You have entered the wrong password 3 times in a row. For your security, this account is temporarily locked for ${attempt.retryAfter} seconds. If you've forgotten your password, please use the 'Forgot Password' option to regain access.`
+                });
+            }
+
+            return res.status(401).json({
+                success: false,
+                locked: false,
+                attempts: attempt.attempts,
+                attemptsLeft: attempt.attemptsLeft,
+                suggestForgotPassword: false,
+                error: `Invalid email or password. ${attempt.attemptsLeft} attempt${attempt.attemptsLeft === 1 ? '' : 's'} remaining before temporary account lock.`
+            });
         }
 
         const uFullName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User';
@@ -309,6 +386,9 @@ router.post('/login', async (req, res) => {
                 error: 'Your account has been deactivated. Please contact the administrator for assistance.'
             });
         }
+
+        // Reset failed login attempts on successful credentials
+        recordSuccessfulLogin(cleanEmail, req);
 
         // Set Session
         req.session.user_id = user.id;
@@ -341,15 +421,51 @@ router.post('/login', async (req, res) => {
         // DB unavailable — try demo accounts
         console.warn('DB unavailable for login, trying demo accounts:', error.code || error.message);
 
-        const demoUser = DEMO_USERS.find(u => u.email === email);
+        const demoUser = DEMO_USERS.find(u => u.email.toLowerCase() === cleanEmail);
         if (!demoUser) {
-            return res.status(401).json({ success: false, error: 'Invalid email or password' });
+            const attempt = recordFailedAttempt(cleanEmail, req);
+            if (attempt.isLocked) {
+                return res.status(429).json({
+                    success: false,
+                    locked: true,
+                    retryAfter: attempt.retryAfter,
+                    attempts: attempt.attempts,
+                    suggestForgotPassword: true,
+                    email: cleanEmail,
+                    error: `You have entered invalid credentials 3 times in a row. Account temporarily locked for ${attempt.retryAfter}s. Please use 'Forgot Password'.`
+                });
+            }
+            return res.status(401).json({
+                success: false,
+                locked: false,
+                attemptsLeft: attempt.attemptsLeft,
+                error: `Invalid email or password. ${attempt.attemptsLeft} attempts remaining.`
+            });
         }
 
         const isMatch = await bcrypt.compare(password, demoUser.password);
         if (!isMatch) {
-            return res.status(401).json({ success: false, error: 'Invalid email or password' });
+            const attempt = recordFailedAttempt(cleanEmail, req);
+            if (attempt.isLocked) {
+                return res.status(429).json({
+                    success: false,
+                    locked: true,
+                    retryAfter: attempt.retryAfter,
+                    attempts: attempt.attempts,
+                    suggestForgotPassword: true,
+                    email: cleanEmail,
+                    error: `You have entered the wrong password 3 times in a row. Account temporarily locked for ${attempt.retryAfter}s. Please use 'Forgot Password'.`
+                });
+            }
+            return res.status(401).json({
+                success: false,
+                locked: false,
+                attemptsLeft: attempt.attemptsLeft,
+                error: `Invalid email or password. ${attempt.attemptsLeft} attempts remaining.`
+            });
         }
+
+        recordSuccessfulLogin(cleanEmail, req);
 
         req.session.user_id   = demoUser.id;
         req.session.user_role = demoUser.role;
@@ -587,6 +703,9 @@ router.post('/reset-password', async (req, res) => {
         // Invalidate OTP
         await pool.execute('UPDATE otp_verifications SET is_used = 1 WHERE id = ?', [records[0].id]);
 
+        // Reset any brute force lockout immediately so user can sign in with new password
+        resetLockout(email);
+
         logSystemEvent({
             req,
             action: 'PASSWORD_RESET',
@@ -601,6 +720,23 @@ router.post('/reset-password', async (req, res) => {
         console.error('Reset Password Error:', error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
+});
+
+/**
+ * GET /api/auth/lockout-status
+ * Check current lockout/cooldown status for an email
+ */
+router.get('/lockout-status', (req, res) => {
+    const email = (req.query.email || '').trim().toLowerCase();
+    if (!email) {
+        return res.json({ locked: false, retryAfter: 0, attempts: 0 });
+    }
+    const status = checkLockout(email, req);
+    res.json({
+        locked: status.isLocked,
+        retryAfter: status.retryAfter,
+        attempts: status.attempts
+    });
 });
 
 module.exports = router;
