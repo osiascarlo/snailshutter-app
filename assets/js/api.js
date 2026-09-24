@@ -271,6 +271,12 @@ class API {
         const query = new URLSearchParams(params).toString();
         return this.request(`/admin/logs${query ? `?${query}` : ''}`);
     }
+
+    async pruneSystemLogs(keepDays = 30) {
+        return this.request(`/admin/logs?keep_days=${keepDays}`, {
+            method: 'DELETE'
+        });
+    }
 }
 
 const api = new API();
