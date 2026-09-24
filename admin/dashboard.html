@@ -53,7 +53,7 @@
                     <a href="/admin/settings.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-cog"></i></span> Settings
                     </a>
-                    <a href="#systemLogsSection" class="sidebar-link">
+                    <a href="#systemLogsSection" onclick="scrollToSystemLogs(event)" class="sidebar-link">
                         <span class="icon"><i class="fas fa-clipboard-list"></i></span> System Logs
                     </a>
                 </div>
@@ -128,7 +128,7 @@
                         <h4>Settings</h4>
                         <p>Studio configuration</p>
                     </a>
-                    <a href="#systemLogsSection" class="quick-action-card stagger-in">
+                    <a href="#systemLogsSection" onclick="scrollToSystemLogs(event)" class="quick-action-card stagger-in">
                         <div class="quick-action-icon"><i class="fas fa-clipboard-list"></i></div>
                         <h4>System Logs</h4>
                         <p>Audit trail & security events</p>
@@ -462,7 +462,34 @@
 
             // Load System Logs
             loadSystemLogs();
+
+            // Auto-scroll to System Logs if navigated with #systemLogsSection hash
+            if (window.location.hash === '#systemLogsSection') {
+                setTimeout(() => {
+                    const sec = document.getElementById('systemLogsSection');
+                    if (sec) {
+                        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        sec.classList.add('highlight-pulse');
+                        setTimeout(() => sec.classList.remove('highlight-pulse'), 2500);
+                    }
+                }, 400);
+            }
         });
+
+        function scrollToSystemLogs(e) {
+            if (e) e.preventDefault();
+            const sec = document.getElementById('systemLogsSection');
+            if (sec) {
+                sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                sec.classList.add('highlight-pulse');
+                setTimeout(() => sec.classList.remove('highlight-pulse'), 2500);
+            }
+            if (history.pushState) {
+                history.pushState(null, null, '#systemLogsSection');
+            } else {
+                location.hash = '#systemLogsSection';
+            }
+        }
 
         // ══════════════════════════════════════════════════════
         // SYSTEM LOGS FEATURE LOGIC
