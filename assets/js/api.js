@@ -24,16 +24,26 @@ class API {
             const isAuthPage = window.location.pathname.includes('/auth/');
             const isLoginEndpoint = url.includes('/auth/login');
             const isSessionEndpoint = url.includes('/auth/session');
+            const isUnloading = (typeof window !== 'undefined' && window.isUnloading) || (window.auth && window.auth.isUnloading);
             
-            if ((response.status === 401 && !isAuthPage && !isSessionEndpoint && !isLoginEndpoint) ||
-                (response.status === 403 && data && data.deactivated && !isAuthPage && !isLoginEndpoint)) {
+            if (!isUnloading && (
+                (response.status === 401 && !isAuthPage && !isSessionEndpoint && !isLoginEndpoint) ||
+                (response.status === 403 && data && data.deactivated && !isAuthPage && !isLoginEndpoint)
+            )) {
                 console.warn('API: Session expired, invalid, or deactivated. Redirecting to login...');
                 if (window.auth) {
                     window.auth.currentUser = null;
-                    sessionStorage.removeItem('currentUser');
+                    if (typeof window.auth.setStoredUser === 'function') {
+                        window.auth.setStoredUser(null);
+                    } else {
+                        sessionStorage.removeItem('currentUser');
+                        localStorage.removeItem('currentUser');
+                    }
                     const errorParam = data && data.deactivated ? '?error=deactivated' : '';
                     setTimeout(() => {
-                        window.location.href = `/auth/login.html${errorParam}`;
+                        if (!window.isUnloading && !(window.auth && window.auth.isUnloading)) {
+                            window.location.href = `/auth/login.html${errorParam}`;
+                        }
                     }, 500);
                 }
             }
@@ -47,8 +57,13 @@ class API {
 
             return data;
         } catch (error) {
-            // Only log if not a standard "not logged in" or "deactivated" session check
-            if (!(error.status === 401 && url.includes('/auth/session')) && !(error.status === 403 && error.response?.deactivated)) {
+            // Ignore aborted requests or navigation in-flight drops
+            const isAborted = error.name === 'AbortError' || 
+                              (error.message && error.message.includes('abort')) ||
+                              (typeof window !== 'undefined' && window.isUnloading) || 
+                              (window.auth && window.auth.isUnloading);
+
+            if (!isAborted && !(error.status === 401 && url.includes('/auth/session')) && !(error.status === 403 && error.response?.deactivated)) {
                 console.error('API Error:', error);
             }
             throw error;

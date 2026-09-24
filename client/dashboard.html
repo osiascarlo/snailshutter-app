@@ -333,15 +333,15 @@
     </div>
 
     <!-- Required API Scripts -->
-    <script src="/assets/js/api.js"></script>
-    <script src="/assets/js/auth.js?v=1.0.8"></script>
+    <script src="/assets/js/api.js?v=1.0.9"></script>
+    <script src="/assets/js/auth.js?v=1.0.9"></script>
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/dashboard-premium.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
             // Check if user is logged in
-            let currentUser = sessionStorage.getItem('currentUser');
+            let currentUser = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
             if (!currentUser) {
                 try {
                     const sessionRes = await api.getSession();

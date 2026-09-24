@@ -1,9 +1,60 @@
 class Auth {
     constructor() {
         this.currentUser = null;
+        this.isUnloading = false;
+        this.initPromise = null;
         this.backButtonInterceptorInitialized = false;
+
+        // Synchronously restore cached user immediately on evaluation
+        this.currentUser = this.getStoredUser();
+
+        this.setupUnloadListeners();
         this.setupGlobalLogoutListener();
         this.init();
+    }
+
+    getStoredUser() {
+        try {
+            const raw = (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('currentUser') : null) ||
+                        (typeof localStorage !== 'undefined' ? localStorage.getItem('currentUser') : null);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object' && parsed.role) {
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.warn('Auth.js: Failed to parse stored user:', e);
+        }
+        return null;
+    }
+
+    setStoredUser(user) {
+        try {
+            if (user) {
+                const str = JSON.stringify(user);
+                if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('currentUser', str);
+                if (typeof localStorage !== 'undefined') localStorage.setItem('currentUser', str);
+            } else {
+                if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('currentUser');
+                if (typeof localStorage !== 'undefined') localStorage.removeItem('currentUser');
+            }
+        } catch (e) {
+            console.warn('Auth.js: Failed to update stored user:', e);
+        }
+    }
+
+    setupUnloadListeners() {
+        if (typeof window !== 'undefined') {
+            window.addEventListener('beforeunload', () => {
+                this.isUnloading = true;
+                window.isUnloading = true;
+            });
+            window.addEventListener('pagehide', () => {
+                this.isUnloading = true;
+                window.isUnloading = true;
+            });
+        }
     }
 
     setupGlobalLogoutListener() {
@@ -20,77 +71,109 @@ class Auth {
     }
 
     async init() {
-        try {
-            console.log('Auth.js: Initializing auth system...');
+        // Return existing in-flight init promise to avoid duplicate concurrent calls
+        if (this.initPromise) {
+            return this.initPromise;
+        }
 
-            // 1. Restore from sessionStorage synchronously first to avoid blocking page load checks
-            const storedUser = sessionStorage.getItem('currentUser');
-            if (storedUser) {
-                this.currentUser = JSON.parse(storedUser);
-                console.log('Auth.js: Synchronously restored cached user:', this.currentUser);
-                this.updateUI();
-                this.setupBackButtonInterceptor();
-            }
+        this.initPromise = (async () => {
+            try {
+                // 1. Sync from storage first if not already set
+                if (!this.currentUser) {
+                    this.currentUser = this.getStoredUser();
+                }
 
-            // 2. Verify and sync with backend in the background
-            if (typeof api !== 'undefined') {
-                const response = await api.getSession();
-                if (response.success) {
-                    const serverUser = response.data;
-                    
-                    // Check if role changed
-                    const roleChanged = !this.currentUser || this.currentUser.role !== serverUser.role;
-                    
-                    this.currentUser = serverUser;
-                    sessionStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-                    console.log('Auth.js: Restored user from API session:', this.currentUser);
-                    
+                if (this.currentUser) {
                     this.updateUI();
                     this.setupBackButtonInterceptor();
+                }
 
-                    // If the role changed (e.g. from admin to client), re-evaluate authorization
-                    if (roleChanged) {
-                        console.log('Auth.js: Role changed, re-evaluating authorization...');
-                        if (window.location.pathname.includes('/admin/')) {
-                            this.requireAuth('admin');
-                        } else if (window.location.pathname.includes('/client/')) {
-                            this.requireAuth('client');
+                // 2. Verify and sync with backend API session
+                if (typeof api !== 'undefined' && typeof api.getSession === 'function') {
+                    const response = await api.getSession();
+
+                    // If page is currently navigating/unloading, do not alter state
+                    if (this.isUnloading || (typeof window !== 'undefined' && window.isUnloading)) {
+                        return;
+                    }
+
+                    if (response && response.success && response.data) {
+                        const serverUser = response.data;
+                        const roleChanged = !this.currentUser || this.currentUser.role !== serverUser.role;
+
+                        this.currentUser = serverUser;
+                        this.setStoredUser(serverUser);
+                        this.updateUI();
+                        this.setupBackButtonInterceptor();
+
+                        if (roleChanged) {
+                            console.log('Auth.js: Role changed, re-evaluating authorization...');
+                            if (window.location.pathname.includes('/admin/')) {
+                                this.requireAuth('admin');
+                            } else if (window.location.pathname.includes('/staff/')) {
+                                this.requireAuth('staff');
+                            } else if (window.location.pathname.includes('/client/')) {
+                                this.requireAuth('client');
+                            }
+                        }
+                    } else {
+                        // Server explicitly returned success: false
+                        if (this.isUnloading || (typeof window !== 'undefined' && window.isUnloading)) return;
+
+                        console.warn('Auth.js: Server session check returned false');
+                        const wasLoggedIn = this.currentUser !== null;
+                        this.currentUser = null;
+                        this.setStoredUser(null);
+                        this.updateUI();
+
+                        if (wasLoggedIn || window.location.pathname.includes('/admin/') || window.location.pathname.includes('/staff/') || window.location.pathname.includes('/client/')) {
+                            this.redirectToLogin();
                         }
                     }
-                } else {
-                    console.log('Auth.js: API session check returned success:false');
+                }
+            } catch (error) {
+                // If page is unloading or fetch was aborted by browser navigation, DO NOT CLEAR SESSION!
+                if (this.isUnloading || (typeof window !== 'undefined' && window.isUnloading) || error.name === 'AbortError' || (error.message && error.message.includes('abort'))) {
+                    console.log('Auth.js: Navigation in progress or request aborted; preserving session.');
+                    return;
+                }
+
+                // If user account is deactivated
+                if (error.response && error.response.deactivated) {
+                    this.currentUser = null;
+                    this.setStoredUser(null);
+                    window.location.href = '/auth/login.html?error=deactivated';
+                    return;
+                }
+
+                // If the server explicitly responded with HTTP 401 Unauthorized
+                const isExplicit401 = error.status === 401 || (error.response && error.response.status === 401) || (error.message && error.message === 'Not logged in');
+                if (isExplicit401) {
+                    console.warn('Auth.js: Server explicitly confirmed session is invalid/expired (401).');
                     const wasLoggedIn = this.currentUser !== null;
                     this.currentUser = null;
-                    sessionStorage.removeItem('currentUser');
+                    this.setStoredUser(null);
                     this.updateUI();
 
-                    // Redirect to login only if we were logged in or are on a protected page
-                    if (wasLoggedIn || window.location.pathname.includes('/admin/') || window.location.pathname.includes('/client/')) {
+                    if (wasLoggedIn || window.location.pathname.includes('/admin/') || window.location.pathname.includes('/staff/') || window.location.pathname.includes('/client/')) {
                         this.redirectToLogin();
                     }
+                    return;
                 }
-            } else {
-                console.log('Auth.js: API not available, falling back to sessionStorage');
-                if (!storedUser) {
-                    this.currentUser = null;
-                }
-            }
-        } catch (error) {
-            console.log('Auth.js: Session check failed, user not logged in:', error);
-            const wasLoggedIn = this.currentUser !== null;
-            this.currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            this.updateUI();
 
-            // Redirect to login only if we were logged in or are on a protected page
-            if (wasLoggedIn || window.location.pathname.includes('/admin/') || window.location.pathname.includes('/client/')) {
-                if (error.response && error.response.deactivated) {
-                    window.location.href = '/auth/login.html?error=deactivated';
-                } else {
-                    this.redirectToLogin();
+                // For network disconnects, timeouts, or unhandled transient errors:
+                // DO NOT wipe the session! Keep current cached user!
+                console.warn('Auth.js: Transient/network error during session verification, keeping cached user session:', error);
+                if (this.currentUser) {
+                    this.updateUI();
+                    this.setupBackButtonInterceptor();
                 }
+            } finally {
+                this.initPromise = null;
             }
-        }
+        })();
+
+        return this.initPromise;
     }
 
     async login(email, password) {
@@ -101,7 +184,7 @@ class Auth {
 
             if (response.success) {
                 this.currentUser = response.data;
-                sessionStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                this.setStoredUser(this.currentUser);
                 console.log('Auth.js: Login successful, current user set:', this.currentUser);
                 this.updateUI();
                 return { success: true, data: response.data, message: 'Login successful' };
@@ -117,11 +200,7 @@ class Auth {
 
     setCurrentUser(user) {
         this.currentUser = user;
-        if (user) {
-            sessionStorage.setItem('currentUser', JSON.stringify(user));
-        } else {
-            sessionStorage.removeItem('currentUser');
-        }
+        this.setStoredUser(user);
         this.updateUI();
     }
 
@@ -158,13 +237,11 @@ class Auth {
 
         try {
             await api.logout();
-            this.currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            this.redirectToHome();
         } catch (error) {
             console.error('Logout error:', error);
+        } finally {
             this.currentUser = null;
-            sessionStorage.removeItem('currentUser');
+            this.setStoredUser(null);
             this.redirectToHome();
         }
     }
@@ -200,13 +277,22 @@ class Auth {
     }
 
     requireAuth(role = null) {
+        // If currentUser is not in memory, attempt synchronous restore from storage
+        if (!this.currentUser) {
+            this.currentUser = this.getStoredUser();
+        }
+
         if (!this.isLoggedIn()) {
-            this.redirectToLogin();
+            if (!this.isUnloading && !(typeof window !== 'undefined' && window.isUnloading)) {
+                this.redirectToLogin();
+            }
             return false;
         }
 
         if (role && this.getUserRole() !== role) {
-            this.redirectToDashboard();
+            if (!this.isUnloading && !(typeof window !== 'undefined' && window.isUnloading)) {
+                this.redirectToDashboard();
+            }
             return false;
         }
 

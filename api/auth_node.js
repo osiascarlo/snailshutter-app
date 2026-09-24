@@ -329,9 +329,12 @@ router.post('/login', async (req, res) => {
             status: 'success'
         });
 
-        res.json({
-            success: true,
-            data: { id: user.id, name: uFullName, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role }
+        req.session.save((err) => {
+            if (err) console.error('Session save error:', err);
+            res.json({
+                success: true,
+                data: { id: user.id, name: uFullName, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role }
+            });
         });
 
     } catch (error) {
@@ -355,9 +358,12 @@ router.post('/login', async (req, res) => {
         req.session.last_name = demoUser.last_name;
         req.session.status = 'active';
 
-        res.json({
-            success: true,
-            data: { id: demoUser.id, name: demoUser.full_name, first_name: demoUser.first_name, last_name: demoUser.last_name, email: demoUser.email, role: demoUser.role }
+        req.session.save((err) => {
+            if (err) console.error('Demo session save error:', err);
+            res.json({
+                success: true,
+                data: { id: demoUser.id, name: demoUser.full_name, first_name: demoUser.first_name, last_name: demoUser.last_name, email: demoUser.email, role: demoUser.role }
+            });
         });
     }
 });
@@ -439,6 +445,7 @@ router.post('/logout', (req, res) => {
     });
 
     req.session.destroy((err) => {
+        res.clearCookie('connect.sid');
         if (err) {
             return res.status(500).json({ success: false, error: 'Failed to logout' });
         }

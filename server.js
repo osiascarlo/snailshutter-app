@@ -14,6 +14,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust reverse proxy (Render, Cloudflare, etc.) so that X-Forwarded-Proto is respected
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: true,
@@ -27,7 +30,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set to false for localhost HTTP
+    secure: 'auto', // Secure cookies when on HTTPS (Render / production), plain on local HTTP
+    sameSite: 'lax',
     maxAge: 1000 * 60 * 60 * 24 // 24 hours
   }
 }));
