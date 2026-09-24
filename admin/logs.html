@@ -212,20 +212,6 @@
                 </div>
                 <h1>System Logs & Audit Trail</h1>
                 <p>Complete historical activity records, security events, authentication traces, and booking logs.</p>
-                <div class="hero-actions">
-                    <button class="hero-action-btn shutter-click" onclick="loadSystemLogs()">
-                        <i class="fas fa-sync-alt"></i> Refresh Logs
-                    </button>
-                    <button class="hero-action-btn" onclick="exportLogsCSV()">
-                        <i class="fas fa-file-csv"></i> Export CSV
-                    </button>
-                    <button class="hero-action-btn" onclick="exportLogsJSON()">
-                        <i class="fas fa-file-code"></i> Export JSON
-                    </button>
-                    <button class="hero-action-btn" onclick="openPruneModal()">
-                        <i class="fas fa-broom"></i> Prune Logs
-                    </button>
-                </div>
             </div>
 
             <div class="content-body">
@@ -290,7 +276,10 @@
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
                             <button class="btn btn-secondary btn-sm" onclick="exportLogsCSV()" style="border-radius: 8px;">
-                                <i class="fas fa-download"></i> CSV
+                                <i class="fas fa-file-csv"></i> CSV
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="exportLogsJSON()" style="border-radius: 8px;">
+                                <i class="fas fa-file-code"></i> JSON
                             </button>
                             <button class="btn btn-secondary btn-sm" onclick="openPruneModal()" style="border-radius: 8px; color: #dc2626;">
                                 <i class="fas fa-trash-alt"></i> Prune
