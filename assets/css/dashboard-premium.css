@@ -224,6 +224,141 @@ body.premium-dashboard .sidebar-link.active .icon {
     color: var(--premium-accent);
 }
 
+/* Sidebar Dropdown Menu (e.g. Settings -> Studio Settings / Profile Settings) */
+body.premium-dashboard .sidebar-dropdown {
+    position: relative;
+    margin: 0 0.5rem 2px;
+}
+
+body.premium-dashboard .sidebar-dropdown > .sidebar-link {
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+body.premium-dashboard .sidebar-dropdown .sidebar-dropdown-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+body.premium-dashboard .sidebar-dropdown .sidebar-dropdown-arrow {
+    font-size: 0.65rem;
+    color: var(--premium-text-muted);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-right: 0.25rem;
+    pointer-events: none;
+}
+
+body.premium-dashboard .sidebar-dropdown.open .sidebar-dropdown-arrow {
+    transform: rotate(180deg);
+    color: var(--premium-accent);
+}
+
+body.premium-dashboard .sidebar-dropdown .sidebar-link.active-parent {
+    color: var(--premium-accent);
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--premium-accent-light), rgba(46,125,50,0.04));
+}
+
+body.premium-dashboard .sidebar-submenu {
+    display: none;
+    flex-direction: column;
+    padding: 0.3rem 0 0.3rem 1rem;
+    margin: 2px 0 4px 0;
+    gap: 2px;
+    position: relative;
+}
+
+body.premium-dashboard .sidebar-submenu::before {
+    content: '';
+    position: absolute;
+    left: 1.6rem;
+    top: 0.35rem;
+    bottom: 0.35rem;
+    width: 2px;
+    background: var(--premium-border);
+    border-radius: 1px;
+}
+
+body.premium-dashboard .sidebar-dropdown.open .sidebar-submenu {
+    display: flex;
+}
+
+body.premium-dashboard .sidebar-sublink {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--premium-text-secondary);
+    padding: 0.5rem 0.75rem 0.5rem 1.15rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    transition: all 0.2s var(--premium-ease);
+    position: relative;
+}
+
+body.premium-dashboard .sidebar-sublink:hover {
+    color: var(--premium-accent);
+    background: rgba(46, 125, 50, 0.05);
+}
+
+body.premium-dashboard .sidebar-sublink.active {
+    color: var(--premium-accent);
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--premium-accent-light), rgba(46,125,50,0.06));
+    box-shadow: 0 1px 4px rgba(46,125,50,0.06);
+}
+
+body.premium-dashboard .sidebar-sublink .icon {
+    font-size: 0.85rem;
+    width: 18px;
+    text-align: center;
+    color: inherit;
+}
+
+/* Settings Nav Tabs (at the top of Settings pages) */
+.settings-nav-tabs {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 2px solid var(--premium-border, #e5e7eb);
+    padding-bottom: 0.5rem;
+}
+
+.settings-nav-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--premium-text-muted, #64748b);
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.settings-nav-tab:hover {
+    color: var(--premium-accent, #15803d);
+    background: rgba(46, 125, 50, 0.06);
+}
+
+.settings-nav-tab.active {
+    color: white;
+    background: var(--premium-accent, #15803d);
+    box-shadow: 0 4px 10px rgba(21, 128, 61, 0.25);
+    border-color: var(--premium-accent, #15803d);
+}
+
 body.premium-dashboard .sidebar-footer {
     border-top: 1px solid var(--premium-border);
     padding: 1rem;

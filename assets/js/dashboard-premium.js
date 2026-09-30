@@ -17,6 +17,39 @@
             this.initStaggerAnimations();
             this.initShutterEffect();
             this.initGreeting();
+            this.initDropdowns();
+        },
+
+        /**
+         * Initialize sidebar dropdown menus (e.g. Settings -> Studio / Profile)
+         */
+        initDropdowns() {
+            const currentPath = window.location.pathname.toLowerCase();
+            const isStudioSettings = currentPath.includes('/admin/settings.html');
+            const isProfileSettings = currentPath.includes('/admin/profile-settings.html');
+
+            const dropdowns = document.querySelectorAll('.sidebar-dropdown');
+            dropdowns.forEach(dropdown => {
+                const toggle = dropdown.querySelector('.sidebar-dropdown-toggle, .sidebar-link');
+                const studioLink = dropdown.querySelector('#sublinkStudioSettings, a[href*="settings.html"]');
+                const profileLink = dropdown.querySelector('#sublinkProfileSettings, a[href*="profile-settings.html"]');
+
+                if (isStudioSettings || isProfileSettings) {
+                    dropdown.classList.add('open');
+                    if (toggle) toggle.classList.add('active-parent');
+                    if (isStudioSettings && studioLink) studioLink.classList.add('active');
+                    if (isProfileSettings && profileLink) profileLink.classList.add('active');
+                }
+
+                if (toggle && !toggle._hasDropdownListener) {
+                    toggle._hasDropdownListener = true;
+                    toggle.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropdown.classList.toggle('open');
+                    });
+                }
+            });
         },
 
         /**
@@ -241,6 +274,16 @@
 
     // Expose globally
     window.DashboardPremium = DashboardPremium;
+    window.toggleSettingsDropdown = function(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        const dd = document.getElementById('settingsDropdown');
+        if (dd) {
+            dd.classList.toggle('open');
+        }
+    };
 
     // Auto-init when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {

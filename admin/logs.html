@@ -334,9 +334,23 @@
                     <a href="/admin/services.html" class="sidebar-link">
                         <span class="icon"><i class="fas fa-camera"></i></span> Services
                     </a>
-                    <a href="/admin/settings.html" class="sidebar-link">
-                        <span class="icon"><i class="fas fa-cog"></i></span> Settings
-                    </a>
+                    <!-- Settings Dropdown -->
+                    <div class="sidebar-dropdown" id="settingsDropdown">
+                        <a href="javascript:void(0)" class="sidebar-link sidebar-dropdown-toggle" onclick="toggleSettingsDropdown(event)">
+                            <span class="sidebar-dropdown-left">
+                                <span class="icon"><i class="fas fa-cog"></i></span> Settings
+                            </span>
+                            <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
+                        </a>
+                        <div class="sidebar-submenu">
+                            <a href="/admin/settings.html" class="sidebar-sublink" id="sublinkStudioSettings">
+                                <span class="icon"><i class="fas fa-store"></i></span> Studio Settings
+                            </a>
+                            <a href="/admin/profile-settings.html" class="sidebar-sublink" id="sublinkProfileSettings">
+                                <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
+                            </a>
+                        </div>
+                    </div>
                     <a href="/admin/logs.html" class="sidebar-link active">
                         <span class="icon"><i class="fas fa-clipboard-list"></i></span> System Logs
                     </a>

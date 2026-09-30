@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings | SnailShutter Admin</title>
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar-upload {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .avatar-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--color-primary-light, #dcfce7);
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--color-primary, #15803d);
+            overflow: hidden;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--color-primary, #15803d);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 3px solid white;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover {
+            transform: scale(1.1);
+            background: var(--color-primary-dark, #166534);
+        }
+
+        #avatarInput {
+            display: none;
+        }
+
+        .settings-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .settings-card h3 {
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Confirmation Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg, 16px);
+            width: 90%;
+            max-width: 440px;
+            box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
+            border: 1px solid var(--color-border-soft, #e2e8f0);
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--color-border-soft, #e5e7eb);
+            background: var(--color-bg-soft, #f9fafb);
+        }
+
+        .modal-header h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-text, #1f2937);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.75rem;
+            font-weight: 300;
+            color: var(--color-text-muted, #6b7280);
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            color: var(--color-danger, #ef4444);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            color: var(--color-text, #374151);
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem 1.25rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            border-top: 1px solid var(--color-border-soft, #e5e7eb);
+            background: #f9fafb;
+        }
+    </style>
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter">
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/admin/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
+                    </a>
+                    <a href="/admin/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar-check"></i></span> All Bookings
+                    </a>
+                    <a href="/admin/calendar.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> Calendar
+                    </a>
+                    <a href="/admin/gallery.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
+                    </a>
+                    <a href="/admin/analytics.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
+                    </a>
+                    <a href="/admin/users.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-users"></i></span> Users
+                    </a>
+                    <a href="/admin/services.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-camera"></i></span> Services
+                    </a>
+                    
+                    <!-- Settings Dropdown -->
+                    <div class="sidebar-dropdown open" id="settingsDropdown">
+                        <a href="javascript:void(0)" class="sidebar-link sidebar-dropdown-toggle active-parent" onclick="toggleSettingsDropdown(event)">
+                            <span class="sidebar-dropdown-left">
+                                <span class="icon"><i class="fas fa-cog"></i></span> Settings
+                            </span>
+                            <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
+                        </a>
+                        <div class="sidebar-submenu">
+                            <a href="/admin/settings.html" class="sidebar-sublink" id="sublinkStudioSettings">
+                                <span class="icon"><i class="fas fa-store"></i></span> Studio Settings
+                            </a>
+                            <a href="/admin/profile-settings.html" class="sidebar-sublink active" id="sublinkProfileSettings">
+                                <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
+                            </a>
+                        </div>
+                    </div>
+
+                    <a href="/admin/logs.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-clipboard-list"></i></span> System Logs
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="avatar" data-user-initial>A</div>
+                    <div class="sidebar-user-info">
+                        <div class="name" data-user-name>Administrator</div>
+                        <div class="role" data-user-role>Administrator</div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;cursor:pointer;position:relative;z-index:10;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-hero">
+                <div class="hero-particles"></div>
+                <h1>Profile Settings</h1>
+                <p>Manage your administrator personal account information and security credentials</p>
+            </div>
+
+            <div class="content-body">
+                <div id="alertContainer"></div>
+
+                <!-- Navigation Tabs between Studio Settings and Profile Settings -->
+                <div class="settings-nav-tabs">
+                    <a href="/admin/settings.html" class="settings-nav-tab">
+                        <i class="fas fa-store"></i> Studio Settings
+                    </a>
+                    <a href="/admin/profile-settings.html" class="settings-nav-tab active">
+                        <i class="fas fa-user-cog"></i> Profile Settings
+                    </a>
+                </div>
+
+                <div class="settings-container">
+                    <!-- Profile Header with Avatar -->
+                    <div class="profile-header">
+                        <div class="avatar-upload">
+                            <div class="avatar-preview" id="avatarPreview">
+                                <span id="initialsContainer"></span>
+                            </div>
+                            <label for="avatarInput" class="upload-btn" title="Upload new avatar">
+                                <i class="fas fa-camera"></i>
+                            </label>
+                            <input type="file" id="avatarInput" accept="image/*">
+                        </div>
+                        <div class="profile-info">
+                            <h2 id="displayFullName"></h2>
+                            <p id="displayEmail" style="color: var(--color-text-muted);"></p>
+                            <span class="status-badge" style="margin-top: 0.5rem; display: inline-block; background: #fef3c7; color: #92400e; font-weight: 700; padding: 0.3rem 0.85rem; border-radius: 20px;">Administrator</span>
+                        </div>
+                    </div>
+
+                    <!-- Personal Details -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-user"></i> Personal Details</h3>
+                        <form id="profileForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" class="form-control" placeholder="Enter first name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" class="form-control" placeholder="Enter last name" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" id="phone" class="form-control" placeholder="e.g. 09123456789">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-lock"></i> Change Password</h3>
+                        <form id="passwordForm">
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label for="currentPassword">Current Password</label>
+                                <div style="position: relative;">
+                                    <input type="password" id="currentPassword" class="form-control" style="padding-right: 2.75rem;" required>
+                                    <button type="button" onclick="togglePasswordVisibility('currentPassword', this)" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 0.25rem; font-size: 0.95rem; z-index: 2;" title="Toggle Password Visibility">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-bottom: 1rem;">
+                                <div class="form-group">
+                                    <label for="newPassword">New Password</label>
+                                    <div style="position: relative;">
+                                        <input type="password" id="newPassword" class="form-control" style="padding-right: 2.75rem;" required minlength="8">
+                                        <button type="button" onclick="togglePasswordVisibility('newPassword', this)" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 0.25rem; font-size: 0.95rem; z-index: 2;" title="Toggle Password Visibility">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                    <div style="position: relative;">
+                                        <input type="password" id="confirmPassword" class="form-control" style="padding-right: 2.75rem;" required minlength="8">
+                                        <button type="button" onclick="togglePasswordVisibility('confirmPassword', this)" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 0.25rem; font-size: 0.95rem; z-index: 2;" title="Toggle Password Visibility">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Password Requirements Checklist -->
+                            <div class="password-requirements" id="passwordRequirements" style="margin-bottom: 1.5rem; background: #f8fafc; padding: 0.85rem 1rem; border-radius: 10px; border: 1px solid #e2e8f0;">
+                                <div style="font-size: 0.78rem; font-weight: 600; color: var(--color-text-muted); margin-bottom: 0.4rem;">Password must contain:</div>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.4rem; font-size: 0.78rem;">
+                                    <div class="requirement-item invalid" id="lengthReq" style="display: flex; align-items: center; gap: 0.35rem; color: #ef4444; transition: all 0.2s;">
+                                        <i class="fas fa-circle-xmark"></i> 8+ characters
+                                    </div>
+                                    <div class="requirement-item invalid" id="capitalReq" style="display: flex; align-items: center; gap: 0.35rem; color: #ef4444; transition: all 0.2s;">
+                                        <i class="fas fa-circle-xmark"></i> Capital letter
+                                    </div>
+                                    <div class="requirement-item invalid" id="numberReq" style="display: flex; align-items: center; gap: 0.35rem; color: #ef4444; transition: all 0.2s;">
+                                        <i class="fas fa-circle-xmark"></i> One number
+                                    </div>
+                                    <div class="requirement-item invalid" id="specialReq" style="display: flex; align-items: center; gap: 0.35rem; color: #ef4444; transition: all 0.2s;">
+                                        <i class="fas fa-circle-xmark"></i> Special char
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-question-circle" id="confirmModalIcon" style="color: var(--color-primary, #15803d);"></i>
+                    <span id="confirmModalTitleText">Confirm Action</span>
+                </h3>
+                <button type="button" class="modal-close-btn" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage" style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--color-text, #374151);"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()" style="padding: 0.5rem 1.25rem; background: #e5e7eb; color: #374151; border: none; font-weight: 500;">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmModalActionBtn" style="padding: 0.5rem 1.25rem; min-width: 120px; font-weight: 600;">Confirm & Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="/assets/js/api.js?v=1.0.9"></script>
+    <script src="/assets/js/auth.js?v=1.0.9"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/dashboard-premium.js?v=1.0.8"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!auth.requireAuth('admin')) return;
+
+            // Handle logout
+            document.querySelector('[data-logout]').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.logout();
+            });
+
+            // Update initial user info in sidebar from cached session
+            updateSidebarUser();
+
+            // Load profile data from server
+            await loadProfile();
+
+            // Avatar Upload
+            const avatarInput = document.getElementById('avatarInput');
+            avatarInput.addEventListener('change', async function (e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const validImageExtensions = /\.(jpe?g|png|webp)$/i;
+                const isImage = (file.type && file.type.startsWith('image/')) || validImageExtensions.test(file.name);
+                if (!isImage) {
+                    showAlert('Only image files (JPG, PNG, WEBP) are accepted for avatar.', 'error');
+                    avatarInput.value = '';
+                    return;
+                }
+
+                const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+                if (file.size > MAX_SIZE) {
+                    const currentSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    showAlert(`Avatar image exceeds the 2MB size limit (${currentSizeMB} MB). Please upload an image up to 2MB.`, 'error');
+                    avatarInput.value = '';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                try {
+                    const response = await api.uploadAvatar(formData);
+                    if (response.success) {
+                        showAlert('Avatar updated successfully', 'success');
+                        await loadProfile(); // Refresh profile and sidebar
+
+                        // Update the stored user in sessionStorage so all admin pages show new avatar
+                        const storedUser = JSON.parse(sessionStorage.getItem('currentUser')) || {};
+                        storedUser.avatar = response.avatar;
+                        sessionStorage.setItem('currentUser', JSON.stringify(storedUser));
+                        auth.currentUser = storedUser;
+                        updateSidebarUser();
+                    }
+                } catch (error) {
+                    showAlert(error.message || 'Failed to upload avatar', 'error');
+                }
+            });
+
+            // Profile Update Form Submission
+            document.getElementById('profileForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+
+                if (!firstName || !lastName) {
+                    showAlert('First name and last name are required.', 'error');
+                    return;
+                }
+
+                const fullName = `${firstName} ${lastName}`.trim();
+
+                openConfirmModal(
+                    'Confirm Personal Details Update',
+                    'fas fa-user-check',
+                    'Are you sure you want to save these changes to your personal details?',
+                    'Confirm & Save',
+                    async () => {
+                        try {
+                            const response = await api.updateUserProfile({
+                                first_name: firstName,
+                                last_name: lastName,
+                                full_name: fullName,
+                                email,
+                                phone
+                            });
+                            if (response.success) {
+                                showAlert('Profile updated successfully', 'success');
+                                await loadProfile();
+
+                                // Update storage
+                                const storedUser = JSON.parse(sessionStorage.getItem('currentUser')) || {};
+                                storedUser.first_name = firstName;
+                                storedUser.last_name = lastName;
+                                storedUser.name = fullName;
+                                storedUser.email = email;
+                                storedUser.phone = phone;
+                                sessionStorage.setItem('currentUser', JSON.stringify(storedUser));
+                                auth.currentUser = storedUser;
+                                updateSidebarUser();
+                            }
+                        } catch (error) {
+                            showAlert(error.message || 'Failed to update profile', 'error');
+                        }
+                    }
+                );
+            });
+
+            // Live Password Requirements Validation
+            const newPasswordInput = document.getElementById('newPassword');
+            const lengthReq = document.getElementById('lengthReq');
+            const capitalReq = document.getElementById('capitalReq');
+            const numberReq = document.getElementById('numberReq');
+            const specialReq = document.getElementById('specialReq');
+
+            function checkPasswordRequirements(password) {
+                let isValid = true;
+
+                // Length requirement (8+)
+                if (password.length >= 8) {
+                    lengthReq.innerHTML = '<i class="fas fa-circle-check" style="color: #10b981;"></i> 8+ characters';
+                    lengthReq.style.color = '#10b981';
+                    lengthReq.className = 'requirement-item valid';
+                } else {
+                    lengthReq.innerHTML = '<i class="fas fa-circle-xmark" style="color: #ef4444;"></i> 8+ characters';
+                    lengthReq.style.color = '#ef4444';
+                    lengthReq.className = 'requirement-item invalid';
+                    isValid = false;
+                }
+
+                // Capital letter requirement
+                if (/[A-Z]/.test(password)) {
+                    capitalReq.innerHTML = '<i class="fas fa-circle-check" style="color: #10b981;"></i> Capital letter';
+                    capitalReq.style.color = '#10b981';
+                    capitalReq.className = 'requirement-item valid';
+                } else {
+                    capitalReq.innerHTML = '<i class="fas fa-circle-xmark" style="color: #ef4444;"></i> Capital letter';
+                    capitalReq.style.color = '#ef4444';
+                    capitalReq.className = 'requirement-item invalid';
+                    isValid = false;
+                }
+
+                // Number requirement
+                if (/[0-9]/.test(password)) {
+                    numberReq.innerHTML = '<i class="fas fa-circle-check" style="color: #10b981;"></i> One number';
+                    numberReq.style.color = '#10b981';
+                    numberReq.className = 'requirement-item valid';
+                } else {
+                    numberReq.innerHTML = '<i class="fas fa-circle-xmark" style="color: #ef4444;"></i> One number';
+                    numberReq.style.color = '#ef4444';
+                    numberReq.className = 'requirement-item invalid';
+                    isValid = false;
+                }
+
+                // Special character requirement
+                if (/[!@#$%^&*(),.?":{}|_+\-=\[\]\\\/]/.test(password)) {
+                    specialReq.innerHTML = '<i class="fas fa-circle-check" style="color: #10b981;"></i> Special char';
+                    specialReq.style.color = '#10b981';
+                    specialReq.className = 'requirement-item valid';
+                } else {
+                    specialReq.innerHTML = '<i class="fas fa-circle-xmark" style="color: #ef4444;"></i> Special char';
+                    specialReq.style.color = '#ef4444';
+                    specialReq.className = 'requirement-item invalid';
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            if (newPasswordInput) {
+                newPasswordInput.addEventListener('input', function () {
+                    checkPasswordRequirements(this.value);
+                });
+                newPasswordInput.addEventListener('keyup', function () {
+                    checkPasswordRequirements(this.value);
+                });
+                newPasswordInput.addEventListener('change', function () {
+                    checkPasswordRequirements(this.value);
+                });
+            }
+
+            // Password Update Form Submission
+            document.getElementById('passwordForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (currentPassword === newPassword) {
+                    showAlert('New password cannot be the same as your current password.', 'warning');
+                    return;
+                }
+
+                if (!checkPasswordRequirements(newPassword)) {
+                    showAlert('Password must meet all security requirements (8+ chars, capital letter, number, special char).', 'error');
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    showAlert('Passwords do not match', 'error');
+                    return;
+                }
+
+                openConfirmModal(
+                    'Confirm Password Change',
+                    'fas fa-shield-alt',
+                    'Are you sure you want to change your password? You will need to sign in with your new password on your next login.',
+                    'Confirm & Update',
+                    async () => {
+                        try {
+                            const response = await api.updatePassword({ current_password: currentPassword, new_password: newPassword });
+                            if (response.success) {
+                                showAlert('Password updated successfully', 'success');
+                                document.getElementById('passwordForm').reset();
+                                checkPasswordRequirements('');
+                            }
+                        } catch (error) {
+                            showAlert(error.message || 'Failed to update password', 'error');
+                        }
+                    }
+                );
+            });
+        });
+
+        function updateSidebarUser() {
+            const user = auth.currentUser;
+            if (!user) return;
+            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name || 'Administrator');
+            document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = 'Administrator');
+            document.querySelectorAll('[data-user-initial]').forEach(el => {
+                if (user.avatar) {
+                    el.innerHTML = `<img src="${user.avatar}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                } else {
+                    el.textContent = (user.name || 'A').charAt(0).toUpperCase();
+                }
+            });
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.className = 'fas fa-eye-slash';
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.className = 'fas fa-eye';
+                }
+            }
+        }
+
+        // ── Confirmation Modal Helpers ──
+        let pendingConfirmAction = null;
+
+        function openConfirmModal(title, iconClass, message, confirmBtnText, onConfirmCallback) {
+            document.getElementById('confirmModalTitleText').textContent = title;
+            const iconEl = document.getElementById('confirmModalIcon');
+            iconEl.className = iconClass;
+            document.getElementById('confirmModalMessage').textContent = message;
+
+            const actionBtn = document.getElementById('confirmModalActionBtn');
+            actionBtn.textContent = confirmBtnText;
+
+            pendingConfirmAction = onConfirmCallback;
+
+            const overlay = document.getElementById('confirmModalOverlay');
+            overlay.classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            const overlay = document.getElementById('confirmModalOverlay');
+            overlay.classList.remove('show');
+            pendingConfirmAction = null;
+        }
+
+        document.getElementById('confirmModalActionBtn').addEventListener('click', async function () {
+            if (pendingConfirmAction && typeof pendingConfirmAction === 'function') {
+                const actionToRun = pendingConfirmAction;
+                closeConfirmModal();
+                await actionToRun();
+            }
+        });
+
+        async function loadProfile() {
+            try {
+                const response = await api.getUserProfile();
+                if (response.success) {
+                    const user = response.user;
+
+                    let firstName = user.first_name || '';
+                    let lastName = user.last_name || '';
+                    if (!firstName && user.full_name) {
+                        const parts = user.full_name.trim().split(/\s+/);
+                        firstName = parts[0] || '';
+                        lastName = parts.slice(1).join(' ') || '';
+                    }
+
+                    const computedFullName = user.full_name || `${firstName} ${lastName}`.trim() || 'Administrator';
+
+                    document.getElementById('displayFullName').textContent = computedFullName;
+                    document.getElementById('displayEmail').textContent = user.email;
+
+                    document.getElementById('firstName').value = firstName;
+                    document.getElementById('lastName').value = lastName;
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('phone').value = user.phone || '';
+
+                    // Update Avatar Preview
+                    const preview = document.getElementById('avatarPreview');
+
+                    if (user.avatar) {
+                        preview.innerHTML = `<img src="${user.avatar}" alt="Profile avatar">`;
+                    } else {
+                        preview.innerHTML = `<span id="initialsContainer">${(firstName || computedFullName).charAt(0).toUpperCase()}</span>`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>
