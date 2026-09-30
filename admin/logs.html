@@ -431,12 +431,6 @@
                             <button class="btn btn-secondary btn-sm" onclick="loadSystemLogs()" id="btnRefreshLogs" style="border-radius: 8px;">
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
-                            <button class="btn btn-secondary btn-sm" onclick="exportLogsCSV()" style="border-radius: 8px;">
-                                <i class="fas fa-file-csv"></i> CSV
-                            </button>
-                            <button class="btn btn-secondary btn-sm" onclick="exportLogsJSON()" style="border-radius: 8px;">
-                                <i class="fas fa-file-code"></i> JSON
-                            </button>
                             <button class="btn btn-secondary btn-sm" onclick="openPruneModal()" style="border-radius: 8px; color: #dc2626;">
                                 <i class="fas fa-trash-alt"></i> Prune
                             </button>
@@ -946,85 +940,6 @@
             }).catch(err => {
                 alert('Could not copy to clipboard.');
             });
-        }
-
-        // Export CSV
-        async function exportLogsCSV() {
-            try {
-                // Fetch up to 1000 logs matching current filters
-                const res = await api.getSystemLogs({
-                    page: 1,
-                    limit: 1000,
-                    module: currentLogsModule,
-                    status: currentLogsStatus,
-                    search: currentLogsSearch
-                });
-
-                if (!res || !res.logs || res.logs.length === 0) {
-                    alert('No logs available to export.');
-                    return;
-                }
-
-                const headers = ['Log ID', 'Created At (UTC)', 'Module', 'Action', 'Status', 'User Name', 'Role', 'IP Address', 'Details'];
-                const csvRows = [headers.join(',')];
-
-                res.logs.forEach(log => {
-                    const row = [
-                        log.id,
-                        `"${new Date(log.created_at).toISOString()}"`,
-                        `"${(log.module || '').replace(/"/g, '""')}"`,
-                        `"${(log.action || '').replace(/"/g, '""')}"`,
-                        `"${(log.status || '').replace(/"/g, '""')}"`,
-                        `"${(log.user_name || '').replace(/"/g, '""')}"`,
-                        `"${(log.user_role || '').replace(/"/g, '""')}"`,
-                        `"${(log.ip_address || '').replace(/"/g, '""')}"`,
-                        `"${(log.details || '').replace(/"/g, '""')}"`
-                    ];
-                    csvRows.push(row.join(','));
-                });
-
-                const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `snailshutter_logs_${new Date().toISOString().slice(0, 10)}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            } catch (err) {
-                alert('Export failed: ' + err.message);
-            }
-        }
-
-        // Export JSON
-        async function exportLogsJSON() {
-            try {
-                const res = await api.getSystemLogs({
-                    page: 1,
-                    limit: 1000,
-                    module: currentLogsModule,
-                    status: currentLogsStatus,
-                    search: currentLogsSearch
-                });
-
-                if (!res || !res.logs || res.logs.length === 0) {
-                    alert('No logs available to export.');
-                    return;
-                }
-
-                const blob = new Blob([JSON.stringify(res.logs, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `snailshutter_logs_${new Date().toISOString().slice(0, 10)}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            } catch (err) {
-                alert('Export failed: ' + err.message);
-            }
         }
 
         // Pruning logic
