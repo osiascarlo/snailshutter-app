@@ -643,7 +643,7 @@
             position: relative;
         }
 
-        .time-slot.unavailable::after {
+        .time-slot.unavailable:not(.lunch-slot)::after {
             content: 'Booked';
             display: block;
             font-size: 0.65rem;
@@ -652,6 +652,12 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-top: 0.15rem;
+        }
+
+        .time-slot.lunch-slot::after,
+        .calendar-sidebar-section .time-slot.lunch-slot::after {
+            content: none !important;
+            display: none !important;
         }
 
         /* ── Calendar & Time slots side-by-side (merged) ── */
@@ -888,7 +894,7 @@
             box-shadow: none;
         }
 
-        .calendar-sidebar-section .time-slot.unavailable::after {
+        .calendar-sidebar-section .time-slot.unavailable:not(.lunch-slot)::after {
             color: #64748b;
             font-size: 0.6rem;
             font-weight: 600;
@@ -1940,7 +1946,7 @@
 
             timeSlots.forEach(slot => {
                 const isBooked = bookedSlots.includes(slot.start_time);
-                const isLunch = slot.start_time === '12:00:00' || (slot.slot_label && slot.slot_label.includes('Lunch Break'));
+                const isLunch = (slot.start_time >= '12:00:00' && slot.start_time < '13:00:00') || slot.start_time === '12:00' || (slot.slot_label && slot.slot_label.includes('Lunch Break'));
                 
                 // Check if slot spans lunch break (starts before 12:00 PM and ends after 1:00 PM)
                 const [sh, sm] = String(slot.start_time).split(':');
@@ -1951,7 +1957,7 @@
 
                 const slotDiv = document.createElement('div');
                 slotDiv.id = 'slot-' + slot.id;
-                slotDiv.className = 'time-slot' + ((isBooked || isLunch) ? ' unavailable' : '');
+                slotDiv.className = 'time-slot' + (isLunch ? ' unavailable lunch-slot' : (isBooked ? ' unavailable' : ''));
 
                 if (isLunch) {
                     const cleanLabel = (slot.slot_label || '12:00 PM - 1:00 PM').replace(/\s*\(Lunch Break\)/i, '');
@@ -2786,6 +2792,9 @@
             if (!container) return;
 
             freshSlots.forEach(slot => {
+                const isLunch  = (slot.start_time >= '12:00:00' && slot.start_time < '13:00:00') || slot.start_time === '12:00' || (slot.slot_label && slot.slot_label.includes('Lunch Break'));
+                if (isLunch) return; // Keep lunch slot locked & untouched
+
                 const slotId   = 'slot-' + slot.id;
                 let   slotEl   = document.getElementById(slotId);
                 const isBooked = freshBooked.includes(slot.start_time);
