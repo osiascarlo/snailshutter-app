@@ -33,21 +33,14 @@
                 const toggle = dropdown.querySelector('.sidebar-dropdown-toggle, .sidebar-link');
                 const studioLink = dropdown.querySelector('#sublinkStudioSettings, a[href*="settings.html"]');
                 const profileLink = dropdown.querySelector('#sublinkProfileSettings, a[href*="profile-settings.html"]');
+                const submenu = dropdown.querySelector('.sidebar-submenu');
 
                 if (isStudioSettings || isProfileSettings) {
                     dropdown.classList.add('open');
+                    if (submenu) submenu.style.display = 'flex';
                     if (toggle) toggle.classList.add('active-parent');
                     if (isStudioSettings && studioLink) studioLink.classList.add('active');
                     if (isProfileSettings && profileLink) profileLink.classList.add('active');
-                }
-
-                if (toggle && !toggle._hasDropdownListener) {
-                    toggle._hasDropdownListener = true;
-                    toggle.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        dropdown.classList.toggle('open');
-                    });
                 }
             });
         },
@@ -274,14 +267,20 @@
 
     // Expose globally
     window.DashboardPremium = DashboardPremium;
-    window.toggleSettingsDropdown = function(event) {
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        const dd = document.getElementById('settingsDropdown');
+    window.toggleSettingsDropdown = function(trigger) {
+        const dd = (trigger && trigger.nodeType)
+            ? (trigger.closest ? trigger.closest('.sidebar-dropdown') : document.getElementById('settingsDropdown'))
+            : document.getElementById('settingsDropdown');
         if (dd) {
-            dd.classList.toggle('open');
+            const isOpen = dd.classList.contains('open');
+            const submenu = dd.querySelector('.sidebar-submenu');
+            if (isOpen) {
+                dd.classList.remove('open');
+                if (submenu) submenu.style.display = 'none';
+            } else {
+                dd.classList.add('open');
+                if (submenu) submenu.style.display = 'flex';
+            }
         }
     };
 

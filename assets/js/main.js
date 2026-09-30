@@ -33,6 +33,28 @@ function showAlert(message, type = 'success') {
 }
 
 /**
+ * Toggle Settings sidebar dropdown (Admin Portal)
+ */
+function toggleSettingsDropdown(trigger) {
+    const dd = (trigger && trigger.nodeType)
+        ? (trigger.closest ? trigger.closest('.sidebar-dropdown') : document.getElementById('settingsDropdown'))
+        : document.getElementById('settingsDropdown');
+
+    if (dd) {
+        const isOpen = dd.classList.contains('open');
+        const submenu = dd.querySelector('.sidebar-submenu');
+        if (isOpen) {
+            dd.classList.remove('open');
+            if (submenu) submenu.style.display = 'none';
+        } else {
+            dd.classList.add('open');
+            if (submenu) submenu.style.display = 'flex';
+        }
+    }
+}
+window.toggleSettingsDropdown = toggleSettingsDropdown;
+
+/**
  * Premium Custom Confirmation Modal
  * @param {Object} options { title, message, confirmText, cancelText, type }
  * @returns {Promise<boolean>}

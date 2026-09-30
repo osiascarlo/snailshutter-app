@@ -105,7 +105,25 @@
             text-align: center;
         }
     </style>
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.2.0">
+    <script>
+        function toggleSettingsDropdown(trigger) {
+            const dd = (trigger && trigger.nodeType)
+                ? (trigger.closest ? trigger.closest('.sidebar-dropdown') : document.getElementById('settingsDropdown'))
+                : document.getElementById('settingsDropdown');
+            if (dd) {
+                const isOpen = dd.classList.contains('open');
+                const submenu = dd.querySelector('.sidebar-submenu');
+                if (isOpen) {
+                    dd.classList.remove('open');
+                    if (submenu) submenu.style.display = 'none';
+                } else {
+                    dd.classList.add('open');
+                    if (submenu) submenu.style.display = 'flex';
+                }
+            }
+        }
+    </script>
 </head>
 
 <body class="premium-dashboard">
@@ -149,13 +167,13 @@
                     </a>
                     <!-- Settings Dropdown -->
                     <div class="sidebar-dropdown open" id="settingsDropdown">
-                        <a href="javascript:void(0)" class="sidebar-link sidebar-dropdown-toggle active-parent" onclick="toggleSettingsDropdown(event)">
+                        <a href="javascript:void(0);" class="sidebar-link sidebar-dropdown-toggle active-parent" onclick="toggleSettingsDropdown(this); return false;" style="cursor: pointer;">
                             <span class="sidebar-dropdown-left">
                                 <span class="icon"><i class="fas fa-cog"></i></span> Settings
                             </span>
                             <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
                         </a>
-                        <div class="sidebar-submenu">
+                        <div class="sidebar-submenu" style="display: flex;">
                             <a href="/admin/settings.html" class="sidebar-sublink active" id="sublinkStudioSettings">
                                 <span class="icon"><i class="fas fa-store"></i></span> Studio Settings
                             </a>
@@ -384,8 +402,8 @@
     <!-- Required API Scripts -->
     <script src="/assets/js/api.js?v=1.0.9"></script>
     <script src="/assets/js/auth.js?v=1.0.9"></script>
-    <script src="/assets/js/main.js"></script>
-    <script src="/assets/js/dashboard-premium.js"></script>
+    <script src="/assets/js/main.js?v=1.2.0"></script>
+    <script src="/assets/js/dashboard-premium.js?v=1.2.0"></script>
 
     <script>
         // Admin settings functionality
