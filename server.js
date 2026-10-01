@@ -185,7 +185,7 @@ async function runDatabaseMigration() {
       ['studioEmail', 'snailshutterstudio@gmail.com'],
       ['studioPhone', '+63 912 345 6789'],
       ['studioAddress', 'EJR Business Center 2, Poblacion, Alaminos City, Pangasinan, Philippines'],
-      ['studioHours', 'Mon – Sat, 9:00 AM – 6:00 PM'],
+      ['studioHours', 'Mon – Sun, 10:00 AM – 7:00 PM'],
       ['studioMapEmbed', 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d958.1126989311325!2d119.9756506!3d16.1456869!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3393dd09643fcad5%3A0x24a5ac354149095!2sSnailshutter%20Alaminos%20Photography%20Studio!5e0!3m2!1sen!2sph!4v1782822704080!5m2!1sen!2sph'],
       ['studioDirectionsLink', 'https://www.google.com/maps/dir/?api=1&destination=Snailshutter+Alaminos+Photography+Studio'],
       ['emailNotifications', 'all'],
@@ -198,7 +198,7 @@ async function runDatabaseMigration() {
     try {
       for (const [key, val] of defaultSettings) {
         await pool.execute(
-          "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = IF(setting_value IS NULL OR setting_value = '' OR setting_value LIKE '%123 Photography%', ?, setting_value)",
+          "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = IF(setting_value IS NULL OR setting_value = '' OR setting_value LIKE '%123 Photography%' OR (setting_key = 'studioHours' AND setting_value LIKE '%Mon – Sat%'), ?, setting_value)",
           [key, val, val]
         );
       }
