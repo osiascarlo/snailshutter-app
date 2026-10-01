@@ -709,3 +709,189 @@ function normalizeGoogleDriveLink(url) {
 window.isGoogleDriveLink = isGoogleDriveLink;
 window.normalizeGoogleDriveLink = normalizeGoogleDriveLink;
 
+/**
+ * ============================================================
+ * In-App Legal Modal System (Terms & Conditions & Privacy Policy)
+ * Opens legal documents smoothly inside a modal without navigating away
+ * ============================================================
+ */
+const legalModalCache = {};
+
+function openLegalModal(type = 'terms') {
+    const isPrivacy = String(type).toLowerCase().includes('privacy');
+    const docTitle = isPrivacy ? 'Privacy Policy' : 'Terms & Conditions';
+    const docUrl = isPrivacy ? '/privacy.html' : '/terms.html';
+    const iconClass = isPrivacy ? 'fa-shield-halved' : 'fa-file-contract';
+
+    // Ensure legal.css is loaded for complete section, callout, and table styling
+    if (!document.querySelector('link[href*="legal.css"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/assets/css/legal.css?v=1.1.2';
+        document.head.appendChild(link);
+    }
+
+    // Reuse or create modal overlay
+    let overlay = document.getElementById('legalModalOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'legalModalOverlay';
+        overlay.className = 'legal-modal-overlay';
+        overlay.innerHTML = `
+            <div class="legal-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
+                <div class="legal-modal-header">
+                    <div class="legal-modal-title-group">
+                        <div class="legal-modal-icon-badge" id="legalModalIconBadge">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div>
+                            <h3 class="legal-modal-title" id="legalModalTitle">Terms &amp; Conditions</h3>
+                            <p class="legal-modal-subtitle">SnailShutter Photography Studio · Official Studio Policy</p>
+                        </div>
+                    </div>
+                    <button class="legal-modal-close-btn" id="legalModalCloseBtn" type="button" aria-label="Close modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="legal-modal-body" id="legalModalBody">
+                    <div style="padding: 4.5rem 1rem; text-align: center; color: #64748b;">
+                        <i class="fas fa-circle-notch fa-spin" style="font-size: 2.2rem; color: #2e7d32; margin-bottom: 0.85rem;"></i>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: #1e293b;">Loading document...</div>
+                    </div>
+                </div>
+                <div class="legal-modal-footer">
+                    <a href="/terms.html" target="_blank" class="legal-modal-ext-link" id="legalModalExtLink">
+                        <i class="fas fa-arrow-up-right-from-square"></i> Open full page in new tab
+                    </a>
+                    <button type="button" class="btn btn-primary legal-modal-dismiss-btn" id="legalModalDismissBtn">
+                        <i class="fas fa-check"></i> I Understand &amp; Agree
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const closeModal = () => {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+        };
+
+        overlay.querySelector('#legalModalCloseBtn').addEventListener('click', closeModal);
+        overlay.querySelector('#legalModalDismissBtn').addEventListener('click', closeModal);
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && overlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Smooth scroll for any internal anchor links inside the modal
+        overlay.querySelector('#legalModalBody').addEventListener('click', (e) => {
+            const hashLink = e.target.closest('a[href^="#"]');
+            if (hashLink) {
+                e.preventDefault();
+                const hashId = hashLink.getAttribute('href').substring(1);
+                const target = overlay.querySelector('#' + hashId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    }
+
+    // Update Header & Links
+    overlay.querySelector('#legalModalTitle').textContent = docTitle;
+    overlay.querySelector('#legalModalIconBadge').innerHTML = `<i class="fas ${iconClass}"></i>`;
+    const extLink = overlay.querySelector('#legalModalExtLink');
+    extLink.href = docUrl;
+    extLink.innerHTML = `<i class="fas fa-arrow-up-right-from-square"></i> Open ${docTitle} in new tab`;
+
+    // Show modal immediately
+    const modalBody = overlay.querySelector('#legalModalBody');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    // Check cache
+    const cacheKey = isPrivacy ? 'privacy' : 'terms';
+    if (legalModalCache[cacheKey]) {
+        modalBody.innerHTML = legalModalCache[cacheKey];
+        modalBody.scrollTop = 0;
+        return;
+    }
+
+    // Show loading state
+    modalBody.innerHTML = `
+        <div style="padding: 4.5rem 1rem; text-align: center; color: #64748b;">
+            <i class="fas fa-circle-notch fa-spin" style="font-size: 2.2rem; color: #2e7d32; margin-bottom: 0.85rem;"></i>
+            <div style="font-weight: 600; font-size: 0.95rem; color: #1e293b;">Loading ${docTitle}...</div>
+        </div>
+    `;
+
+    // Fetch and extract article content
+    fetch(docUrl)
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            return res.text();
+        })
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const card = doc.querySelector('.legal-content-card');
+
+            if (card) {
+                // Remove TOC drawer, toggle button, and bottom contact block from the modal view
+                const tocToggle = card.querySelector('#mobileTocToggle');
+                if (tocToggle) tocToggle.remove();
+                const tocDrawer = card.querySelector('#mobileTocDrawer');
+                if (tocDrawer) tocDrawer.remove();
+                const contactCta = card.querySelector('.legal-contact-cta');
+                if (contactCta) contactCta.remove();
+
+                legalModalCache[cacheKey] = card.innerHTML;
+                modalBody.innerHTML = legalModalCache[cacheKey];
+            } else {
+                modalBody.innerHTML = `<p style="color:#dc2626; padding:2rem; text-align:center;">Could not format policy document. <a href="${docUrl}" target="_blank">Click here to view in a new tab</a>.</p>`;
+            }
+            modalBody.scrollTop = 0;
+        })
+        .catch(err => {
+            console.error('Error fetching legal document:', err);
+            modalBody.innerHTML = `
+                <div style="padding: 3rem 1rem; text-align: center; color: #991b1b;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #dc2626; margin-bottom: 0.75rem;"></i>
+                    <div style="font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem;">Failed to load ${docTitle}</div>
+                    <p style="font-size: 0.88rem; color: #64748b; margin-bottom: 1rem;">Please check your connection or view the full page directly.</p>
+                    <a href="${docUrl}" target="_blank" class="btn btn-secondary btn-sm" style="border-radius: 50px; font-weight: 600;">
+                        Open ${docTitle} in new tab
+                    </a>
+                </div>
+            `;
+        });
+}
+
+window.openLegalModal = openLegalModal;
+
+// Global Delegated Click Interceptor for Terms & Privacy links
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a[href*="/terms.html"], a[href*="/privacy.html"], a[data-legal-modal]');
+    if (!link) return;
+
+    // Allow user to bypass if holding Ctrl/Cmd or link is in legal modal footer/navbar
+    if (e.ctrlKey || e.metaKey || link.hasAttribute('data-no-modal') || link.closest('.legal-modal-footer') || link.closest('.legal-nav') || link.closest('.site-footer')) {
+        return;
+    }
+
+    const href = link.getAttribute('href') || '';
+    const modalType = link.getAttribute('data-legal-modal') || (href.includes('privacy.html') ? 'privacy' : 'terms');
+
+    e.preventDefault();
+    openLegalModal(modalType);
+});
+
+

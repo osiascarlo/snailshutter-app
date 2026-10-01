@@ -4104,3 +4104,213 @@ body.maintenance-active .calendar-widget .calendar-day {
     border-color: var(--color-border-soft, #e2e8f0) !important;
     box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05)) !important;
 }
+
+/* ============================================================
+   SNAILSHUTTER – IN-APP LEGAL MODAL (TERMS & PRIVACY)
+   ============================================================ */
+.legal-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s ease;
+}
+
+.legal-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.legal-modal-dialog {
+    background: #ffffff;
+    width: 100%;
+    max-width: 860px;
+    max-height: 88vh;
+    border-radius: 18px;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.95) translateY(12px);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.legal-modal-overlay.active .legal-modal-dialog {
+    transform: scale(1) translateY(0);
+}
+
+.legal-modal-header {
+    background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+    color: #ffffff;
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.legal-modal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.legal-modal-icon-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #84e892;
+    flex-shrink: 0;
+}
+
+.legal-modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: var(--font-heading, "Playfair Display", serif);
+    letter-spacing: -0.01em;
+}
+
+.legal-modal-subtitle {
+    margin: 0.2rem 0 0;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 400;
+}
+
+.legal-modal-close-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.legal-modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.legal-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1.75rem 2rem;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    position: relative;
+}
+
+.legal-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+.legal-modal-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.legal-modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.legal-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.legal-modal-footer {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.legal-modal-ext-link {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.2s ease;
+}
+
+.legal-modal-ext-link:hover {
+    color: var(--color-primary, #2e7d32);
+    text-decoration: underline;
+}
+
+.legal-modal-dismiss-btn {
+    border-radius: 50px;
+    padding: 0.55rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+@media (max-width: 640px) {
+    .legal-modal-overlay {
+        padding: 0.75rem;
+    }
+    .legal-modal-dialog {
+        max-height: 94vh;
+        border-radius: 14px;
+    }
+    .legal-modal-header {
+        padding: 1rem 1.25rem;
+    }
+    .legal-modal-title {
+        font-size: 1.1rem;
+    }
+    .legal-modal-body {
+        padding: 1.25rem 1.25rem;
+    }
+    .legal-modal-footer {
+        padding: 0.85rem 1.25rem;
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+    .legal-modal-dismiss-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .legal-modal-ext-link {
+        justify-content: center;
+    }
+}
