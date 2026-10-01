@@ -760,9 +760,6 @@ function openLegalModal(type = 'terms') {
                     </div>
                 </div>
                 <div class="legal-modal-footer">
-                    <a href="/terms.html" target="_blank" class="legal-modal-ext-link" id="legalModalExtLink">
-                        <i class="fas fa-arrow-up-right-from-square"></i> Open full page in new tab
-                    </a>
                     <button type="button" class="btn btn-primary legal-modal-dismiss-btn" id="legalModalDismissBtn">
                         <i class="fas fa-check"></i> I Understand &amp; Agree
                     </button>
@@ -804,12 +801,11 @@ function openLegalModal(type = 'terms') {
         });
     }
 
-    // Update Header & Links
+    // Update Header
     overlay.querySelector('#legalModalTitle').textContent = docTitle;
     overlay.querySelector('#legalModalIconBadge').innerHTML = `<i class="fas ${iconClass}"></i>`;
     const extLink = overlay.querySelector('#legalModalExtLink');
-    extLink.href = docUrl;
-    extLink.innerHTML = `<i class="fas fa-arrow-up-right-from-square"></i> Open ${docTitle} in new tab`;
+    if (extLink) extLink.remove();
 
     // Show modal immediately
     const modalBody = overlay.querySelector('#legalModalBody');
@@ -856,7 +852,7 @@ function openLegalModal(type = 'terms') {
                 legalModalCache[cacheKey] = card.innerHTML;
                 modalBody.innerHTML = legalModalCache[cacheKey];
             } else {
-                modalBody.innerHTML = `<p style="color:#dc2626; padding:2rem; text-align:center;">Could not format policy document. <a href="${docUrl}" target="_blank">Click here to view in a new tab</a>.</p>`;
+                modalBody.innerHTML = `<p style="color:#dc2626; padding:2rem; text-align:center;">Could not format policy document. Please try again later.</p>`;
             }
             modalBody.scrollTop = 0;
         })
@@ -866,10 +862,7 @@ function openLegalModal(type = 'terms') {
                 <div style="padding: 3rem 1rem; text-align: center; color: #991b1b;">
                     <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #dc2626; margin-bottom: 0.75rem;"></i>
                     <div style="font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem;">Failed to load ${docTitle}</div>
-                    <p style="font-size: 0.88rem; color: #64748b; margin-bottom: 1rem;">Please check your connection or view the full page directly.</p>
-                    <a href="${docUrl}" target="_blank" class="btn btn-secondary btn-sm" style="border-radius: 50px; font-weight: 600;">
-                        Open ${docTitle} in new tab
-                    </a>
+                    <p style="font-size: 0.88rem; color: #64748b; margin-bottom: 1rem;">Please check your connection and try again.</p>
                 </div>
             `;
         });

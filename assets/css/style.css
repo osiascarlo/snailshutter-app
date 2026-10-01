@@ -4252,26 +4252,14 @@ body.maintenance-active .calendar-widget .calendar-day {
     padding: 1rem 1.75rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 1rem;
     flex-shrink: 0;
     flex-wrap: wrap;
 }
 
 .legal-modal-ext-link {
-    font-size: 0.85rem;
-    color: #64748b;
-    text-decoration: none;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    transition: color 0.2s ease;
-}
-
-.legal-modal-ext-link:hover {
-    color: var(--color-primary, #2e7d32);
-    text-decoration: underline;
+    display: none !important;
 }
 
 .legal-modal-dismiss-btn {
@@ -4303,14 +4291,10 @@ body.maintenance-active .calendar-widget .calendar-day {
     }
     .legal-modal-footer {
         padding: 0.85rem 1.25rem;
-        flex-direction: column-reverse;
         align-items: stretch;
     }
     .legal-modal-dismiss-btn {
         width: 100%;
-        justify-content: center;
-    }
-    .legal-modal-ext-link {
         justify-content: center;
     }
 }
