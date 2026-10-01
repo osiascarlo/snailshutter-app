@@ -55,6 +55,20 @@ function toggleSettingsDropdown(trigger) {
 window.toggleSettingsDropdown = toggleSettingsDropdown;
 
 /**
+ * Safely escape HTML characters to prevent XSS and rendering errors
+ */
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+window.escapeHtml = escapeHtml;
+
+/**
  * Premium Custom Confirmation Modal
  * @param {Object} options { title, message, confirmText, cancelText, type }
  * @returns {Promise<boolean>}
