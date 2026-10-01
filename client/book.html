@@ -1133,6 +1133,15 @@
                         <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
                     </a>
                 </div>
+                <div class="sidebar-section" style="margin-top: 1rem;">
+                    <div class="sidebar-section-title">Policies</div>
+                    <a href="/terms.html" target="_blank" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-file-lines"></i></span> Terms &amp; Conditions
+                    </a>
+                    <a href="/privacy.html" target="_blank" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-shield-halved"></i></span> Privacy Policy
+                    </a>
+                </div>
             </nav>
 
             <div class="sidebar-footer">
@@ -1432,6 +1441,21 @@
                             <textarea id="bookingNotes" class="form-control" rows="4"
                                 placeholder="Any special requests or details we should know?"></textarea>
                         </div>
+
+                        <!-- Terms & Conditions Agreement -->
+                        <div class="terms-agreement-card" style="margin-top: 1.5rem; margin-bottom: 0.5rem; padding: 1rem 1.25rem; background: #f8fafc; border: 1.5px solid var(--color-border-soft, #e2e8f0); border-radius: var(--radius-md, 12px);">
+                            <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; user-select: none; font-size: 0.85rem; color: #334155; line-height: 1.5;">
+                                <input type="checkbox" id="agreeTermsCheckbox" style="margin-top: 0.2rem; width: 18px; height: 18px; accent-color: var(--color-primary, #2e7d32); cursor: pointer;">
+                                <span>
+                                    I have read and agree to SnailShutter's 
+                                    <a href="/terms.html" target="_blank" style="color: var(--color-primary, #2e7d32); font-weight: 600; text-decoration: underline;">Terms &amp; Conditions</a> 
+                                    and 
+                                    <a href="/privacy.html" target="_blank" style="color: var(--color-primary, #2e7d32); font-weight: 600; text-decoration: underline;">Privacy Policy</a>, 
+                                    acknowledging the <strong>10% non-refundable downpayment</strong>, studio schedule, and cancellation policies.
+                                </span>
+                            </label>
+                        </div>
+
                         <div class="flex" style="margin-top: 2rem; justify-content: flex-end; gap: 1rem;">
                             <button class="btn btn-secondary" onclick="goToStep(2)">
                                 <i class="fas fa-arrow-left"></i> Back
@@ -2538,6 +2562,15 @@
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
+
+            const termsAgreed = document.getElementById('agreeTermsCheckbox');
+            if (termsAgreed && !termsAgreed.checked) {
+                showAlert('Please review and check the agreement box to accept the Terms & Conditions and Privacy Policy.', 'warning');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Booking';
+                termsAgreed.focus();
+                return;
+            }
 
             const fileInput = document.getElementById('proofOfPayment');
             if (!fileInput.files || fileInput.files.length === 0) {

@@ -58,6 +58,15 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Legal pages routes
+app.get(['/terms', '/terms.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'terms.html'));
+});
+
+app.get(['/privacy', '/privacy.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'privacy.html'));
+});
+
 // Serve favicon to prevent 404 console errors
 app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'assets/images/logo.png'));
