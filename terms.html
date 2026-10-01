@@ -80,8 +80,8 @@
                 </a>
             </div>
             <div class="legal-actions-group">
-                <button type="button" class="btn-legal-action" onclick="window.print()">
-                    <i class="fas fa-print"></i> Print / Save PDF
+                <button type="button" class="btn-legal-action" onclick="window.print()" title="Print or Save as PDF">
+                    <i class="fas fa-print"></i> <span class="legal-action-label">Print / Save PDF</span>
                 </button>
             </div>
         </div>
@@ -273,6 +273,9 @@
                         Appointments cannot be directly modified or transferred to another date or time slot once submitted. Clients wishing to change their appointment date must cancel their existing reservation via the Client Portal and submit a new booking for their desired slot.
                     </div>
                 </div>
+                <div class="legal-table-scroll-hint">
+                    <i class="fas fa-arrows-left-right"></i> Swipe table sideways to view full columns
+                </div>
                 <div class="legal-table-wrap">
                     <table class="legal-table">
                         <thead>
@@ -417,7 +420,7 @@
                         <div style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Mindful Moments, Timeless Memories · Alaminos City, Pangasinan</div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 1.5rem; align-items: center; font-size: 0.88rem;">
+                <div style="display: flex; gap: 1.5rem; align-items: center; font-size: 0.88rem; flex-wrap: wrap;">
                     <a href="/terms.html" style="color: #84e892; font-weight: 600; text-decoration: none;">Terms &amp; Conditions</a>
                     <span style="color: rgba(255,255,255,0.2);">•</span>
                     <a href="/privacy.html" style="color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#84e892'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Privacy Policy</a>
