@@ -161,8 +161,15 @@ class API {
         return this.request(url);
     }
 
-    async getBookings() {
-        return this.request('/bookings');
+    async getBookings(params = {}) {
+        let url = '/bookings';
+        if (typeof params === 'string') {
+            url += `?sort=${encodeURIComponent(params)}`;
+        } else if (params && typeof params === 'object') {
+            const query = new URLSearchParams(params).toString();
+            if (query) url += `?${query}`;
+        }
+        return this.request(url);
     }
 
     async getStudioBookings() {
@@ -287,10 +294,149 @@ class API {
         return this.request(`/admin/logs${query ? `?${query}` : ''}`);
     }
 
+    async exportSystemLogs(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        const url = `${this.baseURL}/admin/logs/export${query ? `?${query}` : ''}`;
+        const response = await fetch(url, {
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            let errorMsg = 'Failed to export system logs';
+            try {
+                const errData = await response.json();
+                errorMsg = errData.error || errorMsg;
+            } catch (e) {}
+            throw new Error(errorMsg);
+        }
+
+        const blob = await response.blob();
+        let filename = 'snailshutter_system_logs.csv';
+        const disposition = response.headers.get('Content-Disposition');
+        if (disposition && disposition.includes('filename=')) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+            if (matches && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+        a.remove();
+        return { success: true, filename };
+    }
+
     async pruneSystemLogs(keepDays = 30) {
         return this.request(`/admin/logs?keep_days=${keepDays}`, {
             method: 'DELETE'
         });
+    }
+
+    // Reviews & Feedback endpoints
+    async submitReview(data) {
+        return this.request('/reviews', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async getMyReviews() {
+        return this.request('/reviews/my');
+    }
+
+    async getBookingReview(bookingId) {
+        return this.request(`/reviews/booking/${bookingId}`);
+    }
+
+    async getServiceReviews(serviceId) {
+        return this.request(`/reviews/service/${serviceId}`);
+    }
+
+    async getReviewStats() {
+        return this.request('/reviews/stats');
+    }
+
+    async getAllReviews(limit = 20) {
+        return this.request(`/reviews?limit=${limit}`);
+    }
+
+    async deleteReview(reviewId) {
+        return this.request(`/reviews/${reviewId}`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Database Backup & Disaster Recovery Endpoints
+    async getBackupStats() {
+        return this.request('/admin/backup/stats');
+    }
+
+    async getBackupsList() {
+        return this.request('/admin/backup/list');
+    }
+
+    async createBackup(notes = '') {
+        return this.request('/admin/backup/create', {
+            method: 'POST',
+            body: JSON.stringify({ notes })
+        });
+    }
+
+    async downloadBackup(filename) {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const res = await fetch(`/api/admin/backup/download/${encodeURIComponent(filename)}`, {
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: 'Download failed' }));
+            throw new Error(err.error || `Download failed with status ${res.status}`);
+        }
+        const blob = await res.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+        a.remove();
+        return { success: true, filename };
+    }
+
+    async deleteBackup(filename) {
+        return this.request(`/admin/backup/${encodeURIComponent(filename)}`, {
+            method: 'DELETE'
+        });
+    }
+
+    async restoreBackup(filename) {
+        return this.request('/admin/backup/restore', {
+            method: 'POST',
+            body: JSON.stringify({ filename })
+        });
+    }
+
+    async uploadRestoreBackup(file) {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('backupFile', file);
+
+        const res = await fetch('/api/admin/backup/upload-restore', {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            throw new Error(data.error || 'Failed to restore uploaded backup');
+        }
+        return data;
     }
 }
 

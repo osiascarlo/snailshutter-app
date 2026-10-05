@@ -32,12 +32,24 @@
                 <a href="/index.html"><i class="fas fa-home" style="font-size:0.8rem; margin-right:4px;"></i> Home</a>
                 <a href="/index.html#services">Services</a>
                 <a href="/index.html#location">Visit Studio</a>
-                <a href="/auth/register.html" class="btn btn-sm btn-nav-signup" style="padding: 0.4rem 1rem; border-radius: 50px;">
+                <a href="/auth/register.html" class="btn btn-sm btn-nav-signup" data-role="unauthenticated" style="padding: 0.4rem 1rem; border-radius: 50px;">
                     <i class="fas fa-user-plus"></i> Sign Up
                 </a>
-                <a href="/auth/login.html" class="btn btn-primary btn-sm" style="padding: 0.4rem 1rem; border-radius: 50px;">
+                <a href="/auth/login.html" class="btn btn-primary btn-sm" data-role="unauthenticated" style="padding: 0.4rem 1rem; border-radius: 50px;">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </a>
+                <a href="/admin/dashboard.html" class="btn btn-primary btn-sm" data-role="admin" style="display:none; padding: 0.4rem 1rem; border-radius: 50px;">
+                    <i class="fas fa-gauge-high"></i> Dashboard
+                </a>
+                <a href="/staff/dashboard.html" class="btn btn-primary btn-sm" data-role="staff" style="display:none; padding: 0.4rem 1rem; border-radius: 50px;">
+                    <i class="fas fa-gauge-high"></i> Dashboard
+                </a>
+                <a href="/client/dashboard.html" class="btn btn-primary btn-sm" data-role="client" style="display:none; padding: 0.4rem 1rem; border-radius: 50px;">
+                    <i class="fas fa-gauge-high"></i> Dashboard
+                </a>
+                <button type="button" class="btn btn-sm btn-nav-logout" data-role="authenticated" data-logout style="display:none; padding: 0.4rem 1rem; border-radius: 50px;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
             <button class="legal-nav-mobile-btn" id="legalNavMobileBtn" aria-label="Toggle navigation menu">
                 <i class="fas fa-bars"></i>
@@ -515,6 +527,9 @@
             });
         }
     </script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/main.js"></script>
 </body>
 
 </html>

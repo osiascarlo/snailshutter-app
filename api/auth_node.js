@@ -561,7 +561,7 @@ router.post('/logout', (req, res) => {
     });
 
     req.session.destroy((err) => {
-        res.clearCookie('connect.sid');
+        res.clearCookie('connect.sid', { path: '/' });
         if (err) {
             return res.status(500).json({ success: false, error: 'Failed to logout' });
         }

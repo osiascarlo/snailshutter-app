@@ -177,6 +177,9 @@
                             <a href="/admin/settings.html" class="sidebar-sublink active" id="sublinkStudioSettings">
                                 <span class="icon"><i class="fas fa-store"></i></span> Studio Settings
                             </a>
+                            <a href="/admin/backup.html" class="sidebar-sublink" id="sublinkBackup">
+                                <span class="icon"><i class="fas fa-database"></i></span> Backup & Restore
+                            </a>
                             <a href="/admin/profile-settings.html" class="sidebar-sublink" id="sublinkProfileSettings">
                                 <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
                             </a>
@@ -379,6 +382,34 @@
                                 </p>
                             </div>
                         </form>
+                    </div>
+
+                    <!-- Database Backup & Disaster Recovery Card -->
+                    <div class="settings-card" style="border-left-color: var(--color-primary);">
+                        <div class="settings-title" style="display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fas fa-database"></i> Database Backup &amp; Recovery</span>
+                            <span style="font-size: 0.75rem; background: #e8f5e9; color: #1b5e20; padding: 0.25rem 0.6rem; border-radius: 6px; font-weight: 700;">
+                                Point-in-Time Safe
+                            </span>
+                        </div>
+                        <p style="font-size: 0.88rem; color: var(--color-text-soft, #64748b); line-height: 1.5; margin-bottom: 1.25rem;">
+                            Protect your studio database with automated snapshots, export raw SQL archives, and restore historical data with pre-restore safety snapshots.
+                        </p>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
+                                <span style="color: #64748b;">Active Tables:</span>
+                                <strong style="color: #1e293b;">8 Core Tables</strong>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem;">
+                                <span style="color: #64748b;">Disaster Recovery:</span>
+                                <span style="color: #16a34a; font-weight: 700;"><i class="fas fa-check-circle"></i> Auto Safety Enabled</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <a href="/admin/backup.html" class="btn btn-primary" style="flex: 1; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 8px; font-size: 0.9rem;">
+                                <i class="fas fa-external-link-alt"></i> Manage Backups &amp; Restore
+                            </a>
+                        </div>
                     </div>
                 </div>
 

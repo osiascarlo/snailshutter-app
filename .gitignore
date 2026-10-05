@@ -7,4 +7,5 @@ scratch/
 *.log
 .system_generated/
 .agents/
-.git/
+backups/*.sql
+backups/*.json

@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Backup & Restore | SnailShutter</title>
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.2.0">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.2.0">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.2.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        function toggleSettingsDropdown(trigger) {
+            const dd = (trigger && trigger.nodeType)
+                ? (trigger.closest ? trigger.closest('.sidebar-dropdown') : document.getElementById('settingsDropdown'))
+                : document.getElementById('settingsDropdown');
+            if (dd) {
+                const isOpen = dd.classList.contains('open');
+                const submenu = dd.querySelector('.sidebar-submenu');
+                if (isOpen) {
+                    dd.classList.remove('open');
+                    if (submenu) submenu.style.display = 'none';
+                } else {
+                    dd.classList.add('open');
+                    if (submenu) submenu.style.display = 'flex';
+                }
+            }
+        }
+    </script>
+    <style>
+        .backup-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #15803d;
+            background: #dcfce7;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            user-select: none;
+            margin-bottom: 0.6rem;
+        }
+
+        .backup-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .backup-kpi-card {
+            background: var(--premium-surface, #ffffff);
+            border: 1px solid var(--premium-border, #e2e8f0);
+            border-radius: 16px;
+            padding: 1.25rem 1.4rem;
+            box-shadow: var(--premium-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .backup-kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--premium-shadow-md, 0 6px 16px rgba(0, 0, 0, 0.08));
+        }
+
+        .backup-kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .backup-kpi-icon.records { background: #e8f5e9; color: #2e7d32; }
+        .backup-kpi-icon.size { background: #e0f2fe; color: #0284c7; }
+        .backup-kpi-icon.tables { background: #fef3c7; color: #d97706; }
+        .backup-kpi-icon.last { background: #f3e8ff; color: #9333ea; }
+
+        .backup-kpi-info .kpi-num {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--premium-text, #1e293b);
+            line-height: 1.1;
+        }
+
+        .backup-kpi-info .kpi-label {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--premium-text-muted, #64748b);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        .backup-actions-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .backup-card {
+            background: var(--premium-surface, #ffffff);
+            border: 1px solid var(--premium-border, #e2e8f0);
+            border-radius: 18px;
+            box-shadow: var(--premium-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .backup-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .backup-card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--premium-text, #1e293b);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin: 0;
+        }
+
+        .backup-safety-notice {
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-left: 4px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.75rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+        }
+
+        .backup-table-card {
+            background: var(--premium-surface, #ffffff);
+            border: 1px solid var(--premium-border, #e2e8f0);
+            border-radius: 18px;
+            box-shadow: var(--premium-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .backup-table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--premium-border, #e2e8f0);
+            background: #fafbfc;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .backup-row-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s;
+            gap: 1rem;
+        }
+
+        .backup-row-item:last-child {
+            border-bottom: none;
+        }
+
+        .backup-row-item:hover {
+            background: #f8fafc;
+        }
+
+        .backup-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.22rem 0.6rem;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .backup-badge.manual {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #c8e6c9;
+        }
+
+        .backup-badge.safety {
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        .backup-badge.upload {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        /* Unified Modal System */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 999999 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: max(0.75rem, env(safe-area-inset-top, 0.75rem)) max(0.75rem, env(safe-area-inset-right, 0.75rem)) max(0.75rem, env(safe-area-inset-bottom, 0.75rem)) max(0.75rem, env(safe-area-inset-left, 0.75rem));
+            box-sizing: border-box;
+            overscroll-behavior: contain;
+        }
+
+        .modal-container {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            max-height: calc(100dvh - 2rem);
+            max-height: calc(100vh - 2rem);
+            width: 92%;
+            margin: auto;
+            position: relative;
+        }
+
+        .modal-header-banner {
+            padding: 1.15rem 1.5rem;
+            position: relative;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .modal-header-banner.green {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+        }
+
+        .modal-header-banner.red {
+            background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+        }
+
+        .modal-header-banner.amber {
+            background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+        }
+
+        .modal-close-icon-btn {
+            position: absolute;
+            top: 0.85rem;
+            right: 1.15rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+            outline: none;
+            transition: background 0.2s;
+        }
+
+        .modal-close-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .modal-body-content {
+            padding: 1.25rem 1.5rem;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .modal-footer-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfc;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 900px) {
+            .backup-actions-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .backup-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            .backup-kpi-card {
+                padding: 0.85rem 1rem;
+                gap: 0.65rem;
+            }
+            .backup-kpi-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
+            }
+            .backup-kpi-info .kpi-num {
+                font-size: 1.35rem;
+            }
+            .backup-row-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            .backup-row-actions {
+                display: flex;
+                width: 100%;
+                justify-content: flex-end;
+                gap: 0.5rem;
+            }
+            .backup-row-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+            .modal-footer-actions {
+                display: grid !important;
+                grid-template-columns: 1fr 1.35fr !important;
+                gap: 0.5rem !important;
+                padding: 0.75rem 1rem !important;
+            }
+            .modal-footer-actions .btn {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="premium-dashboard">
+    <div class="dashboard-layout">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"
+            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-logo">
+                    <img src="/assets/images/logo.png" alt="SnailShutter">
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/admin/dashboard.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-th-large"></i></span> Dashboard
+                    </a>
+                    <a href="/admin/bookings.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span> All Bookings
+                    </a>
+                    <a href="/admin/calendar.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-calendar"></i></span> Calendar
+                    </a>
+                    <a href="/admin/gallery.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-paper-plane"></i></span> Photo Deliveries
+                    </a>
+                    <a href="/admin/analytics.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-chart-bar"></i></span> Analytics & Reports
+                    </a>
+                    <a href="/admin/users.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-users"></i></span> Users
+                    </a>
+                    <a href="/admin/services.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-camera"></i></span> Services
+                    </a>
+                    <!-- Settings Dropdown -->
+                    <div class="sidebar-dropdown open" id="settingsDropdown">
+                        <a href="javascript:void(0);" class="sidebar-link sidebar-dropdown-toggle active-parent" onclick="toggleSettingsDropdown(this); return false;" style="cursor: pointer;">
+                            <span class="sidebar-dropdown-left">
+                                <span class="icon"><i class="fas fa-cog"></i></span> Settings
+                            </span>
+                            <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
+                        </a>
+                        <div class="sidebar-submenu" style="display: flex;">
+                            <a href="/admin/settings.html" class="sidebar-sublink" id="sublinkStudioSettings">
+                                <span class="icon"><i class="fas fa-store"></i></span> Studio Settings
+                            </a>
+                            <a href="/admin/backup.html" class="sidebar-sublink active" id="sublinkBackup">
+                                <span class="icon"><i class="fas fa-database"></i></span> Backup & Restore
+                            </a>
+                            <a href="/admin/profile-settings.html" class="sidebar-sublink" id="sublinkProfileSettings">
+                                <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
+                            </a>
+                        </div>
+                    </div>
+                    <a href="/admin/logs.html" class="sidebar-link">
+                        <span class="icon"><i class="fas fa-clipboard-list"></i></span> System Logs
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="avatar" data-user-initial>A</div>
+                    <div class="sidebar-user-info">
+                        <div class="name" data-user-name>Administrator</div>
+                        <div class="role" data-user-role>Administrator</div>
+                    </div>
+                </div>
+                <a href="#" data-logout class="sidebar-link" style="margin-top:0.75rem;padding-left:0;cursor:pointer;">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Page Hero -->
+            <div class="page-hero">
+                <div class="hero-particles"></div>
+                <div class="backup-hero-badge">
+                    <i class="fas fa-shield-alt"></i> Database Administration &amp; Disaster Recovery
+                </div>
+                <h1>Database Backup &amp; Restore</h1>
+                <p>Create full database snapshots, schedule point-in-time recovery, and restore MySQL tables safely.</p>
+            </div>
+
+            <div class="content-body">
+                <!-- KPI Stat Bar -->
+                <div class="backup-stats-grid">
+                    <div class="backup-kpi-card">
+                        <div class="backup-kpi-icon records">
+                            <i class="fas fa-table"></i>
+                        </div>
+                        <div class="backup-kpi-info">
+                            <div class="kpi-num" id="statTotalRecords">--</div>
+                            <div class="kpi-label">Total Records</div>
+                        </div>
+                    </div>
+
+                    <div class="backup-kpi-card">
+                        <div class="backup-kpi-icon size">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                        <div class="backup-kpi-info">
+                            <div class="kpi-num" id="statDatabaseSize">--</div>
+                            <div class="kpi-label">Database Storage</div>
+                        </div>
+                    </div>
+
+                    <div class="backup-kpi-card" onclick="openTableDetailsModal()" style="cursor: pointer;" title="Click to view detailed table breakdown">
+                        <div class="backup-kpi-icon tables">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="backup-kpi-info">
+                            <div class="kpi-num" id="statTablesCount">--</div>
+                            <div class="kpi-label" style="display: flex; align-items: center; gap: 0.35rem;">
+                                Active Tables <i class="fas fa-external-link-alt" style="font-size: 0.65rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="backup-kpi-card">
+                        <div class="backup-kpi-icon last">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="backup-kpi-info">
+                            <div class="kpi-num" id="statBackupsCount" style="font-size: 1.25rem;">--</div>
+                            <div class="kpi-label" id="statLastBackup">Last Backup: Never</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pre-Restore Safety Notice -->
+                <div class="backup-safety-notice">
+                    <i class="fas fa-shield-virus" style="font-size: 1.4rem; color: #d97706; flex-shrink: 0; margin-top: 0.15rem;"></i>
+                    <div style="font-size: 0.88rem; color: #92400e; line-height: 1.45;">
+                        <strong style="color: #78350f; display: block; font-size: 0.95rem; margin-bottom: 0.2rem;">
+                            Automatic Pre-Restore Safety Protection Active
+                        </strong>
+                        Every time a database restoration is initiated, SnailShutter automatically creates an emergency pre-restore safety snapshot (tagged <code>safety_backup_*</code>) before overwriting any data. You can roll back anytime with zero data loss.
+                    </div>
+                </div>
+
+                <!-- Action Cards -->
+                <div class="backup-actions-grid">
+                    <!-- Create Backup Card -->
+                    <div class="backup-card">
+                        <div>
+                            <div class="backup-card-header">
+                                <h3 class="backup-card-title">
+                                    <i class="fas fa-file-export" style="color: var(--premium-accent, #2e7d32);"></i>
+                                    Create Database Snapshot
+                                </h3>
+                                <span style="font-size: 0.75rem; background: #e8f5e9; color: #2e7d32; padding: 0.25rem 0.6rem; border-radius: 6px; font-weight: 700;">
+                                    Full SQL Dump
+                                </span>
+                            </div>
+                            <p style="font-size: 0.86rem; color: var(--premium-text-secondary, #64748b); line-height: 1.5; margin-bottom: 1.25rem;">
+                                Generates an encrypted snapshot including all database schemas, relations, and table records (bookings, users, services, reviews, settings, and logs).
+                            </p>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--premium-text, #1e293b); margin-bottom: 0.4rem;">
+                                    Snapshot Description / Note (Optional):
+                                </label>
+                                <input type="text" id="backupNotesInput" class="form-control"
+                                    placeholder="e.g., Prior to system upgrade or end-of-month archive"
+                                    style="width: 100%; padding: 0.65rem 0.85rem; border-radius: 10px; font-size: 0.88rem; border: 1.5px solid var(--premium-border-strong, #cbd5e1);">
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="button" class="btn btn-primary" onclick="createDatabaseBackup()" id="btnCreateBackup"
+                                style="width: 100%; border-radius: 10px; padding: 0.75rem 1.25rem; font-weight: 700; background: var(--premium-accent, #2e7d32); color: white; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <i class="fas fa-plus-circle"></i> Create Backup Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Upload External Backup Card -->
+                    <div class="backup-card">
+                        <div>
+                            <div class="backup-card-header">
+                                <h3 class="backup-card-title">
+                                    <i class="fas fa-cloud-upload-alt" style="color: #0284c7;"></i>
+                                    Upload &amp; Restore
+                                </h3>
+                                <span style="font-size: 0.75rem; background: #e0f2fe; color: #0284c7; padding: 0.25rem 0.6rem; border-radius: 6px; font-weight: 700;">
+                                    .SQL File
+                                </span>
+                            </div>
+                            <p style="font-size: 0.86rem; color: var(--premium-text-secondary, #64748b); line-height: 1.5; margin-bottom: 1.25rem;">
+                                Restore your database from an existing external SQL backup file. SnailShutter will automatically create an emergency safety backup before applying.
+                            </p>
+                            <div class="form-group" style="margin-bottom: 1.25rem;">
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--premium-text, #1e293b); margin-bottom: 0.4rem;">
+                                    Select .SQL Backup File:
+                                </label>
+                                <input type="file" id="uploadBackupInput" accept=".sql" class="form-control"
+                                    style="width: 100%; padding: 0.5rem; border-radius: 10px; font-size: 0.85rem; border: 1.5px dashed var(--premium-border-strong, #cbd5e1); background: #f8fafc;">
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="button" class="btn btn-secondary" onclick="uploadAndRestoreBackup()" id="btnUploadRestore"
+                                style="width: 100%; border-radius: 10px; padding: 0.75rem 1.25rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1.5px solid #0284c7; color: #0284c7;">
+                                <i class="fas fa-upload"></i> Upload &amp; Restore Database
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backups Repository Table Card -->
+                <div class="backup-table-card">
+                    <div class="backup-table-header">
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--premium-text); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-folder-open" style="color: var(--premium-accent, #2e7d32);"></i>
+                                Available Database Snapshots
+                            </h3>
+                            <span style="font-size: 0.8rem; color: var(--premium-text-muted);">
+                                Preserved on server disk under <code>/backups/</code>
+                            </span>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button class="btn btn-secondary btn-sm" onclick="loadBackupsData()" id="btnRefreshBackups"
+                                style="padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.82rem;">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="backupsListContainer" style="min-height: 180px;">
+                        <!-- Dynamically populated -->
+                        <div style="padding: 3rem 1.5rem; text-align: center; color: var(--premium-text-muted);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 1.75rem; margin-bottom: 0.75rem; color: var(--premium-accent);"></i>
+                            <p style="margin: 0; font-size: 0.9rem;">Loading database snapshots...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Pre-Restore Confirmation Modal -->
+    <div id="restoreConfirmModal" class="modal-overlay" style="display:none;" onclick="if(event.target === this) closeRestoreModal()">
+        <div class="modal-container" style="max-width: 480px;">
+            <div class="modal-header-banner amber">
+                <button type="button" onclick="closeRestoreModal()" class="modal-close-icon-btn" aria-label="Close modal">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; opacity: 0.95;">
+                    <i class="fas fa-exclamation-triangle"></i> Database Restoration Gate
+                </div>
+                <h3 style="margin: 0.35rem 0 0; font-size: 1.2rem; font-weight: 700; color: white;">
+                    Confirm Database Restore
+                </h3>
+            </div>
+
+            <div class="modal-body-content">
+                <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 1.25rem;">
+                    <div style="font-size: 0.88rem; color: #92400e; line-height: 1.45;">
+                        <strong>⚠️ Notice:</strong> Restoring this snapshot will overwrite current tables and records with the data from this backup file.
+                    </div>
+                </div>
+
+                <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 0.25rem;">Target Snapshot File:</div>
+                    <div id="restoreTargetFilename" style="font-size: 0.92rem; font-weight: 700; color: #1e293b; font-family: monospace; word-break: break-all;">--</div>
+                    <div id="restoreTargetMeta" style="font-size: 0.82rem; color: #64748b; margin-top: 0.4rem;">--</div>
+                </div>
+
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.75rem 0.9rem; font-size: 0.82rem; color: #166534; line-height: 1.4;">
+                    <i class="fas fa-check-circle" style="color: #16a34a; margin-right: 0.3rem;"></i>
+                    <strong>Automated Safety Net:</strong> SnailShutter will automatically capture an emergency safety backup of current data right now before restoring this file.
+                </div>
+            </div>
+
+            <div class="modal-footer-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeRestoreModal()" style="border-radius: 50px; font-weight: 600;">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-danger" onclick="executeDatabaseRestore()" id="btnConfirmExecuteRestore"
+                    style="border-radius: 50px; background: #d97706; border-color: #d97706; color: white; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem;">
+                    <i class="fas fa-undo-alt"></i> Proceed with Restore
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Details Modal -->
+    <div id="tableDetailsModal" class="modal-overlay" style="display:none;" onclick="if(event.target === this) closeTableDetailsModal()">
+        <div class="modal-container" style="max-width: 580px;">
+            <div class="modal-header-banner green">
+                <button type="button" onclick="closeTableDetailsModal()" class="modal-close-icon-btn" aria-label="Close modal">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; opacity: 0.95;">
+                    <i class="fas fa-table"></i> MySQL Schema Breakdown
+                </div>
+                <h3 style="margin: 0.35rem 0 0; font-size: 1.2rem; font-weight: 700; color: white;">
+                    Database Tables &amp; Record Counts
+                </h3>
+            </div>
+
+            <div class="modal-body-content" id="tableDetailsModalBody">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="modal-footer-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeTableDetailsModal()" style="border-radius: 50px; font-weight: 600;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/assets/js/api.js?v=1.2.0"></script>
+    <script src="/assets/js/auth.js?v=1.2.0"></script>
+    <script src="/assets/js/main.js?v=1.2.0"></script>
+    <script src="/assets/js/dashboard-premium.js?v=1.2.0"></script>
+
+    <script>
+        let currentBackupStats = null;
+        let currentBackupsList = [];
+        let selectedRestoreFile = null;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verify authentication
+            if (window.auth && typeof auth.requireAuth === 'function') {
+                const isAuthed = await auth.requireAuth();
+                if (!isAuthed) return;
+            }
+
+            // Populate current user metadata in sidebar
+            const user = (window.auth && auth.getUser) ? auth.getUser() : null;
+            if (user) {
+                const nameEls = document.querySelectorAll('[data-user-name]');
+                const initialEls = document.querySelectorAll('[data-user-initial]');
+                nameEls.forEach(el => el.textContent = user.name || 'Administrator');
+                initialEls.forEach(el => el.textContent = (user.name || 'A').charAt(0).toUpperCase());
+            }
+
+            // Load data
+            loadBackupsData();
+        });
+
+        async function loadBackupsData() {
+            const refreshBtn = document.getElementById('btnRefreshBackups');
+            if (refreshBtn) {
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Loading...';
+                refreshBtn.disabled = true;
+            }
+
+            try {
+                // Fetch stats and list in parallel
+                const [statsRes, listRes] = await Promise.all([
+                    api.getBackupStats(),
+                    api.getBackupsList()
+                ]);
+
+                if (statsRes && statsRes.success) {
+                    currentBackupStats = statsRes.data;
+                    renderStats(statsRes.data);
+                }
+
+                if (listRes && listRes.success) {
+                    currentBackupsList = listRes.backups || [];
+                    renderBackupsList(currentBackupsList);
+                }
+
+            } catch (err) {
+                console.error('Failed to load backup data:', err);
+                const container = document.getElementById('backupsListContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="padding: 2.5rem 1.5rem; text-align: center; color: #ef4444;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                            <h4 style="margin: 0 0 0.35rem; color: #dc2626;">Error loading database backups</h4>
+                            <p style="margin: 0; font-size: 0.85rem;">${escapeHtml(err.message)}</p>
+                        </div>
+                    `;
+                }
+            } finally {
+                if (refreshBtn) {
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                    refreshBtn.disabled = false;
+                }
+            }
+        }
+
+        function renderStats(stats) {
+            const totalRecEl = document.getElementById('statTotalRecords');
+            const dbSizeEl = document.getElementById('statDatabaseSize');
+            const tablesCntEl = document.getElementById('statTablesCount');
+            const backupsCntEl = document.getElementById('statBackupsCount');
+            const lastBackupEl = document.getElementById('statLastBackup');
+
+            if (totalRecEl) totalRecEl.textContent = (stats.totalRecords || 0).toLocaleString();
+            if (dbSizeEl) dbSizeEl.textContent = stats.totalSizeFormatted || `${stats.totalSizeMB || 0} MB`;
+            if (tablesCntEl) tablesCntEl.textContent = stats.tablesCount || '0';
+            if (backupsCntEl) backupsCntEl.textContent = `${stats.backupsCount || 0} Snapshots`;
+
+            if (lastBackupEl) {
+                if (stats.lastBackupTime) {
+                    const relative = window.DashboardPremium ? DashboardPremium.relativeTime(stats.lastBackupTime) : 'Recently';
+                    lastBackupEl.textContent = `Latest: ${relative}`;
+                } else {
+                    lastBackupEl.textContent = 'Latest: No snapshots yet';
+                }
+            }
+        }
+
+        function renderBackupsList(backups) {
+            const container = document.getElementById('backupsListContainer');
+            if (!container) return;
+
+            if (!backups || backups.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 3.5rem 1.5rem; text-align: center; color: var(--premium-text-muted);">
+                        <i class="fas fa-box-open" style="font-size: 2.75rem; margin-bottom: 0.75rem; color: #cbd5e1; display: block;"></i>
+                        <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--premium-text); margin: 0 0 0.35rem;">No database snapshots yet</h4>
+                        <p style="font-size: 0.86rem; margin: 0 0 1rem;">Click "Create Backup Now" above to generate your first complete MySQL database snapshot.</p>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="createDatabaseBackup()" style="border-radius: 50px; background: var(--premium-accent, #2e7d32); color: white;">
+                            <i class="fas fa-plus-circle"></i> Create Snapshot
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = backups.map((b, index) => {
+                let badgeClass = 'manual';
+                let badgeLabel = 'Manual Snapshot';
+                let badgeIcon = 'fa-check';
+
+                if (b.type === 'safety') {
+                    badgeClass = 'safety';
+                    badgeLabel = 'Pre-Restore Safety';
+                    badgeIcon = 'fa-shield-alt';
+                } else if (b.type === 'upload') {
+                    badgeClass = 'upload';
+                    badgeLabel = 'Uploaded File';
+                    badgeIcon = 'fa-cloud-upload-alt';
+                }
+
+                const createdDate = new Date(b.createdAt);
+                const fullDate = createdDate.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'medium', timeStyle: 'short' });
+                const relative = window.DashboardPremium ? DashboardPremium.relativeTime(b.createdAt) : fullDate;
+
+                const recordsBadge = b.recordsCount ? `<span style="font-size: 0.78rem; color: #64748b;"><i class="fas fa-database" style="font-size: 0.7rem;"></i> ${b.recordsCount.toLocaleString()} records (${b.tablesCount || 8} tables)</span>` : '';
+
+                return `
+                    <div class="backup-row-item">
+                        <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 0;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; color: #475569; flex-shrink: 0;">
+                                <i class="fas fa-file-code"></i>
+                            </div>
+                            <div style="min-width: 0; flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                                    <strong style="font-size: 0.92rem; color: var(--premium-text, #1e293b); font-family: monospace; word-break: break-all;">
+                                        ${escapeHtml(b.filename)}
+                                    </strong>
+                                    <span class="backup-badge ${badgeClass}">
+                                        <i class="fas ${badgeIcon}"></i> ${badgeLabel}
+                                    </span>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0284c7; background: #f0f9ff; padding: 2px 7px; border-radius: 4px;">
+                                        ${escapeHtml(b.sizeFormatted)}
+                                    </span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; font-size: 0.78rem; color: var(--premium-text-muted, #64748b);">
+                                    <span title="${fullDate} PST"><i class="far fa-clock"></i> ${relative}</span>
+                                    ${recordsBadge}
+                                    ${b.notes ? `<span><i class="far fa-comment-dots"></i> ${escapeHtml(b.notes)}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="backup-row-actions">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="downloadBackupByIndex(${index})" title="Download SQL backup to your device"
+                                style="border-radius: 8px; font-size: 0.8rem; padding: 0.4rem 0.75rem;">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="promptRestoreByIndex(${index})" title="Restore database from this snapshot"
+                                style="border-radius: 8px; font-size: 0.8rem; padding: 0.4rem 0.75rem; color: #d97706; border-color: #fde68a;">
+                                <i class="fas fa-undo-alt"></i> Restore
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="deleteBackupByIndex(${index})" title="Delete this backup snapshot"
+                                style="border-radius: 8px; font-size: 0.8rem; padding: 0.4rem 0.65rem; color: #dc2626;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function downloadBackupByIndex(idx) {
+            const b = currentBackupsList[idx];
+            if (b && b.filename) downloadBackupFile(b.filename);
+        }
+
+        function promptRestoreByIndex(idx) {
+            const b = currentBackupsList[idx];
+            if (b && b.filename) promptRestoreModal(b.filename, b.sizeFormatted, b.recordsCount || 'All');
+        }
+
+        function deleteBackupByIndex(idx) {
+            const b = currentBackupsList[idx];
+            if (b && b.filename) deleteBackupFile(b.filename);
+        }
+
+        async function createDatabaseBackup() {
+            const btn = document.getElementById('btnCreateBackup');
+            const notesInput = document.getElementById('backupNotesInput');
+            const notes = notesInput ? notesInput.value.trim() : '';
+
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Snapshot...';
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await api.createBackup(notes);
+                if (res.success) {
+                    if (notesInput) notesInput.value = '';
+                    if (typeof showAlert === 'function') {
+                        showAlert(`Database snapshot "${res.backup.filename}" created successfully!`, 'success');
+                    } else {
+                        alert(`Snapshot "${res.backup.filename}" created successfully!`);
+                    }
+                    loadBackupsData();
+                } else {
+                    alert('Backup failed: ' + (res.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Backup error:', err);
+                alert('Backup creation error: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Backup Now';
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        async function downloadBackupFile(filename) {
+            try {
+                await api.downloadBackup(filename);
+            } catch (err) {
+                alert('Failed to download backup: ' + err.message);
+            }
+        }
+
+        async function deleteBackupFile(filename) {
+            if (!confirm(`Are you sure you want to permanently delete backup snapshot "${filename}"?`)) {
+                return;
+            }
+
+            try {
+                const res = await api.deleteBackup(filename);
+                if (res.success) {
+                    if (typeof showAlert === 'function') {
+                        showAlert(`Backup "${filename}" deleted.`, 'info');
+                    }
+                    loadBackupsData();
+                } else {
+                    alert('Delete failed: ' + res.error);
+                }
+            } catch (err) {
+                alert('Error deleting backup: ' + err.message);
+            }
+        }
+
+        function promptRestoreModal(filename, size, records) {
+            selectedRestoreFile = filename;
+            const modal = document.getElementById('restoreConfirmModal');
+            const fileEl = document.getElementById('restoreTargetFilename');
+            const metaEl = document.getElementById('restoreTargetMeta');
+
+            if (fileEl) fileEl.textContent = filename;
+            if (metaEl) metaEl.textContent = `Size: ${size} | Records: ${records}`;
+
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.add('active', 'show');
+                document.documentElement.classList.add('modal-open');
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        function closeRestoreModal() {
+            const modal = document.getElementById('restoreConfirmModal');
+            if (modal) {
+                modal.classList.remove('active', 'show');
+                modal.style.display = 'none';
+                document.documentElement.classList.remove('modal-open');
+                document.body.classList.remove('modal-open');
+            }
+            selectedRestoreFile = null;
+        }
+
+        async function executeDatabaseRestore() {
+            if (!selectedRestoreFile) return;
+
+            const btn = document.getElementById('btnConfirmExecuteRestore');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restoring Database...';
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await api.restoreBackup(selectedRestoreFile);
+                if (res.success) {
+                    closeRestoreModal();
+                    alert(`✅ Database successfully restored!\n\n${res.message}\nDuration: ${res.durationMs}ms\nPre-restore safety snapshot: ${res.safetyBackup}`);
+                    loadBackupsData();
+                } else {
+                    alert('Restoration error: ' + (res.error || 'Failed to restore database.'));
+                }
+            } catch (err) {
+                console.error('Restore error:', err);
+                alert('Failed to restore database: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-undo-alt"></i> Proceed with Restore';
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        async function uploadAndRestoreBackup() {
+            const fileInput = document.getElementById('uploadBackupInput');
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                alert('Please select a .sql database backup file to upload.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file.name.toLowerCase().endsWith('.sql')) {
+                alert('Only .sql database files are supported.');
+                return;
+            }
+
+            if (!confirm(`CAUTION: You are about to restore the database from uploaded file "${file.name}". Current records will be replaced. An automated safety backup will be taken before restoring.\n\nProceed?`)) {
+                return;
+            }
+
+            const btn = document.getElementById('btnUploadRestore');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading &amp; Restoring...';
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await api.uploadRestoreBackup(file);
+                if (res.success) {
+                    fileInput.value = '';
+                    alert(`✅ Uploaded backup restored successfully!\n\n${res.message}\nPre-restore safety backup: ${res.safetyBackup}`);
+                    loadBackupsData();
+                } else {
+                    alert('Upload restore failed: ' + (res.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Upload restore error:', err);
+                alert('Error uploading & restoring: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-upload"></i> Upload &amp; Restore Database';
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        function openTableDetailsModal() {
+            const modal = document.getElementById('tableDetailsModal');
+            const body = document.getElementById('tableDetailsModalBody');
+            if (!currentBackupStats || !currentBackupStats.tables) return;
+
+            if (body) {
+                body.innerHTML = `
+                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 0; margin-bottom: 1rem;">
+                        Database <strong>${escapeHtml(currentBackupStats.databaseName)}</strong> running on <strong>${escapeHtml(currentBackupStats.serverVersion)}</strong>.
+                    </p>
+                    <div style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                            <thead>
+                                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; text-align: left; color: #475569;">
+                                    <th style="padding: 0.65rem 0.85rem; font-weight: 700;">Table Name</th>
+                                    <th style="padding: 0.65rem 0.85rem; font-weight: 700; text-align: right;">Rows</th>
+                                    <th style="padding: 0.65rem 0.85rem; font-weight: 700; text-align: right;">Size</th>
+                                    <th style="padding: 0.65rem 0.85rem; font-weight: 700; text-align: center;">Engine</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${currentBackupStats.tables.map(t => `
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 0.65rem 0.85rem; font-family: monospace; font-weight: 600; color: #1e293b;">
+                                            <i class="fas fa-table" style="color: var(--premium-accent); margin-right: 0.35rem;"></i>
+                                            ${escapeHtml(t.name)}
+                                        </td>
+                                        <td style="padding: 0.65rem 0.85rem; text-align: right; font-weight: 600; color: #334155;">
+                                            ${(t.rows || 0).toLocaleString()}
+                                        </td>
+                                        <td style="padding: 0.65rem 0.85rem; text-align: right; color: #64748b;">
+                                            ${escapeHtml(t.sizeFormatted)}
+                                        </td>
+                                        <td style="padding: 0.65rem 0.85rem; text-align: center; color: #64748b; font-size: 0.78rem;">
+                                            ${escapeHtml(t.engine)}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            if (modal) {
+                modal.style.display = 'flex';
+                document.documentElement.classList.add('modal-open');
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        function closeTableDetailsModal() {
+            const modal = document.getElementById('tableDetailsModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.documentElement.classList.remove('modal-open');
+                document.body.classList.remove('modal-open');
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+    </script>
+</body>
+
+</html>

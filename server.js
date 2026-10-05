@@ -81,6 +81,8 @@ const calendarRoutes = require('./api/calendar_node');
 const adminRoutes = require('./api/admin_node');
 const galleryRoutes = require('./api/gallery_node');
 const availabilityRouter = require('./api/availability_sse');
+const reviewRoutes = require('./api/reviews_node');
+const backupRoutes = require('./api/backup_node');
 
 // Use Routes
 app.use('/api/auth', authRoutes);
@@ -89,8 +91,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/backup', backupRoutes);
+app.use('/api/backup', backupRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/availability', availabilityRouter);
+app.use('/api/reviews', reviewRoutes);
 
 const pool = require('./config/db');
 
@@ -227,6 +232,29 @@ async function runDatabaseMigration() {
       ) ENGINE=InnoDB
     `);
     logs.push('system_logs table verified.');
+
+    // Ensure reviews table exists for customer feedback on completed sessions
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS reviews (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        booking_id INT NOT NULL UNIQUE,
+        client_id INT NOT NULL,
+        service_id INT NOT NULL,
+        rating TINYINT NOT NULL,
+        comment TEXT NULL,
+        tags VARCHAR(255) DEFAULT NULL,
+        is_public TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+        FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE,
+        INDEX idx_client (client_id),
+        INDEX idx_service (service_id),
+        INDEX idx_rating (rating)
+      ) ENGINE=InnoDB
+    `);
+    logs.push('reviews table verified.');
 
     // Seed initial historical audit logs if table is currently empty
     try {

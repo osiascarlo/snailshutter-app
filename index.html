@@ -538,12 +538,27 @@
         <div class="nav-links" id="navLinks">
             <a href="#services" onclick="closeNav()">Services</a>
             <a href="#location" onclick="closeNav()">Visit Studio</a>
-            <a href="/auth/register.html" class="btn btn-sm btn-nav-signup">
+            <a href="/auth/register.html" class="btn btn-sm btn-nav-signup" data-role="unauthenticated" onclick="closeNav()">
                 <i class="fas fa-user-plus"></i> Sign Up
             </a>
-            <a href="/auth/login.html" class="btn btn-primary btn-sm">
+            <a href="/auth/login.html" class="btn btn-primary btn-sm" data-role="unauthenticated" onclick="closeNav()">
                 <i class="fas fa-sign-in-alt"></i> Login
             </a>
+            <span class="nav-user-greeting" data-role="authenticated" style="display:none;">
+                <i class="far fa-user-circle"></i> <span data-user-name>User</span>
+            </span>
+            <a href="/admin/dashboard.html" class="btn btn-primary btn-sm btn-nav-dashboard" data-role="admin" style="display:none;" onclick="closeNav()">
+                <i class="fas fa-gauge-high"></i> Dashboard
+            </a>
+            <a href="/staff/dashboard.html" class="btn btn-primary btn-sm btn-nav-dashboard" data-role="staff" style="display:none;" onclick="closeNav()">
+                <i class="fas fa-gauge-high"></i> Dashboard
+            </a>
+            <a href="/client/dashboard.html" class="btn btn-primary btn-sm btn-nav-dashboard" data-role="client" style="display:none;" onclick="closeNav()">
+                <i class="fas fa-gauge-high"></i> Dashboard
+            </a>
+            <button type="button" class="btn btn-sm btn-nav-logout" data-role="authenticated" data-logout style="display:none;" onclick="closeNav()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
         <!-- Hamburger button (visible on mobile/tablet) -->
         <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">

@@ -154,6 +154,191 @@
             gap: 0.75rem;
         }
 
+        .system-logs-dates-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .system-logs-dates-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .log-date-filter-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--premium-surface, #ffffff);
+            border: 1px solid var(--premium-border-strong, #cbd5e1);
+            padding: 0.42rem 0.7rem;
+            border-radius: 10px;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .log-date-filter-box:focus-within {
+            border-color: var(--premium-accent, #2e7d32);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+        }
+
+        .log-date-filter-box input[type="date"] {
+            border: none;
+            background: transparent;
+            font-size: 0.82rem;
+            color: var(--premium-text, #1e293b);
+            outline: none;
+            font-family: inherit;
+            cursor: pointer;
+            width: 100%;
+            min-width: 0;
+        }
+
+        /* Unified Modal System */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 999999 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: max(0.75rem, env(safe-area-inset-top, 0.75rem)) max(0.75rem, env(safe-area-inset-right, 0.75rem)) max(0.75rem, env(safe-area-inset-bottom, 0.75rem)) max(0.75rem, env(safe-area-inset-left, 0.75rem));
+            box-sizing: border-box;
+            overscroll-behavior: contain;
+        }
+
+        .modal-container {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            max-height: calc(100dvh - 2rem);
+            max-height: calc(100vh - 2rem);
+            width: 92%;
+            margin: auto;
+            position: relative;
+        }
+
+        .modal-container.export-modal-container {
+            max-width: 480px;
+        }
+
+        .modal-container.log-detail-modal-container {
+            max-width: 560px;
+        }
+
+        .modal-container.prune-modal-container {
+            max-width: 440px;
+        }
+
+        .modal-header-banner {
+            padding: 1.15rem 1.5rem;
+            position: relative;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .modal-header-banner.green {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+        }
+
+        .modal-header-banner.red {
+            background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+        }
+
+        .modal-close-icon-btn {
+            position: absolute;
+            top: 0.85rem;
+            right: 1.15rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+            outline: none;
+            transition: background 0.2s;
+        }
+
+        .modal-close-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .modal-body-content {
+            padding: 1.25rem 1.5rem;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .modal-footer-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfc;
+            flex-shrink: 0;
+        }
+
+        .export-date-grid,
+        .export-scope-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .export-presets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .export-preset-pill {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.32rem 0.4rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .export-preset-pill:hover,
+        .export-preset-pill:active {
+            background: #e2e8f0;
+            color: #1e293b;
+            border-color: #cbd5e1;
+        }
+
         .filter-pill-label {
             font-size: 0.78rem;
             font-weight: 700;
@@ -224,7 +409,7 @@
             }
             .btn-action-group {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(3, 1fr);
                 gap: 0.4rem;
                 width: 100%;
             }
@@ -236,6 +421,29 @@
                 border-radius: 8px;
                 white-space: nowrap;
                 gap: 0.35rem;
+            }
+            .system-logs-dates-row {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+                width: 100%;
+            }
+            .system-logs-dates-pair {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.4rem;
+                flex: 1;
+                min-width: 0;
+            }
+            .log-date-filter-box {
+                width: 100%;
+                min-width: 0;
+                padding: 0.38rem 0.55rem;
+            }
+            .log-date-filter-box input[type="date"] {
+                width: 100%;
+                min-width: 0;
+                font-size: 0.78rem;
             }
 
             .system-logs-toolbar {
@@ -301,11 +509,118 @@
             .modal-details-grid {
                 grid-template-columns: 1fr;
             }
+
+            /* Mobile Modals Optimization */
+            .modal-overlay {
+                padding: max(0.5rem, env(safe-area-inset-top, 0.5rem)) max(0.5rem, env(safe-area-inset-right, 0.5rem)) max(0.5rem, env(safe-area-inset-bottom, 0.5rem)) max(0.5rem, env(safe-area-inset-left, 0.5rem)) !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+
+            body.premium-dashboard .modal-container,
+            .modal-container.export-modal-container,
+            .modal-container.log-detail-modal-container,
+            .modal-container.prune-modal-container {
+                width: 100% !important;
+                max-width: 420px !important;
+                max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1.25rem) !important;
+                max-height: calc(100vh - 1.25rem) !important;
+                margin: auto !important;
+                border-radius: 16px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+            }
+
+            .modal-header-banner {
+                padding: 0.85rem 1rem !important;
+                flex-shrink: 0 !important;
+            }
+
+            .modal-header-banner h3 {
+                font-size: 1.05rem !important;
+            }
+
+            .modal-close-icon-btn {
+                top: 0.65rem !important;
+                right: 0.75rem !important;
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 0.82rem !important;
+            }
+
+            .modal-body-content {
+                padding: 0.85rem 1rem !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                flex: 1 1 auto !important;
+                min-height: 0 !important;
+            }
+
+            .export-date-grid,
+            .export-scope-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.45rem !important;
+            }
+
+            .export-date-grid input[type="date"],
+            .export-scope-grid select {
+                font-size: 0.8rem !important;
+                padding: 0.42rem 0.5rem !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .export-presets-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 0.35rem !important;
+            }
+
+            .export-preset-pill {
+                padding: 0.32rem 0.2rem !important;
+                font-size: 0.72rem !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                min-width: 0 !important;
+            }
+
+            .modal-footer-actions {
+                padding: 0.65rem 1rem 0.75rem !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1.35fr !important;
+                gap: 0.5rem !important;
+                flex-shrink: 0 !important;
+            }
+
+            .modal-footer-actions .btn {
+                width: 100% !important;
+                padding: 0.55rem 0.4rem !important;
+                font-size: 0.82rem !important;
+                white-space: nowrap !important;
+                justify-content: center !important;
+                text-align: center !important;
+                box-sizing: border-box !important;
+            }
         }
 
         @media (max-width: 380px) {
             .btn-action-group {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+            }
+            .export-date-grid,
+            .export-scope-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.35rem !important;
+            }
+            .export-presets-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .modal-footer-actions {
+                grid-template-columns: 1fr !important;
             }
         }
     </style>
@@ -363,6 +678,9 @@
                         <div class="sidebar-submenu">
                             <a href="/admin/settings.html" class="sidebar-sublink" id="sublinkStudioSettings">
                                 <span class="icon"><i class="fas fa-store"></i></span> Studio Settings
+                            </a>
+                            <a href="/admin/backup.html" class="sidebar-sublink" id="sublinkBackup">
+                                <span class="icon"><i class="fas fa-database"></i></span> Backup & Restore
                             </a>
                             <a href="/admin/profile-settings.html" class="sidebar-sublink" id="sublinkProfileSettings">
                                 <span class="icon"><i class="fas fa-user-cog"></i></span> Profile Settings
@@ -463,6 +781,9 @@
                             <button class="btn btn-secondary btn-sm" onclick="loadSystemLogs()" id="btnRefreshLogs" style="border-radius: 8px;">
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
+                            <button class="btn btn-secondary btn-sm" onclick="openExportModal()" id="btnOpenExportModal" style="border-radius: 8px; color: var(--premium-accent, #2e7d32); font-weight: 600;">
+                                <i class="fas fa-file-export"></i> Export
+                            </button>
                             <button class="btn btn-secondary btn-sm" onclick="openPruneModal()" style="border-radius: 8px; color: #dc2626;">
                                 <i class="fas fa-trash-alt"></i> Prune
                             </button>
@@ -477,6 +798,27 @@
                                 <input type="text" class="system-logs-search-input" id="logSearchInput"
                                     placeholder="Search by user, action, IP, or details..." oninput="debounceLogSearch()">
                             </div>
+
+                            <!-- Date Range Filters (From & To) -->
+                            <div class="system-logs-dates-row">
+                                <div class="system-logs-dates-pair">
+                                    <div class="log-date-filter-box" title="Filter logs from this date">
+                                        <i class="far fa-calendar-alt" style="font-size: 0.8rem; color: var(--premium-text-muted);"></i>
+                                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--premium-text-muted); text-transform: uppercase;">From</span>
+                                        <input type="date" id="logDateFrom" onchange="onDateFilterChange()">
+                                    </div>
+                                    <div class="log-date-filter-box" title="Filter logs up to this date">
+                                        <i class="far fa-calendar-alt" style="font-size: 0.8rem; color: var(--premium-text-muted);"></i>
+                                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--premium-text-muted); text-transform: uppercase;">To</span>
+                                        <input type="date" id="logDateTo" onchange="onDateFilterChange()">
+                                    </div>
+                                </div>
+                                <button id="btnClearDateFilters" onclick="clearDateFilters()" title="Reset date filters" class="btn btn-secondary btn-sm"
+                                    style="display: none; padding: 0.45rem 0.65rem; border-radius: 8px; font-size: 0.78rem; color: var(--premium-text-muted); flex-shrink: 0;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
                             <div class="system-logs-selects-row">
                                 <select id="logStatusSelect" class="form-control"
                                     style="padding: 0.6rem 0.85rem; border-radius: 10px; font-size: 0.85rem; border-color: var(--premium-border-strong);"
@@ -583,10 +925,9 @@
 
     <!-- Log Detail Modal -->
     <div id="logDetailModal" class="modal-overlay" style="display:none;" onclick="if(event.target === this) closeLogModal()">
-        <div class="modal-container" style="max-width: 560px; width: 92%; padding: 0; overflow: hidden; border-radius: 20px; background: white; box-shadow: var(--premium-shadow-xl);">
-            <div style="background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); color: white; padding: 1.5rem 1.75rem; position: relative;">
-                <button type="button" onclick="closeLogModal()"
-                    style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 50; outline: none;">
+        <div class="modal-container log-detail-modal-container">
+            <div class="modal-header-banner green">
+                <button type="button" onclick="closeLogModal()" class="modal-close-icon-btn" aria-label="Close modal">
                     <i class="fas fa-times"></i>
                 </button>
                 <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; opacity: 0.9;">
@@ -594,10 +935,10 @@
                 </div>
                 <h3 id="modalLogTitle" style="margin: 0.4rem 0 0; font-size: 1.2rem; font-weight: 700; color: white;">Log Details</h3>
             </div>
-            <div style="padding: 1.5rem 1.75rem;" id="modalLogBody">
+            <div class="modal-body-content" id="modalLogBody">
                 <!-- Dynamically injected -->
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.75rem 1.5rem; border-top: 1px solid #f1f5f9;">
+            <div class="modal-footer-actions" style="justify-content: space-between;">
                 <button class="btn btn-secondary btn-sm" onclick="copyLogDetails()" id="btnCopyDetails" style="border-radius: 50px;">
                     <i class="far fa-copy"></i> Copy Details
                 </button>
@@ -610,10 +951,9 @@
 
     <!-- Prune Modal -->
     <div id="pruneModal" class="modal-overlay" style="display:none;" onclick="if(event.target === this) closePruneModal()">
-        <div class="modal-container" style="max-width: 460px; width: 92%; padding: 0; overflow: hidden; border-radius: 20px; background: white; box-shadow: var(--premium-shadow-xl);">
-            <div style="background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%); color: white; padding: 1.5rem 1.75rem; position: relative;">
-                <button type="button" onclick="closePruneModal()"
-                    style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 50; outline: none;">
+        <div class="modal-container prune-modal-container">
+            <div class="modal-header-banner red">
+                <button type="button" onclick="closePruneModal()" class="modal-close-icon-btn" aria-label="Close modal">
                     <i class="fas fa-times"></i>
                 </button>
                 <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; opacity: 0.9;">
@@ -621,8 +961,8 @@
                 </div>
                 <h3 style="margin: 0.4rem 0 0; font-size: 1.2rem; font-weight: 700; color: white;">Prune Old Audit Logs</h3>
             </div>
-            <div style="padding: 1.5rem 1.75rem;">
-                <p style="font-size: 0.9rem; color: #475569; line-height: 1.5; margin-bottom: 1.25rem;">
+            <div class="modal-body-content">
+                <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin-bottom: 1.25rem;">
                     Remove older historical logs to optimize database performance. This action cannot be undone.
                 </p>
                 <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
@@ -635,12 +975,107 @@
                     <option value="180">Delete logs older than 180 days</option>
                 </select>
             </div>
-            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.75rem 1.5rem; border-top: 1px solid #f1f5f9;">
+            <div class="modal-footer-actions">
                 <button class="btn btn-secondary" onclick="closePruneModal()" style="border-radius: 50px;">
                     Cancel
                 </button>
                 <button class="btn btn-danger" onclick="confirmPruneLogs()" id="btnConfirmPrune" style="border-radius: 50px; background: #dc2626; color: white; font-weight: 600;">
                     <i class="fas fa-trash-alt"></i> Prune Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export System Logs Modal -->
+    <div id="exportLogsModal" class="modal-overlay" style="display:none;" onclick="if(event.target === this) closeExportModal()">
+        <div class="modal-container export-modal-container">
+            <div class="modal-header-banner green export-modal-header">
+                <button type="button" onclick="closeExportModal()" class="modal-close-icon-btn" aria-label="Close export dialog">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; opacity: 0.95;">
+                    <i class="fas fa-file-export"></i> Data &amp; Compliance Reporting
+                </div>
+                <h3 style="margin: 0.35rem 0 0; font-size: 1.2rem; font-weight: 700; color: white;">Export System Audit Logs</h3>
+            </div>
+            
+            <div class="modal-body-content export-modal-body">
+                <p style="font-size: 0.84rem; color: var(--premium-text-secondary, #64748b); margin: 0 0 1rem; line-height: 1.45;">
+                    Generate and download a CSV file of system activity records, user operations, and security traces.
+                </p>
+
+                <!-- Date Range Selection -->
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.4rem;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--premium-text, #1e293b); margin: 0;">
+                            <i class="far fa-calendar-alt" style="color: var(--premium-accent, #2e7d32); margin-right: 0.3rem;"></i> Date Range:
+                        </label>
+                        <span style="font-size: 0.72rem; color: var(--premium-text-muted, #94a3b8);">Leave empty for all dates</span>
+                    </div>
+                    <div class="export-date-grid">
+                        <div>
+                            <span style="display: block; font-size: 0.7rem; font-weight: 600; color: var(--premium-text-muted, #64748b); margin-bottom: 0.2rem; text-transform: uppercase;">Date From</span>
+                            <input type="date" id="exportModalDateFrom" class="form-control"
+                                style="width: 100%; min-width: 0; padding: 0.48rem 0.65rem; border-radius: 9px; font-size: 0.82rem; border: 1.5px solid var(--premium-border-strong, #cbd5e1);">
+                        </div>
+                        <div>
+                            <span style="display: block; font-size: 0.7rem; font-weight: 600; color: var(--premium-text-muted, #64748b); margin-bottom: 0.2rem; text-transform: uppercase;">Date To</span>
+                            <input type="date" id="exportModalDateTo" class="form-control"
+                                style="width: 100%; min-width: 0; padding: 0.48rem 0.65rem; border-radius: 9px; font-size: 0.82rem; border: 1.5px solid var(--premium-border-strong, #cbd5e1);">
+                        </div>
+                    </div>
+
+                    <!-- Quick Preset Buttons -->
+                    <div class="export-presets-grid">
+                        <button type="button" class="export-preset-pill" onclick="setExportDatePreset('today')">Today</button>
+                        <button type="button" class="export-preset-pill" onclick="setExportDatePreset('yesterday')">Yesterday</button>
+                        <button type="button" class="export-preset-pill" onclick="setExportDatePreset('7days')">Last 7 Days</button>
+                        <button type="button" class="export-preset-pill" onclick="setExportDatePreset('30days')">Last 30 Days</button>
+                        <button type="button" class="export-preset-pill" onclick="setExportDatePreset('this_month')">This Month</button>
+                        <button type="button" class="export-preset-pill" onclick="setExportDatePreset('all')">All Time</button>
+                    </div>
+                </div>
+
+                <!-- Scope / Filters -->
+                <div class="export-scope-grid" style="margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--premium-text, #1e293b); margin-bottom: 0.2rem; text-transform: uppercase;">Module Scope</label>
+                        <select id="exportModalModule" class="form-control" style="width: 100%; min-width: 0; padding: 0.48rem 0.65rem; border-radius: 9px; font-size: 0.82rem;">
+                            <option value="all">All Modules</option>
+                            <option value="Authentication">Authentication</option>
+                            <option value="Bookings">Bookings</option>
+                            <option value="Users">Users</option>
+                            <option value="Photo Deliveries">Photo Deliveries</option>
+                            <option value="Security">Security</option>
+                            <option value="Settings">Settings</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--premium-text, #1e293b); margin-bottom: 0.2rem; text-transform: uppercase;">Status</label>
+                        <select id="exportModalStatus" class="form-control" style="width: 100%; min-width: 0; padding: 0.48rem 0.65rem; border-radius: 9px; font-size: 0.82rem;">
+                            <option value="all">All Statuses</option>
+                            <option value="success">Success</option>
+                            <option value="info">Info</option>
+                            <option value="warning">Warning</option>
+                            <option value="danger">Security / Danger</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Format Indicator -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.65rem 0.85rem; display: flex; align-items: center; gap: 0.65rem;">
+                    <i class="fas fa-file-csv" style="font-size: 1.45rem; color: #10b981; flex-shrink: 0;"></i>
+                    <div style="font-size: 0.76rem; color: var(--premium-text-secondary, #64748b); line-height: 1.35;">
+                        <strong style="color: var(--premium-text, #1e293b); display: block; font-size: 0.8rem;">CSV Format (Spreadsheet / Excel)</strong>
+                        Includes PST/UTC timestamps, actor, role, module, IP &amp; full audit event details.
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-actions export-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeExportModal()" style="border-radius: 50px; font-weight: 600;">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmExportLogs()" id="btnConfirmExport" style="border-radius: 50px; background: var(--premium-accent, #2e7d32); color: white; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem;">
+                    <i class="fas fa-file-download"></i> Download CSV
                 </button>
             </div>
         </div>
@@ -657,6 +1092,8 @@
         let currentLogsModule = 'all';
         let currentLogsStatus = 'all';
         let currentLogsSearch = '';
+        let currentLogsDateFrom = '';
+        let currentLogsDateTo = '';
         let searchDebounceTimer = null;
         let currentLogsData = [];
         let activeModalLog = null;
@@ -685,14 +1122,28 @@
                 });
             }
 
+            // Keyboard shortcut: close modals on Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeLogModal();
+                    closePruneModal();
+                    closeExportModal();
+                }
+            });
+
             // Initial load of system logs
             loadSystemLogs();
 
             // Auto-refresh every 60 seconds
             setInterval(() => {
                 // Only auto-refresh if modal is not open
-                const modal = document.getElementById('logDetailModal');
-                if (!modal || modal.style.display === 'none') {
+                const detailModal = document.getElementById('logDetailModal');
+                const pruneModal = document.getElementById('pruneModal');
+                const exportModal = document.getElementById('exportLogsModal');
+                const isAnyModalOpen = (detailModal && detailModal.style.display !== 'none') ||
+                                       (pruneModal && pruneModal.style.display !== 'none') ||
+                                       (exportModal && exportModal.style.display !== 'none');
+                if (!isAnyModalOpen) {
                     loadSystemLogs(true);
                 }
             }, 60000);
@@ -735,7 +1186,9 @@
                     limit: currentLogsLimit,
                     module: currentLogsModule,
                     status: currentLogsStatus,
-                    search: currentLogsSearch
+                    search: currentLogsSearch,
+                    date_from: currentLogsDateFrom,
+                    date_to: currentLogsDateTo
                 });
 
                 if (refreshBtn) {
@@ -1026,6 +1479,165 @@
                     btn.disabled = false;
                 }
                 alert('Pruning failed: ' + err.message);
+            }
+        }
+
+        // Date Range Filtering
+        function onDateFilterChange() {
+            const fromInput = document.getElementById('logDateFrom');
+            const toInput = document.getElementById('logDateTo');
+            currentLogsDateFrom = fromInput ? fromInput.value : '';
+            currentLogsDateTo = toInput ? toInput.value : '';
+
+            const clearBtn = document.getElementById('btnClearDateFilters');
+            if (clearBtn) {
+                clearBtn.style.display = (currentLogsDateFrom || currentLogsDateTo) ? 'inline-flex' : 'none';
+            }
+
+            currentLogsPage = 1;
+            loadSystemLogs();
+        }
+
+        function clearDateFilters() {
+            const fromInput = document.getElementById('logDateFrom');
+            const toInput = document.getElementById('logDateTo');
+            if (fromInput) fromInput.value = '';
+            if (toInput) toInput.value = '';
+            currentLogsDateFrom = '';
+            currentLogsDateTo = '';
+
+            const clearBtn = document.getElementById('btnClearDateFilters');
+            if (clearBtn) clearBtn.style.display = 'none';
+
+            currentLogsPage = 1;
+            loadSystemLogs();
+        }
+
+        // Export System Logs Modal & CSV Generation
+        function openExportModal() {
+            const modal = document.getElementById('exportLogsModal');
+            const modalFrom = document.getElementById('exportModalDateFrom');
+            const modalTo = document.getElementById('exportModalDateTo');
+            const modalModule = document.getElementById('exportModalModule');
+            const modalStatus = document.getElementById('exportModalStatus');
+
+            // Default pre-fill with currently active filters
+            if (modalFrom) modalFrom.value = currentLogsDateFrom || '';
+            if (modalTo) modalTo.value = currentLogsDateTo || '';
+            if (modalModule) modalModule.value = currentLogsModule || 'all';
+            if (modalStatus) modalStatus.value = currentLogsStatus || 'all';
+
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.add('active', 'show');
+                document.documentElement.classList.add('modal-open');
+                document.body.classList.add('modal-open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeExportModal() {
+            const modal = document.getElementById('exportLogsModal');
+            if (modal) {
+                modal.classList.remove('active', 'show');
+                modal.style.display = 'none';
+            }
+            document.documentElement.classList.remove('modal-open');
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+        }
+
+        function setExportDatePreset(preset) {
+            const fromInput = document.getElementById('exportModalDateFrom');
+            const toInput = document.getElementById('exportModalDateTo');
+            if (!fromInput || !toInput) return;
+
+            const today = new Date();
+            const formatDate = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            if (preset === 'today') {
+                const str = formatDate(today);
+                fromInput.value = str;
+                toInput.value = str;
+            } else if (preset === 'yesterday') {
+                const y = new Date();
+                y.setDate(y.getDate() - 1);
+                const str = formatDate(y);
+                fromInput.value = str;
+                toInput.value = str;
+            } else if (preset === '7days') {
+                const start = new Date();
+                start.setDate(start.getDate() - 6);
+                fromInput.value = formatDate(start);
+                toInput.value = formatDate(today);
+            } else if (preset === '30days') {
+                const start = new Date();
+                start.setDate(start.getDate() - 29);
+                fromInput.value = formatDate(start);
+                toInput.value = formatDate(today);
+            } else if (preset === 'this_month') {
+                const start = new Date(today.getFullYear(), today.getMonth(), 1);
+                fromInput.value = formatDate(start);
+                toInput.value = formatDate(today);
+            } else if (preset === 'all') {
+                fromInput.value = '';
+                toInput.value = '';
+            }
+        }
+
+        async function confirmExportLogs() {
+            const fromInput = document.getElementById('exportModalDateFrom');
+            const toInput = document.getElementById('exportModalDateTo');
+            const moduleSelect = document.getElementById('exportModalModule');
+            const statusSelect = document.getElementById('exportModalStatus');
+            const btn = document.getElementById('btnConfirmExport');
+
+            const dateFrom = fromInput ? fromInput.value.trim() : '';
+            const dateTo = toInput ? toInput.value.trim() : '';
+            const moduleVal = moduleSelect ? moduleSelect.value : 'all';
+            const statusVal = statusSelect ? statusSelect.value : 'all';
+
+            if (dateFrom && dateTo && dateFrom > dateTo) {
+                alert('Invalid range: Date From cannot be later than Date To.');
+                return;
+            }
+
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting CSV...';
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await api.exportSystemLogs({
+                    date_from: dateFrom,
+                    date_to: dateTo,
+                    module: moduleVal,
+                    status: statusVal,
+                    search: currentLogsSearch
+                });
+
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fas fa-file-download"></i> Download CSV';
+                        btn.disabled = false;
+                        closeExportModal();
+                    }, 800);
+                } else {
+                    closeExportModal();
+                }
+            } catch (err) {
+                console.error('Export system logs failed:', err);
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-file-download"></i> Download CSV';
+                    btn.disabled = false;
+                }
+                alert('Failed to export system logs: ' + err.message);
             }
         }
 

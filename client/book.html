@@ -48,6 +48,18 @@
             box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
         }
 
+        /* Modal background scroll lock */
+        html.modal-open,
+        body.modal-open {
+            overflow: hidden !important;
+            height: 100% !important;
+            touch-action: none;
+        }
+        body.modal-open .main-content,
+        body.modal-open .dashboard-layout {
+            overflow: hidden !important;
+        }
+
         /* ── Services Grid (3-col) ── */
         #servicesContainer.services-grid {
             display: grid;
@@ -452,7 +464,7 @@
         .service-card p {
             font-size: 0.82rem;
             color: var(--color-text-soft);
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             line-clamp: 2;
@@ -460,6 +472,30 @@
             overflow: hidden;
             min-height: 2.4rem;
             line-height: 1.55;
+        }
+
+        .package-social-proof {
+            display: inline-flex;
+            align-items: center;
+            align-self: flex-start;
+            gap: 0.35rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #b45309;
+            background: #fffbeb;
+            padding: 0.22rem 0.65rem;
+            border-radius: 50px;
+            border: 1px solid #fde68a;
+            cursor: pointer;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+        .package-social-proof:hover {
+            background: #fef3c7 !important;
+            border-color: #f59e0b !important;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
         }
 
         /* ── Service Meta: price + duration row ── */
@@ -1583,15 +1619,26 @@
             loadServices();
         });
 
+        let reviewStats = null;
+
         async function loadServices() {
-            console.log('Loading services...');
+            console.log('Loading services & review stats...');
             try {
-                const fetchPromise = api.getServices();
+                const fetchPromise = Promise.all([
+                    api.getServices(),
+                    api.getReviewStats().catch(err => {
+                        console.warn('Could not load review stats:', err);
+                        return { success: false };
+                    })
+                ]);
                 const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Services fetch timeout')), 2000)
+                    setTimeout(() => reject(new Error('Services fetch timeout')), 2500)
                 );
 
-                const response = await Promise.race([fetchPromise, timeoutPromise]);
+                const [response, revStatsRes] = await Promise.race([fetchPromise, timeoutPromise]);
+                if (revStatsRes && revStatsRes.success) {
+                    reviewStats = revStatsRes;
+                }
                 if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
                     services = response.data.filter(s => s.is_active == 1);
                     renderServices();
@@ -1674,6 +1721,8 @@
 
             container.innerHTML = filtered.map((s, idx) => {
                 const isSelected = selectedServices.some(item => item.id === s.id);
+                const svcStats = (reviewStats && reviewStats.services) ? reviewStats.services[s.id] : null;
+
                 return `
                 <div class="service-card ${isSelected ? 'selected' : ''}" style="--card-index:${idx};" onclick="toggleServiceSelection(${s.id}, event)">
                     <div class="check-badge ${isSelected ? 'checked' : ''}"><i class="fas fa-check"></i></div>
@@ -1684,6 +1733,13 @@
                     <div class="service-card-content">
                         <h3>${s.name}</h3>
                         <p title="${s.description || ''}">${s.description || 'Professional photography session.'}</p>
+                        ${svcStats && svcStats.total_reviews > 0 ? `
+                            <div class="package-social-proof" onclick="event.stopPropagation(); showServiceReviewsModal(${s.id}, '${escapeHtml(s.name)}')" title="Click to view verified client reviews">
+                                <i class="fas fa-star" style="color:#f59e0b;"></i> ${svcStats.avg_rating.toFixed(1)}
+                                <span style="color:#78350f; font-weight:600;">(${svcStats.total_reviews})</span>
+                                <span style="color:#b45309; font-size:0.68rem; font-weight:600; text-decoration:underline; margin-left:0.15rem;">Reviews</span>
+                            </div>
+                        ` : ''}
                         <div class="service-meta">
                             <span class="service-price">₱${Number(s.price).toLocaleString()}</span>
                             <span class="service-duration"><i class="far fa-clock"></i> ${s.duration_minutes > 0 ? `${s.duration_minutes} min` : 'Custom'}</span>
@@ -2891,7 +2947,157 @@
         // Clean up on page unload
         window.addEventListener('beforeunload', stopAvailabilityStream);
 
+        // ==========================================
+        // Social Proof / Service Reviews Modal
+        // ==========================================
+        async function showServiceReviewsModal(serviceId, serviceName) {
+            const modal = document.getElementById('serviceReviewsModal');
+            const titleEl = document.getElementById('serviceReviewsModalTitle');
+            const metaEl = document.getElementById('serviceReviewsModalMeta');
+            const listEl = document.getElementById('serviceReviewsList');
+
+            if (!modal) return;
+            titleEl.textContent = serviceName;
+            metaEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading reviews...';
+            listEl.innerHTML = '<div style="text-align:center; padding:2.5rem; color:#64748b;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+            
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            document.documentElement.classList.add('modal-open');
+            document.body.classList.add('modal-open');
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const res = await api.getServiceReviews(serviceId);
+                if (res && res.success && Array.isArray(res.reviews) && res.reviews.length > 0) {
+                    const avg = res.avg_rating || (res.reviews.reduce((acc, r) => acc + r.rating, 0) / res.reviews.length).toFixed(1);
+                    metaEl.innerHTML = `
+                        <span style="display:flex; align-items:center; gap:0.25rem; font-weight:700; color:#fbbf24;">
+                            <i class="fas fa-star"></i> ${Number(avg).toFixed(1)}
+                        </span>
+                        <span>&bull;</span>
+                        <span>${res.reviews.length} Verified ${res.reviews.length === 1 ? 'Review' : 'Reviews'}</span>
+                    `;
+
+                    listEl.innerHTML = res.reviews.map(r => {
+                        const stars = Array.from({length: 5}, (_, idx) => 
+                            `<i class="${idx < r.rating ? 'fas' : 'far'} fa-star" style="color:#f59e0b; font-size:0.85rem;"></i>`
+                        ).join('');
+                        const tags = r.tags ? r.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+                        const dateFormatted = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+                        return `
+                            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:0.9rem 1rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                                    <div style="display:flex; align-items:center; gap:0.45rem;">
+                                        <div style="width:28px; height:28px; border-radius:50%; background:#d1fae5; color:#065f46; font-weight:700; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">
+                                            ${escapeHtml((r.client_name || 'C').charAt(0))}
+                                        </div>
+                                        <div>
+                                            <span style="font-weight:700; font-size:0.85rem; color:#1e293b;">${escapeHtml(r.client_name || 'Verified Client')}</span>
+                                            <span style="font-size:0.72rem; color:#10b981; font-weight:600; margin-left:0.35rem;"><i class="fas fa-check-circle"></i> Verified</span>
+                                        </div>
+                                    </div>
+                                    <span style="font-size:0.75rem; color:#94a3b8;">${dateFormatted}</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:0.35rem; margin-bottom:0.35rem;">
+                                    ${stars}
+                                </div>
+                                ${tags.length > 0 ? `
+                                    <div style="display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.4rem;">
+                                        ${tags.map(t => `<span style="font-size:0.7rem; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:0.15rem 0.5rem; border-radius:50px; font-weight:600;">${escapeHtml(t)}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                                ${r.comment ? `
+                                    <p style="margin:0; font-size:0.85rem; color:#334155; line-height:1.45; font-style:italic;">
+                                        "${escapeHtml(r.comment)}"
+                                    </p>
+                                ` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    metaEl.innerHTML = 'No reviews yet';
+                    listEl.innerHTML = `
+                        <div style="text-align:center; padding:2.5rem 1rem; color:#64748b;">
+                            <div style="font-size:2rem; margin-bottom:0.5rem; color:#cbd5e1;">⭐</div>
+                            <h4 style="margin:0 0 0.25rem; color:#334155;">No Reviews Yet</h4>
+                            <p style="margin:0; font-size:0.85rem;">Be the first to review this session package after your photoshoot!</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error('Failed to load service reviews:', err);
+                metaEl.innerHTML = '';
+                listEl.innerHTML = '<p style="color:#ef4444; text-align:center; padding:1.5rem;">Failed to load reviews. Please try again.</p>';
+            }
+        }
+
+        function closeServiceReviewsModal() {
+            const modal = document.getElementById('serviceReviewsModal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
+            document.documentElement.classList.remove('modal-open');
+            document.body.classList.remove('modal-open');
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+        }
+
+        // Prevent wheel & touch scrolling on modal backdrop from propagating to page
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('serviceReviewsModal');
+            if (!modal) return;
+            modal.addEventListener('wheel', function (e) {
+                const list = e.target.closest('#serviceReviewsList');
+                if (!list) {
+                    e.preventDefault();
+                } else {
+                    // Prevent scroll chaining when reaching the top or bottom of the list
+                    const isAtTop = list.scrollTop <= 0 && e.deltaY < 0;
+                    const isAtBottom = list.scrollTop + list.clientHeight >= list.scrollHeight && e.deltaY > 0;
+                    if (isAtTop || isAtBottom) {
+                        e.preventDefault();
+                    }
+                }
+            }, { passive: false });
+
+            modal.addEventListener('touchmove', function (e) {
+                const list = e.target.closest('#serviceReviewsList');
+                if (!list) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        });
+
     </script>
+
+    <!-- Service Reviews & Social Proof Modal -->
+    <div id="serviceReviewsModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:99999; align-items:center; justify-content:center; overscroll-behavior:contain; touch-action:none;" onclick="if(event.target === this) closeServiceReviewsModal()">
+        <div class="modal-container" style="background:white; border-radius:20px; max-width:540px; width:92%; max-height:85vh; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); display:flex; flex-direction:column; overscroll-behavior:contain;">
+            <!-- Modal Header -->
+            <div style="background: linear-gradient(135deg, #064e3b 0%, #047857 100%); color:white; padding:1.25rem 1.5rem; position:relative;">
+                <button type="button" onclick="closeServiceReviewsModal()" style="position:absolute; top:1rem; right:1rem; background:rgba(255,255,255,0.2); border:none; color:white; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; background:rgba(255,255,255,0.18); padding:0.2rem 0.6rem; border-radius:50px; text-transform:uppercase; margin-bottom:0.35rem;">
+                    <i class="fas fa-star" style="color:#fbbf24;"></i> Client Reviews & Feedback
+                </div>
+                <h3 id="serviceReviewsModalTitle" style="margin:0; font-size:1.25rem; font-weight:700; color:white; font-family:inherit;">Solo Package</h3>
+                <div id="serviceReviewsModalMeta" style="margin-top:0.35rem; font-size:0.85rem; color:#a7f3d0; display:flex; align-items:center; gap:0.6rem;"></div>
+            </div>
+            <!-- Modal Body: Reviews List -->
+            <div id="serviceReviewsList" style="padding:1.25rem 1.5rem; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:0.85rem; overscroll-behavior:contain;"></div>
+            <!-- Modal Footer -->
+            <div style="padding:0.85rem 1.5rem; border-top:1px solid #f1f5f9; background:#f8fafc; display:flex; justify-content:flex-end;">
+                <button onclick="closeServiceReviewsModal()" class="btn btn-secondary" style="border-radius:50px; padding:0.45rem 1.25rem; font-weight:600; font-size:0.85rem;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

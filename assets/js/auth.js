@@ -253,6 +253,7 @@ class Auth {
         } finally {
             this.currentUser = null;
             this.setStoredUser(null);
+            this.updateUI();
             this.redirectToHome();
         }
     }
@@ -481,13 +482,7 @@ class Auth {
     }
 
     redirectToHome() {
-        // More robust redirection that handles subdirectories
-        const path = window.location.pathname;
-        if (path.includes('/admin/') || path.includes('/staff/') || path.includes('/client/') || path.includes('/auth/')) {
-            window.location.href = '../index.html';
-        } else {
-            window.location.href = 'index.html';
-        }
+        window.location.href = '/index.html';
     }
 }
 

@@ -109,6 +109,18 @@ router.get('/', authMiddleware, async (req, res) => {
         let query;
         let params = [];
 
+        const sort = req.query.sort || 'id_desc';
+        let orderByClause = 'ORDER BY b.id DESC';
+        if (sort === 'date_desc') {
+            orderByClause = 'ORDER BY b.booking_date DESC, b.start_time DESC, b.id DESC';
+        } else if (sort === 'date_asc') {
+            orderByClause = 'ORDER BY b.booking_date ASC, b.start_time ASC, b.id ASC';
+        } else if (sort === 'id_asc') {
+            orderByClause = 'ORDER BY b.id ASC';
+        } else {
+            orderByClause = 'ORDER BY b.id DESC, b.booking_date DESC, b.start_time DESC';
+        }
+
         if (userRole === 'client') {
             query = `
                 SELECT b.*, s.name as service_name, CONCAT(st.first_name, ' ', st.last_name) as staff_name 
@@ -116,7 +128,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
                 WHERE b.client_id = ? 
-                ORDER BY b.booking_date DESC, b.start_time DESC, b.created_at DESC, b.id DESC
+                ${orderByClause}
             `;
             params = [userId];
         } else if (userRole === 'staff') {
@@ -126,7 +138,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 JOIN users c ON b.client_id = c.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
-                ORDER BY b.booking_date DESC, b.start_time DESC, b.created_at DESC, b.id DESC
+                ${orderByClause}
             `;
             params = [];
         } else { // admin
@@ -136,7 +148,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 JOIN services s ON b.service_id = s.id 
                 JOIN users c ON b.client_id = c.id 
                 LEFT JOIN users st ON b.staff_id = st.id 
-                ORDER BY b.booking_date DESC, b.start_time DESC, b.created_at DESC, b.id DESC
+                ${orderByClause}
             `;
         }
 
@@ -174,12 +186,27 @@ router.get('/', authMiddleware, async (req, res) => {
             list = list.filter(b => b.client_id === userId);
         }
 
-        list.sort((a, b) => {
-            const dateA = new Date(`${a.booking_date}T${a.start_time || '00:00:00'}`).getTime();
-            const dateB = new Date(`${b.booking_date}T${b.start_time || '00:00:00'}`).getTime();
-            if (dateB !== dateA) return dateB - dateA;
-            return (b.id || 0) - (a.id || 0);
-        });
+        const fallbackSort = req.query.sort || 'id_desc';
+        if (fallbackSort === 'date_desc') {
+            list.sort((a, b) => {
+                const dateA = new Date(`${a.booking_date}T${a.start_time || '00:00:00'}`).getTime();
+                const dateB = new Date(`${b.booking_date}T${b.start_time || '00:00:00'}`).getTime();
+                if (dateB !== dateA) return dateB - dateA;
+                return (b.id || 0) - (a.id || 0);
+            });
+        } else if (fallbackSort === 'date_asc') {
+            list.sort((a, b) => {
+                const dateA = new Date(`${a.booking_date}T${a.start_time || '00:00:00'}`).getTime();
+                const dateB = new Date(`${b.booking_date}T${b.start_time || '00:00:00'}`).getTime();
+                if (dateA !== dateB) return dateA - dateB;
+                return (a.id || 0) - (b.id || 0);
+            });
+        } else if (fallbackSort === 'id_asc') {
+            list.sort((a, b) => (a.id || 0) - (b.id || 0));
+        } else {
+            // Default: id_desc (descending booking order)
+            list.sort((a, b) => (b.id || 0) - (a.id || 0));
+        }
 
         // Map booking service names for fallback bookings
         list.forEach(b => {

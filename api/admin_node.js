@@ -303,17 +303,16 @@ router.post('/settings', authMiddleware, roleMiddleware(['admin']), (req, res, n
 });
 
 /**
- * GET /api/admin/logs
- * Fetches paginated system audit logs with filtering and summary statistics
+ * GET /api/admin/logs/export
+ * Exports system audit logs as CSV filtered by date range, module, status, and search
  */
-router.get('/logs', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
+router.get('/logs/export', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
     try {
-        const page = Math.max(1, parseInt(req.query.page) || 1);
-        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 15));
-        const offset = (page - 1) * limit;
         const moduleFilter = req.query.module || 'all';
         const statusFilter = req.query.status || 'all';
         const search = (req.query.search || '').trim();
+        const dateFrom = (req.query.date_from || '').trim();
+        const dateTo = (req.query.date_to || '').trim();
 
         let whereClauses = [];
         let params = [];
@@ -332,6 +331,151 @@ router.get('/logs', authMiddleware, roleMiddleware(['admin']), async (req, res) 
             whereClauses.push('(details LIKE ? OR action LIKE ? OR user_name LIKE ? OR ip_address LIKE ?)');
             const searchParam = `%${search}%`;
             params.push(searchParam, searchParam, searchParam, searchParam);
+        }
+
+        if (dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(dateFrom)) {
+            whereClauses.push('created_at >= ?');
+            params.push(`${dateFrom} 00:00:00`);
+        }
+
+        if (dateTo && /^\d{4}-\d{2}-\d{2}$/.test(dateTo)) {
+            whereClauses.push('created_at <= ?');
+            params.push(`${dateTo} 23:59:59`);
+        }
+
+        const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // Safe maximum limit for CSV export
+        const [logs] = await pool.query(`
+            SELECT id, user_id, user_name, user_role, action, module, details, ip_address, status, created_at
+            FROM system_logs
+            ${whereSql}
+            ORDER BY created_at DESC, id DESC
+            LIMIT 25000
+        `, params);
+
+        // Helper to format CSV cell safely according to RFC 4180
+        const escapeCsvCell = (val) => {
+            if (val === null || val === undefined) return '""';
+            const str = String(val).replace(/"/g, '""');
+            return `"${str}"`;
+        };
+
+        const headers = [
+            'Log ID',
+            'Timestamp (PST)',
+            'Timestamp (UTC)',
+            'User ID',
+            'User Name',
+            'User Role',
+            'Module',
+            'Action',
+            'Status',
+            'IP Address',
+            'Details'
+        ];
+
+        const rows = [headers.map(escapeCsvCell).join(',')];
+
+        for (const log of logs) {
+            const pstDate = new Date(log.created_at).toLocaleString('en-PH', { 
+                timeZone: 'Asia/Manila', 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            });
+            const utcDate = new Date(log.created_at).toISOString().replace('T', ' ').substring(0, 19);
+
+            const row = [
+                log.id,
+                pstDate,
+                utcDate,
+                log.user_id || 'N/A',
+                log.user_name || 'System',
+                log.user_role || 'system',
+                log.module || 'System',
+                log.action || '',
+                log.status || 'success',
+                log.ip_address || '127.0.0.1',
+                log.details || ''
+            ];
+            rows.push(row.map(escapeCsvCell).join(','));
+        }
+
+        const dateTag = dateFrom && dateTo ? `${dateFrom}_to_${dateTo}` : (dateFrom ? `from_${dateFrom}` : (dateTo ? `to_${dateTo}` : new Date().toISOString().slice(0, 10)));
+        const filename = `snailshutter_system_logs_${dateTag}.csv`;
+
+        // Log this export in system audit trail
+        logSystemEvent({
+            req,
+            action: 'LOGS_EXPORTED',
+            module: 'Settings',
+            details: `Admin exported ${logs.length} system audit logs (Date: ${dateFrom || 'All'} to ${dateTo || 'All'}, Module: ${moduleFilter}, Status: ${statusFilter}).`,
+            status: 'info'
+        });
+
+        // Send CSV file with explicit UTF-8 BOM for perfect spreadsheet / Excel compatibility
+        const csvContent = rows.join('\r\n');
+        const csvBuffer = Buffer.concat([
+            Buffer.from([0xEF, 0xBB, 0xBF]),
+            Buffer.from(csvContent, 'utf-8')
+        ]);
+
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(csvBuffer);
+    } catch (error) {
+        console.error('Export System Logs Error:', error);
+        res.status(500).json({ success: false, error: 'Failed to export system logs: ' + error.message });
+    }
+});
+
+/**
+ * GET /api/admin/logs
+ * Fetches paginated system audit logs with filtering and summary statistics
+ */
+router.get('/logs', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
+    try {
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 15));
+        const offset = (page - 1) * limit;
+        const moduleFilter = req.query.module || 'all';
+        const statusFilter = req.query.status || 'all';
+        const search = (req.query.search || '').trim();
+        const dateFrom = (req.query.date_from || '').trim();
+        const dateTo = (req.query.date_to || '').trim();
+
+        let whereClauses = [];
+        let params = [];
+
+        if (moduleFilter && moduleFilter !== 'all') {
+            whereClauses.push('module = ?');
+            params.push(moduleFilter);
+        }
+
+        if (statusFilter && statusFilter !== 'all') {
+            whereClauses.push('status = ?');
+            params.push(statusFilter);
+        }
+
+        if (search) {
+            whereClauses.push('(details LIKE ? OR action LIKE ? OR user_name LIKE ? OR ip_address LIKE ?)');
+            const searchParam = `%${search}%`;
+            params.push(searchParam, searchParam, searchParam, searchParam);
+        }
+
+        if (dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(dateFrom)) {
+            whereClauses.push('created_at >= ?');
+            params.push(`${dateFrom} 00:00:00`);
+        }
+
+        if (dateTo && /^\d{4}-\d{2}-\d{2}$/.test(dateTo)) {
+            whereClauses.push('created_at <= ?');
+            params.push(`${dateTo} 23:59:59`);
         }
 
         const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';

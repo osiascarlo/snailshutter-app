@@ -1710,9 +1710,22 @@ body.premium-dashboard ::-webkit-scrollbar-thumb:hover {
     }
 
     body.premium-dashboard .modal-container {
-        margin: 1.5rem !important;
-        width: calc(100% - 3rem) !important;
-        max-width: 380px !important;
+        margin: auto !important;
+        width: calc(100% - 1.5rem) !important;
+        max-width: 440px !important;
+        max-height: calc(100dvh - 1.5rem) !important;
+        max-height: calc(100vh - 1.5rem) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    body.premium-dashboard .modal-body,
+    body.premium-dashboard .modal-body-content {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
     }
 
     /* Floating Multi-select Action Bar on Mobile */

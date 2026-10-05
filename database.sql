@@ -144,3 +144,23 @@ CREATE TABLE IF NOT EXISTS system_logs (
     INDEX idx_user_id (user_id),
     INDEX idx_action (action)
 ) ENGINE=InnoDB;
+
+-- Customer Reviews & Ratings for Completed Sessions
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT NOT NULL UNIQUE,
+    client_id INT NOT NULL,
+    service_id INT NOT NULL,
+    rating TINYINT NOT NULL,
+    comment TEXT NULL,
+    tags VARCHAR(255) DEFAULT NULL,
+    is_public TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+    FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE,
+    INDEX idx_client (client_id),
+    INDEX idx_service (service_id),
+    INDEX idx_rating (rating)
+) ENGINE=InnoDB;

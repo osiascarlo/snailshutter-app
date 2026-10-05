@@ -167,10 +167,22 @@ function showCancellationModal(options = {}) {
 
     const {
         role = 'admin',
-        bookingId = null
+        bookingId = null,
+        downpaymentAmount = null
     } = options;
 
     const isClient = role === 'client';
+
+    let downpaymentVal = downpaymentAmount;
+    if (!downpaymentVal && bookingId && typeof window !== 'undefined' && Array.isArray(window.allClientBookings)) {
+        const found = window.allClientBookings.find(b => b.id == bookingId);
+        if (found && found.downpayment_amount) {
+            downpaymentVal = found.downpayment_amount;
+        }
+    }
+    const formattedDownpayment = (downpaymentVal && Number(downpaymentVal) > 0)
+        ? `₱${Number(downpaymentVal).toLocaleString()}`
+        : '';
 
     const adminOptions = [
         { value: 'Fully booked / Scheduling conflict', label: 'Fully booked / Scheduling conflict' },
@@ -223,6 +235,18 @@ function showCancellationModal(options = {}) {
                 </div>
 
                 <div style="padding: 1.25rem 1.5rem; max-height: 70vh; overflow-y: auto;">
+                    ${isClient ? `
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.15rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #b45309; font-size: 0.95rem; margin-top: 0.1rem;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #92400e; line-height: 1.45;">
+                            <strong style="color: #78350f; font-size: 0.88rem; display: block; margin-bottom: 0.2rem;">Downpayment Non-Refundable Notice:</strong>
+                            Please be advised that cancellation of this booking will <strong>not return or refund your downpayment</strong>${formattedDownpayment ? ` (${formattedDownpayment})` : ''}. All downpayments are strictly non-refundable upon cancellation.
+                        </div>
+                    </div>
+                    ` : ''}
+
                     <div style="margin-bottom: 0.75rem;">
                         <label style="display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; margin-bottom: 0.5rem;">
                             Select Reason:
@@ -294,7 +318,7 @@ function showCancellationModal(options = {}) {
             });
         });
 
-        overlay.querySelector('#cancelModalSubmitBtn').addEventListener('click', () => {
+        overlay.querySelector('#cancelModalSubmitBtn').addEventListener('click', async () => {
             const selectedRadio = overlay.querySelector('input[name="cancelReasonPreset"]:checked');
             const customNote = (noteArea.value || '').trim();
             const preset = selectedRadio ? selectedRadio.value : '';
@@ -313,6 +337,22 @@ function showCancellationModal(options = {}) {
                 finalReason = `${preset} — ${customNote}`;
             } else {
                 finalReason = preset || 'No specific reason provided.';
+            }
+
+            // If a client is cancelling, display an explicit dialog warning that downpayment will not be refunded/returned
+            if (isClient) {
+                const proceed = await showConfirm({
+                    title: 'Non-Refundable Downpayment Warning',
+                    message: `Please be advised that cancellation of this booking will <strong style="color:#b91c1c;">NOT return or refund your downpayment</strong>${formattedDownpayment ? ` of <strong>${formattedDownpayment}</strong>` : ''}.<br><br>All downpayments are strictly non-refundable upon cancellation.<br><br>Are you sure you want to permanently cancel this booking?`,
+                    confirmText: 'Yes, Cancel (Forfeit Downpayment)',
+                    cancelText: 'Keep My Booking',
+                    type: 'danger',
+                    icon: 'fa-exclamation-triangle'
+                });
+
+                if (!proceed) {
+                    return; // Stay on the cancellation modal, do not cancel
+                }
             }
 
             cleanup({ confirmed: true, reason: finalReason });

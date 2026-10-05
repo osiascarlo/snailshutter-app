@@ -374,11 +374,18 @@ class Dashboard {
     }
 
     async cancelBooking(bookingId) {
+        const isClient = auth && typeof auth.getUserRole === 'function' && auth.getUserRole() === 'client';
+        const message = isClient 
+            ? 'Please be advised that cancellation of this booking will <strong style="color: #b91c1c;">NOT return or refund your downpayment</strong>.<br><br>All downpayments are strictly non-refundable upon cancellation.<br><br>Are you sure you want to cancel this booking?'
+            : 'Are you sure you want to cancel this booking?';
+
         const confirmed = await showConfirm({
-            title: 'Cancel Booking',
-            message: 'Are you sure you want to cancel this booking?',
-            confirmText: 'Confirm',
-            type: 'danger'
+            title: isClient ? 'Non-Refundable Downpayment Warning' : 'Cancel Booking',
+            message: message,
+            confirmText: isClient ? 'Yes, Cancel (Forfeit Downpayment)' : 'Confirm',
+            cancelText: 'Keep My Booking',
+            type: 'danger',
+            icon: isClient ? 'fa-exclamation-triangle' : null
         });
 
         if (!confirmed) return;

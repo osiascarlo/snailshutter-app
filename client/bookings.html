@@ -14,6 +14,89 @@
         .status-badge.payment-pending { background: #fef3c7; color: #92400e; }
         .status-badge.payment-unpaid { background: #fee2e2; color: #b91c1c; }
 
+        /* Review and Rating Stars styles */
+        .star-rating-container {
+            display: inline-flex;
+            gap: 0.5rem;
+            font-size: 2.25rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .star-rating-container .star-item {
+            color: #cbd5e1;
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+            display: inline-block;
+        }
+        .star-rating-container .star-item:hover {
+            transform: scale(1.22);
+        }
+        .star-rating-container .star-item.active,
+        .star-rating-container .star-item.hovered {
+            color: #f59e0b;
+        }
+        .review-tag-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.38rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .review-tag-pill:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+            transform: translateY(-1px);
+        }
+        .review-tag-pill.selected {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #10b981;
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+        }
+        .btn-rate-cta {
+            border-radius: 50px;
+            font-size: 0.76rem;
+            padding: 0.35rem 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #fff !important;
+            border: none;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-rate-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.45);
+        }
+        .btn-review-badge {
+            border-radius: 50px;
+            font-size: 0.75rem;
+            padding: 0.32rem 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: #fffbeb;
+            color: #b45309 !important;
+            border: 1px solid #fde68a;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-review-badge:hover {
+            background: #fef3c7;
+            transform: translateY(-1px);
+        }
+
         .booking-row-item {
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -38,6 +121,7 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.25s ease, visibility 0.25s ease;
+            overscroll-behavior: contain !important;
         }
         .modal-overlay.active {
             opacity: 1;
@@ -46,6 +130,7 @@
         .modal-container {
             transform: scale(0.95) translateY(10px);
             transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            overscroll-behavior: contain !important;
         }
         .modal-overlay.active .modal-container {
             transform: scale(1) translateY(0);
@@ -310,9 +395,22 @@
                 <div id="alertContainer"></div>
 
                 <div class="content-card">
-                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
                         <h3 style="margin:0;"><i class="fas fa-history"></i> Booking History (<span id="bookingCount">…</span>)</h3>
-                        <span style="font-size:0.8rem; color:var(--color-text-muted);"><i class="fas fa-info-circle"></i> Click any booking to view full details</span>
+                        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                            <div style="display:flex; align-items:center; gap:0.4rem;">
+                                <label for="clientSortSelect" style="font-size:0.8rem; font-weight:600; color:#475569; display:inline-flex; align-items:center; gap:0.35rem; margin:0;">
+                                    <i class="fas fa-sort-amount-down" style="color:var(--color-primary, #2e7d32);"></i> Sort:
+                                </label>
+                                <select id="clientSortSelect" onchange="handleClientSortChange(this.value)" style="padding:0.38rem 0.75rem; border-radius:8px; border:1px solid #cbd5e1; font-size:0.82rem; font-weight:600; color:#1e293b; background:white; cursor:pointer;">
+                                    <option value="id-desc">Booking ID (Descending #31 → #1)</option>
+                                    <option value="id-asc">Booking ID (Ascending #1 → #31)</option>
+                                    <option value="date-desc">Appointment Date (Newest First)</option>
+                                    <option value="date-asc">Appointment Date (Oldest First)</option>
+                                </select>
+                            </div>
+                            <span style="font-size:0.8rem; color:var(--color-text-muted);"><i class="fas fa-info-circle"></i> Click any booking to view details</span>
+                        </div>
                     </div>
 
                     <!-- Status Filter Bar -->
@@ -413,6 +511,9 @@
                     </a>
                 </div>
 
+                <!-- Reviews & Feedback Section (Completed Bookings) -->
+                <div id="modalReviewSection" style="display: none; margin-bottom: 1.25rem;"></div>
+
                 <!-- Cancellation Section -->
                 <div id="modalCancellationSection" style="display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
                     <div style="font-size: 0.75rem; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
@@ -448,6 +549,92 @@
         </div>
     </div>
 
+    <!-- Review & Feedback Modal -->
+    <div id="reviewModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeReviewModal()">
+        <div class="modal-container review-modal-container" style="max-width: 530px; width: 92%; padding: 0; overflow: hidden; border-radius: 20px; background: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+            <!-- Review Modal Header -->
+            <div style="background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%); color: white; padding: 1.5rem 1.75rem; position: relative;">
+                <button type="button" onclick="closeReviewModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.18); padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fas fa-award" style="color: #fbbf24;"></i> Client Feedback
+                </div>
+                <h3 id="reviewModalTitle" style="margin: 0; font-size: 1.35rem; font-weight: 700; color: white; font-family: var(--font-body);">Rate Your Session</h3>
+                <p id="reviewModalSubtitle" style="margin: 0.35rem 0 0; font-size: 0.85rem; color: #a7f3d0; opacity: 0.95;">How was your photography experience with SnailShutter?</p>
+            </div>
+
+            <!-- Form Body -->
+            <form id="reviewForm" onsubmit="submitReviewForm(event)" style="padding: 1.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.2rem; margin: 0;">
+                <input type="hidden" id="reviewBookingId" value="">
+
+                <!-- Session Context Banner -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem;">
+                    <div>
+                        <span id="reviewModalServiceName" style="font-weight: 700; color: #1e293b; display: block;">Service Package</span>
+                        <span id="reviewModalBookingIdTag" style="font-size: 0.75rem; color: #64748b;">Booking #—</span>
+                    </div>
+                    <span id="reviewModalBookingDate" style="color: #475569; font-weight: 600; font-size: 0.82rem;">Date</span>
+                </div>
+
+                <!-- 5-Star Interactive Rating Widget -->
+                <div style="text-align: center; padding: 0.5rem 0 0.25rem;">
+                    <label style="display: block; font-size: 0.88rem; font-weight: 700; color: #1e293b; margin-bottom: 0.4rem;">
+                        Overall Experience Rating <span style="color: #ef4444;">*</span>
+                    </label>
+                    <div class="star-rating-container" id="starRatingContainer">
+                        <i class="fas fa-star star-item active" data-rating="1" onmouseover="hoverStars(1)" onmouseout="resetHoverStars()" onclick="selectStarRating(1)"></i>
+                        <i class="fas fa-star star-item active" data-rating="2" onmouseover="hoverStars(2)" onmouseout="resetHoverStars()" onclick="selectStarRating(2)"></i>
+                        <i class="fas fa-star star-item active" data-rating="3" onmouseover="hoverStars(3)" onmouseout="resetHoverStars()" onclick="selectStarRating(3)"></i>
+                        <i class="fas fa-star star-item active" data-rating="4" onmouseover="hoverStars(4)" onmouseout="resetHoverStars()" onclick="selectStarRating(4)"></i>
+                        <i class="fas fa-star star-item active" data-rating="5" onmouseover="hoverStars(5)" onmouseout="resetHoverStars()" onclick="selectStarRating(5)"></i>
+                    </div>
+                    <div id="starRatingLabel" style="font-size: 0.88rem; font-weight: 700; color: #d97706; margin-top: 0.4rem; min-height: 1.3rem;">
+                        5 - Exceptional! Exceeded Expectations ✨
+                    </div>
+                    <input type="hidden" id="selectedRatingInput" value="5">
+                </div>
+
+                <!-- Quick Highlight Tags -->
+                <div>
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.45rem; text-transform: uppercase; letter-spacing: 0.4px;">
+                        What stood out? <span style="font-weight: 400; text-transform: none; color: #94a3b8;">(Click to highlight)</span>
+                    </label>
+                    <div id="reviewTagsContainer" style="display: flex; flex-wrap: wrap; gap: 0.45rem;">
+                        <span class="review-tag-pill" data-tag="📸 High Quality Photos" onclick="toggleReviewTag(this)">📸 High Quality Photos</span>
+                        <span class="review-tag-pill" data-tag="✨ Aesthetic Studio" onclick="toggleReviewTag(this)">✨ Aesthetic Studio</span>
+                        <span class="review-tag-pill" data-tag="⏱️ On Time & Seamless" onclick="toggleReviewTag(this)">⏱️ On Time & Seamless</span>
+                        <span class="review-tag-pill" data-tag="😊 Friendly Staff" onclick="toggleReviewTag(this)">😊 Friendly Staff</span>
+                        <span class="review-tag-pill" data-tag="💡 Great Guidance" onclick="toggleReviewTag(this)">💡 Great Guidance</span>
+                        <span class="review-tag-pill" data-tag="⚡ Fast Photo Delivery" onclick="toggleReviewTag(this)">⚡ Fast Photo Delivery</span>
+                        <span class="review-tag-pill" data-tag="🎵 Fun Atmosphere" onclick="toggleReviewTag(this)">🎵 Fun Atmosphere</span>
+                    </div>
+                </div>
+
+                <!-- Written Feedback -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                        <label for="reviewCommentInput" style="font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.4px;">
+                            Detailed Feedback <span style="font-weight: 400; text-transform: none; color: #94a3b8;">(Optional)</span>
+                        </label>
+                        <span id="reviewCharCounter" style="font-size: 0.75rem; color: #94a3b8;">0/500</span>
+                    </div>
+                    <textarea id="reviewCommentInput" rows="3" maxlength="500" placeholder="Tell us what you liked most, your photoshoot experience, or suggestions for us..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.88rem; font-family: inherit; resize: vertical; box-sizing: border-box; transition: border-color 0.2s;" oninput="updateReviewCharCount()"></textarea>
+                </div>
+
+                <!-- Modal Action Buttons -->
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center; margin-top: 0.4rem; padding-top: 0.85rem; border-top: 1px solid #f1f5f9;">
+                    <button type="button" onclick="closeReviewModal()" class="btn btn-secondary" style="border-radius: 50px; padding: 0.55rem 1.25rem; font-weight: 600;">
+                        Cancel
+                    </button>
+                    <button type="submit" id="btnSubmitReview" class="btn btn-primary" style="border-radius: 50px; padding: 0.55rem 1.6rem; font-weight: 700; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: none; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35); cursor: pointer;">
+                        <i class="fas fa-paper-plane"></i> <span id="btnSubmitReviewText">Submit Feedback</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/assets/js/api.js"></script>
     <script src="/assets/js/auth.js"></script>
     <script src="/assets/js/main.js"></script>
@@ -455,6 +642,7 @@
     <script>
         let allClientBookings = [];
         let currentStatusFilter = 'all';
+        let currentSortMode = localStorage.getItem('client_booking_sort') || 'id-desc';
 
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
@@ -466,8 +654,46 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function sortClientBookings(list) {
+            const sorted = [...list];
+            sorted.sort((a, b) => {
+                if (currentSortMode === 'id-desc') {
+                    return (b.id || 0) - (a.id || 0);
+                } else if (currentSortMode === 'id-asc') {
+                    return (a.id || 0) - (b.id || 0);
+                } else if (currentSortMode === 'date-desc') {
+                    const strA = a.booking_date ? (typeof a.booking_date === 'string' ? a.booking_date.split('T')[0] : new Date(a.booking_date).toISOString().split('T')[0]) : '1970-01-01';
+                    const strB = b.booking_date ? (typeof b.booking_date === 'string' ? b.booking_date.split('T')[0] : new Date(b.booking_date).toISOString().split('T')[0]) : '1970-01-01';
+                    const timeA = new Date(`${strA}T${a.start_time || '00:00:00'}`).getTime() || 0;
+                    const timeB = new Date(`${strB}T${b.start_time || '00:00:00'}`).getTime() || 0;
+                    if (timeB !== timeA) return timeB - timeA;
+                    return (b.id || 0) - (a.id || 0);
+                } else if (currentSortMode === 'date-asc') {
+                    const strA = a.booking_date ? (typeof a.booking_date === 'string' ? a.booking_date.split('T')[0] : new Date(a.booking_date).toISOString().split('T')[0]) : '1970-01-01';
+                    const strB = b.booking_date ? (typeof b.booking_date === 'string' ? b.booking_date.split('T')[0] : new Date(b.booking_date).toISOString().split('T')[0]) : '1970-01-01';
+                    const timeA = new Date(`${strA}T${a.start_time || '00:00:00'}`).getTime() || 0;
+                    const timeB = new Date(`${strB}T${b.start_time || '00:00:00'}`).getTime() || 0;
+                    if (timeA !== timeB) return timeA - timeB;
+                    return (a.id || 0) - (b.id || 0);
+                }
+                return (b.id || 0) - (a.id || 0);
+            });
+            return sorted;
+        }
+
+        function handleClientSortChange(val) {
+            currentSortMode = val;
+            localStorage.setItem('client_booking_sort', val);
+            renderBookingsList();
+        }
+
         document.addEventListener('DOMContentLoaded', async function () {
             if (!auth.requireAuth('client')) return;
+
+            const sortSel = document.getElementById('clientSortSelect');
+            if (sortSel) {
+                sortSel.value = currentSortMode;
+            }
 
             const logoutLink = document.querySelector('[data-logout]');
             if (logoutLink) {
@@ -485,25 +711,36 @@
             if (msg) showAlert(msg, 'success');
         });
 
+        window.myReviewsMap = {};
+
         async function loadBookings() {
             const container = document.getElementById('bookingsContainer');
             if (container && (!allClientBookings || allClientBookings.length === 0)) {
                 container.innerHTML = getBookingSkeletonHTML(3);
             }
             try {
-                const response = await api.getBookings();
+                // Fetch both bookings and reviews in parallel
+                const [response, revResponse] = await Promise.all([
+                    api.getBookings({ sort: currentSortMode }),
+                    api.getMyReviews().catch(err => {
+                        console.warn('Could not load client reviews:', err);
+                        return { success: false, reviews: [] };
+                    })
+                ]);
+
                 allClientBookings = (response.data || response.bookings || []);
                 document.getElementById('bookingCount').textContent = allClientBookings.length;
 
-                // Sort bookings in descending order (latest booking date/time and ID first)
-                allClientBookings.sort((a, b) => {
-                    const strA = a.booking_date ? (typeof a.booking_date === 'string' ? a.booking_date.split('T')[0] : new Date(a.booking_date).toISOString().split('T')[0]) : '1970-01-01';
-                    const strB = b.booking_date ? (typeof b.booking_date === 'string' ? b.booking_date.split('T')[0] : new Date(b.booking_date).toISOString().split('T')[0]) : '1970-01-01';
-                    const timeA = new Date(`${strA}T${a.start_time || '00:00:00'}`).getTime() || 0;
-                    const timeB = new Date(`${strB}T${b.start_time || '00:00:00'}`).getTime() || 0;
-                    if (timeB !== timeA) return timeB - timeA;
-                    return (b.id || 0) - (a.id || 0);
-                });
+                // Populate reviews map
+                window.myReviewsMap = {};
+                if (revResponse && revResponse.success && Array.isArray(revResponse.reviews)) {
+                    revResponse.reviews.forEach(r => {
+                        window.myReviewsMap[r.booking_id] = r;
+                    });
+                }
+
+                // Initial sort
+                allClientBookings = sortClientBookings(allClientBookings);
 
                 updateFilterCounts();
                 renderBookingsList();
@@ -558,6 +795,7 @@
             if (currentStatusFilter !== 'all') {
                 filtered = allClientBookings.filter(b => (b.status || 'pending').toLowerCase() === currentStatusFilter);
             }
+            filtered = sortClientBookings(filtered);
 
             if (filtered.length === 0) {
                 const filterTitle = currentStatusFilter === 'all' ? 'No Bookings Yet' : `No ${cap(currentStatusFilter)} Bookings`;
@@ -588,9 +826,11 @@
                 const end = formatTime(b.end_time);
                 const status = (b.status || 'pending').toLowerCase();
                 const price = b.total_price ? '&#8369;' + Number(b.total_price).toLocaleString() : '—';
+                const isCompleted = status === 'completed';
+                const existingReview = window.myReviewsMap ? window.myReviewsMap[b.id] : null;
 
                 return `<tr class="booking-row-item" onclick="openBookingModal(${b.id})">
-                    <td style="font-weight:700; color:var(--color-primary, #2e7d32);">#${i + 1}</td>
+                    <td style="font-weight:700; color:var(--color-primary, #2e7d32);">#${b.id || (i + 1)}</td>
                     <td style="font-weight:600; color:#1e293b;">
                         ${b.service_name || b.service || '—'}
                         ${status === 'cancelled' && b.cancellation_reason ? `<div style="font-size:0.75rem; color:#dc2626; font-weight:400; margin-top:0.25rem; display:flex; align-items:flex-start; gap:0.3rem;"><i class="fas fa-ban" style="margin-top:0.15rem; flex-shrink:0;"></i> <span><strong>Reason:</strong> ${escapeHtml(b.cancellation_reason)}</span></div>` : ''}
@@ -600,10 +840,23 @@
                     <td style="white-space:nowrap;">${start} – ${end}</td>
                     <td style="font-weight:700; color:#0f172a;">${price}</td>
                     <td><span class="status-badge status-${status}">${cap(status)}</span></td>
-                    <td onclick="event.stopPropagation();">
-                        <button class="btn btn-sm btn-secondary" onclick="openBookingModal(${b.id})" style="border-radius:50px; font-size:0.78rem; padding:0.35rem 0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:0.35rem;">
-                            <i class="fas fa-eye"></i> Details
-                        </button>
+                    <td onclick="event.stopPropagation();" style="white-space:nowrap;">
+                        <div style="display:inline-flex; align-items:center; gap:0.4rem;">
+                            ${isCompleted ? (
+                                existingReview ? `
+                                    <button class="btn-review-badge" onclick="event.stopPropagation(); openReviewModal(${b.id})" title="Click to view or edit your feedback">
+                                        <i class="fas fa-star" style="color:#f59e0b;"></i> ${existingReview.rating}★ Review
+                                    </button>
+                                ` : `
+                                    <button class="btn-rate-cta" onclick="event.stopPropagation(); openReviewModal(${b.id})" title="Rate and leave feedback for this completed session">
+                                        <i class="fas fa-star"></i> Rate Session
+                                    </button>
+                                `
+                            ) : ''}
+                            <button class="btn btn-sm btn-secondary" onclick="openBookingModal(${b.id})" style="border-radius:50px; font-size:0.78rem; padding:0.35rem 0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:0.35rem;">
+                                <i class="fas fa-eye"></i> Details
+                            </button>
+                        </div>
                     </td>
                 </tr>`;
             }).join('');
@@ -681,6 +934,68 @@
                 gallerySection.style.display = 'none';
             }
 
+            // Reviews & Feedback Section (Completed Bookings)
+            const reviewSection = document.getElementById('modalReviewSection');
+            if (reviewSection) {
+                if (status === 'completed') {
+                    reviewSection.style.display = 'block';
+                    const existingReview = window.myReviewsMap ? window.myReviewsMap[booking.id] : null;
+                    if (existingReview) {
+                        const starsHtml = Array.from({length: 5}, (_, idx) => 
+                            `<i class="${idx < existingReview.rating ? 'fas' : 'far'} fa-star" style="color:#f59e0b;"></i>`
+                        ).join('');
+                        const tagsList = existingReview.tags ? existingReview.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+                        const tagsHtml = tagsList.length > 0 
+                            ? `<div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.45rem;">
+                                ${tagsList.map(t => `<span style="font-size:0.75rem; background:#fef3c7; color:#92400e; padding:0.2rem 0.6rem; border-radius:50px; font-weight:600;">${escapeHtml(t)}</span>`).join('')}
+                               </div>`
+                            : '';
+                        
+                        reviewSection.innerHTML = `
+                            <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fde68a; border-radius: 14px; padding: 1.15rem 1.25rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <span style="font-size: 0.78rem; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-check-circle" style="color: #10b981;"></i> Your Review & Feedback
+                                    </span>
+                                    <button onclick="closeBookingModal(); openReviewModal(${booking.id});" class="btn btn-sm" style="font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 50px; background: white; border: 1px solid #f59e0b; color: #b45309; cursor: pointer;">
+                                        <i class="fas fa-pen"></i> Edit
+                                    </button>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                                    <div style="font-size: 1.1rem; display: flex; gap: 0.2rem;">${starsHtml}</div>
+                                    <span style="font-weight: 700; font-size: 0.95rem; color: #78350f;">${existingReview.rating}.0 / 5.0</span>
+                                </div>
+                                ${tagsHtml}
+                                ${existingReview.comment ? `
+                                    <div style="font-size: 0.85rem; color: #451a03; line-height: 1.45; margin-top: 0.5rem; font-style: italic; background: rgba(255,255,255,0.7); padding: 0.6rem 0.85rem; border-radius: 8px;">
+                                        "${escapeHtml(existingReview.comment)}"
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    } else {
+                        reviewSection.innerHTML = `
+                            <div style="background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%); border: 1px solid #fde047; border-radius: 14px; padding: 1.15rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                                <div>
+                                    <div style="font-weight: 700; color: #854d0e; font-size: 0.92rem; display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-star" style="color: #ca8a04;"></i> Share Your Session Feedback!
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #a16207; margin-top: 0.2rem;">
+                                        Help our photographers and future clients by rating your completed session.
+                                    </div>
+                                </div>
+                                <button onclick="closeBookingModal(); openReviewModal(${booking.id});" class="btn btn-sm" style="background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%); color: white; border: none; font-weight: 700; padding: 0.45rem 1rem; border-radius: 50px; font-size: 0.8rem; white-space: nowrap; box-shadow: 0 2px 8px rgba(161, 98, 7, 0.3); cursor: pointer;">
+                                    <i class="fas fa-star"></i> Leave Review
+                                </button>
+                            </div>
+                        `;
+                    }
+                } else {
+                    reviewSection.style.display = 'none';
+                    reviewSection.innerHTML = '';
+                }
+            }
+
             // Cancellation Section
             const cancelSection = document.getElementById('modalCancellationSection');
             const cancelReasonText = document.getElementById('modalCancellationReasonText');
@@ -731,6 +1046,208 @@
             document.documentElement.style.overflow = '';
         }
 
+        // ==========================================
+        // Review & Feedback Modal Controllers
+        // ==========================================
+        const ratingDescriptions = {
+            1: '1 - Poor (Needs Improvement)',
+            2: '2 - Fair (Could Be Better)',
+            3: '3 - Good (Satisfied)',
+            4: '4 - Great! Loved It',
+            5: '5 - Exceptional! Exceeded Expectations ✨'
+        };
+
+        function openReviewModal(bookingId) {
+            const booking = allClientBookings.find(b => b.id == bookingId);
+            if (!booking) return;
+
+            if ((booking.status || '').toLowerCase() !== 'completed') {
+                showAlert('Reviews can only be submitted for completed photography sessions.', 'warning');
+                return;
+            }
+
+            document.getElementById('reviewBookingId').value = booking.id;
+            document.getElementById('reviewModalServiceName').textContent = booking.service_name || booking.service || 'Photography Session';
+            document.getElementById('reviewModalBookingIdTag').textContent = `Booking #${booking.id}`;
+            
+            const sessionDate = typeof formatAsiaManilaDate === 'function'
+                ? formatAsiaManilaDate(booking.booking_date, { month: 'short', day: 'numeric', year: 'numeric' })
+                : new Date(booking.booking_date).toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('reviewModalBookingDate').textContent = sessionDate;
+
+            const existingReview = window.myReviewsMap ? window.myReviewsMap[booking.id] : null;
+
+            // Reset tags
+            document.querySelectorAll('#reviewTagsContainer .review-tag-pill').forEach(pill => {
+                pill.classList.remove('selected');
+            });
+
+            if (existingReview) {
+                document.getElementById('reviewModalTitle').textContent = 'Edit Your Feedback';
+                document.getElementById('reviewModalSubtitle').textContent = 'Update your rating or comments for this session.';
+                document.getElementById('btnSubmitReviewText').textContent = 'Update Feedback';
+                
+                // Set rating
+                selectStarRating(existingReview.rating || 5);
+
+                // Set comment
+                document.getElementById('reviewCommentInput').value = existingReview.comment || '';
+                updateReviewCharCount();
+
+                // Set tags
+                if (existingReview.tags) {
+                    const savedTags = existingReview.tags.split(',').map(t => t.trim().toLowerCase());
+                    document.querySelectorAll('#reviewTagsContainer .review-tag-pill').forEach(pill => {
+                        const tagVal = (pill.dataset.tag || pill.textContent).trim().toLowerCase();
+                        if (savedTags.some(st => st === tagVal || tagVal.includes(st) || st.includes(tagVal))) {
+                            pill.classList.add('selected');
+                        }
+                    });
+                }
+            } else {
+                document.getElementById('reviewModalTitle').textContent = 'Rate Your Session';
+                document.getElementById('reviewModalSubtitle').textContent = 'How was your photography experience with SnailShutter?';
+                document.getElementById('btnSubmitReviewText').textContent = 'Submit Feedback';
+                
+                selectStarRating(5);
+                document.getElementById('reviewCommentInput').value = '';
+                updateReviewCharCount();
+            }
+
+            const modal = document.getElementById('reviewModalOverlay');
+            modal.classList.add('active');
+            document.documentElement.classList.add('modal-open');
+            document.body.classList.add('modal-open');
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        }
+
+        function closeReviewModal() {
+            const modal = document.getElementById('reviewModalOverlay');
+            modal.classList.remove('active');
+            document.documentElement.classList.remove('modal-open');
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+        }
+
+        function selectStarRating(val) {
+            const rating = parseInt(val, 10) || 5;
+            document.getElementById('selectedRatingInput').value = rating;
+
+            const starItems = document.querySelectorAll('#starRatingContainer .star-item');
+            starItems.forEach(star => {
+                const starRating = parseInt(star.dataset.rating, 10);
+                if (starRating <= rating) {
+                    star.className = 'fas fa-star star-item active';
+                } else {
+                    star.className = 'far fa-star star-item';
+                }
+            });
+
+            const labelEl = document.getElementById('starRatingLabel');
+            if (labelEl) {
+                labelEl.textContent = ratingDescriptions[rating] || `${rating} Stars`;
+            }
+        }
+
+        function hoverStars(val) {
+            const rating = parseInt(val, 10);
+            const starItems = document.querySelectorAll('#starRatingContainer .star-item');
+            starItems.forEach(star => {
+                const starRating = parseInt(star.dataset.rating, 10);
+                if (starRating <= rating) {
+                    star.className = 'fas fa-star star-item hovered';
+                } else {
+                    star.className = 'far fa-star star-item';
+                }
+            });
+            const labelEl = document.getElementById('starRatingLabel');
+            if (labelEl && ratingDescriptions[rating]) {
+                labelEl.textContent = ratingDescriptions[rating];
+            }
+        }
+
+        function resetHoverStars() {
+            const current = parseInt(document.getElementById('selectedRatingInput').value, 10) || 5;
+            selectStarRating(current);
+        }
+
+        function toggleReviewTag(pill) {
+            pill.classList.toggle('selected');
+        }
+
+        function updateReviewCharCount() {
+            const input = document.getElementById('reviewCommentInput');
+            const counter = document.getElementById('reviewCharCounter');
+            if (input && counter) {
+                counter.textContent = `${input.value.length}/500`;
+            }
+        }
+
+        async function submitReviewForm(event) {
+            event.preventDefault();
+            const bookingId = parseInt(document.getElementById('reviewBookingId').value, 10);
+            const rating = parseInt(document.getElementById('selectedRatingInput').value, 10) || 5;
+            const comment = document.getElementById('reviewCommentInput').value.trim();
+
+            const selectedPills = Array.from(document.querySelectorAll('#reviewTagsContainer .review-tag-pill.selected'));
+            const tags = selectedPills.map(p => p.dataset.tag || p.textContent.trim()).join(', ');
+
+            if (!bookingId) {
+                showAlert('Invalid booking reference.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitReview');
+            const btnText = document.getElementById('btnSubmitReviewText');
+            const originalText = btnText.textContent;
+
+            btn.disabled = true;
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+            try {
+                const res = await api.submitReview({
+                    booking_id: bookingId,
+                    rating: rating,
+                    comment: comment,
+                    tags: tags
+                });
+
+                if (res && res.success) {
+                    closeReviewModal();
+                    showAlert(res.message || 'Thank you! Your feedback has been saved.', 'success');
+                    
+                    // Update local cache
+                    if (!window.myReviewsMap) window.myReviewsMap = {};
+                    window.myReviewsMap[bookingId] = {
+                        ...(window.myReviewsMap[bookingId] || {}),
+                        booking_id: bookingId,
+                        rating: rating,
+                        comment: comment,
+                        tags: tags
+                    };
+
+                    // Re-render bookings table and update counts
+                    renderBookingsList();
+
+                    // If booking modal was open, refresh its review card
+                    const bookingModal = document.getElementById('bookingDetailsModal');
+                    if (bookingModal && bookingModal.classList.contains('active')) {
+                        openBookingModal(bookingId);
+                    }
+                } else {
+                    showAlert(res.error || 'Failed to submit review. Please try again.', 'error');
+                }
+            } catch (err) {
+                console.error('Review submit error:', err);
+                showAlert(err.message || 'Network error occurred while submitting review.', 'error');
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = originalText;
+            }
+        }
+
         async function cancelBookingFromModal(bookingId) {
             closeBookingModal();
             await cancelBooking(bookingId);
@@ -738,17 +1255,21 @@
 
         async function cancelBooking(bookingId) {
             let cancellationReason = null;
+            const booking = (window.allClientBookings || []).find(b => b.id == bookingId);
+            const downpaymentAmount = booking ? (booking.downpayment_amount || 0) : null;
+
             if (typeof showCancellationModal === 'function') {
-                const res = await showCancellationModal({ role: 'client', bookingId });
+                const res = await showCancellationModal({ role: 'client', bookingId, downpaymentAmount });
                 if (!res || !res.confirmed) return;
                 cancellationReason = res.reason;
             } else if (typeof showConfirm === 'function') {
                 const ok = await showConfirm({
-                    title: 'Cancel Booking',
-                    message: 'Are you sure you want to cancel this booking?',
-                    confirmText: 'Yes, Cancel',
-                    cancelText: 'Keep it',
-                    type: 'danger'
+                    title: 'Non-Refundable Downpayment Warning',
+                    message: `Please be advised that cancellation of this booking will <strong style="color: #b91c1c;">NOT return or refund your downpayment</strong>${downpaymentAmount ? ` of <strong>₱${Number(downpaymentAmount).toLocaleString()}</strong>` : ''}.<br><br>All downpayments are strictly non-refundable upon cancellation.<br><br>Are you sure you want to cancel this booking?`,
+                    confirmText: 'Yes, Cancel (Forfeit Downpayment)',
+                    cancelText: 'Keep My Booking',
+                    type: 'danger',
+                    icon: 'fa-exclamation-triangle'
                 });
                 if (!ok) return;
             }

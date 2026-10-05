@@ -470,10 +470,102 @@
                 } catch (e) {}
             }
 
-            // If already logged in and no error specified, redirect to dashboard
-            if (typeof auth !== 'undefined' && auth.isLoggedIn() && !errorParam && !cooldownTimer) {
-                auth.redirectToDashboard();
-                return;
+            // Check for explicit switch/logout action in query params
+            const isSwitchAction = urlParams.get('switch') === 'true' || urlParams.get('logout') === 'true';
+            if (isSwitchAction && typeof auth !== 'undefined') {
+                try {
+                    api.logout().catch(() => {});
+                } catch (e) {}
+                auth.currentUser = null;
+                auth.setStoredUser(null);
+            }
+
+            // Function to render active session notice without blindly kicking the user to dashboard
+            function renderActiveSessionNotice() {
+                if (typeof auth === 'undefined' || !auth.isLoggedIn() || errorParam || cooldownTimer || isSwitchAction) {
+                    return;
+                }
+                const currentUser = auth.currentUser || auth.getStoredUser();
+                if (!currentUser) return;
+
+                const role = currentUser.role || 'client';
+                const roleLabel = (typeof auth.getFormattedRole === 'function') 
+                    ? auth.getFormattedRole() 
+                    : (role.charAt(0).toUpperCase() + role.slice(1));
+                const userName = currentUser.name || currentUser.first_name || 'User';
+                const dashboardUrl = (role === 'admin') 
+                    ? '/admin/dashboard.html' 
+                    : (role === 'staff' ? '/staff/dashboard.html' : '/client/dashboard.html');
+
+                const existingNotice = document.getElementById('activeSessionNotice');
+                if (existingNotice) existingNotice.remove();
+
+                const notice = document.createElement('div');
+                notice.id = 'activeSessionNotice';
+                notice.className = 'active-session-card';
+                notice.innerHTML = `
+                    <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-left: 5px solid #16a34a; border-radius: 12px; padding: 1.15rem 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 8px 20px -4px rgba(22, 163, 74, 0.15);">
+                        <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; border: 1px solid #bbf7d0;">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                                    <h4 style="margin: 0; font-size: 0.96rem; font-weight: 700; color: #14532d;">
+                                        Active Session Detected
+                                    </h4>
+                                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.76rem; font-weight: 700;">
+                                        <i class="fas fa-circle" style="font-size: 0.5rem; color: #22c55e;"></i> Logged In
+                                    </span>
+                                </div>
+                                <p style="margin: 0.35rem 0 0.85rem 0; font-size: 0.84rem; color: #166534; line-height: 1.45;">
+                                    You are currently signed in as <strong>${escapeHtml(userName)}</strong> (${escapeHtml(roleLabel)}).
+                                </p>
+                                <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                                    <a href="${dashboardUrl}" class="btn btn-primary btn-sm" style="padding: 0.5rem 1rem; font-size: 0.83rem; text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700;">
+                                        <i class="fas fa-gauge-high"></i> Go to Dashboard
+                                    </a>
+                                    <button type="button" id="switchUserBtn" class="btn btn-secondary btn-sm" style="padding: 0.5rem 1rem; font-size: 0.83rem; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 600; background: #ffffff; border: 1px solid #cbd5e1; color: #334155;">
+                                        <i class="fas fa-right-from-bracket"></i> Sign In as Another User
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                loginForm.parentNode.insertBefore(notice, loginForm);
+
+                const switchBtn = document.getElementById('switchUserBtn');
+                if (switchBtn) {
+                    switchBtn.addEventListener('click', async () => {
+                        switchBtn.disabled = true;
+                        switchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing out...';
+                        try {
+                            await api.logout();
+                        } catch (e) {
+                            console.warn('Logout error during switch:', e);
+                        }
+                        auth.currentUser = null;
+                        auth.setStoredUser(null);
+                        notice.remove();
+                        if (emailInput) {
+                            emailInput.value = '';
+                            emailInput.focus();
+                        }
+                        if (passwordInput) passwordInput.value = '';
+                    });
+                }
+            }
+
+            // Check immediately from synchronous storage
+            renderActiveSessionNotice();
+
+            // Also check after background session validation completes
+            if (typeof auth !== 'undefined' && auth.initPromise) {
+                auth.initPromise.then(() => {
+                    renderActiveSessionNotice();
+                });
             }
 
             if (errorParam === 'deactivated') {
