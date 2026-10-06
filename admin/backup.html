@@ -367,7 +367,7 @@
 <body class="premium-dashboard">
     <div class="dashboard-layout">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -446,6 +446,20 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-database"></i>
+                    <span>Backup & Restore</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="typeof loadBackups === 'function' ? loadBackups() : location.reload()" title="Refresh backups">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <!-- Page Hero -->
             <div class="page-hero">
                 <div class="hero-particles"></div>

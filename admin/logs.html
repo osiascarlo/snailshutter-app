@@ -630,7 +630,7 @@
     <div class="dashboard-layout">
         <!-- Mobile Sidebar Toggle -->
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -709,6 +709,20 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>System Logs</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="typeof loadLogs === 'function' ? loadLogs() : location.reload()" title="Refresh logs">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <!-- Page Hero -->
             <div class="page-hero">
                 <div class="hero-particles"></div>

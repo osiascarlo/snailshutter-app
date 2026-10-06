@@ -491,24 +491,41 @@ function getGallerySkeletonHTML(count = 6) {
 }
 
 // Navigation and UI helpers
-function toggleSidebar() {
+let lastMainSidebarToggleTime = 0;
+function toggleSidebar(forceState) {
+    const now = Date.now();
+    if (typeof forceState !== 'boolean' && (now - lastMainSidebarToggleTime < 280)) {
+        return;
+    }
+    lastMainSidebarToggleTime = now;
+
     const sidebar = document.getElementById('sidebar');
     let overlay = document.getElementById('sidebarOverlay');
     
     if (sidebar) {
-        sidebar.classList.toggle('active');
-        
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.id = 'sidebarOverlay';
-            overlay.className = 'sidebar-overlay';
-            document.body.appendChild(overlay);
-            overlay.addEventListener('click', toggleSidebar);
+        const shouldOpen = (typeof forceState === 'boolean')
+            ? forceState
+            : !sidebar.classList.contains('active');
+
+        if (shouldOpen) {
+            sidebar.classList.add('active');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'sidebarOverlay';
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+                overlay.addEventListener('click', () => toggleSidebar(false));
+            }
+            overlay.classList.add('active');
+            document.body.classList.add('sidebar-open');
+        } else {
+            sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
         }
-        
-        overlay.classList.toggle('active');
     }
 }
+window.toggleSidebar = toggleSidebar;
 
 // Initialize common functionality
 document.addEventListener('DOMContentLoaded', function() {

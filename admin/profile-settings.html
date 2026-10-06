@@ -223,7 +223,7 @@
 <body class="premium-dashboard">
     <div class="dashboard-layout">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -302,6 +302,20 @@
         </aside>
 
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Profile Settings</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="typeof loadProfile === 'function' ? loadProfile() : location.reload()" title="Refresh profile">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <div class="page-hero">
                 <div class="hero-particles"></div>
                 <h1>Profile Settings</h1>

@@ -62,6 +62,11 @@ router.post('/', authMiddleware, roleMiddleware(['admin']), async (req, res) => 
         return res.status(400).json({ success: false, error: 'Required fields missing' });
     }
 
+    const cleanEmail = email ? String(email).trim() : '';
+    if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(cleanEmail)) {
+        return res.status(400).json({ success: false, error: 'Only Gmail accounts (@gmail.com) are accepted.' });
+    }
+
     const cleanPhone = phone ? String(phone).trim() : '';
     if (!cleanPhone || !/^\d{11}$/.test(cleanPhone)) {
         return res.status(400).json({ success: false, error: 'Phone number must be exactly 11 digits (e.g. 09171234567).' });

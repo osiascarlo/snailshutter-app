@@ -560,7 +560,7 @@
 <body class="premium-dashboard">
     <div class="dashboard-layout">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -608,6 +608,20 @@
         </aside>
 
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-calendar-day"></i>
+                    <span>My Schedule</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="typeof loadSchedule === 'function' ? loadSchedule() : location.reload()" title="Refresh schedule">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <div class="page-hero">
                 <h1>Studio Calendar — Welcome, <span data-user-name></span>!</h1>
                 <p>View all studio bookings and your schedule in an interactive calendar format.</p>

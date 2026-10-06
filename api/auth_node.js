@@ -16,6 +16,12 @@ const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+// Helper function to validate Gmail address
+const isGmailAddress = (email) => {
+    if (!email || typeof email !== 'string') return false;
+    return /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email.trim());
+};
+
 /**
  * POST /api/auth/send_otp.php (Ported to /api/auth/send-otp)
  */
@@ -25,6 +31,13 @@ router.post('/send-otp', async (req, res) => {
 
     if (!email) {
         return res.status(400).json({ success: false, error: 'Email is required' });
+    }
+
+    if (!isGmailAddress(email)) {
+        return res.status(400).json({ 
+            success: false, 
+            error: 'Only Gmail accounts (@gmail.com) are accepted.' 
+        });
     }
 
     try {
@@ -142,6 +155,13 @@ router.post('/verify-register', async (req, res) => {
 
     if (!email || !otp || !firstName || !lastName || !password) {
         return res.status(400).json({ success: false, error: 'All fields are required' });
+    }
+
+    if (!isGmailAddress(email)) {
+        return res.status(400).json({ 
+            success: false, 
+            error: 'Only Gmail accounts (@gmail.com) are accepted.' 
+        });
     }
 
     try {

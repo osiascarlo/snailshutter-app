@@ -353,6 +353,203 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ========================================================
+           PREMIUM PAGINATION SECTION (USERS MANAGEMENT)
+           ======================================================== */
+        .users-pagination-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.1rem 1.5rem;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            position: relative;
+            z-index: 5;
+        }
+
+        .pagination-info-group {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination-summary {
+            font-size: 0.88rem;
+            color: #64748b;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .pagination-summary strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .pagination-size-selector {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .pagination-size-selector select {
+            padding: 0.38rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1e293b;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pagination-size-selector select:focus {
+            border-color: var(--color-primary, #2e7d32);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+        }
+
+        .pagination-controls-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            user-select: none;
+        }
+
+        .pagination-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            min-width: 38px;
+            height: 38px;
+            padding: 0 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #334155;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pagination-nav-btn:hover:not(:disabled) {
+            border-color: var(--color-primary, #2e7d32);
+            color: var(--color-primary, #2e7d32);
+            background: #f0fdf4;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(46, 125, 50, 0.12);
+        }
+
+        .pagination-nav-btn:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .pagination-pages-list {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .pagination-page-btn {
+            min-width: 38px;
+            height: 38px;
+            padding: 0 0.5rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pagination-page-btn:hover:not(.active):not(.ellipsis) {
+            border-color: var(--color-primary, #2e7d32);
+            color: var(--color-primary, #2e7d32);
+            background: #f0fdf4;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(46, 125, 50, 0.12);
+        }
+
+        .pagination-page-btn.active {
+            background: linear-gradient(135deg, var(--color-primary, #2e7d32) 0%, #1b5e20 100%);
+            color: #ffffff !important;
+            border-color: var(--color-primary, #2e7d32);
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+            transform: translateY(-1px);
+            cursor: default;
+        }
+
+        .pagination-page-btn.ellipsis {
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            cursor: default;
+            min-width: 24px;
+            padding: 0;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .users-pagination-footer {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.85rem;
+                padding: 1rem 0.85rem;
+            }
+
+            .pagination-info-group {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.45rem;
+                text-align: center;
+            }
+
+            .pagination-controls-group {
+                justify-content: center;
+                width: 100%;
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+
+            .pagination-nav-btn {
+                height: 36px;
+                min-width: 36px;
+                padding: 0 0.55rem;
+                font-size: 0.78rem;
+            }
+
+            .pagination-page-btn {
+                height: 36px;
+                min-width: 36px;
+                font-size: 0.82rem;
+            }
+        }
     </style>
     <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.2.0">
 </head>
@@ -360,7 +557,7 @@
 <body class="premium-dashboard">
     <div class="dashboard-layout">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -437,6 +634,20 @@
         </aside>
 
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="typeof loadUsers === 'function' ? loadUsers() : location.reload()" title="Refresh users">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <div class="page-hero">
                 <h1>Users Management — Welcome, <span data-user-name></span>!</h1>
                 <p>Manage access levels, roles, and status for all studio members.</p>
@@ -503,6 +714,42 @@
                             <!-- Users will be rendered by JavaScript -->
                         </tbody>
                     </table>
+
+                    <!-- Users Pagination Section -->
+                    <div class="users-pagination-footer" id="usersPaginationFooter">
+                        <div class="pagination-info-group">
+                            <span class="pagination-summary" id="usersPaginationSummary">
+                                Showing <strong id="userPageStart">0</strong>–<strong id="userPageEnd">0</strong> of <strong id="userPageTotal">0</strong> users
+                            </span>
+                            <div class="pagination-size-selector">
+                                <label for="userPageSizeSelect">Rows per page:</label>
+                                <select id="userPageSizeSelect" onchange="changeUsersPageSize(this.value)">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pagination-controls-group">
+                            <button class="pagination-nav-btn" id="btnUserFirst" onclick="goToUserPage(1)" title="First Page">
+                                <i class="fas fa-angles-left"></i>
+                            </button>
+                            <button class="pagination-nav-btn" id="btnUserPrev" onclick="changeUserPage(-1)" title="Previous Page">
+                                <i class="fas fa-chevron-left"></i> <span>Prev</span>
+                            </button>
+                            <div class="pagination-pages-list" id="userPagePills">
+                                <!-- Dynamic Page Pills Generated by JavaScript -->
+                            </div>
+                            <button class="pagination-nav-btn" id="btnUserNext" onclick="changeUserPage(1)" title="Next Page">
+                                <span>Next</span> <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button class="pagination-nav-btn" id="btnUserLast" onclick="goToUserPage(totalUserPages)" title="Last Page">
+                                <i class="fas fa-angles-right"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -602,11 +849,20 @@
             setupEventListeners();
         });
 
-        // Users data
+        // Users data & Pagination state
         let users = [];
         let filteredUsers = [];
+        let currentPage = 1;
+        let pageSize = parseInt(localStorage.getItem('users_page_size') || '10', 10);
+        let totalUserPages = 1;
 
         function setupEventListeners() {
+            // Restore saved page size in select dropdown
+            const sizeSelect = document.getElementById('userPageSizeSelect');
+            if (sizeSelect) {
+                sizeSelect.value = String(pageSize);
+            }
+
             // Search functionality
             document.getElementById('searchInput').addEventListener('input', filterUsers);
             document.getElementById('roleFilter').addEventListener('change', filterUsers);
@@ -644,6 +900,12 @@
                     users = response.users || response.data || [];
                     filteredUsers = [...users];
                     console.log('Users loaded successfully:', users.length, 'users');
+
+                    // Clamp current page if list shrunk
+                    const maxPage = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+                    if (currentPage > maxPage) {
+                        currentPage = maxPage;
+                    }
                     renderUsers();
                 } else {
                     console.error('API response failed:', response);
@@ -655,15 +917,64 @@
             }
         }
 
+        function changeUsersPageSize(val) {
+            pageSize = parseInt(val, 10) || 10;
+            localStorage.setItem('users_page_size', pageSize);
+            currentPage = 1;
+            renderUsers();
+        }
+
+        function changeUserPage(delta) {
+            goToUserPage(currentPage + delta);
+        }
+
+        function goToUserPage(page) {
+            const totalItems = filteredUsers.length;
+            totalUserPages = Math.ceil(totalItems / pageSize) || 1;
+
+            if (page < 1) page = 1;
+            if (page > totalUserPages) page = totalUserPages;
+            if (page === currentPage && arguments.length === 1 && totalItems > 0) return;
+
+            currentPage = page;
+            renderUsers();
+
+            // Smoothly scroll table into view if user scrolled past
+            const tableContainer = document.querySelector('.table-container');
+            if (tableContainer) {
+                const rect = tableContainer.getBoundingClientRect();
+                if (rect.top < 80) {
+                    tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+
         function renderUsers() {
             const tbody = document.getElementById('usersTableBody');
+            const totalItems = filteredUsers.length;
+            totalUserPages = Math.ceil(totalItems / pageSize) || 1;
 
-            if (filteredUsers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No users found</td></tr>';
+            if (currentPage > totalUserPages) currentPage = totalUserPages;
+            if (currentPage < 1) currentPage = 1;
+
+            if (totalItems === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 3rem 1rem; color: #64748b;">
+                            <div style="font-size: 2.2rem; color: #cbd5e1; margin-bottom: 0.6rem;"><i class="fas fa-users-slash"></i></div>
+                            <div style="font-weight: 700; font-size: 1rem; color: #334155;">No users found</div>
+                            <div style="font-size: 0.84rem; color: #94a3b8; margin-top: 0.3rem;">Try adjusting your search query, role filter, or status filter.</div>
+                        </td>
+                    </tr>`;
+                renderPagination(0, 1, 0, 0);
                 return;
             }
 
-            tbody.innerHTML = filteredUsers.map(user => {
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalItems);
+            const pageUsers = filteredUsers.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageUsers.map(user => {
                 const names = (user.full_name || '').split(' ');
                 const firstName = names[0] || '';
                 const lastName = names.slice(1).join(' ') || '';
@@ -708,6 +1019,84 @@
                     </td>
                 </tr>
             `}).join('');
+
+            renderPagination(totalItems, totalUserPages, startIndex, endIndex);
+        }
+
+        function renderPagination(totalItems, totalPages, startIndex, endIndex) {
+            const footer = document.getElementById('usersPaginationFooter');
+            if (!footer) return;
+
+            const summaryEl = document.getElementById('usersPaginationSummary');
+            if (summaryEl) {
+                if (totalItems === 0) {
+                    summaryEl.innerHTML = 'Showing <strong>0</strong> users';
+                } else {
+                    summaryEl.innerHTML = `Showing <strong>${startIndex + 1}</strong>–<strong>${endIndex}</strong> of <strong>${totalItems}</strong> users`;
+                }
+            }
+
+            const sizeSelect = document.getElementById('userPageSizeSelect');
+            if (sizeSelect && sizeSelect.value != pageSize) {
+                sizeSelect.value = String(pageSize);
+            }
+
+            const btnFirst = document.getElementById('btnUserFirst');
+            const btnPrev = document.getElementById('btnUserPrev');
+            const btnNext = document.getElementById('btnUserNext');
+            const btnLast = document.getElementById('btnUserLast');
+
+            const isFirst = currentPage <= 1 || totalItems === 0;
+            const isLast = currentPage >= totalPages || totalItems === 0;
+
+            if (btnFirst) btnFirst.disabled = isFirst;
+            if (btnPrev) btnPrev.disabled = isFirst;
+            if (btnNext) btnNext.disabled = isLast;
+            if (btnLast) btnLast.disabled = isLast;
+
+            const pillsContainer = document.getElementById('userPagePills');
+            if (!pillsContainer) return;
+
+            if (totalItems === 0) {
+                pillsContainer.innerHTML = `<button class="pagination-page-btn active" disabled>1</button>`;
+                return;
+            }
+
+            const pages = [];
+            if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+            } else {
+                if (currentPage <= 4) {
+                    for (let i = 1; i <= 5; i++) pages.push(i);
+                    pages.push('...');
+                    pages.push(totalPages);
+                } else if (currentPage >= totalPages - 3) {
+                    pages.push(1);
+                    pages.push('...');
+                    for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+                } else {
+                    pages.push(1);
+                    pages.push('...');
+                    pages.push(currentPage - 1);
+                    pages.push(currentPage);
+                    pages.push(currentPage + 1);
+                    pages.push('...');
+                    pages.push(totalPages);
+                }
+            }
+
+            pillsContainer.innerHTML = pages.map(p => {
+                if (p === '...') {
+                    return `<span class="pagination-page-btn ellipsis">&hellip;</span>`;
+                }
+                const isActive = p === currentPage;
+                return `<button class="pagination-page-btn ${isActive ? 'active' : ''}" 
+                                onclick="goToUserPage(${p})" 
+                                aria-label="Go to page ${p}" 
+                                ${isActive ? 'aria-current="page"' : ''}>
+                            ${p}
+                        </button>`;
+            }).join('');
         }
 
         function getRoleColor(role) {
@@ -733,6 +1122,7 @@
                 return matchesSearch && matchesRole && matchesStatus;
             });
 
+            currentPage = 1; // Reset to page 1 upon filtering/searching
             renderUsers();
         }
 
@@ -741,6 +1131,7 @@
             document.getElementById('roleFilter').value = '';
             document.getElementById('statusFilter').value = '';
             filteredUsers = [...users];
+            currentPage = 1;
             renderUsers();
         }
 

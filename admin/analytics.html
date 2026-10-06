@@ -174,7 +174,7 @@
 <body class="premium-dashboard">
     <div class="dashboard-layout">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -251,6 +251,20 @@
         </aside>
 
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics & Reports</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="typeof loadAnalytics === 'function' ? loadAnalytics() : location.reload()" title="Refresh analytics">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <div class="page-hero">
                 <h1>Analytics & Business Reports</h1>
                 <p>Track your studio's performance, revenue growth, and service trends in real-time.</p>

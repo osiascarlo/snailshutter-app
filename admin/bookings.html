@@ -19,42 +19,44 @@
         
         .bookings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 0.95rem;
         }
 
         .booking-card {
             background: white;
-            border-radius: var(--radius-md);
-            padding: 1.25rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--color-border-soft);
+            border-radius: 12px;
+            padding: 0.85rem 0.95rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--color-border-soft, #e2e8f0);
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            justify-content: space-between;
+            gap: 0.35rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .booking-card:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--color-primary);
+            box-shadow: 0 8px 18px -4px rgba(46, 125, 50, 0.12);
+            border-color: var(--color-primary, #2e7d32);
         }
 
         .booking-card i {
-            width: 20px;
+            width: 15px;
             color: var(--color-primary);
-            margin-right: 0.5rem;
+            margin-right: 0.3rem;
         }
 
         .booking-status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.16rem 0.5rem;
             border-radius: 50px;
-            font-size: 0.85rem;
+            font-size: 0.72rem;
             font-weight: 600;
-            margin-top: 0.5rem;
+            margin-top: 0;
             width: fit-content;
         }
 
@@ -646,7 +648,7 @@
 <body class="premium-dashboard">
     <div class="dashboard-layout">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -723,6 +725,20 @@
         </aside>
 
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>All Bookings</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="typeof loadBookings === 'function' ? loadBookings() : location.reload()" title="Refresh bookings">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <div class="page-hero">
                 <h1>All Bookings — Welcome, <span data-user-name></span>!</h1>
                 <p>View and manage all photography bookings across the studio.</p>
@@ -803,9 +819,47 @@
                 <!-- Status Sections -->
                 <div class="booking-section" id="section-all" style="display:block;">
                     <h2 class="section-title status-all" style="background:#f1f5f9; color:#1e293b; border-left:4px solid var(--color-primary, #1b5e20);">
-                        <i class="fas fa-list-ul" style="color:var(--color-primary, #1b5e20);"></i> All Bookings <span class="count">0</span>
+                        <i class="fas fa-list-ul" style="color:var(--color-primary, #1b5e20);"></i> <span id="sectionAllTitle">All Bookings</span> <span class="count">0</span>
                     </h2>
                     <div class="bookings-grid" id="grid-all"></div>
+
+                    <!-- Bookings Pagination Section -->
+                    <div class="bookings-pagination-footer" id="bookingsPaginationFooter">
+                        <div class="pagination-info-group">
+                            <span class="pagination-summary" id="bookingsPaginationSummary">
+                                Showing <strong id="bookingsPageStart">0</strong>–<strong id="bookingsPageEnd">0</strong> of <strong id="bookingsPageTotal">0</strong> bookings
+                            </span>
+                            <div class="pagination-size-selector">
+                                <label for="bookingsPageSizeSelect">Cards per page:</label>
+                                <select id="bookingsPageSizeSelect" onchange="changeBookingsPageSize(this.value)">
+                                    <option value="8">8</option>
+                                    <option value="12" selected>12</option>
+                                    <option value="16">16</option>
+                                    <option value="20">20</option>
+                                    <option value="24">24</option>
+                                    <option value="30">30</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pagination-controls-group">
+                            <button class="pagination-nav-btn" id="btnBookingsFirst" onclick="goToBookingsPage(1)" title="First Page">
+                                <i class="fas fa-angles-left"></i>
+                            </button>
+                            <button class="pagination-nav-btn" id="btnBookingsPrev" onclick="changeBookingsPage(-1)" title="Previous Page">
+                                <i class="fas fa-chevron-left"></i> <span>Prev</span>
+                            </button>
+                            <div class="pagination-pages-list" id="bookingsPagePills">
+                                <!-- Dynamic Page Pills Generated by JavaScript -->
+                            </div>
+                            <button class="pagination-nav-btn" id="btnBookingsNext" onclick="changeBookingsPage(1)" title="Next Page">
+                                <span>Next</span> <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button class="pagination-nav-btn" id="btnBookingsLast" onclick="goToBookingsPage(totalBookingsPages)" title="Last Page">
+                                <i class="fas fa-angles-right"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="booking-section" id="section-pending">
@@ -862,20 +916,39 @@
     <script src="/assets/js/dashboard-premium.js?v=1.2.0"></script>
 
     <script>
+        // Pagination state
+        let currentBookingsPage = 1;
+        const validBookingsPageSizes = [8, 12, 16, 20, 24, 30];
+        const savedBookingsPageSize = parseInt(localStorage.getItem('admin_bookings_page_size'), 10);
+        let bookingsPageSize = (validBookingsPageSizes.includes(savedBookingsPageSize) && savedBookingsPageSize !== 10) ? savedBookingsPageSize : 12;
+        localStorage.setItem('admin_bookings_page_size', String(bookingsPageSize));
+        let totalBookingsPages = 1;
+        let currentActiveBookingsList = [];
+
         // Helper to check for target booking to scroll and highlight
         const highlightBooking = () => {
             const hash = window.location.hash;
             if (hash && hash.startsWith('#booking-')) {
+                const idNum = parseInt(hash.replace('#booking-', ''), 10);
+                if (!isNaN(idNum) && currentActiveBookingsList && currentActiveBookingsList.length > 0) {
+                    const index = currentActiveBookingsList.findIndex(b => b.id === idNum);
+                    if (index !== -1) {
+                        const targetPage = Math.floor(index / bookingsPageSize) + 1;
+                        if (targetPage !== currentBookingsPage) {
+                            goToBookingsPage(targetPage);
+                        }
+                    }
+                }
                 const cardId = hash.substring(1);
-                const targetCard = document.getElementById(cardId);
-                if (targetCard) {
-                    setTimeout(() => {
+                setTimeout(() => {
+                    const targetCard = document.getElementById(cardId);
+                    if (targetCard) {
                         targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         targetCard.classList.remove('highlight-pulse');
                         void targetCard.offsetWidth; // trigger reflow to restart animation
                         targetCard.classList.add('highlight-pulse');
-                    }, 300);
-                }
+                    }
+                }, 350);
             }
         };
 
@@ -885,6 +958,7 @@
                 searchInput.value = '';
                 searchInput.focus();
             }
+            currentBookingsPage = 1;
             applyFiltersAndSearch(false);
         }
 
@@ -894,91 +968,236 @@
             return linkStr.length > 0 && linkStr !== 'null' && linkStr !== 'undefined';
         }
 
+        function generateBookingCardHTML(booking) {
+            const hasLink = hasDriveLink(booking);
+            const isFinishedNoLink = booking.status === 'completed' && !hasLink;
+            const isCompletedWithLink = booking.status === 'completed' && hasLink;
+            
+            let badgeClass = `status-${booking.status}`;
+            let badgeLabel = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+            let badgeIcon = '';
+            
+            if (isFinishedNoLink) {
+                badgeClass = 'status-finished';
+                badgeLabel = 'Finished';
+                badgeIcon = '<i class="fas fa-camera" style="font-size:0.75rem; margin-right:0.3rem;"></i>';
+            } else if (isCompletedWithLink) {
+                badgeClass = 'status-completed';
+                badgeLabel = 'Completed';
+                badgeIcon = '<i class="fas fa-check-double" style="font-size:0.75rem; margin-right:0.3rem;"></i>';
+            }
+
+            const dateStr = typeof formatAsiaManilaDate === 'function' 
+                ? formatAsiaManilaDate(booking.booking_date) 
+                : new Date(booking.booking_date).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' });
+
+            const safeServiceName = typeof escapeHtml === 'function' ? escapeHtml(booking.service_name || '') : (booking.service_name || '');
+            const safeClientName = typeof escapeHtml === 'function' ? escapeHtml(booking.client_name || '') : (booking.client_name || '');
+            const safeNotes = typeof escapeHtml === 'function' ? escapeHtml(booking.notes || '') : (booking.notes || '');
+            const safeReason = typeof escapeHtml === 'function' ? escapeHtml(booking.cancellation_reason || '') : (booking.cancellation_reason || '');
+
+            return `
+            <div class="booking-card" id="booking-${booking.id}" onclick="openBookingDetailsModal(${booking.id})">
+                <div class="booking-card-header">
+                    <div class="booking-card-id-title">
+                        #${booking.id} - ${safeServiceName}
+                    </div>
+                </div>
+                
+                <div class="booking-card-body">
+                    <div><i class="fas fa-calendar-alt"></i> ${dateStr} at ${booking.start_time || '—'}</div>
+                    <div><i class="fas fa-user"></i> Client: <strong>${safeClientName}</strong></div>
+                    ${booking.notes && booking.notes.trim() ? `
+                        <div class="booking-card-notes" title="${safeNotes}">
+                            <i class="fas fa-sticky-note"></i> 
+                            <span>${safeNotes}</span>
+                        </div>
+                    ` : ''}
+                    ${booking.status === 'cancelled' && booking.cancellation_reason ? `
+                        <div class="booking-card-reason" title="${safeReason}">
+                            <i class="fas fa-ban"></i>
+                            <span><strong>Reason:</strong> ${safeReason}</span>
+                        </div>
+                    ` : ''}
+                    ${hasLink ? `
+                        <div class="booking-card-link-badge has-link">
+                            <i class="fab fa-google-drive"></i> Google Drive Link Set
+                        </div>
+                    ` : (booking.status === 'completed' ? `
+                        <div class="booking-card-link-badge waiting-link">
+                            <i class="fas fa-clock"></i> Waiting for Photo Link
+                        </div>
+                    ` : '')}
+                </div>
+                
+                <div class="booking-card-footer">
+                    <span class="booking-status ${badgeClass}">
+                        ${badgeIcon}${badgeLabel}
+                    </span>
+                    <span class="booking-card-details-btn">
+                        Details <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+            </div>
+            `;
+        }
+
         function renderGrid(gridId, sectionId, list, query = '') {
             const grid = document.getElementById(gridId);
             const section = document.getElementById(sectionId);
             if (!grid || !section) return;
             
             // Update count in section title
-            section.querySelector('.count').textContent = list.length;
+            const countEl = section.querySelector('.count');
+            if (countEl) countEl.textContent = list.length;
 
             if (list.length === 0) {
-                grid.innerHTML = `<div class="empty-section-message">${query ? 'No matching bookings in this category' : 'No bookings in this category'}</div>`;
+                grid.innerHTML = `<div class="empty-section-message" style="grid-column:1/-1;">${query ? 'No matching bookings in this category' : 'No bookings in this category'}</div>`;
             } else {
-                grid.innerHTML = list.map(booking => {
-                    const hasLink = hasDriveLink(booking);
-                    const isFinishedNoLink = booking.status === 'completed' && !hasLink;
-                    const isCompletedWithLink = booking.status === 'completed' && hasLink;
-                    
-                    let badgeClass = `status-${booking.status}`;
-                    let badgeLabel = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
-                    let badgeIcon = '';
-                    
-                    if (isFinishedNoLink) {
-                        badgeClass = 'status-finished';
-                        badgeLabel = 'Finished';
-                        badgeIcon = '<i class="fas fa-camera" style="font-size:0.75rem; margin-right:0.3rem;"></i>';
-                    } else if (isCompletedWithLink) {
-                        badgeClass = 'status-completed';
-                        badgeLabel = 'Completed';
-                        badgeIcon = '<i class="fas fa-check-double" style="font-size:0.75rem; margin-right:0.3rem;"></i>';
-                    }
-
-                    const payStatus = (booking.payment_status || 'unpaid').toLowerCase();
-                    // Avoid multiple "Pending" tags on the same card if the booking is already marked as Pending
-                    const showPaymentBadge = !(booking.status === 'pending' && payStatus === 'pending');
-
-                    return `
-                    <div class="booking-card" id="booking-${booking.id}" onclick="openBookingDetailsModal(${booking.id})">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-                            <div style="font-weight:700; color:var(--color-primary); font-size:1.05rem; line-height:1.2; word-break:break-word;">
-                                #${booking.id} - ${booking.service_name}
-                            </div>
-                            ${showPaymentBadge ? `
-                            <span class="status-badge payment-${payStatus}" style="font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:20px; font-weight:bold; white-space:nowrap; display:inline-block;">
-                                ${payStatus.toUpperCase()}
-                            </span>
-                            ` : ''}
-                        </div>
-                        
-                        <div style="font-size:0.9rem; color:var(--color-text-soft); display:flex; flex-direction:column; gap:0.3rem; margin-top:0.4rem;">
-                            <div><i class="fas fa-calendar-alt"></i> ${typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(booking.booking_date) : new Date(booking.booking_date).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' })} at ${booking.start_time}</div>
-                            <div><i class="fas fa-user"></i> Client: <strong>${booking.client_name}</strong></div>
-                            ${booking.notes && booking.notes.trim() ? `
-                                <div style="font-size:0.8rem; color:var(--color-text-muted); margin-top:0.15rem; display:flex; align-items:center; gap:0.35rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(booking.notes)}">
-                                    <i class="fas fa-sticky-note" style="color:var(--color-primary); font-size:0.75rem; flex-shrink:0;"></i> 
-                                    <span style="overflow:hidden; text-overflow:ellipsis;">${escapeHtml(booking.notes)}</span>
-                                </div>
-                            ` : ''}
-                            ${booking.status === 'cancelled' && booking.cancellation_reason ? `
-                                <div style="font-size:0.78rem; color:#991b1b; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; padding:0.25rem 0.5rem; margin-top:0.25rem; display:flex; align-items:center; gap:0.35rem;" title="${escapeHtml(booking.cancellation_reason)}">
-                                    <i class="fas fa-ban" style="color:#ef4444; font-size:0.75rem; flex-shrink:0;"></i>
-                                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><strong>Reason:</strong> ${escapeHtml(booking.cancellation_reason)}</span>
-                                </div>
-                            ` : ''}
-                            ${hasLink ? `
-                                <div style="font-size:0.78rem; color:#059669; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:0.2rem 0.45rem; margin-top:0.2rem; display:flex; align-items:center; gap:0.3rem; width:fit-content;">
-                                    <i class="fab fa-google-drive" style="color:#10b981;"></i> Google Drive Link Set
-                                </div>
-                            ` : (booking.status === 'completed' ? `
-                                <div style="font-size:0.78rem; color:#0f766e; background:#f0fdfa; border:1px dashed #99f6e4; border-radius:6px; padding:0.2rem 0.45rem; margin-top:0.2rem; display:flex; align-items:center; gap:0.3rem; width:fit-content;">
-                                    <i class="fas fa-clock" style="color:#0d9488;"></i> Waiting for Photo Link
-                                </div>
-                            ` : '')}
-                        </div>
-                        
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--color-border-soft);">
-                            <span class="booking-status ${badgeClass}" style="margin:0; font-size:0.8rem; padding:0.2rem 0.6rem; border-radius:50px; font-weight:600; display:inline-flex; align-items:center;">
-                                ${badgeIcon}${badgeLabel}
-                            </span>
-                            <span style="font-size:0.8rem; color:var(--color-primary); font-weight:600; display:flex; align-items:center; gap:0.25rem;">
-                                Details <i class="fas fa-arrow-right" style="font-size:0.75rem; width:auto; color:inherit; margin:0;"></i>
-                            </span>
-                        </div>
-                    </div>
-                    `;
-                }).join('');
+                grid.innerHTML = list.map(booking => generateBookingCardHTML(booking)).join('');
             }
+        }
+
+        function changeBookingsPageSize(newSize) {
+            const size = parseInt(newSize, 10);
+            if (!validBookingsPageSizes.includes(size)) return;
+            bookingsPageSize = size;
+            localStorage.setItem('admin_bookings_page_size', String(size));
+            currentBookingsPage = 1;
+            renderUnifiedBookingsGrid();
+        }
+
+        function changeBookingsPage(delta) {
+            goToBookingsPage(currentBookingsPage + delta);
+        }
+
+        function goToBookingsPage(page) {
+            const totalItems = (currentActiveBookingsList || []).length;
+            totalBookingsPages = Math.ceil(totalItems / bookingsPageSize) || 1;
+
+            if (page < 1) page = 1;
+            if (page > totalBookingsPages) page = totalBookingsPages;
+            if (page === currentBookingsPage && arguments.length === 1 && totalItems > 0) return;
+
+            currentBookingsPage = page;
+            renderUnifiedBookingsGrid();
+
+            // Smoothly scroll grid into view if user has scrolled past
+            const sectionAll = document.getElementById('section-all');
+            if (sectionAll) {
+                const rect = sectionAll.getBoundingClientRect();
+                if (rect.top < 80) {
+                    sectionAll.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+
+        function renderUnifiedBookingsGrid() {
+            const list = currentActiveBookingsList || [];
+            const totalItems = list.length;
+            totalBookingsPages = Math.ceil(totalItems / bookingsPageSize) || 1;
+
+            if (currentBookingsPage > totalBookingsPages) currentBookingsPage = totalBookingsPages;
+            if (currentBookingsPage < 1) currentBookingsPage = 1;
+
+            const grid = document.getElementById('grid-all');
+            const section = document.getElementById('section-all');
+            if (!grid || !section) return;
+
+            const countEl = section.querySelector('.count');
+            if (countEl) countEl.textContent = totalItems;
+
+            if (totalItems === 0) {
+                grid.innerHTML = `<div class="empty-section-message" style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; background: white; border-radius: 12px; border: 1px dashed var(--color-border-soft, #cbd5e1); color: #64748b; font-weight: 500;">
+                    <i class="fas fa-search" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; opacity: 0.6;"></i>
+                    No bookings found in this category
+                </div>`;
+                renderBookingsPagination(0, 1, 0, 0);
+                return;
+            }
+
+            const startIndex = (currentBookingsPage - 1) * bookingsPageSize;
+            const endIndex = Math.min(startIndex + bookingsPageSize, totalItems);
+            const pageItems = list.slice(startIndex, endIndex);
+
+            grid.innerHTML = pageItems.map(booking => generateBookingCardHTML(booking)).join('');
+            renderBookingsPagination(totalItems, totalBookingsPages, startIndex, endIndex);
+        }
+
+        function renderBookingsPagination(totalItems, totalPages, startIndex, endIndex) {
+            const footer = document.getElementById('bookingsPaginationFooter');
+            if (!footer) return;
+
+            const summaryEl = document.getElementById('bookingsPaginationSummary');
+            if (summaryEl) {
+                if (totalItems === 0) {
+                    summaryEl.innerHTML = 'Showing <strong>0</strong> bookings';
+                } else {
+                    summaryEl.innerHTML = `Showing <strong>${startIndex + 1}</strong>–<strong>${endIndex}</strong> of <strong>${totalItems}</strong> bookings`;
+                }
+            }
+
+            const sizeSelect = document.getElementById('bookingsPageSizeSelect');
+            if (sizeSelect && sizeSelect.value != bookingsPageSize) {
+                sizeSelect.value = String(bookingsPageSize);
+            }
+
+            const btnFirst = document.getElementById('btnBookingsFirst');
+            const btnPrev = document.getElementById('btnBookingsPrev');
+            const btnNext = document.getElementById('btnBookingsNext');
+            const btnLast = document.getElementById('btnBookingsLast');
+
+            const isFirst = currentBookingsPage <= 1 || totalItems === 0;
+            const isLast = currentBookingsPage >= totalPages || totalItems === 0;
+
+            if (btnFirst) btnFirst.disabled = isFirst;
+            if (btnPrev) btnPrev.disabled = isFirst;
+            if (btnNext) btnNext.disabled = isLast;
+            if (btnLast) btnLast.disabled = isLast;
+
+            const pillsContainer = document.getElementById('bookingsPagePills');
+            if (!pillsContainer) return;
+
+            if (totalItems === 0) {
+                pillsContainer.innerHTML = `<button class="pagination-page-btn active" disabled>1</button>`;
+                return;
+            }
+
+            const pages = [];
+            if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+            } else {
+                if (currentBookingsPage <= 4) {
+                    for (let i = 1; i <= 5; i++) pages.push(i);
+                    pages.push('...');
+                    pages.push(totalPages);
+                } else if (currentBookingsPage >= totalPages - 3) {
+                    pages.push(1);
+                    pages.push('...');
+                    for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+                } else {
+                    pages.push(1);
+                    pages.push('...');
+                    pages.push(currentBookingsPage - 1);
+                    pages.push(currentBookingsPage);
+                    pages.push(currentBookingsPage + 1);
+                    pages.push('...');
+                    pages.push(totalPages);
+                }
+            }
+
+            pillsContainer.innerHTML = pages.map(p => {
+                if (p === '...') {
+                    return `<span class="pagination-page-btn ellipsis">&hellip;</span>`;
+                }
+                const isActive = p === currentBookingsPage;
+                return `<button class="pagination-page-btn ${isActive ? 'active' : ''}" 
+                                onclick="goToBookingsPage(${p})" 
+                                aria-label="Go to page ${p}" 
+                                ${isActive ? 'aria-current="page"' : ''}>
+                            ${p}
+                        </button>`;
+            }).join('');
         }
 
         let currentSortOrder = localStorage.getItem('admin_bookings_sort') || 'id-desc';
@@ -1014,6 +1233,7 @@
         function handleSortChange(newSort) {
             currentSortOrder = newSort;
             localStorage.setItem('admin_bookings_sort', newSort);
+            currentBookingsPage = 1;
             applyFiltersAndSearch(false);
         }
 
@@ -1024,6 +1244,7 @@
             const btnGrouped = document.getElementById('btnViewGrouped');
             if (btnUnified) btnUnified.classList.toggle('active', mode === 'unified');
             if (btnGrouped) btnGrouped.classList.toggle('active', mode === 'grouped');
+            currentBookingsPage = 1;
             applyFiltersAndSearch(false);
         }
 
@@ -1131,8 +1352,7 @@
             if (document.getElementById('countCompleted')) document.getElementById('countCompleted').textContent = completed.length;
             if (document.getElementById('countCancelled')) document.getElementById('countCancelled').textContent = cancelled.length;
 
-            // Render status grids
-            renderGrid('grid-all', 'section-all', sortedFiltered, query);
+            // Render status grids for grouped view
             renderGrid('grid-pending', 'section-pending', pending, query);
             renderGrid('grid-confirmed', 'section-confirmed', confirmed, query);
             renderGrid('grid-finished', 'section-finished', finished, query);
@@ -1149,17 +1369,45 @@
                 viewModeWrap.style.display = (filterValue === 'all') ? 'inline-flex' : 'none';
             }
 
+            // In unified mode, choose which list to render in section-all with pagination
+            const titleSpan = document.getElementById('sectionAllTitle');
+            if (filterValue === 'pending') {
+                currentActiveBookingsList = pending;
+                if (titleSpan) titleSpan.textContent = 'Pending Bookings';
+            } else if (filterValue === 'confirmed') {
+                currentActiveBookingsList = confirmed;
+                if (titleSpan) titleSpan.textContent = 'Confirmed Bookings';
+            } else if (filterValue === 'finished') {
+                currentActiveBookingsList = finished;
+                if (titleSpan) titleSpan.textContent = 'Finished Bookings (Awaiting Photo Link)';
+            } else if (filterValue === 'completed') {
+                currentActiveBookingsList = completed;
+                if (titleSpan) titleSpan.textContent = 'Completed Bookings (Link Set)';
+            } else if (filterValue === 'cancelled') {
+                currentActiveBookingsList = cancelled;
+                if (titleSpan) titleSpan.textContent = 'Cancelled Bookings';
+            } else {
+                currentActiveBookingsList = sortedFiltered;
+                if (titleSpan) titleSpan.textContent = 'All Bookings';
+            }
+
+            // Render unified paginated grid
+            renderUnifiedBookingsGrid();
+
+            // Toggle visibility of sections based on view mode and filter
             document.querySelectorAll('.booking-section').forEach(section => {
                 const sectionId = section.getAttribute('id');
                 const status = sectionId.replace('section-', '');
-                if (filterValue === 'all') {
-                    if (currentViewMode === 'unified') {
-                        section.style.display = (sectionId === 'section-all') ? 'block' : 'none';
-                    } else {
-                        section.style.display = (sectionId === 'section-all') ? 'none' : 'block';
-                    }
+                if (currentViewMode === 'unified') {
+                    // Unified mode always uses section-all with pagination!
+                    section.style.display = (sectionId === 'section-all') ? 'block' : 'none';
                 } else {
-                    section.style.display = (filterValue === status) ? 'block' : 'none';
+                    // Grouped mode hides section-all and shows status sections
+                    if (filterValue === 'all') {
+                        section.style.display = (sectionId === 'section-all') ? 'none' : 'block';
+                    } else {
+                        section.style.display = (filterValue === status) ? 'block' : 'none';
+                    }
                 }
             });
 
@@ -1224,6 +1472,10 @@
             if (sortSelect) {
                 sortSelect.value = currentSortOrder;
             }
+            const sizeSelect = document.getElementById('bookingsPageSizeSelect');
+            if (sizeSelect) {
+                sizeSelect.value = String(bookingsPageSize);
+            }
             const btnUnified = document.getElementById('btnViewUnified');
             const btnGrouped = document.getElementById('btnViewGrouped');
             if (btnUnified) btnUnified.classList.toggle('active', currentViewMode === 'unified');
@@ -1245,10 +1497,12 @@
             const searchInput = document.getElementById('bookingSearchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', () => {
+                    currentBookingsPage = 1;
                     applyFiltersAndSearch(false);
                 });
                 searchInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
+                        currentBookingsPage = 1;
                         clearBookingSearch();
                     }
                 });
@@ -1264,6 +1518,7 @@
                     filterPills.forEach(p => p.classList.remove('active'));
                     targetBtn.classList.add('active');
 
+                    currentBookingsPage = 1;
                     applyFiltersAndSearch(false);
                 });
             });

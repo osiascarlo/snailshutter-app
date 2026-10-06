@@ -6,6 +6,47 @@
 (function() {
     'use strict';
 
+    let lastToggleTimestamp = 0;
+
+    /**
+     * Debounced, race-condition immune sidebar toggle
+     */
+    function safeToggleSidebar(forceState) {
+        const now = Date.now();
+        // If no explicit boolean state is provided, enforce a 280ms debounce
+        if (typeof forceState !== 'boolean' && (now - lastToggleTimestamp < 280)) {
+            return;
+        }
+        lastToggleTimestamp = now;
+
+        const sidebar = document.getElementById('sidebar');
+        let overlay = document.getElementById('sidebarOverlay');
+        if (!sidebar) return;
+
+        const shouldOpen = (typeof forceState === 'boolean')
+            ? forceState
+            : !sidebar.classList.contains('active');
+
+        if (shouldOpen) {
+            sidebar.classList.add('active');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'sidebarOverlay';
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+            }
+            overlay.classList.add('active');
+            document.body.classList.add('sidebar-open');
+        } else {
+            sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        }
+    }
+
+    // Expose universally on window immediately
+    window.toggleSidebar = safeToggleSidebar;
+
     const DashboardPremium = {
 
         /**
@@ -18,6 +59,8 @@
             this.initShutterEffect();
             this.initGreeting();
             this.initDropdowns();
+            this.initMobileStickyBar();
+            this.initSidebarListeners();
         },
 
         /**
@@ -262,6 +305,200 @@
                 'cancelled': 'cancelled'
             };
             return map[status] || 'booking';
+        },
+
+        /**
+         * Initialize consistent docked mobile sticky navigation bar across all dashboards
+         */
+        initMobileStickyBar() {
+            const mainContent = document.querySelector('.main-content');
+            if (!mainContent) return;
+
+            // Suppress any stray un-docked legacy mobile menu buttons
+            document.querySelectorAll('.mobile-menu-btn').forEach(btn => {
+                btn.style.display = 'none';
+            });
+
+            // Route mapping for title and FontAwesome icon
+            const pathname = window.location.pathname.toLowerCase();
+            const routeConfigs = [
+                // Admin
+                { pattern: '/admin/dashboard', icon: 'fas fa-th-large', title: 'Dashboard', refreshFn: 'loadDashboardData' },
+                { pattern: '/admin/bookings', icon: 'fas fa-calendar-alt', title: 'All Bookings', refreshFn: 'loadBookings' },
+                { pattern: '/admin/calendar', icon: 'fas fa-calendar', title: 'Calendar', refreshFn: 'renderCalendar' },
+                { pattern: '/admin/gallery', icon: 'fas fa-paper-plane', title: 'Photo Deliveries', refreshFn: 'loadOverview' },
+                { pattern: '/admin/analytics', icon: 'fas fa-chart-bar', title: 'Analytics & Reports', refreshFn: 'loadAnalytics' },
+                { pattern: '/admin/users', icon: 'fas fa-users', title: 'User Management', refreshFn: 'loadUsers' },
+                { pattern: '/admin/services', icon: 'fas fa-camera', title: 'Services', refreshFn: 'loadServices' },
+                { pattern: '/admin/settings', icon: 'fas fa-store', title: 'Studio Settings', refreshFn: 'loadSettings' },
+                { pattern: '/admin/backup', icon: 'fas fa-database', title: 'Backup & Restore', refreshFn: 'loadBackups' },
+                { pattern: '/admin/profile-settings', icon: 'fas fa-user-cog', title: 'Profile Settings', refreshFn: 'loadProfile' },
+                { pattern: '/admin/logs', icon: 'fas fa-clipboard-list', title: 'System Logs', refreshFn: 'loadLogs' },
+                // Staff
+                { pattern: '/staff/dashboard', icon: 'fas fa-th-large', title: 'Staff Dashboard' },
+                { pattern: '/staff/schedule', icon: 'fas fa-calendar-day', title: 'My Schedule', refreshFn: 'loadSchedule' },
+                { pattern: '/staff/bookings', icon: 'fas fa-calendar-check', title: 'Assigned Bookings', refreshFn: 'loadBookings' },
+                { pattern: '/staff/gallery', icon: 'fas fa-paper-plane', title: 'Photo Deliveries', refreshFn: 'loadOverview' },
+                { pattern: '/staff/settings', icon: 'fas fa-user-cog', title: 'Profile Settings' },
+                // Client
+                { pattern: '/client/dashboard', icon: 'fas fa-th-large', title: 'Client Dashboard' },
+                { pattern: '/client/book', icon: 'fas fa-camera', title: 'Book Session' },
+                { pattern: '/client/bookings', icon: 'fas fa-history', title: 'My Bookings', refreshFn: 'loadBookings' },
+                { pattern: '/client/calendar', icon: 'fas fa-calendar', title: 'Calendar', refreshFn: 'renderCalendar' },
+                { pattern: '/client/settings', icon: 'fas fa-user-cog', title: 'Profile Settings' }
+            ];
+
+            let matchedConfig = routeConfigs.find(cfg => pathname.includes(cfg.pattern));
+            if (!matchedConfig) {
+                const activeNav = document.querySelector('.sidebar-link.active');
+                if (activeNav) {
+                    const iconEl = activeNav.querySelector('i');
+                    const text = activeNav.textContent.trim();
+                    matchedConfig = {
+                        icon: iconEl ? iconEl.className : 'fas fa-th-large',
+                        title: text || (document.title ? document.title.split('|')[0].trim() : 'Dashboard')
+                    };
+                } else {
+                    matchedConfig = {
+                        icon: 'fas fa-th-large',
+                        title: (document.title ? document.title.split('|')[0].trim() : 'Dashboard')
+                    };
+                }
+            }
+
+            let bar = mainContent.querySelector('.mobile-sticky-bar');
+            if (!bar) {
+                bar = document.createElement('div');
+                bar.className = 'mobile-sticky-bar';
+                bar.innerHTML = `
+                    <button class="mobile-header-menu-btn" aria-label="Toggle navigation">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="mobile-header-title">
+                        <i class="${matchedConfig.icon}"></i>
+                        <span>${matchedConfig.title}</span>
+                    </div>
+                    <button class="mobile-header-refresh-btn" aria-label="Refresh page" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                `;
+                mainContent.insertBefore(bar, mainContent.firstChild);
+            }
+
+            // Bind menu toggle & clean up inline onclick attributes
+            const menuBtn = bar.querySelector('.mobile-header-menu-btn');
+            if (menuBtn) {
+                menuBtn.removeAttribute('onclick');
+                menuBtn.onclick = null;
+                if (!menuBtn.dataset.bound) {
+                    menuBtn.dataset.bound = 'true';
+                    menuBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        safeToggleSidebar();
+                    });
+                }
+            }
+
+            // Bind refresh button
+            const refreshBtn = bar.querySelector('.mobile-header-refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.removeAttribute('onclick');
+                refreshBtn.onclick = null;
+                if (!refreshBtn.dataset.bound) {
+                    refreshBtn.dataset.bound = 'true';
+                    refreshBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const icon = refreshBtn.querySelector('i');
+                        if (icon) icon.classList.add('fa-spin');
+
+                        const fnName = matchedConfig ? matchedConfig.refreshFn : null;
+                        if (fnName && typeof window[fnName] === 'function') {
+                            try {
+                                window[fnName]();
+                            } catch (err) {
+                                console.warn('Refresh error:', err);
+                            }
+                            setTimeout(() => icon && icon.classList.remove('fa-spin'), 650);
+                        } else if (typeof window.loadOverview === 'function') {
+                            window.loadOverview();
+                            setTimeout(() => icon && icon.classList.remove('fa-spin'), 650);
+                        } else if (typeof window.loadBookings === 'function') {
+                            window.loadBookings();
+                            setTimeout(() => icon && icon.classList.remove('fa-spin'), 650);
+                        } else if (typeof window.loadDashboardData === 'function') {
+                            window.loadDashboardData();
+                            setTimeout(() => icon && icon.classList.remove('fa-spin'), 650);
+                        } else {
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
+        },
+
+        /**
+         * Setup robust global sidebar listeners, overlay close, and mobile ergonomics
+         */
+        initSidebarListeners() {
+            // Re-assign window.toggleSidebar in case an inline script overwrote it
+            window.toggleSidebar = safeToggleSidebar;
+
+            // Strip inline onclick handlers from all mobile menu buttons and bind them cleanly
+            const allMenuBtns = document.querySelectorAll('.mobile-header-menu-btn, .mobile-menu-btn');
+            allMenuBtns.forEach(btn => {
+                btn.removeAttribute('onclick');
+                btn.onclick = null;
+                if (!btn.dataset.bound) {
+                    btn.dataset.bound = 'true';
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        safeToggleSidebar();
+                    });
+                }
+            });
+
+            // Clean up and bind overlay
+            const overlay = document.getElementById('sidebarOverlay');
+            if (overlay) {
+                overlay.removeAttribute('onclick');
+                overlay.onclick = null;
+                if (!overlay.dataset.bound) {
+                    overlay.dataset.bound = 'true';
+                    overlay.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        safeToggleSidebar(false);
+                    });
+                }
+            }
+
+            // Close sidebar when pressing Escape
+            if (!window.__sidebarEscBound) {
+                window.__sidebarEscBound = true;
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        const sb = document.getElementById('sidebar');
+                        if (sb && sb.classList.contains('active')) {
+                            safeToggleSidebar(false);
+                        }
+                    }
+                });
+            }
+
+            // Close sidebar on mobile when navigating via a sidebar link
+            if (!window.__sidebarLinkBound) {
+                window.__sidebarLinkBound = true;
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768) {
+                        const link = e.target.closest('.sidebar-link:not(.sidebar-dropdown-toggle), .sidebar-sublink');
+                        if (link) {
+                            safeToggleSidebar(false);
+                        }
+                    }
+                });
+            }
         }
     };
 

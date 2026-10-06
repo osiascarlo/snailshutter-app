@@ -14,7 +14,7 @@
 <body class="premium-dashboard">
     <div class="dashboard-layout">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -62,6 +62,20 @@
         </aside>
 
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-th-large"></i>
+                    <span>Staff Dashboard</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="location.reload()" title="Refresh dashboard">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <!-- Cinematic Hero -->
             <div class="page-hero">
                 <div class="hero-particles"></div>
@@ -203,6 +217,7 @@
                             <div class="stat-value" data-count="${pendingBookings}">0</div>
                             <div class="stat-label">Pending</div>
                         </div>
+                    </div>
                 `;
                 }
 

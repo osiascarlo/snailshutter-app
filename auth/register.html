@@ -222,9 +222,14 @@
 
                     <div class="grid-2" style="gap: 1rem;">
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com"
-                                required>
+                            <label for="email">Email Address <span style="font-size: 0.78rem; font-weight: 500; color: var(--color-primary, #2e7d32);">(Gmail only)</span></label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="you@gmail.com"
+                                required
+                                pattern="[a-zA-Z0-9._%+\-]+@[gG][mM][aA][iI][lL]\.[cC][oO][mM]"
+                                title="Only Gmail accounts (@gmail.com) are accepted">
+                            <small id="emailErrorHint" style="display: none; color: #dc2626; font-size: 0.78rem; margin-top: 0.35rem; font-weight: 500;">
+                                <i class="fas fa-circle-exclamation"></i> Only Gmail accounts (@gmail.com) are accepted
+                            </small>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
@@ -535,6 +540,39 @@
             const togglePassword = document.getElementById('togglePassword');
             const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
 
+            // Email validation elements
+            const emailInput = document.getElementById('email');
+            const emailErrorHint = document.getElementById('emailErrorHint');
+
+            function isGmailAddress(email) {
+                if (!email || typeof email !== 'string') return false;
+                return /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email.trim());
+            }
+
+            function validateEmailField() {
+                if (!emailInput) return true;
+                const val = (emailInput.value || '').trim();
+                if (!val) {
+                    if (emailErrorHint) emailErrorHint.style.display = 'none';
+                    emailInput.style.borderColor = '';
+                    return true;
+                }
+                if (!isGmailAddress(val)) {
+                    if (emailErrorHint) emailErrorHint.style.display = 'block';
+                    emailInput.style.borderColor = 'var(--color-danger, #dc2626)';
+                    return false;
+                } else {
+                    if (emailErrorHint) emailErrorHint.style.display = 'none';
+                    emailInput.style.borderColor = '';
+                    return true;
+                }
+            }
+
+            if (emailInput) {
+                emailInput.addEventListener('input', validateEmailField);
+                emailInput.addEventListener('blur', validateEmailField);
+            }
+
             // Real-time password validation listeners
             if (passwordInput) {
                 passwordInput.addEventListener('input', function () {
@@ -585,6 +623,13 @@
                 const errors = validateForm({ firstName, lastName, email, password });
                 if (errors.length > 0) {
                     showAlert(errors[0], 'error');
+                    if (!isGmailAddress(email)) {
+                        if (emailErrorHint) emailErrorHint.style.display = 'block';
+                        if (emailInput) {
+                            emailInput.style.borderColor = 'var(--color-danger, #dc2626)';
+                            emailInput.focus();
+                        }
+                    }
                     return;
                 }
 
@@ -782,6 +827,8 @@
 
                 if (!data.email || !isValidEmail(data.email)) {
                     errors.push('Please enter a valid email address');
+                } else if (!isGmailAddress(data.email)) {
+                    errors.push('Only Gmail accounts (@gmail.com) are accepted');
                 }
 
                 return errors;

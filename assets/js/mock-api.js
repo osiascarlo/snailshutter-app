@@ -153,6 +153,13 @@ class MockAPI {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000));
         
+        if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test((email || '').trim())) {
+            return {
+                success: false,
+                error: 'Only Gmail accounts (@gmail.com) are accepted.'
+            };
+        }
+        
         // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
@@ -238,6 +245,13 @@ class MockAPI {
     async verifyAndRegister(userData, otp) {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 500));
+        
+        if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test((userData.email || '').trim())) {
+            return {
+                success: false,
+                error: 'Only Gmail accounts (@gmail.com) are accepted.'
+            };
+        }
         
         // Debug logging
         console.log('='.repeat(50));

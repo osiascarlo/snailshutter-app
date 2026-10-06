@@ -7,6 +7,7 @@
     <title>Photo Deliveries | SnailShutter Staff</title>
     <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
     <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.2.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ── Page Layout ── */
@@ -114,102 +115,202 @@
         /* ── Gallery Grid ── */
         .booking-overview-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+            gap: 0.85rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
         }
 
         .booking-overview-card {
-            background: white;
-            border-radius: var(--radius-md);
-            border: 1.5px solid var(--color-border-soft);
-            padding: 1.25rem;
-            transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-            box-shadow: var(--shadow-sm);
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--color-border-soft, #e2e8f0);
+            padding: 0.85rem 0.95rem;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            min-width: 0;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .booking-overview-card > div:first-child {
+            min-width: 0;
+            width: 100%;
         }
 
         .booking-overview-card:hover {
-            border-color: var(--color-primary);
-            box-shadow: var(--shadow-md);
+            border-color: var(--color-primary, #2e7d32);
+            box-shadow: 0 6px 18px rgba(46, 125, 50, 0.09);
             transform: translateY(-2px);
         }
 
-        .booking-overview-card .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.6rem;
+        .booking-overview-card .card-badge-header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            margin-bottom: 0.45rem !important;
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            min-width: 0;
         }
 
         .booking-overview-card .bid {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            color: var(--color-text-muted);
+            color: var(--color-text-muted, #94a3b8);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .booking-overview-card .link-status {
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             font-weight: 700;
             border-radius: 999px;
             padding: 0.15rem 0.55rem;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            line-height: 1.4;
+            flex-shrink: 0;
         }
 
         .booking-overview-card .link-status.set {
-            background: #d1fae5;
-            color: #065f46;
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
         }
 
         .booking-overview-card .link-status.empty {
             background: #fee2e2;
             color: #b91c1c;
+            border: 1px solid #fecaca;
         }
 
         .booking-overview-card h4 {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            margin-bottom: 0.3rem;
-            color: var(--color-text);
+            margin-bottom: 0.25rem;
+            color: var(--color-text, #0f172a);
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
         }
 
         .booking-overview-card p {
-            font-size: 0.82rem;
-            color: var(--color-text-soft);
-            margin-bottom: 0.25rem;
+            font-size: 0.76rem;
+            color: var(--color-text-soft, #64748b);
+            margin-bottom: 0.2rem;
+            line-height: 1.35;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .booking-overview-card p i {
+            font-size: 0.74rem;
+            flex-shrink: 0;
+            width: 13px;
+        }
+
+        .booking-overview-card .drive-link-snippet {
+            font-size: 0.7rem;
+            background: #f8fafc;
+            padding: 0.22rem 0.5rem;
+            border-radius: 6px;
+            margin-top: 0.35rem;
+            border: 1px solid var(--color-border-soft, #e2e8f0);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: #334155;
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .booking-overview-card .drive-link-snippet i {
+            flex-shrink: 0;
+            color: #10b981;
+            font-size: 0.8rem;
+        }
+
+        .booking-overview-card .drive-link-snippet span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: monospace;
+            font-size: 0.68rem;
+            color: #475569;
+            flex: 1;
+            min-width: 0;
         }
 
         .booking-overview-card .card-actions {
-            margin-top: 1rem;
-            padding-top: 0.75rem;
-            border-top: 1px dashed var(--color-border-soft);
+            margin-top: 0.65rem;
+            padding-top: 0.55rem;
+            border-top: 1px dashed var(--color-border-soft, #e2e8f0);
             display: flex;
-            justify-content: space-between;
-            gap: 0.5rem;
+            align-items: center;
+            gap: 0.45rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .booking-overview-card .card-actions .btn {
+            flex: 1;
+            min-width: 0;
+            padding: 0.32rem 0.55rem;
+            font-size: 0.76rem;
+            height: 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-sizing: border-box;
         }
 
         /* ── Empty / Loading states ── */
         .gallery-empty {
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 2.5rem 1.5rem;
             color: var(--color-text-muted);
             grid-column: 1/-1;
         }
 
-        .gallery-empty i { font-size: 3rem; margin-bottom: 1rem; }
-        .gallery-empty h3 { margin-bottom: 0.4rem; color: var(--color-text); }
+        .gallery-empty i { font-size: 2.5rem; margin-bottom: 0.75rem; }
+        .gallery-empty h3 { margin-bottom: 0.35rem; font-size: 1.05rem; color: var(--color-text); }
+        .gallery-empty p { font-size: 0.85rem; }
 
         /* ── Gallery Card Skeleton ── */
         .gallery-card-skeleton {
             background: #ffffff;
-            border-radius: var(--radius-md, 10px);
-            border: 1.5px solid var(--color-border-soft, #e2e8f0);
-            padding: 1.25rem;
-            box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05));
+            border-radius: 12px;
+            border: 1px solid var(--color-border-soft, #e2e8f0);
+            padding: 0.85rem 0.95rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -220,7 +321,7 @@
         .gallery-card-skeleton:hover {
             transform: none !important;
             border-color: var(--color-border-soft, #e2e8f0) !important;
-            box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05)) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
         }
 
         @keyframes skeletonShimmer {
@@ -237,21 +338,21 @@
         }
 
         .skeleton-text {
-            height: 0.9rem;
-            margin-bottom: 0.4rem;
+            height: 0.75rem;
+            margin-bottom: 0.3rem;
             border-radius: 4px;
         }
 
         .skeleton-title {
-            height: 1.25rem;
+            height: 1rem;
             width: 65%;
-            margin-bottom: 0.6rem;
-            border-radius: 6px;
+            margin-bottom: 0.45rem;
+            border-radius: 4px;
         }
 
         .skeleton-badge {
-            height: 20px;
-            width: 60px;
+            height: 18px;
+            width: 75px;
             border-radius: 50px;
         }
 
@@ -416,40 +517,192 @@
             color: white;
         }
 
-        /* ── Mobile Responsive ── */
+        /* ── Mobile Sticky Navigation Bar ── */
+        .mobile-sticky-bar {
+            display: none;
+        }
+
+        /* ── Mobile Responsive Overrides ── */
         @media (max-width: 768px) {
+            /* Suppress un-docked floating menu button so it never collides with content */
+            body.premium-dashboard .mobile-menu-btn {
+                display: none !important;
+            }
+
+            /* Prevent scroll container cutoff from breaking position:sticky */
+            body.premium-dashboard .main-content {
+                overflow-x: clip !important;
+            }
+
+            /* Higher z-index for mobile sidebar and backdrop */
+            body.premium-dashboard .sidebar {
+                z-index: 100010 !important;
+            }
+            body.premium-dashboard .sidebar-overlay {
+                z-index: 100008 !important;
+            }
+
+            /* Docked sticky mobile header bar */
+            .mobile-sticky-bar {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                position: sticky !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                height: 52px !important;
+                background: rgba(255, 255, 255, 0.96) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border-bottom: 1px solid var(--color-border-soft, #e2e8f0) !important;
+                padding: 0 0.85rem !important;
+                z-index: 1000 !important;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+                margin: 0 0 0.75rem 0 !important;
+            }
+
+            .mobile-header-menu-btn {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                border: 1px solid var(--color-border, #e2e8f0);
+                background: #ffffff;
+                color: var(--color-text, #1e293b);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                cursor: pointer;
+                pointer-events: auto;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+                transition: all 0.2s ease;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            }
+
+            .mobile-header-menu-btn:active {
+                transform: scale(0.95);
+                background: #f8fafc;
+            }
+
+            .mobile-header-title {
+                font-size: 0.92rem;
+                font-weight: 700;
+                color: var(--color-text, #1e293b);
+                display: inline-flex;
+                align-items: center;
+                gap: 0.45rem;
+            }
+
+            .mobile-header-title i {
+                color: var(--color-primary, #2e7d32);
+            }
+
+            .mobile-header-refresh-btn {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                border: 1px solid var(--color-border, #e2e8f0);
+                background: #ffffff;
+                color: var(--color-text-soft, #64748b);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            }
+
+            .mobile-header-refresh-btn:active {
+                transform: rotate(45deg);
+                background: #f8fafc;
+            }
+
+            body.premium-dashboard .page-hero {
+                margin: 0 0.75rem 0.85rem !important;
+                padding: 1.15rem 1rem !important;
+                border-radius: 14px !important;
+            }
+
+            body.premium-dashboard .page-hero h1 {
+                font-size: 1.15rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+
+            body.premium-dashboard .page-hero p {
+                font-size: 0.8rem !important;
+                line-height: 1.4 !important;
+                opacity: 0.92 !important;
+            }
+
+            body.premium-dashboard .content-body {
+                padding: 0 0.75rem 1.5rem !important;
+            }
+
+            .gallery-toolbar {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 0.5rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+
+            .gallery-toolbar h2 {
+                font-size: 0.95rem !important;
+                line-height: 1.35 !important;
+                margin: 0 !important;
+            }
+
+            .gallery-toolbar .toolbar-right {
+                display: none !important; /* Replaced by docked header bar refresh on mobile */
+            }
+
             .booking-select-row {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 0.5rem;
+                padding: 1rem;
             }
             .booking-select-row select {
                 min-width: 0;
                 width: 100%;
             }
             .drive-link-card {
-                padding: 1.25rem;
+                padding: 1.15rem;
+                border-radius: 12px;
             }
             .gallery-tabs {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 flex-wrap: nowrap;
                 scrollbar-width: none;
+                width: 100%;
+                margin-bottom: 1rem;
             }
             .gallery-tabs::-webkit-scrollbar { display: none; }
             .gallery-tab {
                 white-space: nowrap;
                 flex-shrink: 0;
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+                padding: 0.45rem 0.5rem;
+                font-size: 0.82rem;
             }
 
             /* Responsive Filter Pills */
             .gallery-filter-bar {
                 flex-direction: column !important;
                 align-items: flex-start !important;
-                gap: 0.5rem !important;
+                gap: 0.4rem !important;
+                padding-top: 0.55rem !important;
             }
             .gallery-filter-label {
-                font-size: 0.8rem !important;
+                font-size: 0.78rem !important;
             }
             .filter-pills {
                 width: 100% !important;
@@ -457,54 +710,321 @@
                 -webkit-overflow-scrolling: touch !important;
                 flex-wrap: nowrap !important;
                 scrollbar-width: none !important;
-                padding-bottom: 4px !important;
-                gap: 0.4rem !important;
+                padding-bottom: 3px !important;
+                gap: 0.35rem !important;
             }
             .filter-pills::-webkit-scrollbar { display: none !important; }
             .filter-pill {
                 white-space: nowrap !important;
                 flex-shrink: 0 !important;
-                padding: 0.38rem 0.75rem !important;
-                font-size: 0.8rem !important;
-                gap: 0.35rem !important;
+                padding: 0.32rem 0.65rem !important;
+                font-size: 0.76rem !important;
+                gap: 0.3rem !important;
             }
             .filter-pill .filter-count {
-                padding: 0.1rem 0.4rem !important;
-                font-size: 0.72rem !important;
+                padding: 0.08rem 0.38rem !important;
+                font-size: 0.7rem !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .booking-overview-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+                margin-bottom: 1.25rem !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .booking-overview-card {
+                padding: 0.85rem !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            .booking-overview-card .card-actions {
+                margin-top: 0.65rem !important;
+                padding-top: 0.55rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.45rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .booking-overview-card .card-actions .btn {
+                flex: 1 1 0% !important;
+                min-width: 0 !important;
+                height: 36px !important;
+                padding: 0 0.5rem !important;
+                font-size: 0.78rem !important;
+                font-weight: 600 !important;
+                border-radius: 8px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.35rem !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                box-sizing: border-box !important;
+            }
+            .search-container {
+                padding: 0.75rem !important;
+                border-radius: 12px !important;
+                margin-bottom: 0.85rem !important;
+            }
+            .search-wrap input {
+                height: 38px !important;
+                padding: 0.45rem 0.6rem 0.45rem 2.2rem !important;
+                font-size: 0.86rem !important;
+            }
+            .drive-link-card {
+                padding: 1rem !important;
             }
         }
 
         @media (max-width: 480px) {
-            .search-container {
-                padding: 0.85rem !important;
+            #editDriveModal .modal-container {
+                width: 95% !important;
+                margin: 0.5rem auto !important;
+                border-radius: 16px !important;
             }
-            .booking-overview-grid {
-                grid-template-columns: 1fr !important;
+            #editDriveModal .modal-container > div:first-child {
+                padding: 1.15rem 1.25rem !important;
             }
-            .drive-link-card {
-                padding: 1rem;
+            #editDriveModal .modal-container > div:last-child {
+                padding: 1.15rem 1.25rem !important;
             }
-            .gallery-filter-bar {
-                gap: 0.45rem !important;
-                padding-top: 0.65rem !important;
+            #editDriveModal .modal-container div[style*="justify-content: flex-end"] {
+                flex-direction: column-reverse !important;
+                gap: 0.5rem !important;
             }
-            .filter-pill {
-                padding: 0.35rem 0.65rem !important;
+            #editDriveModal .modal-container div[style*="justify-content: flex-end"] .btn {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+        }
+
+        /* ── Gallery Pagination Section ── */
+        .gallery-pagination-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.1rem 1.5rem;
+            background: #ffffff;
+            border: 1px solid var(--color-border-soft, #e2e8f0);
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            margin-top: 1.75rem;
+            position: relative;
+            z-index: 5;
+        }
+
+        .pagination-info-group {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination-summary {
+            font-size: 0.88rem;
+            color: #64748b;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .pagination-summary strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .pagination-size-selector {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .pagination-size-selector select {
+            padding: 0.38rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #1e293b;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pagination-size-selector select:focus {
+            border-color: var(--color-primary, #2e7d32);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+        }
+
+        .pagination-controls-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            user-select: none;
+        }
+
+        .pagination-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            min-width: 38px;
+            height: 38px;
+            padding: 0 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #334155;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pagination-nav-btn:hover:not(:disabled) {
+            border-color: var(--color-primary, #2e7d32);
+            color: var(--color-primary, #2e7d32);
+            background: #f0fdf4;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(46, 125, 50, 0.12);
+        }
+
+        .pagination-nav-btn:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .pagination-pages-list {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .pagination-page-btn {
+            min-width: 38px;
+            height: 38px;
+            padding: 0 0.5rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pagination-page-btn:hover:not(.active):not(.ellipsis) {
+            border-color: var(--color-primary, #2e7d32);
+            color: var(--color-primary, #2e7d32);
+            background: #f0fdf4;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(46, 125, 50, 0.12);
+        }
+
+        .pagination-page-btn.active {
+            background: linear-gradient(135deg, var(--color-primary, #2e7d32) 0%, #1b5e20 100%);
+            color: #ffffff !important;
+            border-color: var(--color-primary, #2e7d32);
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+            transform: translateY(-1px);
+            cursor: default;
+        }
+
+        .pagination-page-btn.ellipsis {
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            cursor: default;
+            min-width: 24px;
+            padding: 0;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .gallery-pagination-footer {
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 0.75rem !important;
+                padding: 0.85rem 0.75rem !important;
+                border-radius: 14px !important;
+            }
+
+            .pagination-info-group {
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 0.35rem !important;
+                text-align: center !important;
+            }
+
+            .pagination-summary {
+                font-size: 0.8rem !important;
+            }
+
+            .pagination-size-selector {
+                font-size: 0.78rem !important;
+            }
+
+            .pagination-size-selector select {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.8rem !important;
+                height: 30px !important;
+            }
+
+            .pagination-controls-group {
+                justify-content: center !important;
+                width: 100% !important;
+                flex-wrap: wrap !important;
+                gap: 0.25rem !important;
+            }
+
+            .pagination-nav-btn {
+                height: 34px !important;
+                min-width: 34px !important;
+                padding: 0 0.45rem !important;
                 font-size: 0.76rem !important;
+                border-radius: 6px !important;
             }
-            .filter-pill .filter-count {
-                padding: 0.08rem 0.35rem !important;
-                font-size: 0.7rem !important;
+
+            .pagination-page-btn {
+                height: 34px !important;
+                min-width: 34px !important;
+                font-size: 0.8rem !important;
+                padding: 0 0.35rem !important;
+                border-radius: 6px !important;
             }
         }
     </style>
-    <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.1">
 </head>
 
 <body class="premium-dashboard">
     <div class="dashboard-layout">
         <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="position:fixed;top:1.25rem;left:1rem;z-index:110;">
+            style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -552,6 +1072,20 @@
         </aside>
 
         <main class="main-content">
+            <!-- Mobile Sticky Navigation Bar -->
+            <div class="mobile-sticky-bar">
+                <button class="mobile-header-menu-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-header-title">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Photo Deliveries</span>
+                </div>
+                <button class="mobile-header-refresh-btn" onclick="loadOverview()" title="Refresh deliveries">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
             <div class="page-hero">
                 <h1><i class="fas fa-paper-plane" style="color:var(--color-primary);margin-right:0.5rem;"></i> Photo Deliveries</h1>
                 <p>Manage and assign Google Drive folder links containing finished photos for completed client bookings. Saving a new link sends an email notification to the client automatically.</p>
@@ -595,146 +1129,91 @@
                     <div id="overviewGrid" class="booking-overview-grid">
                         <div class="booking-overview-card gallery-card-skeleton">
                             <div>
-                                <div class="card-header" style="justify-content: center; margin-bottom: 0.85rem;">
-                                    <div class="skeleton skeleton-badge" style="width: 90px; height: 22px; border-radius: 999px;"></div>
+                                <div class="card-badge-header">
+                                    <div class="skeleton" style="width: 32px; height: 14px; border-radius: 4px;"></div>
+                                    <div class="skeleton skeleton-badge" style="width: 75px; height: 18px; border-radius: 999px;"></div>
                                 </div>
-                                <div class="skeleton skeleton-title" style="width: 60%; height: 1.15rem; margin-bottom: 0.65rem;"></div>
-                                <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.65rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.85rem; margin: 0;"></div>
+                                <div class="skeleton skeleton-title" style="width: 65%; height: 1rem; margin-bottom: 0.45rem;"></div>
+                                <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.45rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <div class="skeleton" style="width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;"></div>
+                                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.75rem; margin: 0;"></div>
                                     </div>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 45%; height: 0.85rem; margin: 0;"></div>
+                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <div class="skeleton" style="width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;"></div>
+                                        <div class="skeleton skeleton-text" style="width: 50%; height: 0.75rem; margin: 0;"></div>
                                     </div>
                                 </div>
-                                <div class="skeleton" style="width: 100%; height: 26px; border-radius: 4px; margin-top: 0.35rem;"></div>
+                                <div class="skeleton" style="width: 100%; height: 22px; border-radius: 4px; margin-top: 0.25rem;"></div>
                             </div>
-                            <div class="card-actions" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.5rem;">
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                            </div>
-                        </div>
-                        <div class="booking-overview-card gallery-card-skeleton">
-                            <div>
-                                <div class="card-header" style="justify-content: center; margin-bottom: 0.85rem;">
-                                    <div class="skeleton skeleton-badge" style="width: 90px; height: 22px; border-radius: 999px;"></div>
-                                </div>
-                                <div class="skeleton skeleton-title" style="width: 60%; height: 1.15rem; margin-bottom: 0.65rem;"></div>
-                                <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.65rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.85rem; margin: 0;"></div>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 45%; height: 0.85rem; margin: 0;"></div>
-                                    </div>
-                                </div>
-                                <div class="skeleton" style="width: 100%; height: 26px; border-radius: 4px; margin-top: 0.35rem;"></div>
-                            </div>
-                            <div class="card-actions" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.5rem;">
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
+                            <div class="card-actions">
+                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: 6px;"></div>
+                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: 6px;"></div>
                             </div>
                         </div>
                         <div class="booking-overview-card gallery-card-skeleton">
                             <div>
-                                <div class="card-header" style="justify-content: center; margin-bottom: 0.85rem;">
-                                    <div class="skeleton skeleton-badge" style="width: 90px; height: 22px; border-radius: 999px;"></div>
+                                <div class="card-badge-header">
+                                    <div class="skeleton" style="width: 32px; height: 14px; border-radius: 4px;"></div>
+                                    <div class="skeleton skeleton-badge" style="width: 75px; height: 18px; border-radius: 999px;"></div>
                                 </div>
-                                <div class="skeleton skeleton-title" style="width: 60%; height: 1.15rem; margin-bottom: 0.65rem;"></div>
-                                <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.65rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.85rem; margin: 0;"></div>
+                                <div class="skeleton skeleton-title" style="width: 65%; height: 1rem; margin-bottom: 0.45rem;"></div>
+                                <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.45rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <div class="skeleton" style="width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;"></div>
+                                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.75rem; margin: 0;"></div>
                                     </div>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 45%; height: 0.85rem; margin: 0;"></div>
+                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <div class="skeleton" style="width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;"></div>
+                                        <div class="skeleton skeleton-text" style="width: 50%; height: 0.75rem; margin: 0;"></div>
                                     </div>
                                 </div>
-                                <div class="skeleton" style="width: 100%; height: 26px; border-radius: 4px; margin-top: 0.35rem;"></div>
+                                <div class="skeleton" style="width: 100%; height: 22px; border-radius: 4px; margin-top: 0.25rem;"></div>
                             </div>
-                            <div class="card-actions" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.5rem;">
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                            </div>
-                        </div>
-                        <div class="booking-overview-card gallery-card-skeleton">
-                            <div>
-                                <div class="card-header" style="justify-content: center; margin-bottom: 0.85rem;">
-                                    <div class="skeleton skeleton-badge" style="width: 90px; height: 22px; border-radius: 999px;"></div>
-                                </div>
-                                <div class="skeleton skeleton-title" style="width: 60%; height: 1.15rem; margin-bottom: 0.65rem;"></div>
-                                <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.65rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.85rem; margin: 0;"></div>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 45%; height: 0.85rem; margin: 0;"></div>
-                                    </div>
-                                </div>
-                                <div class="skeleton" style="width: 100%; height: 26px; border-radius: 4px; margin-top: 0.35rem;"></div>
-                            </div>
-                            <div class="card-actions" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.5rem;">
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                            </div>
-                        </div>
-                        <div class="booking-overview-card gallery-card-skeleton">
-                            <div>
-                                <div class="card-header" style="justify-content: center; margin-bottom: 0.85rem;">
-                                    <div class="skeleton skeleton-badge" style="width: 90px; height: 22px; border-radius: 999px;"></div>
-                                </div>
-                                <div class="skeleton skeleton-title" style="width: 60%; height: 1.15rem; margin-bottom: 0.65rem;"></div>
-                                <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.65rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.85rem; margin: 0;"></div>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 45%; height: 0.85rem; margin: 0;"></div>
-                                    </div>
-                                </div>
-                                <div class="skeleton" style="width: 100%; height: 26px; border-radius: 4px; margin-top: 0.35rem;"></div>
-                            </div>
-                            <div class="card-actions" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.5rem;">
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                            </div>
-                        </div>
-                        <div class="booking-overview-card gallery-card-skeleton">
-                            <div>
-                                <div class="card-header" style="justify-content: center; margin-bottom: 0.85rem;">
-                                    <div class="skeleton skeleton-badge" style="width: 90px; height: 22px; border-radius: 999px;"></div>
-                                </div>
-                                <div class="skeleton skeleton-title" style="width: 60%; height: 1.15rem; margin-bottom: 0.65rem;"></div>
-                                <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.65rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 70%; height: 0.85rem; margin: 0;"></div>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                                        <div class="skeleton skeleton-text" style="width: 45%; height: 0.85rem; margin: 0;"></div>
-                                    </div>
-                                </div>
-                                <div class="skeleton" style="width: 100%; height: 26px; border-radius: 4px; margin-top: 0.35rem;"></div>
-                            </div>
-                            <div class="card-actions" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.5rem;">
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
+                            <div class="card-actions">
+                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: 6px;"></div>
+                                <div class="skeleton" style="flex: 1; height: 32px; border-radius: 6px;"></div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-    </div>
+                    <!-- Gallery Pagination Section -->
+                    <div class="gallery-pagination-footer" id="galleryPaginationFooter">
+                        <div class="pagination-info-group">
+                            <span class="pagination-summary" id="galleryPaginationSummary">
+                                Showing <strong id="galleryPageStart">0</strong>–<strong id="galleryPageEnd">0</strong> of <strong id="galleryPageTotal">0</strong> deliveries
+                            </span>
+                            <div class="pagination-size-selector">
+                                <label for="galleryPageSizeSelect">Cards per page:</label>
+                                <select id="galleryPageSizeSelect" onchange="changeGalleryPageSize(this.value)">
+                                    <option value="10" selected>10</option>
+                                    <option value="15">15</option>
+                                    <option value="20">20</option>
+                                    <option value="25">25</option>
+                                    <option value="30">30</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pagination-controls-group">
+                            <button class="pagination-nav-btn" id="btnGalleryFirst" onclick="goToGalleryPage(1)" title="First Page">
+                                <i class="fas fa-angles-left"></i>
+                            </button>
+                            <button class="pagination-nav-btn" id="btnGalleryPrev" onclick="changeGalleryPage(-1)" title="Previous Page">
+                                <i class="fas fa-chevron-left"></i> <span>Prev</span>
+                            </button>
+                            <div class="pagination-pages-list" id="galleryPagePills">
+                                <!-- Dynamic Page Pills Generated by JavaScript -->
+                            </div>
+                            <button class="pagination-nav-btn" id="btnGalleryNext" onclick="changeGalleryPage(1)" title="Next Page">
+                                <span>Next</span> <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button class="pagination-nav-btn" id="btnGalleryLast" onclick="goToGalleryPage(totalGalleryPages)" title="Last Page">
+                                <i class="fas fa-angles-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
     <!-- Edit Drive Link Modal -->
     <div id="editDriveModal" class="modal-overlay" style="display:none;" onclick="if(event.target === this) closeDriveModal()">
@@ -792,6 +1271,12 @@
     // ───────────────────────────────────────────────
     let allBookings   = [];
     let currentBookingId = null;
+    let filteredGalleryBookings = [];
+    let currentGalleryPage = 1;
+    const validGalleryPageSizes = [10, 15, 20, 25, 30];
+    const savedGalleryPageSize = parseInt(localStorage.getItem('gallery_page_size'), 10);
+    let galleryPageSize = validGalleryPageSizes.includes(savedGalleryPageSize) ? savedGalleryPageSize : 10;
+    let totalGalleryPages = 1;
 
     // ───────────────────────────────────────────────
     //  Bootstrap
@@ -805,6 +1290,12 @@
         document.querySelectorAll('[data-user-name]').forEach(el => {
             el.textContent = auth.getUserName();
         });
+
+        // Restore saved cards-per-page setting
+        const sizeSelect = document.getElementById('galleryPageSizeSelect');
+        if (sizeSelect) {
+            sizeSelect.value = String(galleryPageSize);
+        }
 
         await loadBookings();
         await loadOverview();
@@ -918,32 +1409,33 @@
     // ───────────────────────────────────────────────
     //  Overview tab
     // ───────────────────────────────────────────────
-    function renderGallerySkeletons(count = 6) {
+    function renderGallerySkeletons(count = 10) {
         if (typeof getGallerySkeletonHTML === 'function') {
             return getGallerySkeletonHTML(count);
         }
         return Array.from({ length: count }).map(() => `
             <div class="booking-overview-card gallery-card-skeleton">
                 <div>
-                    <div class="card-header" style="justify-content: center; margin-bottom: 0.85rem;">
-                        <div class="skeleton skeleton-badge" style="width: 90px; height: 22px; border-radius: 999px;"></div>
+                    <div class="card-badge-header">
+                        <div class="skeleton" style="width: 32px; height: 14px; border-radius: 4px;"></div>
+                        <div class="skeleton skeleton-badge" style="width: 75px; height: 18px; border-radius: 999px;"></div>
                     </div>
-                    <div class="skeleton skeleton-title" style="width: 60%; height: 1.15rem; margin-bottom: 0.65rem;"></div>
-                    <div style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.65rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                            <div class="skeleton skeleton-text" style="width: 70%; height: 0.85rem; margin: 0;"></div>
+                    <div class="skeleton skeleton-title" style="width: 65%; height: 1rem; margin-bottom: 0.45rem;"></div>
+                    <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.45rem;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem;">
+                            <div class="skeleton" style="width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;"></div>
+                            <div class="skeleton skeleton-text" style="width: 70%; height: 0.75rem; margin: 0;"></div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div class="skeleton" style="width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;"></div>
-                            <div class="skeleton skeleton-text" style="width: 45%; height: 0.85rem; margin: 0;"></div>
+                        <div style="display: flex; align-items: center; gap: 0.4rem;">
+                            <div class="skeleton" style="width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;"></div>
+                            <div class="skeleton skeleton-text" style="width: 50%; height: 0.75rem; margin: 0;"></div>
                         </div>
                     </div>
-                    <div class="skeleton" style="width: 100%; height: 26px; border-radius: 4px; margin-top: 0.35rem;"></div>
+                    <div class="skeleton" style="width: 100%; height: 22px; border-radius: 4px; margin-top: 0.25rem;"></div>
                 </div>
-                <div class="card-actions" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.5rem;">
-                    <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
-                    <div class="skeleton" style="flex: 1; height: 32px; border-radius: var(--radius-sm, 6px);"></div>
+                <div class="card-actions" style="margin-top: 0.65rem; padding-top: 0.55rem; border-top: 1px dashed var(--color-border-soft, #e2e8f0); display: flex; gap: 0.4rem;">
+                    <div class="skeleton" style="flex: 1; height: 32px; border-radius: 6px;"></div>
+                    <div class="skeleton" style="flex: 1; height: 32px; border-radius: 6px;"></div>
                 </div>
             </div>
         `).join('');
@@ -951,7 +1443,7 @@
 
     async function loadOverview() {
         const grid = document.getElementById('overviewGrid');
-        grid.innerHTML = renderGallerySkeletons(6);
+        grid.innerHTML = renderGallerySkeletons(galleryPageSize || 10);
 
         // Clear search query on refresh
         const searchInput = document.getElementById('gallerySearch');
@@ -975,49 +1467,182 @@
         }
     }
 
+    function changeGalleryPageSize(val) {
+        galleryPageSize = parseInt(val, 10) || 10;
+        localStorage.setItem('gallery_page_size', galleryPageSize);
+        currentGalleryPage = 1;
+        renderOverviewCards();
+    }
+
+    function changeGalleryPage(delta) {
+        goToGalleryPage(currentGalleryPage + delta);
+    }
+
+    function goToGalleryPage(page) {
+        const totalItems = (filteredGalleryBookings || []).length;
+        totalGalleryPages = Math.ceil(totalItems / galleryPageSize) || 1;
+
+        if (page < 1) page = 1;
+        if (page > totalGalleryPages) page = totalGalleryPages;
+        if (page === currentGalleryPage && arguments.length === 1 && totalItems > 0) return;
+
+        currentGalleryPage = page;
+        renderOverviewCards();
+
+        // Smoothly scroll grid into view if user scrolled past
+        const gridEl = document.getElementById('overviewGrid');
+        if (gridEl) {
+            const rect = gridEl.getBoundingClientRect();
+            if (rect.top < 80) {
+                gridEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }
+
     function renderOverviewCards(list) {
+        if (Array.isArray(list)) {
+            filteredGalleryBookings = list;
+        }
+        const fullList = filteredGalleryBookings || [];
+        const totalItems = fullList.length;
+        totalGalleryPages = Math.ceil(totalItems / galleryPageSize) || 1;
+
+        if (currentGalleryPage > totalGalleryPages) currentGalleryPage = totalGalleryPages;
+        if (currentGalleryPage < 1) currentGalleryPage = 1;
+
         const grid = document.getElementById('overviewGrid');
-        if (!list.length) {
+        if (!totalItems) {
             grid.innerHTML = `
                 <div class="gallery-empty">
                     <i class="fas fa-search"></i>
                     <h3>No bookings found</h3>
                     <p>Bookings matching the selected filter will appear here.</p>
                 </div>`;
+            renderGalleryPagination(0, 1, 0, 0);
             return;
         }
 
-        grid.innerHTML = list.map(b => {
+        const startIndex = (currentGalleryPage - 1) * galleryPageSize;
+        const endIndex = Math.min(startIndex + galleryPageSize, totalItems);
+        const pageItems = fullList.slice(startIndex, endIndex);
+
+        grid.innerHTML = pageItems.map(b => {
             const hasLink = checkHasLink(b);
             const date = b.booking_date ? new Date(b.booking_date).toLocaleDateString() : '—';
 
             const statusBadge = hasLink 
-                ? `<span class="link-status set">✅ Link Set</span>`
-                : `<span class="link-status empty">❌ No Link</span>`;
+                ? `<span class="link-status set"><i class="fas fa-check-circle"></i> Link Set</span>`
+                : `<span class="link-status empty"><i class="fas fa-times-circle"></i> No Link</span>`;
+
+            const driveSnippet = hasLink ? `
+                <div class="drive-link-snippet" title="${b.google_drive_link}">
+                    <i class="fab fa-google-drive"></i>
+                    <span>${b.google_drive_link}</span>
+                </div>
+            ` : '';
 
             return `
                 <div class="booking-overview-card">
                     <div>
-                        <div class="card-header" style="justify-content: center;">
+                        <div class="card-badge-header">
+                            <span class="bid">#${b.id}</span>
                             ${statusBadge}
                         </div>
-                        <h4>${b.client_name}</h4>
-                        <p><i class="fas fa-camera" style="width:14px; color:var(--color-primary);"></i> ${b.service_name}</p>
-                        <p><i class="fas fa-calendar" style="width:14px; color:var(--color-primary);"></i> ${date}</p>
-                        ${hasLink ? `<p style="word-break: break-all; font-size: 0.75rem; background: var(--color-bg-soft); padding: 0.35rem 0.5rem; border-radius: 4px; margin-top: 0.5rem; border: 1px solid var(--color-border-soft);"><i class="fab fa-google-drive" style="color: #10b981;"></i> ${b.google_drive_link}</p>` : ''}
+                        <h4 title="${b.client_name}">${b.client_name}</h4>
+                        <p title="${b.service_name}"><i class="fas fa-camera" style="color:var(--color-primary);"></i> <span>${b.service_name}</span></p>
+                        <p><i class="fas fa-calendar" style="color:var(--color-primary);"></i> <span>${date}</span></p>
+                        ${driveSnippet}
                     </div>
                     
                     <div class="card-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="openBookingInUpload(${b.id})" style="flex:1;">
+                        <button class="btn btn-secondary btn-sm" onclick="openBookingInUpload(${b.id})">
                             <i class="fas fa-edit"></i> Edit Link
                         </button>
                         ${hasLink ? `
-                            <a href="${b.google_drive_link}" target="_blank" class="btn btn-primary btn-sm" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:0.25rem;">
+                            <a href="${b.google_drive_link}" target="_blank" class="btn btn-primary btn-sm">
                                 <i class="fas fa-external-link-alt"></i> Open Drive
                             </a>
                         ` : ''}
                     </div>
                 </div>`;
+        }).join('');
+
+        renderGalleryPagination(totalItems, totalGalleryPages, startIndex, endIndex);
+    }
+
+    function renderGalleryPagination(totalItems, totalPages, startIndex, endIndex) {
+        const footer = document.getElementById('galleryPaginationFooter');
+        if (!footer) return;
+
+        const summaryEl = document.getElementById('galleryPaginationSummary');
+        if (summaryEl) {
+            if (totalItems === 0) {
+                summaryEl.innerHTML = 'Showing <strong>0</strong> deliveries';
+            } else {
+                summaryEl.innerHTML = `Showing <strong>${startIndex + 1}</strong>–<strong>${endIndex}</strong> of <strong>${totalItems}</strong> deliveries`;
+            }
+        }
+
+        const sizeSelect = document.getElementById('galleryPageSizeSelect');
+        if (sizeSelect && sizeSelect.value != galleryPageSize) {
+            sizeSelect.value = String(galleryPageSize);
+        }
+
+        const btnFirst = document.getElementById('btnGalleryFirst');
+        const btnPrev = document.getElementById('btnGalleryPrev');
+        const btnNext = document.getElementById('btnGalleryNext');
+        const btnLast = document.getElementById('btnGalleryLast');
+
+        const isFirst = currentGalleryPage <= 1 || totalItems === 0;
+        const isLast = currentGalleryPage >= totalPages || totalItems === 0;
+
+        if (btnFirst) btnFirst.disabled = isFirst;
+        if (btnPrev) btnPrev.disabled = isFirst;
+        if (btnNext) btnNext.disabled = isLast;
+        if (btnLast) btnLast.disabled = isLast;
+
+        const pillsContainer = document.getElementById('galleryPagePills');
+        if (!pillsContainer) return;
+
+        if (totalItems === 0) {
+            pillsContainer.innerHTML = `<button class="pagination-page-btn active" disabled>1</button>`;
+            return;
+        }
+
+        const pages = [];
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            if (currentGalleryPage <= 4) {
+                for (let i = 1; i <= 5; i++) pages.push(i);
+                pages.push('...');
+                pages.push(totalPages);
+            } else if (currentGalleryPage >= totalPages - 3) {
+                pages.push(1);
+                pages.push('...');
+                for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+            } else {
+                pages.push(1);
+                pages.push('...');
+                pages.push(currentGalleryPage - 1);
+                pages.push(currentGalleryPage);
+                pages.push(currentGalleryPage + 1);
+                pages.push('...');
+                pages.push(totalPages);
+            }
+        }
+
+        pillsContainer.innerHTML = pages.map(p => {
+            if (p === '...') {
+                return `<span class="pagination-page-btn ellipsis">&hellip;</span>`;
+            }
+            const isActive = p === currentGalleryPage;
+            return `<button class="pagination-page-btn ${isActive ? 'active' : ''}" 
+                            onclick="goToGalleryPage(${p})" 
+                            aria-label="Go to page ${p}" 
+                            ${isActive ? 'aria-current="page"' : ''}>
+                        ${p}
+                    </button>`;
         }).join('');
     }
 
@@ -1053,7 +1678,9 @@
             });
         }
 
-        renderOverviewCards(list);
+        filteredGalleryBookings = list;
+        currentGalleryPage = 1;
+        renderOverviewCards();
     }
 
     function openBookingInUpload(bookingId) {
