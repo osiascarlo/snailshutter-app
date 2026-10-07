@@ -538,6 +538,236 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
+        /* ── Booking Details Modal Base Styles ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .booking-details-modal,
+        .modal-overlay .modal {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 580px;
+            max-height: min(90vh, 90dvh);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalFadeScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        @keyframes modalFadeScale {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .booking-details-modal .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.15rem 1.5rem;
+            border-bottom: 1px solid var(--color-border-soft, #e2e8f0);
+            background: #ffffff;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .booking-details-modal .modal-header h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-primary, #1b5e20);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        .booking-details-modal .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f9;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .booking-details-modal .modal-close:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: scale(1.05);
+        }
+
+        .booking-details-modal .modal-body {
+            padding: 1.35rem 1.5rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .booking-details-modal .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .booking-details-modal .modal-body::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .booking-details-modal .modal-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .booking-details-modal .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .booking-details-modal .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-border-soft, #e2e8f0);
+            background: #ffffff;
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .booking-details-modal .modal-service-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-border-soft, #e2e8f0);
+            padding-bottom: 0.75rem;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .booking-details-modal .modal-service-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.25;
+            color: #0f172a;
+        }
+
+        .booking-details-modal .modal-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.15rem 1rem;
+            font-size: 0.95rem;
+        }
+
+        .booking-details-modal .modal-info-item label {
+            font-size: 0.73rem;
+            color: var(--color-text-muted, #64748b);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .booking-details-modal .modal-info-item .info-val {
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            word-break: break-word;
+        }
+
+        .booking-details-modal .modal-info-item .info-val i {
+            color: var(--color-primary, #2e7d32);
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .booking-details-modal .modal-info-item .sub-val {
+            font-weight: 600;
+            margin-top: 0.15rem;
+            font-size: 0.88rem;
+            color: var(--color-text-soft, #475569);
+            padding-left: 1.3rem;
+        }
+
+        .booking-details-modal .modal-info-item .booked-sub {
+            font-size: 0.72rem;
+            color: var(--color-text-muted, #94a3b8);
+            margin-top: 0.25rem;
+            padding-left: 1.3rem;
+        }
+
+        .booking-details-modal .price-dp-val {
+            font-weight: 700;
+            color: var(--color-primary, #2e7d32) !important;
+        }
+
+        .booking-details-modal .price-total-val {
+            font-weight: 700;
+            color: #0f172a !important;
+        }
+
+        .booking-details-modal .modal-payment-row {
+            background: var(--color-bg-soft, #f8fafc);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md, 10px);
+            border: 1px solid var(--color-border-soft, #e2e8f0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .booking-details-modal .modal-venue-guide-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+            padding: 1.1rem 1.25rem;
+            border-radius: var(--radius-md, 10px);
+            border: 1.5px solid #93c5fd;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+        }
+
+        .booking-details-modal .modal-venue-buttons {
+            margin-top: 0.85rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
         /* ── Mobile Responsive ── */
         @media (max-width: 768px) {
             .filter-container,
@@ -590,24 +820,129 @@
                 padding: 0.4rem 1rem;
                 font-size: 0.8rem;
             }
-            .modal-overlay .modal {
-                max-width: 100% !important;
-                border-radius: 16px 16px 0 0;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                max-height: 92vh;
-                margin: 0;
-            }
+
+            /* Responsive Modal (Tablet & Mobile Sheet) */
             .modal-overlay {
-                align-items: flex-end;
+                padding: 0 !important;
+                align-items: flex-end !important;
+                justify-content: center !important;
             }
-            .modal-overlay .modal .modal-body {
-                padding: 1.25rem 1.25rem !important;
+
+            .booking-details-modal,
+            .modal-overlay .modal {
+                position: relative !important;
+                bottom: auto !important;
+                left: auto !important;
+                right: auto !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                max-height: 88dvh !important;
+                max-height: min(88vh, 88dvh) !important;
+                border-radius: 20px 20px 0 0 !important;
+                margin: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3) !important;
+                animation: slideUpBottomModal 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
-            .modal-overlay .modal .modal-footer {
-                padding: 1rem 1.25rem !important;
+
+            @keyframes slideUpBottomModal {
+                from {
+                    transform: translateY(100%);
+                }
+                to {
+                    transform: translateY(0);
+                }
+            }
+
+            .booking-details-modal .modal-header {
+                flex-shrink: 0 !important;
+                padding: 1.15rem 1.15rem 0.85rem 1.15rem !important;
+                position: relative;
+            }
+
+            /* Handle pill at top of mobile bottom sheet */
+            .booking-details-modal .modal-header::before {
+                content: '';
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 4px;
+                border-radius: 4px;
+                background: #cbd5e1;
+            }
+
+            .booking-details-modal .modal-header h3 {
+                font-size: 1.05rem !important;
+            }
+
+            .booking-details-modal .modal-close {
+                width: 36px !important;
+                height: 36px !important;
+            }
+
+            .booking-details-modal .modal-body {
+                flex: 1 1 auto !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                overscroll-behavior-y: contain !important;
+                touch-action: pan-y !important;
+                padding: 1rem 1.15rem !important;
+                gap: 0.85rem !important;
+            }
+
+            .booking-details-modal .modal-service-title {
+                font-size: 1.1rem !important;
+            }
+
+            /* Stack Client Name and Date full width on mobile for maximum legibility */
+            .booking-details-modal .modal-info-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.85rem 0.65rem !important;
+            }
+
+            .booking-details-modal .modal-info-item.full-width-mobile {
+                grid-column: 1 / -1 !important;
+            }
+
+            .booking-details-modal .modal-venue-guide-card {
+                padding: 0.9rem 1rem !important;
+            }
+
+            .booking-details-modal .modal-venue-buttons {
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+
+            .booking-details-modal .modal-venue-buttons .btn {
+                width: 100% !important;
+                justify-content: center !important;
+                min-height: 42px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .booking-details-modal .modal-footer {
+                flex-shrink: 0 !important;
+                padding: 0.75rem 1.15rem !important;
+                padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 20px)) !important;
+                gap: 0.5rem !important;
+                border-top: 1px solid var(--color-border-soft, #e2e8f0) !important;
+            }
+
+            .booking-details-modal .modal-footer .btn {
+                flex: 1 1 calc(50% - 0.35rem) !important;
+                min-height: 44px !important;
+                justify-content: center !important;
+                font-size: 0.88rem !important;
+                padding: 0.5rem 0.75rem !important;
+            }
+
+            .booking-details-modal .modal-footer .btn-secondary {
+                flex: 1 1 100% !important;
+                order: 10;
             }
         }
 
@@ -916,6 +1251,75 @@
     <script src="/assets/js/dashboard-premium.js?v=1.2.0"></script>
 
     <script>
+        // Extract and normalize venue details (with automatic fallback to notes extraction)
+        function extractVenueDetails(booking) {
+            if (!booking) return { hasVenue: false };
+            let name = booking.venue_name || '';
+            let address = booking.venue_address || '';
+            let lat = booking.venue_lat ? parseFloat(booking.venue_lat) : null;
+            let lng = booking.venue_lng ? parseFloat(booking.venue_lng) : null;
+            let mapsUrl = booking.venue_maps_url || '';
+            let notes = booking.venue_notes || '';
+
+            // Extract from booking.notes if dedicated fields are missing
+            if ((!name || !lat || !address) && booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')) {
+                const nameMatch = booking.notes.match(/• Venue:\s*(.+)/);
+                const addrMatch = booking.notes.match(/• Address:\s*(.+)/);
+                const coordsMatch = booking.notes.match(/• Coordinates:\s*([0-9.-]+),\s*([0-9.-]+)/);
+                const mapsMatch = booking.notes.match(/• Google Maps Directions:\s*(https:\/\/[^\s\r\n]+)/);
+                const notesMatch = booking.notes.match(/• Team Access Notes:\s*(.+)/);
+
+                if (!name && nameMatch) name = nameMatch[1].trim();
+                if (!address && addrMatch) address = addrMatch[1].trim();
+                if (!lat && coordsMatch) lat = parseFloat(coordsMatch[1]);
+                if (!lng && coordsMatch) lng = parseFloat(coordsMatch[2]);
+                if (!mapsUrl && mapsMatch) mapsUrl = mapsMatch[1].trim();
+                if (!notes && notesMatch) notes = notesMatch[1].trim();
+            }
+
+            const hasVenue = !!(name || address || (lat && lng) || (booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')));
+
+            let dirUrl = '';
+            let pinUrl = '';
+
+            if (lat && lng) {
+                // Exact GPS Turn-by-Turn Directions
+                dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                // Exact Dropped Pin Marker on Google Maps
+                pinUrl = `https://www.google.com/maps?q=${lat},${lng}${name ? `+(${encodeURIComponent(name)})` : ''}`;
+            } else if (address || name) {
+                const target = encodeURIComponent(address || name);
+                dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${target}`;
+                pinUrl = `https://www.google.com/maps?q=${target}`;
+            }
+
+            return {
+                hasVenue,
+                name: name || 'Designated Venue',
+                address: address || 'Address specified in booking details',
+                lat,
+                lng,
+                notes,
+                dirUrl: dirUrl || mapsUrl || '#',
+                pinUrl: pinUrl || '#'
+            };
+        }
+
+        // Clean client notes by stripping out any legacy raw venue text blocks
+        function cleanClientNotes(raw) {
+            if (!raw) return '';
+            let text = String(raw).trim();
+            if (text.includes('📍 ON-LOCATION VENUE')) {
+                if (text.includes('Client Additional Requests:')) {
+                    const parts = text.split(/Client Additional Requests:\s*/i);
+                    text = parts.length > 1 ? parts[1].trim() : '';
+                } else {
+                    text = text.replace(/📍 ON-LOCATION VENUE & TEAM GUIDE:[\s\S]*?(?=\n\n|$)/i, '').trim();
+                }
+            }
+            return text;
+        }
+
         // Pagination state
         let currentBookingsPage = 1;
         const validBookingsPageSizes = [8, 12, 16, 20, 24, 30];
@@ -993,7 +1397,7 @@
 
             const safeServiceName = typeof escapeHtml === 'function' ? escapeHtml(booking.service_name || '') : (booking.service_name || '');
             const safeClientName = typeof escapeHtml === 'function' ? escapeHtml(booking.client_name || '') : (booking.client_name || '');
-            const safeNotes = typeof escapeHtml === 'function' ? escapeHtml(booking.notes || '') : (booking.notes || '');
+            const safeNotes = typeof escapeHtml === 'function' ? escapeHtml(cleanClientNotes(booking.notes) || '') : (cleanClientNotes(booking.notes) || '');
             const safeReason = typeof escapeHtml === 'function' ? escapeHtml(booking.cancellation_reason || '') : (booking.cancellation_reason || '');
 
             return `
@@ -1007,7 +1411,16 @@
                 <div class="booking-card-body">
                     <div><i class="fas fa-calendar-alt"></i> ${dateStr} at ${booking.start_time || '—'}</div>
                     <div><i class="fas fa-user"></i> Client: <strong>${safeClientName}</strong></div>
-                    ${booking.notes && booking.notes.trim() ? `
+                    ${(() => {
+                        const v = extractVenueDetails(booking);
+                        return v.hasVenue ? `
+                            <div class="booking-card-venue" style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; padding: 0.25rem 0.55rem; border-radius: 6px; font-weight: 600; margin-top: 0.25rem;">
+                                <i class="fas fa-map-location-dot" style="color: #2563eb;"></i>
+                                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Venue: ${escapeHtml(v.name || v.address)}</span>
+                            </div>
+                        ` : '';
+                    })()}
+                    ${safeNotes ? `
                         <div class="booking-card-notes" title="${safeNotes}">
                             <i class="fas fa-sticky-note"></i> 
                             <span>${safeNotes}</span>
@@ -1664,60 +2077,60 @@
             }
 
             overlay.innerHTML = `
-                <div class="modal" style="max-width: 580px;">
+                <div class="modal booking-details-modal">
                     <div class="modal-header">
-                        <h3 style="font-weight: 700; color: var(--color-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                        <h3>
                             <i class="fas fa-info-circle"></i> Booking Details #${booking.id}
                         </h3>
-                        <button class="modal-close" onclick="closeBookingDetailsModal()"><i class="fas fa-times"></i></button>
+                        <button class="modal-close" onclick="closeBookingDetailsModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
                     </div>
-                    <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem 1.75rem;">
+                    <div class="modal-body">
                         
                         <!-- Top Service Row -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border-soft); padding-bottom: 0.75rem; gap: 1rem;">
+                        <div class="modal-service-row">
                             <div>
-                                <h2 style="font-size: 1.3rem; font-weight: 700; margin: 0; line-height: 1.2;">${booking.service_name}</h2>
+                                <h2 class="modal-service-title">${escapeHtml(booking.service_name)}</h2>
                             </div>
-                            <span class="booking-status ${modalStatusClass}" style="margin: 0; font-size: 0.85rem; padding: 0.3rem 0.8rem; border-radius: 50px; white-space: nowrap;">
+                            <span class="booking-status ${modalStatusClass}" style="margin: 0; font-size: 0.82rem; padding: 0.28rem 0.75rem; border-radius: 50px; white-space: nowrap; font-weight: 700;">
                                 ${modalStatusDisplay}
                             </span>
                         </div>
 
                         <!-- Grid Info -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 1rem; font-size: 0.95rem;">
-                            <div>
-                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Client Name</label>
-                                <div style="font-weight: 600; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
-                                    <i class="fas fa-user" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${booking.client_name}
+                        <div class="modal-info-grid">
+                            <div class="modal-info-item full-width-mobile">
+                                <label>Client Name</label>
+                                <div class="info-val">
+                                    <i class="fas fa-user"></i> ${escapeHtml(booking.client_name)}
                                 </div>
                             </div>
-                            <div>
-                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Date & Time</label>
-                                <div style="font-weight: 600; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
-                                    <i class="fas fa-calendar" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ${typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(booking.booking_date) : new Date(booking.booking_date).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' })}
+                            <div class="modal-info-item full-width-mobile">
+                                <label>Date & Time</label>
+                                <div class="info-val">
+                                    <i class="fas fa-calendar"></i> ${typeof formatAsiaManilaDate === 'function' ? formatAsiaManilaDate(booking.booking_date) : new Date(booking.booking_date).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' })}
                                 </div>
-                                <div style="font-weight: 600; margin-top: 0.1rem; font-size: 0.9rem; color: var(--color-text-soft); padding-left: 1.3rem;">at ${booking.start_time}</div>
-                                ${booking.created_at ? `<div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem; padding-left: 1.3rem;">Booked: ${typeof formatAsiaManilaDateTime === 'function' ? formatAsiaManilaDateTime(booking.created_at) : new Date(booking.created_at).toLocaleString('en-US', { timeZone: 'Asia/Manila' })}</div>` : ''}
+                                <div class="sub-val">at ${booking.start_time}</div>
+                                ${booking.created_at ? `<div class="booked-sub">Booked: ${typeof formatAsiaManilaDateTime === 'function' ? formatAsiaManilaDateTime(booking.created_at) : new Date(booking.created_at).toLocaleString('en-US', { timeZone: 'Asia/Manila' })}</div>` : ''}
                             </div>
-                            <div>
-                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Downpayment Amount</label>
-                                <div style="font-weight: 700; color: var(--color-primary); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
-                                    <i class="fas fa-wallet" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ₱${Number(booking.downpayment_amount || 0).toLocaleString()}
+                            <div class="modal-info-item">
+                                <label>Downpayment Amount</label>
+                                <div class="info-val price-dp-val">
+                                    <i class="fas fa-wallet"></i> ₱${Number(booking.downpayment_amount || 0).toLocaleString()}
                                 </div>
                             </div>
                             ${booking.total_price ? `
-                            <div>
-                                <label style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Total Price</label>
-                                <div style="font-weight: 700; color: var(--color-text); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
-                                    <i class="fas fa-tag" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> ₱${Number(booking.total_price || 0).toLocaleString()}
+                            <div class="modal-info-item">
+                                <label>Total Price</label>
+                                <div class="info-val price-total-val">
+                                    <i class="fas fa-tag"></i> ₱${Number(booking.total_price || 0).toLocaleString()}
                                 </div>
                             </div>
                             ` : ''}
                         </div>
 
                         <!-- Payment Status Section -->
-                        <div style="background: var(--color-bg-soft); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-soft); display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
-                            <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-soft); display: flex; align-items: center; gap: 0.4rem;">
+                        <div class="modal-payment-row">
+                            <span style="font-weight: 600; font-size: 0.88rem; color: var(--color-text-soft, #475569); display: flex; align-items: center; gap: 0.4rem;">
                                 <i class="fas fa-money-check-alt" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> Payment Status:
                             </span>
                             <span class="status-badge payment-${(booking.payment_status || 'unpaid').toLowerCase()}" style="font-size: 0.8rem; padding: 0.25rem 0.75rem; border-radius: 50px; font-weight: 700;">
@@ -1727,7 +2140,7 @@
 
                         <!-- Cancellation Reason Section (if cancelled) -->
                         ${booking.status === 'cancelled' ? `
-                            <div style="background: #fef2f2; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #fecaca; margin-top: 0.25rem;">
+                            <div style="background: #fef2f2; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #fecaca;">
                                 <div style="font-size: 0.75rem; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
                                     <span style="display: flex; align-items: center; gap: 0.4rem;">
                                         <i class="fas fa-ban" style="color: #ef4444;"></i> Cancellation Reason:
@@ -1742,7 +2155,7 @@
 
                         <!-- Google Drive Delivery Section -->
                         ${hasLink ? `
-                            <div style="background: #ecfdf5; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #a7f3d0; margin-top: 0.25rem;">
+                            <div style="background: #ecfdf5; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #a7f3d0;">
                                 <div style="font-size: 0.75rem; color: #065f46; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
                                     <i class="fab fa-google-drive" style="color: #10b981;"></i> Google Drive Gallery Link:
                                 </div>
@@ -1756,7 +2169,7 @@
                                 </div>
                             </div>
                         ` : (booking.status === 'completed' ? `
-                            <div style="background: #f0fdfa; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #99f6e4; margin-top: 0.25rem;">
+                            <div style="background: #f0fdfa; padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid #99f6e4;">
                                 <div style="font-size: 0.75rem; color: #0f766e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
                                     <i class="fas fa-camera" style="color: #0d9488;"></i> Photo Delivery Status:
                                 </div>
@@ -1770,36 +2183,83 @@
                         ` : '')}
 
                         <!-- Customer Review & Feedback (if completed) -->
-                        <div id="adminModalReviewSection" style="display: none; margin-top: 0.25rem;"></div>
+                        <div id="adminModalReviewSection" style="display: none;"></div>
+
+                        <!-- On-Location Team Venue Dispatch Guide (if venue provided) -->
+                        ${(() => {
+                            const venue = extractVenueDetails(booking);
+                            return venue.hasVenue ? `
+                                <div class="modal-venue-guide-card">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.4rem;">
+                                        <div style="font-size: 0.78rem; color: #1e40af; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.4rem;">
+                                            <i class="fas fa-map-location-dot" style="color: #2563eb; font-size: 0.95rem;"></i> Team Venue Dispatch Guide
+                                        </div>
+                                        <span style="background: #2563eb; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 50px;">
+                                            On-Location Shoot
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem; line-height: 1.3;">
+                                        ${escapeHtml(venue.name)}
+                                    </div>
+                                    <div style="font-size: 0.88rem; color: #334155; line-height: 1.45; display: flex; align-items: flex-start; gap: 0.4rem;">
+                                        <i class="fas fa-location-dot" style="color: #ef4444; margin-top: 3px; flex-shrink: 0;"></i>
+                                        <span>${escapeHtml(venue.address)}</span>
+                                    </div>
+                                    ${(venue.lat && venue.lng) ? `
+                                        <div style="font-size: 0.75rem; color: #64748b; font-family: monospace; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                                            <i class="fas fa-crosshairs" style="color: #0284c7;"></i> Pinned GPS: ${Number(venue.lat).toFixed(6)}° N, ${Number(venue.lng).toFixed(6)}° E
+                                        </div>
+                                    ` : ''}
+                                    ${venue.notes ? `
+                                        <div style="background: rgba(255,255,255,0.85); border: 1px dashed #93c5fd; border-radius: 6px; padding: 0.45rem 0.75rem; margin-top: 0.5rem; font-size: 0.8rem; color: #1e40af; line-height: 1.4;">
+                                            <strong><i class="fas fa-door-open"></i> Gate / Entry Notes:</strong> ${escapeHtml(venue.notes)}
+                                        </div>
+                                    ` : ''}
+                                    <div class="modal-venue-buttons">
+                                        <a href="${venue.dirUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; font-size: 0.82rem; font-weight: 700; border-radius: 6px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                                            <i class="fas fa-diamond-turn-right"></i> Open Turn-by-Turn Navigation
+                                        </a>
+                                        <a href="${venue.pinUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; font-size: 0.82rem; font-weight: 700; border-radius: 6px; text-decoration: none; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">
+                                            <i class="fas fa-map-pin"></i> View Pinned Location
+                                        </a>
+                                    </div>
+                                </div>
+                            ` : '';
+                        })()}
 
                         <!-- Special Requests / Notes Section -->
-                        <div style="background: var(--color-bg-soft); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-soft); margin-top: 0.25rem;">
-                            <div style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
-                                <i class="fas fa-sticky-note" style="color: var(--color-primary); font-size: 0.85rem;"></i> Special Requests / Notes:
-                            </div>
-                            <div style="font-size: 0.9rem; color: ${booking.notes && booking.notes.trim() ? 'var(--color-text)' : 'var(--color-text-muted)'}; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">
-                                ${booking.notes && booking.notes.trim() ? escapeHtml(booking.notes) : '<span style="font-style: italic;">No special requests or notes provided.</span>'}
-                            </div>
-                        </div>
+                        ${(() => {
+                            const cleanedNotes = cleanClientNotes(booking.notes);
+                            return `
+                                <div style="background: var(--color-bg-soft, #f8fafc); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-soft, #e2e8f0);">
+                                    <div style="font-size: 0.75rem; color: var(--color-text-muted, #64748b); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-sticky-note" style="color: var(--color-primary); font-size: 0.85rem;"></i> Special Requests / Notes:
+                                    </div>
+                                    <div style="font-size: 0.88rem; color: ${cleanedNotes ? 'var(--color-text, #1e293b)' : 'var(--color-text-muted, #94a3b8)'}; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">
+                                        ${cleanedNotes ? escapeHtml(cleanedNotes) : '<span style="font-style: italic;">No special requests or notes provided.</span>'}
+                                    </div>
+                                </div>
+                            `;
+                        })()}
 
                         <!-- Proof of Payment Receipt -->
                         ${booking.proof_of_payment ? `
-                            <div style="border-top: 1px solid var(--color-border-soft); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem;">
+                            <div style="border-top: 1px solid var(--color-border-soft); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
                                 <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--color-text); display: flex; align-items: center; gap: 0.4rem;">
                                     <i class="fas fa-image" style="color: var(--color-primary); font-size: 0.9rem; margin: 0;"></i> Proof of Payment / Receipt:
                                 </h4>
                                 <div class="receipt-preview-container" style="display: flex; justify-content: center; background: #f3f4f6; border-radius: 8px; padding: 0.5rem; border: 1px solid var(--color-border-soft);">
                                     <a href="/api/bookings/${booking.id}/receipt" target="_blank" title="Click to view full size receipt">
-                                        <img src="${booking.proof_of_payment}" alt="Receipt" style="max-height: 250px; max-width: 100%; object-fit: contain; border-radius: 6px; box-shadow: var(--shadow-sm); cursor: zoom-in;" onerror="this.closest('.receipt-preview-container').innerHTML='<div style=\\'padding:1.25rem 1rem;text-align:center;color:#92400e;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;font-size:0.85rem;line-height:1.4;\\'><i class=\\'fas fa-exclamation-triangle\\' style=\\'color:#d97706;font-size:1.25rem;margin-bottom:0.4rem;\\'></i><br><strong>Image File Unavailable on Server Disk:</strong><br>This receipt was uploaded prior to database persistence and was cleared by Render during container restart.<br><span style=\\'font-size:0.78rem;color:#b45309;margin-top:0.3rem;display:inline-block;\\'>All newly uploaded receipts are now permanently stored in the database.</span></div>';">
+                                        <img src="${booking.proof_of_payment}" alt="Receipt" style="max-height: 220px; max-width: 100%; object-fit: contain; border-radius: 6px; box-shadow: var(--shadow-sm); cursor: zoom-in;" onerror="this.closest('.receipt-preview-container').innerHTML='<div style=\\'padding:1.25rem 1rem;text-align:center;color:#92400e;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;font-size:0.85rem;line-height:1.4;\\'><i class=\\'fas fa-exclamation-triangle\\' style=\\'color:#d97706;font-size:1.25rem;margin-bottom:0.4rem;\\'></i><br><strong>Image File Unavailable on Server Disk:</strong><br>This receipt was uploaded prior to database persistence and was cleared by Render during container restart.<br><span style=\\'font-size:0.78rem;color:#b45309;margin-top:0.3rem;display:inline-block;\\'>All newly uploaded receipts are now permanently stored in the database.</span></div>';">
                                     </a>
                                 </div>
                             </div>
                         ` : ''}
 
                     </div>
-                    <div class="modal-footer" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; padding: 1.25rem 1.75rem;">
+                    <div class="modal-footer">
                         ${actionsHtml}
-                        <button class="btn btn-secondary" onclick="closeBookingDetailsModal()" style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;">Close</button>
+                        <button class="btn btn-secondary" onclick="closeBookingDetailsModal()">Close</button>
                     </div>
                 </div>
             `;

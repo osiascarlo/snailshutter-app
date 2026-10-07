@@ -164,13 +164,36 @@ router.get('/', authMiddleware, async (req, res) => {
             services = servicesRouter.FALLBACK_SERVICES || [];
         }
 
-        // Map booking service names based on service_ids
+        // Map booking service names based on service_ids and enrich venue details
         bookings.forEach(b => {
             const idsStr = String(b.service_ids || b.service_id || '');
             const ids = idsStr.split(',').map(idStr => parseInt(idStr.trim())).filter(id => !isNaN(id));
             const matching = services.filter(s => ids.includes(s.id));
             if (matching.length > 0) {
                 b.service_name = matching.map(s => s.name).join(', ');
+            }
+
+            // Auto-enrich venue fields from notes if dedicated columns are null
+            if ((!b.venue_name || !b.venue_lat) && b.notes && b.notes.includes('📍 ON-LOCATION VENUE')) {
+                const nameMatch = b.notes.match(/• Venue:\s*(.+)/);
+                const addrMatch = b.notes.match(/• Address:\s*(.+)/);
+                const coordsMatch = b.notes.match(/• Coordinates:\s*([0-9.-]+),\s*([0-9.-]+)/);
+                const mapsMatch = b.notes.match(/• Google Maps Directions:\s*(https:\/\/[^\s\r\n]+)/);
+                const notesMatch = b.notes.match(/• Team Access Notes:\s*(.+)/);
+                if (!b.venue_name && nameMatch) b.venue_name = nameMatch[1].trim();
+                if (!b.venue_address && addrMatch) b.venue_address = addrMatch[1].trim();
+                if (!b.venue_lat && coordsMatch) b.venue_lat = parseFloat(coordsMatch[1]);
+                if (!b.venue_lng && coordsMatch) b.venue_lng = parseFloat(coordsMatch[2]);
+                if (!b.venue_maps_url) {
+                    if (mapsMatch) b.venue_maps_url = mapsMatch[1].trim();
+                    else if (b.venue_lat && b.venue_lng) b.venue_maps_url = `https://www.google.com/maps/dir/?api=1&destination=${b.venue_lat},${b.venue_lng}`;
+                }
+                if (!b.venue_notes && notesMatch) b.venue_notes = notesMatch[1].trim();
+            }
+
+            // Always strip raw venue guide block from notes returned to clients
+            if (b.notes && typeof b.notes === 'string') {
+                b.notes = b.notes.replace(/📍 ON-LOCATION VENUE & TEAM GUIDE:[\s\S]*?(?=\n\n|$)/i, '').trim() || null;
             }
         });
 
@@ -623,23 +646,64 @@ router.post('/', authMiddleware, (req, res, next) => {
             return res.status(409).json({ success: false, error: 'The selected time slot/range overlaps with an existing booking. Please choose a different time.' });
         }
 
+        let venueName = req.body.venue_name || req.body.venueName || null;
+        let venueAddress = req.body.venue_address || req.body.venueAddress || null;
+        let venueLat = req.body.venue_lat ? parseFloat(req.body.venue_lat) : null;
+        let venueLng = req.body.venue_lng ? parseFloat(req.body.venue_lng) : null;
+        let venueNotes = req.body.venue_notes || null;
+
+        // Fallback auto-extraction from notes if client notes contains venue telemetry
+        if ((!venueName || !venueLat) && notes && notes.includes('📍 ON-LOCATION VENUE')) {
+            const nameMatch = notes.match(/• Venue:\s*(.+)/);
+            const addrMatch = notes.match(/• Address:\s*(.+)/);
+            const coordsMatch = notes.match(/• Coordinates:\s*([0-9.-]+),\s*([0-9.-]+)/);
+            const notesMatch = notes.match(/• Team Access Notes:\s*(.+)/);
+            if (!venueName && nameMatch) venueName = nameMatch[1].trim();
+            if (!venueAddress && addrMatch) venueAddress = addrMatch[1].trim();
+            if (!venueLat && coordsMatch) venueLat = parseFloat(coordsMatch[1]);
+            if (!venueLng && coordsMatch) venueLng = parseFloat(coordsMatch[2]);
+            if (!venueNotes && notesMatch) venueNotes = notesMatch[1].trim();
+        }
+
+        let venueMapsUrl = req.body.venue_maps_url || null;
+        if (!venueMapsUrl && venueLat && venueLng) {
+            venueMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${venueLat},${venueLng}`;
+        } else if (!venueMapsUrl && (venueAddress || venueName)) {
+            venueMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(venueAddress || venueName)}`;
+        }
+
+        // Clean client notes to guarantee no raw venue telemetry is stored in the notes column
+        let cleanNotes = notes;
+        if (cleanNotes && typeof cleanNotes === 'string') {
+            cleanNotes = cleanNotes.replace(/📍 ON-LOCATION VENUE & TEAM GUIDE:[\s\S]*?(?=\n\n|$)/i, '').trim() || null;
+        }
+
         let result;
         try {
             [result] = await pool.execute(
-                `INSERT INTO bookings (client_id, service_id, service_ids, booking_date, start_time, end_time, status, notes, total_price, downpayment_amount, proof_of_payment, payment_status, created_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, 'pending', NOW())`,
-                [userId, serviceId, serviceIds, bookingDate, startTime, endTime, notes || null, totalPrice, downpaymentAmount, proofPath]
+                `INSERT INTO bookings (client_id, service_id, service_ids, booking_date, start_time, end_time, status, notes, venue_name, venue_address, venue_lat, venue_lng, venue_maps_url, venue_notes, total_price, downpayment_amount, proof_of_payment, payment_status, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())`,
+                [userId, serviceId, serviceIds, bookingDate, startTime, endTime, cleanNotes || null, venueName, venueAddress, venueLat, venueLng, venueMapsUrl, venueNotes, totalPrice, downpaymentAmount, proofPath]
             );
         } catch (dbErr) {
-            if (dbErr.message && dbErr.message.includes("Unknown column 'service_ids'")) {
-                console.warn('service_ids column not found in database. Inserting with legacy service_id column only.');
+            console.warn('Venue columns insert failed, falling back to standard insert:', dbErr.message);
+            try {
                 [result] = await pool.execute(
-                    `INSERT INTO bookings (client_id, service_id, booking_date, start_time, end_time, status, notes, total_price, downpayment_amount, proof_of_payment, payment_status, created_at) 
-                     VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, 'pending', NOW())`,
-                    [userId, serviceId, bookingDate, startTime, endTime, notes || null, totalPrice, downpaymentAmount, proofPath]
+                    `INSERT INTO bookings (client_id, service_id, service_ids, booking_date, start_time, end_time, status, notes, total_price, downpayment_amount, proof_of_payment, payment_status, created_at) 
+                     VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, 'pending', NOW())`,
+                    [userId, serviceId, serviceIds, bookingDate, startTime, endTime, cleanNotes || null, totalPrice, downpaymentAmount, proofPath]
                 );
-            } else {
-                throw dbErr;
+            } catch (fallbackErr) {
+                if (fallbackErr.message && fallbackErr.message.includes("Unknown column 'service_ids'")) {
+                    console.warn('service_ids column not found in database. Inserting with legacy service_id column only.');
+                    [result] = await pool.execute(
+                        `INSERT INTO bookings (client_id, service_id, booking_date, start_time, end_time, status, notes, total_price, downpayment_amount, proof_of_payment, payment_status, created_at) 
+                         VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, 'pending', NOW())`,
+                        [userId, serviceId, bookingDate, startTime, endTime, cleanNotes || null, totalPrice, downpaymentAmount, proofPath]
+                    );
+                } else {
+                    throw fallbackErr;
+                }
             }
         }
 

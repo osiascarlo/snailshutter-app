@@ -388,7 +388,21 @@
             const isEdit = !!service;
             
             // Build categories dropdown options
-            const defaultCats = ['Self Portrait Studio', 'Portrait', 'Graduation', 'Studio Pre-Shoot', 'Wedding', 'Event', 'Commercial', 'Fashion', 'General'];
+            const defaultCats = [
+                'Self Portrait Studio',
+                'Portrait Sessions',
+                'Outdoor Photoshoots',
+                'Event Day Photo Services',
+                '1st Birthday & Christening',
+                'Newborn Session',
+                '7th Birthday Specials',
+                '18th Birthday (Debut)',
+                'Wedding Packages',
+                'Mirror Photobooth',
+                'Commercial',
+                'Fashion',
+                'General'
+            ];
             const existingCats = (loadedServices || []).map(s => s.category).filter(Boolean);
             const allCatList = Array.from(new Set([...defaultCats, ...existingCats]));
             const selectedCat = isEdit ? (service.category || 'Self Portrait Studio') : 'Self Portrait Studio';

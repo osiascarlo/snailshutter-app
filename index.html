@@ -32,7 +32,10 @@
             font-weight: 600;
             cursor: pointer;
             backdrop-filter: blur(12px);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+            flex-shrink: 0;
+            user-select: none;
         }
         .filter-btn:hover {
             border-color: var(--color-primary, #16a34a);
@@ -756,9 +759,36 @@
         let showingAll = false;
         const PAGE_SIZE = 6;
 
+        function matchesServiceFilter(s, filter) {
+            if (!filter || filter === 'all' || filter === 'All Packages' || filter === 'All') return true;
+            const normFilter = filter.toLowerCase().trim();
+            const name = (s.name || '').toLowerCase();
+            const cat = (s.category || 'General').toLowerCase().trim();
+
+            if (normFilter === 'outdoor photoshoots' || normFilter === 'outdoor photoshooots' || normFilter === 'outdoor') {
+                return cat === 'outdoor photoshoots' || cat === 'outdoor' || name.includes('outdoor');
+            }
+            if (normFilter === 'event day photo services' || normFilter === 'event day photo service' || normFilter === 'event day') {
+                return cat === 'event day photo services' || cat === 'event day photo service' || cat === 'event day' ||
+                       name.includes('event day') || name.includes('on the day');
+            }
+            return (s.category || 'General') === filter;
+        }
+
         function renderServiceCards(services) {
             const servicesGrid = document.getElementById('servicesGrid');
             const loadMoreWrap = document.getElementById('loadMoreWrap');
+
+            if (!services || services.length === 0) {
+                servicesGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1rem;">
+                        <div class="empty-icon" style="font-size: 2.5rem; margin-bottom: 0.75rem;">📷</div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">No Packages Found</h3>
+                        <p style="color: #64748b; font-size: 0.95rem;">No photography packages currently match this category.</p>
+                    </div>`;
+                if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+                return;
+            }
 
             const visible = showingAll ? services : services.slice(0, PAGE_SIZE);
 
@@ -799,13 +829,13 @@
             activeFilter = filter;
             showingAll = false;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
-            const filtered = filter === 'all' ? allServices : allServices.filter(s => (s.category || 'General') === filter);
+            const filtered = allServices.filter(s => matchesServiceFilter(s, filter));
             renderServiceCards(filtered);
         }
 
         function showMoreServices() {
             showingAll = !showingAll;
-            const filtered = activeFilter === 'all' ? allServices : allServices.filter(s => (s.category || 'General') === activeFilter);
+            const filtered = allServices.filter(s => matchesServiceFilter(s, activeFilter));
             renderServiceCards(filtered);
         }
 
@@ -1015,12 +1045,23 @@
                     allServices = response.data.filter(s => s.is_active == 1);
 
                     // Build category filter tabs
-                    const cats = ['All Packages', ...new Set(allServices.map(s => s.category || 'General'))];
-                    filtersContainer.innerHTML = cats.map(c => `
-                        <button class="filter-btn ${c === 'All Packages' ? 'active' : ''}" data-filter="${c === 'All Packages' ? 'all' : c}" onclick="applyFilter('${c === 'All Packages' ? 'all' : c.replace(/'/g, "\\'")}')">
+                    const specialFilters = ['Outdoor Photoshoots', 'Event Day Photo Services'];
+                    const dbCats = Array.from(new Set(allServices.map(s => s.category || 'General')))
+                        .filter(c => !specialFilters.map(sf => sf.toLowerCase()).includes(c.toLowerCase()));
+
+                    // Curated display order
+                    const topCats = ['Self Portrait Studio', 'Portrait Sessions', 'Outdoor Photoshoots', 'Event Day Photo Services'];
+                    const remainingCats = dbCats.filter(c => !topCats.includes(c));
+                    const cats = ['All Packages', ...topCats, ...remainingCats];
+
+                    filtersContainer.innerHTML = cats.map(c => {
+                        const filterKey = c === 'All Packages' ? 'all' : c;
+                        return `
+                        <button class="filter-btn ${c === 'All Packages' ? 'active' : ''}" data-filter="${filterKey}" onclick="applyFilter('${filterKey.replace(/'/g, "\\'")}')">
                             ${c}
                         </button>
-                    `).join('');
+                    `;
+                    }).join('');
                     filtersContainer.style.display = 'flex';
 
                     renderServiceCards(allServices);

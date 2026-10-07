@@ -955,11 +955,14 @@
                             <span><strong>Downpayment:</strong> ${dpFormatted}</span>
                         </div>
                         ` : ''}
-                        ${b.notes ? `
-                        <div class="booking-detail-notes">
-                            <strong>Notes:</strong> ${escapeHtml(b.notes)}
-                        </div>
-                        ` : ''}
+                        ${(() => {
+                            const cleanNotes = (b.notes || '').replace(/📍 ON-LOCATION VENUE & TEAM GUIDE:[\s\S]*?(?=\n\n|$)/i, '').trim();
+                            return cleanNotes ? `
+                            <div class="booking-detail-notes">
+                                <strong>Notes:</strong> ${escapeHtml(cleanNotes)}
+                            </div>
+                            ` : '';
+                        })()}
                     </div>
                 `;
                 listContainer.appendChild(card);

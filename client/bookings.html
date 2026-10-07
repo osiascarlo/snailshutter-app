@@ -336,6 +336,429 @@
                 font-size: 0.7rem !important;
             }
         }
+
+        /* ── Review & Feedback Modal Responsiveness ── */
+        .review-modal-container {
+            max-width: 530px !important;
+            width: 94% !important;
+            max-height: 90vh !important;
+            max-height: 90dvh !important;
+            padding: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            border-radius: 20px !important;
+            background: #ffffff !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+            margin: auto !important;
+        }
+
+        .review-modal-header {
+            flex-shrink: 0 !important;
+            background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%) !important;
+            color: #ffffff !important;
+            padding: 1.35rem 1.75rem !important;
+            position: relative !important;
+        }
+
+        .review-modal-close-btn {
+            position: absolute !important;
+            top: 1.15rem !important;
+            right: 1.15rem !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: none !important;
+            color: #ffffff !important;
+            width: 34px !important;
+            height: 34px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            font-size: 0.95rem !important;
+        }
+
+        .review-modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.35) !important;
+            transform: scale(1.05);
+        }
+
+        .review-badge-pill {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.45rem !important;
+            background: rgba(255, 255, 255, 0.18) !important;
+            padding: 0.22rem 0.7rem !important;
+            border-radius: 50px !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 0.4rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        .review-modal-title {
+            margin: 0 !important;
+            font-size: 1.35rem !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            font-family: var(--font-body, inherit) !important;
+            line-height: 1.25 !important;
+        }
+
+        .review-modal-subtitle {
+            margin: 0.3rem 0 0 !important;
+            font-size: 0.85rem !important;
+            color: #a7f3d0 !important;
+            opacity: 0.95 !important;
+            line-height: 1.35 !important;
+        }
+
+        .review-modal-form {
+            display: flex !important;
+            flex-direction: column !important;
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+        }
+
+        .review-modal-body {
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior: contain !important;
+            padding: 1.35rem 1.75rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 1.1rem !important;
+        }
+
+        .review-modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .review-modal-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .review-modal-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .review-context-banner {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.7rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            gap: 0.5rem;
+        }
+
+        .review-service-name {
+            font-weight: 700;
+            color: #1e293b;
+            display: block;
+            line-height: 1.3;
+        }
+
+        .review-booking-id-tag {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .review-booking-date {
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        .review-rating-section {
+            text-align: center;
+            padding: 0.25rem 0;
+        }
+
+        .review-section-label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.35rem;
+        }
+
+        .review-star-rating-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #d97706;
+            margin-top: 0.35rem;
+            min-height: 1.3rem;
+        }
+
+        .review-tags-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 0.45rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .review-tags-hint {
+            font-weight: 400;
+            text-transform: none;
+            color: #94a3b8;
+        }
+
+        .review-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+
+        .review-feedback-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.4rem;
+        }
+
+        .review-feedback-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .review-feedback-hint {
+            font-weight: 400;
+            text-transform: none;
+            color: #94a3b8;
+        }
+
+        .review-char-counter {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .review-textarea {
+            width: 100% !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 0.88rem !important;
+            font-family: inherit !important;
+            resize: vertical !important;
+            box-sizing: border-box !important;
+            transition: border-color 0.2s, box-shadow 0.2s !important;
+            min-height: 72px !important;
+            max-height: 150px !important;
+        }
+
+        .review-textarea:focus {
+            outline: none !important;
+            border-color: #059669 !important;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+        }
+
+        .review-modal-footer {
+            flex-shrink: 0 !important;
+            padding: 0.85rem 1.75rem !important;
+            background: #ffffff !important;
+            border-top: 1px solid #f1f5f9 !important;
+            display: flex !important;
+            gap: 0.75rem !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+        }
+
+        .review-btn-cancel {
+            border-radius: 50px !important;
+            padding: 0.55rem 1.25rem !important;
+            font-weight: 600 !important;
+            min-height: 40px !important;
+        }
+
+        .review-btn-submit {
+            border-radius: 50px !important;
+            padding: 0.55rem 1.5rem !important;
+            font-weight: 700 !important;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+            border: none !important;
+            color: #ffffff !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35) !important;
+            cursor: pointer !important;
+            min-height: 40px !important;
+        }
+
+        /* ── Mobile & Tablet Refinements for Review Modal ── */
+        @media (max-width: 640px) {
+            .review-modal-container {
+                width: 95% !important;
+                max-width: 440px !important;
+                max-height: calc(100dvh - 1.5rem) !important;
+                max-height: calc(100vh - 1.5rem) !important;
+                border-radius: 18px !important;
+            }
+
+            .review-modal-header {
+                padding: 1.1rem 1.25rem !important;
+            }
+
+            .review-modal-title {
+                font-size: 1.2rem !important;
+            }
+
+            .review-modal-subtitle {
+                font-size: 0.8rem !important;
+            }
+
+            .review-modal-body {
+                padding: 1rem 1.25rem !important;
+                gap: 0.9rem !important;
+            }
+
+            .review-context-banner {
+                padding: 0.6rem 0.85rem !important;
+                font-size: 0.82rem !important;
+            }
+
+            .star-rating-container {
+                font-size: 1.95rem !important;
+                gap: 0.4rem !important;
+            }
+
+            .review-star-rating-label {
+                font-size: 0.82rem !important;
+            }
+
+            .review-tag-pill {
+                padding: 0.32rem 0.7rem !important;
+                font-size: 0.76rem !important;
+            }
+
+            .review-modal-footer {
+                padding: 0.75rem 1.25rem !important;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .review-modal-container {
+                width: 96% !important;
+                max-height: calc(100dvh - 1rem) !important;
+                max-height: calc(100vh - 1rem) !important;
+                border-radius: 16px !important;
+            }
+
+            .review-modal-header {
+                padding: 0.95rem 1.1rem !important;
+            }
+
+            .review-modal-close-btn {
+                top: 0.9rem !important;
+                right: 0.9rem !important;
+                width: 30px !important;
+                height: 30px !important;
+            }
+
+            .review-modal-title {
+                font-size: 1.12rem !important;
+            }
+
+            .review-modal-subtitle {
+                font-size: 0.78rem !important;
+            }
+
+            .review-modal-body {
+                padding: 0.85rem 1rem !important;
+                gap: 0.8rem !important;
+            }
+
+            .star-rating-container {
+                font-size: 1.75rem !important;
+                gap: 0.32rem !important;
+            }
+
+            .review-tag-pill {
+                padding: 0.28rem 0.6rem !important;
+                font-size: 0.72rem !important;
+            }
+
+            .review-modal-footer {
+                padding: 0.7rem 1rem !important;
+                gap: 0.5rem !important;
+            }
+
+            .review-btn-cancel,
+            .review-btn-submit {
+                flex: 1 1 0 !important;
+                justify-content: center !important;
+                padding: 0.55rem 0.5rem !important;
+                font-size: 0.82rem !important;
+                white-space: nowrap !important;
+            }
+        }
+
+        /* Landscape Mobile Mode (height <= 500px) */
+        @media (max-height: 500px) {
+            .review-modal-container {
+                max-height: 96vh !important;
+                max-height: 96dvh !important;
+            }
+
+            .review-modal-header {
+                padding: 0.65rem 1.25rem !important;
+            }
+
+            .review-badge-pill {
+                display: none !important;
+            }
+
+            .review-modal-subtitle {
+                display: none !important;
+            }
+
+            .review-modal-body {
+                padding: 0.75rem 1.25rem !important;
+                gap: 0.7rem !important;
+            }
+
+            .star-rating-container {
+                font-size: 1.5rem !important;
+            }
+
+            .review-modal-footer {
+                padding: 0.5rem 1.25rem !important;
+            }
+        }
+
+        /* ── Refresh Button Polish & Animation States ── */
+        .mobile-header-refresh-btn.loading,
+        .desktop-refresh-btn.loading {
+            cursor: not-allowed !important;
+            opacity: 0.65 !important;
+            pointer-events: none !important;
+        }
+
+        .desktop-refresh-btn {
+            transition: all 0.2s ease;
+        }
+        .desktop-refresh-btn:hover {
+            background: #f1f5f9 !important;
+            color: #1e293b !important;
+        }
+        .desktop-refresh-btn:active {
+            transform: scale(0.96);
+        }
     </style>
 </head>
 
@@ -395,7 +818,7 @@
                     <i class="fas fa-history"></i>
                     <span>My Bookings</span>
                 </div>
-                <button class="mobile-header-refresh-btn" onclick="typeof loadBookings === 'function' ? loadBookings() : location.reload()" title="Refresh bookings">
+                <button class="mobile-header-refresh-btn" id="mobileHeaderRefreshBtn" onclick="refreshBookings(this)" title="Refresh bookings" aria-label="Refresh bookings">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
@@ -411,7 +834,10 @@
                 <div class="content-card">
                     <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
                         <h3 style="margin:0;"><i class="fas fa-history"></i> Booking History (<span id="bookingCount">…</span>)</h3>
-                        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-secondary btn-sm desktop-refresh-btn" onclick="refreshBookings(this)" title="Refresh bookings" style="border-radius:8px; padding:0.38rem 0.75rem; font-size:0.82rem; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                                <i class="fas fa-sync-alt"></i> <span>Refresh</span>
+                            </button>
                             <div style="display:flex; align-items:center; gap:0.4rem;">
                                 <label for="clientSortSelect" style="font-size:0.8rem; font-weight:600; color:#475569; display:inline-flex; align-items:center; gap:0.35rem; margin:0;">
                                     <i class="fas fa-sort-amount-down" style="color:var(--color-primary, #2e7d32);"></i> Sort:
@@ -487,7 +913,7 @@
                 <h3 id="modalServiceName" style="margin: 0.4rem 0 0; font-size: 1.3rem; font-weight: 700; color: white; font-family: var(--font-body);">Service Package</h3>
             </div>
             
-            <div style="padding: 1.5rem 1.75rem; max-height: 75vh; overflow-y: auto;">
+            <div class="modal-body" style="padding: 1.5rem 1.75rem; max-height: 75vh; overflow-y: auto;">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
                     <div style="background: #f8fafc; padding: 1rem 1.25rem; border-radius: 14px; border: 1px solid #e2e8f0;">
                         <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
@@ -539,6 +965,36 @@
                     <div id="modalCancellationReasonText" style="font-size: 0.88rem; color: #7f1d1d; line-height: 1.5; font-weight: 500;"></div>
                 </div>
 
+                <!-- On-Location Venue Guide Section -->
+                <div id="modalVenueSection" style="display: none; background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); padding: 1.15rem 1.25rem; border-radius: 14px; border: 1.5px solid #93c5fd; margin-bottom: 1.25rem; box-shadow: 0 2px 8px rgba(37,99,235,0.06);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <div style="font-size: 0.78rem; color: #1e40af; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fas fa-map-location-dot" style="color: #2563eb; font-size: 0.95rem;"></i> On-Location Venue Details
+                        </div>
+                        <span style="background: #2563eb; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px;">
+                            Team Travel Guide
+                        </span>
+                    </div>
+                    <div id="modalVenueName" style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">
+                        -
+                    </div>
+                    <div style="font-size: 0.85rem; color: #334155; line-height: 1.45; display: flex; align-items: flex-start; gap: 0.4rem;">
+                        <i class="fas fa-location-dot" style="color: #ef4444; margin-top: 3px; flex-shrink: 0;"></i>
+                        <span id="modalVenueAddress">-</span>
+                    </div>
+                    <div id="modalVenueNotesRow" style="display: none; background: rgba(255,255,255,0.85); border: 1px dashed #93c5fd; border-radius: 8px; padding: 0.5rem 0.75rem; margin-top: 0.6rem; font-size: 0.82rem; color: #1e40af;">
+                        <strong><i class="fas fa-door-open"></i> Gate / Entry Notes:</strong> <span id="modalVenueNotesText"></span>
+                    </div>
+                    <div style="margin-top: 0.85rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a id="modalVenueMapsBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 700; border-radius: 6px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                            <i class="fas fa-diamond-turn-right"></i> Open Navigation Guide
+                        </a>
+                        <a id="modalVenuePinBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 700; border-radius: 6px; text-decoration: none; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">
+                            <i class="fas fa-map-pin"></i> View Pinned Location
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Notes -->
                 <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
                     <div id="modalNotesRow" style="padding: 0.85rem 1rem; background: #f8fafc; border-radius: 10px; font-size: 0.85rem; border: 1px solid #e2e8f0;">
@@ -565,83 +1021,85 @@
 
     <!-- Review & Feedback Modal -->
     <div id="reviewModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeReviewModal()">
-        <div class="modal-container review-modal-container" style="max-width: 530px; width: 92%; padding: 0; overflow: hidden; border-radius: 20px; background: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div class="modal-container review-modal-container">
             <!-- Review Modal Header -->
-            <div style="background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%); color: white; padding: 1.5rem 1.75rem; position: relative;">
-                <button type="button" onclick="closeReviewModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;">
+            <div class="review-modal-header">
+                <button type="button" onclick="closeReviewModal()" class="review-modal-close-btn" aria-label="Close review modal">
                     <i class="fas fa-times"></i>
                 </button>
-                <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.18); padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                <div class="review-badge-pill">
                     <i class="fas fa-award" style="color: #fbbf24;"></i> Client Feedback
                 </div>
-                <h3 id="reviewModalTitle" style="margin: 0; font-size: 1.35rem; font-weight: 700; color: white; font-family: var(--font-body);">Rate Your Session</h3>
-                <p id="reviewModalSubtitle" style="margin: 0.35rem 0 0; font-size: 0.85rem; color: #a7f3d0; opacity: 0.95;">How was your photography experience with SnailShutter?</p>
+                <h3 id="reviewModalTitle" class="review-modal-title">Rate Your Session</h3>
+                <p id="reviewModalSubtitle" class="review-modal-subtitle">How was your photography experience with SnailShutter?</p>
             </div>
 
-            <!-- Form Body -->
-            <form id="reviewForm" onsubmit="submitReviewForm(event)" style="padding: 1.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.2rem; margin: 0;">
+            <!-- Form Body with Scrollable Body & Docked Footer -->
+            <form id="reviewForm" class="review-modal-form" onsubmit="submitReviewForm(event)">
                 <input type="hidden" id="reviewBookingId" value="">
 
-                <!-- Session Context Banner -->
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem;">
-                    <div>
-                        <span id="reviewModalServiceName" style="font-weight: 700; color: #1e293b; display: block;">Service Package</span>
-                        <span id="reviewModalBookingIdTag" style="font-size: 0.75rem; color: #64748b;">Booking #—</span>
+                <div class="review-modal-body modal-body">
+                    <!-- Session Context Banner -->
+                    <div class="review-context-banner">
+                        <div>
+                            <span id="reviewModalServiceName" class="review-service-name">Service Package</span>
+                            <span id="reviewModalBookingIdTag" class="review-booking-id-tag">Booking #—</span>
+                        </div>
+                        <span id="reviewModalBookingDate" class="review-booking-date">Date</span>
                     </div>
-                    <span id="reviewModalBookingDate" style="color: #475569; font-weight: 600; font-size: 0.82rem;">Date</span>
-                </div>
 
-                <!-- 5-Star Interactive Rating Widget -->
-                <div style="text-align: center; padding: 0.5rem 0 0.25rem;">
-                    <label style="display: block; font-size: 0.88rem; font-weight: 700; color: #1e293b; margin-bottom: 0.4rem;">
-                        Overall Experience Rating <span style="color: #ef4444;">*</span>
-                    </label>
-                    <div class="star-rating-container" id="starRatingContainer">
-                        <i class="fas fa-star star-item active" data-rating="1" onmouseover="hoverStars(1)" onmouseout="resetHoverStars()" onclick="selectStarRating(1)"></i>
-                        <i class="fas fa-star star-item active" data-rating="2" onmouseover="hoverStars(2)" onmouseout="resetHoverStars()" onclick="selectStarRating(2)"></i>
-                        <i class="fas fa-star star-item active" data-rating="3" onmouseover="hoverStars(3)" onmouseout="resetHoverStars()" onclick="selectStarRating(3)"></i>
-                        <i class="fas fa-star star-item active" data-rating="4" onmouseover="hoverStars(4)" onmouseout="resetHoverStars()" onclick="selectStarRating(4)"></i>
-                        <i class="fas fa-star star-item active" data-rating="5" onmouseover="hoverStars(5)" onmouseout="resetHoverStars()" onclick="selectStarRating(5)"></i>
-                    </div>
-                    <div id="starRatingLabel" style="font-size: 0.88rem; font-weight: 700; color: #d97706; margin-top: 0.4rem; min-height: 1.3rem;">
-                        5 - Exceptional! Exceeded Expectations ✨
-                    </div>
-                    <input type="hidden" id="selectedRatingInput" value="5">
-                </div>
-
-                <!-- Quick Highlight Tags -->
-                <div>
-                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.45rem; text-transform: uppercase; letter-spacing: 0.4px;">
-                        What stood out? <span style="font-weight: 400; text-transform: none; color: #94a3b8;">(Click to highlight)</span>
-                    </label>
-                    <div id="reviewTagsContainer" style="display: flex; flex-wrap: wrap; gap: 0.45rem;">
-                        <span class="review-tag-pill" data-tag="📸 High Quality Photos" onclick="toggleReviewTag(this)">📸 High Quality Photos</span>
-                        <span class="review-tag-pill" data-tag="✨ Aesthetic Studio" onclick="toggleReviewTag(this)">✨ Aesthetic Studio</span>
-                        <span class="review-tag-pill" data-tag="⏱️ On Time & Seamless" onclick="toggleReviewTag(this)">⏱️ On Time & Seamless</span>
-                        <span class="review-tag-pill" data-tag="😊 Friendly Staff" onclick="toggleReviewTag(this)">😊 Friendly Staff</span>
-                        <span class="review-tag-pill" data-tag="💡 Great Guidance" onclick="toggleReviewTag(this)">💡 Great Guidance</span>
-                        <span class="review-tag-pill" data-tag="⚡ Fast Photo Delivery" onclick="toggleReviewTag(this)">⚡ Fast Photo Delivery</span>
-                        <span class="review-tag-pill" data-tag="🎵 Fun Atmosphere" onclick="toggleReviewTag(this)">🎵 Fun Atmosphere</span>
-                    </div>
-                </div>
-
-                <!-- Written Feedback -->
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                        <label for="reviewCommentInput" style="font-size: 0.8rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.4px;">
-                            Detailed Feedback <span style="font-weight: 400; text-transform: none; color: #94a3b8;">(Optional)</span>
+                    <!-- 5-Star Interactive Rating Widget -->
+                    <div class="review-rating-section">
+                        <label class="review-section-label">
+                            Overall Experience Rating <span style="color: #ef4444;">*</span>
                         </label>
-                        <span id="reviewCharCounter" style="font-size: 0.75rem; color: #94a3b8;">0/500</span>
+                        <div class="star-rating-container" id="starRatingContainer">
+                            <i class="fas fa-star star-item active" data-rating="1" onmouseover="hoverStars(1)" onmouseout="resetHoverStars()" onclick="selectStarRating(1)"></i>
+                            <i class="fas fa-star star-item active" data-rating="2" onmouseover="hoverStars(2)" onmouseout="resetHoverStars()" onclick="selectStarRating(2)"></i>
+                            <i class="fas fa-star star-item active" data-rating="3" onmouseover="hoverStars(3)" onmouseout="resetHoverStars()" onclick="selectStarRating(3)"></i>
+                            <i class="fas fa-star star-item active" data-rating="4" onmouseover="hoverStars(4)" onmouseout="resetHoverStars()" onclick="selectStarRating(4)"></i>
+                            <i class="fas fa-star star-item active" data-rating="5" onmouseover="hoverStars(5)" onmouseout="resetHoverStars()" onclick="selectStarRating(5)"></i>
+                        </div>
+                        <div id="starRatingLabel" class="review-star-rating-label">
+                            5 - Exceptional! Exceeded Expectations ✨
+                        </div>
+                        <input type="hidden" id="selectedRatingInput" value="5">
                     </div>
-                    <textarea id="reviewCommentInput" rows="3" maxlength="500" placeholder="Tell us what you liked most, your photoshoot experience, or suggestions for us..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.88rem; font-family: inherit; resize: vertical; box-sizing: border-box; transition: border-color 0.2s;" oninput="updateReviewCharCount()"></textarea>
+
+                    <!-- Quick Highlight Tags -->
+                    <div class="review-tags-section">
+                        <label class="review-tags-label">
+                            What stood out? <span class="review-tags-hint">(Click to highlight)</span>
+                        </label>
+                        <div id="reviewTagsContainer" class="review-tags-container">
+                            <span class="review-tag-pill" data-tag="📸 High Quality Photos" onclick="toggleReviewTag(this)">📸 High Quality Photos</span>
+                            <span class="review-tag-pill" data-tag="✨ Aesthetic Studio" onclick="toggleReviewTag(this)">✨ Aesthetic Studio</span>
+                            <span class="review-tag-pill" data-tag="⏱️ On Time & Seamless" onclick="toggleReviewTag(this)">⏱️ On Time & Seamless</span>
+                            <span class="review-tag-pill" data-tag="😊 Friendly Staff" onclick="toggleReviewTag(this)">😊 Friendly Staff</span>
+                            <span class="review-tag-pill" data-tag="💡 Great Guidance" onclick="toggleReviewTag(this)">💡 Great Guidance</span>
+                            <span class="review-tag-pill" data-tag="⚡ Fast Photo Delivery" onclick="toggleReviewTag(this)">⚡ Fast Photo Delivery</span>
+                            <span class="review-tag-pill" data-tag="🎵 Fun Atmosphere" onclick="toggleReviewTag(this)">🎵 Fun Atmosphere</span>
+                        </div>
+                    </div>
+
+                    <!-- Written Feedback -->
+                    <div class="review-feedback-section">
+                        <div class="review-feedback-label-row">
+                            <label for="reviewCommentInput" class="review-feedback-label">
+                                Detailed Feedback <span class="review-feedback-hint">(Optional)</span>
+                            </label>
+                            <span id="reviewCharCounter" class="review-char-counter">0/500</span>
+                        </div>
+                        <textarea id="reviewCommentInput" rows="3" maxlength="500" placeholder="Tell us what you liked most, your photoshoot experience, or suggestions for us..." class="review-textarea" oninput="updateReviewCharCount()"></textarea>
+                    </div>
                 </div>
 
-                <!-- Modal Action Buttons -->
-                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; align-items: center; margin-top: 0.4rem; padding-top: 0.85rem; border-top: 1px solid #f1f5f9;">
-                    <button type="button" onclick="closeReviewModal()" class="btn btn-secondary" style="border-radius: 50px; padding: 0.55rem 1.25rem; font-weight: 600;">
+                <!-- Modal Action Buttons Docked Footer -->
+                <div class="review-modal-footer">
+                    <button type="button" onclick="closeReviewModal()" class="btn btn-secondary review-btn-cancel">
                         Cancel
                     </button>
-                    <button type="submit" id="btnSubmitReview" class="btn btn-primary" style="border-radius: 50px; padding: 0.55rem 1.6rem; font-weight: 700; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: none; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35); cursor: pointer;">
+                    <button type="submit" id="btnSubmitReview" class="btn btn-primary review-btn-submit">
                         <i class="fas fa-paper-plane"></i> <span id="btnSubmitReviewText">Submit Feedback</span>
                     </button>
                 </div>
@@ -726,6 +1184,56 @@
         });
 
         window.myReviewsMap = {};
+        let isRefreshingBookings = false;
+
+        async function refreshBookings(triggerBtn) {
+            if (isRefreshingBookings) return;
+            isRefreshingBookings = true;
+
+            const allRefreshBtns = document.querySelectorAll('.mobile-header-refresh-btn, .desktop-refresh-btn');
+            const allIcons = document.querySelectorAll('.mobile-header-refresh-btn i, .desktop-refresh-btn i');
+            
+            allRefreshBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('loading');
+                btn.style.opacity = '0.7';
+                btn.style.pointerEvents = 'none';
+            });
+            allIcons.forEach(icon => icon.classList.add('fa-spin'));
+
+            const container = document.getElementById('bookingsContainer');
+            if (container) {
+                container.style.transition = 'opacity 0.25s ease';
+                container.style.opacity = '0.45';
+            }
+
+            try {
+                await loadBookings();
+                if (typeof showAlert === 'function') {
+                    showAlert('Booking history refreshed', 'success');
+                }
+            } catch (err) {
+                console.error('Error refreshing bookings:', err);
+                if (typeof showAlert === 'function') {
+                    showAlert('Failed to refresh bookings. Please try again.', 'error');
+                }
+            } finally {
+                if (container) {
+                    container.style.opacity = '1';
+                }
+                setTimeout(() => {
+                    allIcons.forEach(icon => icon.classList.remove('fa-spin'));
+                    allRefreshBtns.forEach(btn => {
+                        btn.disabled = false;
+                        btn.classList.remove('loading');
+                        btn.style.opacity = '';
+                        btn.style.pointerEvents = '';
+                    });
+                    isRefreshingBookings = false;
+                }, 350);
+            }
+        }
+        window.refreshBookings = refreshBookings;
 
         async function loadBookings() {
             const container = document.getElementById('bookingsContainer');
@@ -743,7 +1251,8 @@
                 ]);
 
                 allClientBookings = (response.data || response.bookings || []);
-                document.getElementById('bookingCount').textContent = allClientBookings.length;
+                const countBadge = document.getElementById('bookingCount');
+                if (countBadge) countBadge.textContent = allClientBookings.length;
 
                 // Populate reviews map
                 window.myReviewsMap = {};
@@ -761,15 +1270,20 @@
 
             } catch (err) {
                 console.error('Failed to load bookings:', err);
-                container.innerHTML = `
-                    <div class="empty-state" style="padding:2rem;">
-                        <div class="empty-icon"><i class="fas fa-exclamation-circle"></i></div>
-                        <h3>Failed to Load Bookings</h3>
-                        <p>Please refresh the page to try again.</p>
-                    </div>`;
-                document.getElementById('bookingCount').textContent = '0';
+                if (container && (!allClientBookings || allClientBookings.length === 0)) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding:2rem;">
+                            <div class="empty-icon"><i class="fas fa-exclamation-circle"></i></div>
+                            <h3>Failed to Load Bookings</h3>
+                            <p>Please refresh the page to try again.</p>
+                        </div>`;
+                    const countBadge = document.getElementById('bookingCount');
+                    if (countBadge) countBadge.textContent = '0';
+                }
+                throw err;
             }
         }
+        window.loadBookings = loadBookings;
 
         function filterBookings(status, btnEl) {
             currentStatusFilter = status;
@@ -801,6 +1315,75 @@
             document.getElementById('countConfirmed').textContent = counts.confirmed;
             document.getElementById('countCompleted').textContent = counts.completed;
             document.getElementById('countCancelled').textContent = counts.cancelled;
+        }
+
+        // Extract and normalize venue details (with automatic fallback to notes extraction)
+        function extractVenueDetails(booking) {
+            if (!booking) return { hasVenue: false };
+            let name = booking.venue_name || '';
+            let address = booking.venue_address || '';
+            let lat = booking.venue_lat ? parseFloat(booking.venue_lat) : null;
+            let lng = booking.venue_lng ? parseFloat(booking.venue_lng) : null;
+            let mapsUrl = booking.venue_maps_url || '';
+            let notes = booking.venue_notes || '';
+
+            // Extract from booking.notes if dedicated fields are missing
+            if ((!name || !lat || !address) && booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')) {
+                const nameMatch = booking.notes.match(/• Venue:\s*(.+)/);
+                const addrMatch = booking.notes.match(/• Address:\s*(.+)/);
+                const coordsMatch = booking.notes.match(/• Coordinates:\s*([0-9.-]+),\s*([0-9.-]+)/);
+                const mapsMatch = booking.notes.match(/• Google Maps Directions:\s*(https:\/\/[^\s\r\n]+)/);
+                const notesMatch = booking.notes.match(/• Team Access Notes:\s*(.+)/);
+
+                if (!name && nameMatch) name = nameMatch[1].trim();
+                if (!address && addrMatch) address = addrMatch[1].trim();
+                if (!lat && coordsMatch) lat = parseFloat(coordsMatch[1]);
+                if (!lng && coordsMatch) lng = parseFloat(coordsMatch[2]);
+                if (!mapsUrl && mapsMatch) mapsUrl = mapsMatch[1].trim();
+                if (!notes && notesMatch) notes = notesMatch[1].trim();
+            }
+
+            const hasVenue = !!(name || address || (lat && lng) || (booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')));
+
+            let dirUrl = '';
+            let pinUrl = '';
+
+            if (lat && lng) {
+                // Exact GPS Turn-by-Turn Directions
+                dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                // Exact Dropped Pin Marker on Google Maps
+                pinUrl = `https://www.google.com/maps?q=${lat},${lng}${name ? `+(${encodeURIComponent(name)})` : ''}`;
+            } else if (address || name) {
+                const target = encodeURIComponent(address || name);
+                dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${target}`;
+                pinUrl = `https://www.google.com/maps?q=${target}`;
+            }
+
+            return {
+                hasVenue,
+                name: name || 'Designated Venue',
+                address: address || 'Address specified in booking details',
+                lat,
+                lng,
+                notes,
+                dirUrl: dirUrl || mapsUrl || '#',
+                pinUrl: pinUrl || '#'
+            };
+        }
+
+        // Clean client notes by stripping out any legacy raw venue text blocks
+        function cleanClientNotes(raw) {
+            if (!raw) return '';
+            let text = String(raw).trim();
+            if (text.includes('📍 ON-LOCATION VENUE')) {
+                if (text.includes('Client Additional Requests:')) {
+                    const parts = text.split(/Client Additional Requests:\s*/i);
+                    text = parts.length > 1 ? parts[1].trim() : '';
+                } else {
+                    text = text.replace(/📍 ON-LOCATION VENUE & TEAM GUIDE:[\s\S]*?(?=\n\n|$)/i, '').trim();
+                }
+            }
+            return text;
         }
 
         function renderBookingsList() {
@@ -847,6 +1430,15 @@
                     <td style="font-weight:700; color:var(--color-primary, #2e7d32);">#${b.id || (i + 1)}</td>
                     <td style="font-weight:600; color:#1e293b;">
                         ${b.service_name || b.service || '—'}
+                        ${(() => {
+                            const v = extractVenueDetails(b);
+                            return v.hasVenue ? `
+                                <div style="font-size:0.75rem; color:#2563eb; font-weight:600; margin-top:0.25rem; display:flex; align-items:center; gap:0.35rem;">
+                                    <i class="fas fa-location-dot" style="color:#ef4444;"></i>
+                                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px;" title="${escapeHtml(v.name || v.address)}">Venue: ${escapeHtml(v.name || v.address)}</span>
+                                </div>
+                            ` : '';
+                        })()}
                         ${status === 'cancelled' && b.cancellation_reason ? `<div style="font-size:0.75rem; color:#dc2626; font-weight:400; margin-top:0.25rem; display:flex; align-items:flex-start; gap:0.3rem;"><i class="fas fa-ban" style="margin-top:0.15rem; flex-shrink:0;"></i> <span><strong>Reason:</strong> ${escapeHtml(b.cancellation_reason)}</span></div>` : ''}
                     </td>
                     <td style="white-space:nowrap; color:#64748b; font-size:0.88rem;">${bookedOn}</td>
@@ -927,7 +1519,31 @@
             payBadge.className = `status-badge payment-${payStatus}`;
 
             // Notes
-            document.getElementById('modalNotesText').textContent = booking.notes || 'No special requests or notes.';
+            const clientNoteClean = cleanClientNotes(booking.notes);
+            document.getElementById('modalNotesText').textContent = clientNoteClean || 'No special requests or notes.';
+
+            // On-Location Venue Details
+            const venueSection = document.getElementById('modalVenueSection');
+            if (venueSection) {
+                const venue = extractVenueDetails(booking);
+                if (venue.hasVenue) {
+                    venueSection.style.display = 'block';
+                    document.getElementById('modalVenueName').textContent = venue.name;
+                    document.getElementById('modalVenueAddress').textContent = venue.address;
+                    const notesRow = document.getElementById('modalVenueNotesRow');
+                    if (venue.notes) {
+                        notesRow.style.display = 'block';
+                        document.getElementById('modalVenueNotesText').textContent = venue.notes;
+                    } else {
+                        notesRow.style.display = 'none';
+                    }
+                    document.getElementById('modalVenueMapsBtn').href = venue.dirUrl;
+                    const pinBtn = document.getElementById('modalVenuePinBtn');
+                    if (pinBtn) pinBtn.href = venue.pinUrl;
+                } else {
+                    venueSection.style.display = 'none';
+                }
+            }
 
             // Created At (Strictly Asia/Manila)
             if (booking.created_at) {

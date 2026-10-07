@@ -1016,11 +1016,14 @@
                             <span><strong>Downpayment:</strong> ${dpFormatted}</span>
                         </div>
                         ` : ''}
-                        ${b.notes ? `
-                        <div class="booking-detail-notes">
-                            <strong>Notes:</strong> ${escapeHtml(b.notes)}
-                        </div>
-                        ` : ''}
+                        ${(() => {
+                            const cleanNotes = (b.notes || '').replace(/📍 ON-LOCATION VENUE & TEAM GUIDE:[\s\S]*?(?=\n\n|$)/i, '').trim();
+                            return cleanNotes ? `
+                            <div class="booking-detail-notes">
+                                <strong>Notes:</strong> ${escapeHtml(cleanNotes)}
+                            </div>
+                            ` : '';
+                        })()}
                         ${b.status === 'cancelled' && b.cancellation_reason ? `
                         <div class="booking-detail-notes" style="background:#fef2f2; border-color:#fecaca; color:#991b1b; grid-column: 1 / -1;">
                             <strong>Cancellation Reason:</strong> ${escapeHtml(b.cancellation_reason)}

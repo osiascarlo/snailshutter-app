@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.1">
+    <link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css">
     <style>
         /* ── Book Service Filter Tabs ── */
         .book-service-filters {
@@ -1421,6 +1422,97 @@
                             </div>
                         </div>
 
+                        <!-- On-Location & Venue Team Guide Section (Auto-shown for Outdoor Photoshoots, Event Day Photo Services, Wedding Packages) -->
+                        <div id="venueLocationSection" style="display: none; margin-bottom: 1.75rem; background: #ffffff; border: 1.5px solid #60a5fa; border-radius: var(--radius-lg, 16px); padding: 1.5rem; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                                        <i class="fas fa-map-location-dot"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #1e3a8a;">
+                                            Event Venue &amp; Team Travel Guide
+                                        </h4>
+                                        <span style="font-size: 0.78rem; color: #64748b;">
+                                            Required for On-Location Shoots · Guides our photography crew to your venue
+                                        </span>
+                                    </div>
+                                </div>
+                                <span style="background: #dbeafe; color: #1d4ed8; font-size: 0.75rem; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 50px; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                    <i class="fas fa-truck-fast"></i> Team Dispatch
+                                </span>
+                            </div>
+
+                            <p style="font-size: 0.85rem; color: #334155; margin-bottom: 1rem; line-height: 1.55;">
+                                Our photography team will travel on-location to your designated venue. Please search or pin your venue on the map below, and provide landmarks or gate instructions so our crew arrives punctually with all necessary cameras, strobes, and gear.
+                            </p>
+
+                            <!-- Map Search & Quick Action Toolbar -->
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 240px; position: relative;">
+                                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.85rem;"></i>
+                                    <input type="text" id="venueSearchInput" class="form-control" placeholder="Search venue, resort, church, hotel, or address in Philippines..." style="padding-left: 2.25rem; font-size: 0.85rem;" onkeydown="if(event.key==='Enter'){event.preventDefault();searchVenueLocation();}">
+                                </div>
+                                <button type="button" class="btn btn-primary" onclick="searchVenueLocation()" style="font-size: 0.82rem; padding: 0.5rem 1rem;">
+                                    <i class="fas fa-magnifying-glass-location"></i> Search Map
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="locateClientCurrentPosition()" style="font-size: 0.82rem; padding: 0.5rem 1rem;" title="Use my current GPS position">
+                                    <i class="fas fa-location-crosshairs"></i> Use My GPS
+                                </button>
+                            </div>
+
+                            <!-- Interactive Leaflet Map Container -->
+                            <div id="venueMapWrap" style="position: relative; width: 100%; height: 320px; border-radius: 12px; overflow: hidden; border: 1.5px solid #cbd5e1; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.75rem;">
+                                <div id="venueMap" style="width: 100%; height: 100%;"></div>
+                                <div style="position: absolute; top: 10px; right: 10px; z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 0.35rem 0.65rem; border-radius: 8px; font-size: 0.72rem; color: #334155; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.12); display: flex; align-items: center; gap: 0.35rem;">
+                                    <i class="fas fa-hand-pointer" style="color: #2563eb;"></i> Click or drag pin to adjust
+                                </div>
+                            </div>
+
+                            <!-- Telemetry & Distance HUD -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.65rem 0.9rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: 0.78rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; color: #475569;">
+                                    <span style="display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 700; color: #1e40af;">
+                                        <i class="fas fa-route"></i> Route from Studio:
+                                    </span>
+                                    <span id="venueDistanceHud" style="font-weight: 600; color: #0f172a;">Calculating...</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <span id="venueCoordsHud" style="font-family: monospace; color: #64748b; font-size: 0.75rem;">16.1457° N, 119.9757° E</span>
+                                    <a id="venueTestMapsBtn" href="https://www.google.com/maps/dir/?api=1&destination=16.1456869,119.9756506" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                        <i class="fas fa-arrow-up-right-from-square"></i> Google Maps
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Venue Inputs -->
+                            <div class="grid-2" style="gap: 1rem; margin-bottom: 0.75rem;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label style="font-weight: 700; font-size: 0.85rem; color: #1e3a8a;">
+                                        Venue / Location Name <span style="color: #dc2626;">*</span>
+                                    </label>
+                                    <input type="text" id="venueNameInput" class="form-control" placeholder="e.g. The Grand Ballroom / Lucap Lighthouse / St. Joseph Church" style="font-size: 0.88rem;">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label style="font-weight: 700; font-size: 0.85rem; color: #1e3a8a;">
+                                        Complete Address &amp; Landmarks <span style="color: #dc2626;">*</span>
+                                    </label>
+                                    <input type="text" id="venueAddressInput" class="form-control" placeholder="e.g. Brgy. Lucap, Alaminos City (near Tourism Wharf)" style="font-size: 0.88rem;">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-weight: 600; font-size: 0.82rem; color: #475569;">
+                                    Team Access &amp; Landmark Guide Notes (Optional)
+                                </label>
+                                <input type="text" id="venueNotesInput" class="form-control" placeholder="e.g. Gate pass required at entrance; look for coordinator Mark (0917-xxx-xxxx); park near Hall B" style="font-size: 0.85rem;">
+                            </div>
+
+                            <!-- Hidden Lat/Lng Inputs -->
+                            <input type="hidden" id="venueLatInput" value="16.1456869">
+                            <input type="hidden" id="venueLngInput" value="119.9756506">
+                        </div>
+
 
 
                         <!-- GCash QR Payment Instruction & Proof Upload -->
@@ -1527,6 +1619,7 @@
 
     <script src="/assets/js/api.js"></script>
     <script src="/assets/js/auth.js"></script>
+    <script src="/assets/vendor/leaflet/leaflet.js"></script>
     <script src="/assets/js/main.js?v=1.1.4"></script>
     <script src="/assets/js/dashboard-premium.js"></script>
     <script>
@@ -1686,13 +1779,23 @@
             }
 
             // Build category filter tabs
-            const cats = ['All', ...new Set(services.map(s => s.category || 'General'))];
-            filtersEl.innerHTML = cats.map(c => `
-                <button class="book-filter-btn ${c === 'All' ? 'active' : ''}" data-filter="${c === 'All' ? 'all' : c}"
-                    onclick="applyBookFilter('${c === 'All' ? 'all' : c.replace(/'/g, "\\'")}')">  
+            const specialFilters = ['Outdoor Photoshoots', 'Event Day Photo Services'];
+            const dbCats = Array.from(new Set(services.map(s => s.category || 'General')))
+                .filter(c => !specialFilters.map(sf => sf.toLowerCase()).includes(c.toLowerCase()));
+
+            const topCats = ['Self Portrait Studio', 'Portrait Sessions', 'Outdoor Photoshoots', 'Event Day Photo Services'];
+            const remainingCats = dbCats.filter(c => !topCats.includes(c));
+            const cats = ['All', ...topCats, ...remainingCats];
+
+            filtersEl.innerHTML = cats.map(c => {
+                const filterKey = c === 'All' ? 'all' : c;
+                return `
+                <button class="book-filter-btn ${c === 'All' ? 'active' : ''}" data-filter="${filterKey}"
+                    onclick="applyBookFilter('${filterKey.replace(/'/g, "\\'")}')">  
                     ${c}
                 </button>
-            `).join('');
+            `;
+            }).join('');
             filtersEl.style.display = 'flex';
 
             renderBookServiceCards();
@@ -1712,6 +1815,22 @@
             }
         }
 
+        function matchesServiceFilter(s, filter) {
+            if (!filter || filter === 'all' || filter === 'All Packages' || filter === 'All') return true;
+            const normFilter = filter.toLowerCase().trim();
+            const name = (s.name || '').toLowerCase();
+            const cat = (s.category || 'General').toLowerCase().trim();
+
+            if (normFilter === 'outdoor photoshoots' || normFilter === 'outdoor photoshooots' || normFilter === 'outdoor') {
+                return cat === 'outdoor photoshoots' || cat === 'outdoor' || name.includes('outdoor');
+            }
+            if (normFilter === 'event day photo services' || normFilter === 'event day photo service' || normFilter === 'event day') {
+                return cat === 'event day photo services' || cat === 'event day photo service' || cat === 'event day' ||
+                       name.includes('event day') || name.includes('on the day');
+            }
+            return (s.category || 'General') === filter;
+        }
+
         function applyBookFilter(filter) {
             bookActiveFilter = filter;
             document.querySelectorAll('.book-filter-btn').forEach(b => {
@@ -1726,7 +1845,7 @@
 
         function renderBookServiceCards() {
             const container = document.getElementById('servicesContainer');
-            const filtered = bookActiveFilter === 'all' ? services : services.filter(s => (s.category || 'General') === bookActiveFilter);
+            const filtered = services.filter(s => matchesServiceFilter(s, bookActiveFilter));
 
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>No packages in this category</h3></div>';
@@ -2605,6 +2724,246 @@
             `).join('');
         }
 
+        // ── On-Location & Venue Map Integration ──
+        let venueMap = null;
+        let venueMarker = null;
+        let studioMarker = null;
+        const STUDIO_COORDS = [16.1456869, 119.9756506]; // SnailShutter Studio, EJR Business Center 2, Alaminos City
+
+        function isOnLocationService(service) {
+            if (!service) return false;
+            const name = (service.name || '').toLowerCase();
+            const cat = (service.category || '').toLowerCase();
+            const desc = (service.description || '').toLowerCase();
+            return (
+                cat === 'outdoor photoshoots' ||
+                cat === 'event day photo services' ||
+                cat === 'wedding packages' ||
+                name.includes('outdoor') ||
+                name.includes('event day') ||
+                name.includes('on the day') ||
+                name.includes('wedding') ||
+                desc.includes('on the day') ||
+                desc.includes('outdoor') ||
+                desc.includes('wedding')
+            );
+        }
+
+        function hasOnLocationService(serviceList) {
+            return (serviceList || []).some(isOnLocationService);
+        }
+
+        function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return (R * c).toFixed(1);
+        }
+
+        function updateVenueTelemetry(lat, lng, addressHint = '') {
+            const latFixed = Number(lat).toFixed(4);
+            const lngFixed = Number(lng).toFixed(4);
+            const latInput = document.getElementById('venueLatInput');
+            const lngInput = document.getElementById('venueLngInput');
+            if (latInput) latInput.value = lat;
+            if (lngInput) lngInput.value = lng;
+
+            const coordsHud = document.getElementById('venueCoordsHud');
+            if (coordsHud) coordsHud.textContent = `${latFixed}° N, ${lngFixed}° E`;
+
+            const distKm = calculateDistanceKm(STUDIO_COORDS[0], STUDIO_COORDS[1], lat, lng);
+            const distHud = document.getElementById('venueDistanceHud');
+            if (distHud) {
+                const estMins = Math.max(5, Math.round((distKm / 35) * 60));
+                distHud.innerHTML = `<strong>~${distKm} km</strong> from Studio (est. ~${estMins} mins travel)`;
+            }
+
+            const mapsBtn = document.getElementById('venueTestMapsBtn');
+            if (mapsBtn) {
+                mapsBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            }
+
+            if (addressHint) {
+                const addrInput = document.getElementById('venueAddressInput');
+                if (addrInput && !addrInput.value.trim()) {
+                    addrInput.value = addressHint;
+                }
+            }
+        }
+
+        function initVenueMap() {
+            if (typeof L === 'undefined') {
+                console.warn('Leaflet is not loaded yet.');
+                return;
+            }
+
+            const mapEl = document.getElementById('venueMap');
+            if (!mapEl) return;
+
+            const curLat = parseFloat(document.getElementById('venueLatInput')?.value) || STUDIO_COORDS[0];
+            const curLng = parseFloat(document.getElementById('venueLngInput')?.value) || STUDIO_COORDS[1];
+
+            if (!venueMap) {
+                venueMap = L.map('venueMap', {
+                    scrollWheelZoom: false
+                }).setView([curLat, curLng], 14);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(venueMap);
+
+                // Custom Studio icon
+                const studioIcon = L.divIcon({
+                    className: 'studio-map-pin',
+                    html: `<div style="background:#16a34a;color:white;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(22,163,74,0.4);border:2px solid white;font-size:14px;"><i class="fas fa-camera"></i></div>`,
+                    iconSize: [34, 34],
+                    iconAnchor: [17, 34],
+                    popupAnchor: [0, -34]
+                });
+
+                studioMarker = L.marker(STUDIO_COORDS, { icon: studioIcon }).addTo(venueMap);
+                studioMarker.bindPopup('<b>SnailShutter Studio</b><br>EJR Business Center 2, Alaminos City (Base Station)');
+
+                // Custom Venue marker
+                const venueIcon = L.divIcon({
+                    className: 'venue-map-pin',
+                    html: `<div style="background:#ef4444;color:white;width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(239,68,68,0.5);border:2px solid white;font-size:15px;"><i class="fas fa-map-pin" style="transform:rotate(45deg);"></i></div>`,
+                    iconSize: [38, 38],
+                    iconAnchor: [19, 38],
+                    popupAnchor: [0, -38]
+                });
+
+                venueMarker = L.marker([curLat, curLng], {
+                    draggable: true,
+                    icon: venueIcon
+                }).addTo(venueMap);
+                venueMarker.bindPopup('<b>Shoot / Event Venue</b><br>Drag or click map to reposition pin').openPopup();
+
+                venueMarker.on('dragend', function (e) {
+                    const pos = e.target.getLatLng();
+                    updateVenueTelemetry(pos.lat, pos.lng);
+                    reverseGeocodeCoords(pos.lat, pos.lng);
+                });
+
+                venueMap.on('click', function (e) {
+                    venueMarker.setLatLng(e.latlng);
+                    updateVenueTelemetry(e.latlng.lat, e.latlng.lng);
+                    reverseGeocodeCoords(e.latlng.lat, e.latlng.lng);
+                });
+
+                updateVenueTelemetry(curLat, curLng);
+            } else {
+                venueMap.invalidateSize();
+            }
+        }
+
+        async function searchVenueLocation() {
+            const input = document.getElementById('venueSearchInput');
+            if (!input || !input.value.trim()) {
+                showAlert('Please enter a location or venue name to search.', 'warning');
+                return;
+            }
+            const query = input.value.trim();
+            showAlert('Searching location on map...', 'info');
+
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=ph&limit=1`;
+                const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+                const data = await res.json();
+
+                if (data && data.length > 0) {
+                    const item = data[0];
+                    const lat = parseFloat(item.lat);
+                    const lon = parseFloat(item.lon);
+
+                    if (venueMap && venueMarker) {
+                        venueMap.flyTo([lat, lon], 15);
+                        venueMarker.setLatLng([lat, lon]);
+                        venueMarker.bindPopup(`<b>${escapeHtml(item.display_name.split(',')[0])}</b><br>${escapeHtml(item.display_name)}`).openPopup();
+                    }
+
+                    updateVenueTelemetry(lat, lon, item.display_name);
+
+                    const nameInput = document.getElementById('venueNameInput');
+                    if (nameInput && !nameInput.value.trim()) {
+                        nameInput.value = item.display_name.split(',')[0] || query;
+                    }
+
+                    const addrInput = document.getElementById('venueAddressInput');
+                    if (addrInput) {
+                        addrInput.value = item.display_name;
+                    }
+                    showAlert(`Location pinned: ${item.display_name.split(',')[0]}`, 'success');
+                } else {
+                    showAlert('Location not found in search. You can click or drag the pin directly on the map.', 'warning');
+                }
+            } catch (err) {
+                console.error('Geocoding search error:', err);
+                showAlert('Search service unavailable. You can click or drag directly on the map to set the venue pin.', 'info');
+            }
+        }
+
+        function locateClientCurrentPosition() {
+            if (!navigator.geolocation) {
+                showAlert('Geolocation is not supported by your browser.', 'warning');
+                return;
+            }
+            showAlert('Detecting current GPS location...', 'info');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    if (venueMap && venueMarker) {
+                        venueMap.flyTo([lat, lng], 16);
+                        venueMarker.setLatLng([lat, lng]);
+                        venueMarker.bindPopup('<b>Current Device Location</b>').openPopup();
+                    }
+                    updateVenueTelemetry(lat, lng);
+                    reverseGeocodeCoords(lat, lng);
+                    showAlert('Venue pinned to your current location!', 'success');
+                },
+                (err) => {
+                    showAlert('Could not detect location. Please check browser GPS permissions or click the map directly.', 'warning');
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        }
+
+        async function reverseGeocodeCoords(lat, lng) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+                const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+                const data = await res.json();
+                if (data && data.display_name) {
+                    const addrInput = document.getElementById('venueAddressInput');
+                    if (addrInput && !addrInput.value.trim()) {
+                        addrInput.value = data.display_name;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function checkAndSetupVenueSection() {
+            const allChosen = [...selectedServices, ...addOnServices];
+            const needsVenue = hasOnLocationService(allChosen);
+            const venueSec = document.getElementById('venueLocationSection');
+            if (!venueSec) return;
+
+            if (needsVenue) {
+                venueSec.style.display = 'block';
+                setTimeout(() => {
+                    initVenueMap();
+                }, 150);
+            } else {
+                venueSec.style.display = 'none';
+            }
+        }
+
         async function submitBooking() {
             if (document.body.classList.contains('maintenance-active')) {
                 if (typeof showAlert === 'function') {
@@ -2670,15 +3029,53 @@
                 const allSelected = [...selectedServices, ...addOnServices];
                 const serviceIdsStr = allSelected.map(s => s.id).join(',');
 
+                const needsVenue = hasOnLocationService(allSelected);
+                const venueName = document.getElementById('venueNameInput') ? document.getElementById('venueNameInput').value.trim() : '';
+                const venueAddress = document.getElementById('venueAddressInput') ? document.getElementById('venueAddressInput').value.trim() : '';
+                const venueLat = document.getElementById('venueLatInput') ? document.getElementById('venueLatInput').value.trim() : '';
+                const venueLng = document.getElementById('venueLngInput') ? document.getElementById('venueLngInput').value.trim() : '';
+                const venueNotes = document.getElementById('venueNotesInput') ? document.getElementById('venueNotesInput').value.trim() : '';
+
+                if (needsVenue) {
+                    if (!venueName) {
+                        showAlert('Please enter the Venue / Location Name for our photography team.', 'warning');
+                        document.getElementById('venueNameInput').focus();
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Booking';
+                        return;
+                    }
+                    if (!venueAddress) {
+                        showAlert('Please enter the Complete Address & Landmarks for the venue.', 'warning');
+                        document.getElementById('venueAddressInput').focus();
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-calendar-check"></i> Complete Booking';
+                        return;
+                    }
+                }
+
+                let clientNotes = document.getElementById('bookingNotes').value || '';
+                let finalNotes = clientNotes.trim();
+
                 const formData = new FormData();
                 formData.append('serviceId', selectedService.id);
                 formData.append('serviceIds', serviceIdsStr);
                 formData.append('bookingDate', selectedDate);
                 formData.append('startTime', selectedSlot.start);
                 formData.append('endTime', selectedSlot.end);
-                formData.append('notes', document.getElementById('bookingNotes').value || '');
+                formData.append('notes', finalNotes);
                 formData.append('totalPrice', totalPrice);
                 formData.append('proof', fileInput.files[0]);
+
+                if (needsVenue) {
+                    formData.append('venue_name', venueName);
+                    formData.append('venue_address', venueAddress);
+                    formData.append('venue_lat', venueLat);
+                    formData.append('venue_lng', venueLng);
+                    formData.append('venue_notes', venueNotes);
+                    if (venueLat && venueLng) {
+                        formData.append('venue_maps_url', `https://www.google.com/maps/dir/?api=1&destination=${venueLat},${venueLng}`);
+                    }
+                }
 
                 const response = await api.createBooking(formData);
 
@@ -2704,8 +3101,8 @@
                     btn.innerHTML = '<i class="fas fa-check"></i> Confirm Booking';
                 }
             } catch (error) {
-                console.error('Error submitting booking:', error);
-                showAlert('Network error. Please try again.', 'error');
+                console.error('Booking submission error:', error);
+                showAlert(error.message || 'An error occurred while creating your booking. Please try again.', 'error');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-check"></i> Confirm Booking';
             }
@@ -2773,6 +3170,9 @@
                 currentBookingStep = step;
             }
             updateMultiSelectBar();
+            if (step === 4) {
+                checkAndSetupVenueSection();
+            }
         }
 
         // Listen for browser Back/Forward navigation buttons

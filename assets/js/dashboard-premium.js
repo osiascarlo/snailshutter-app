@@ -407,30 +407,39 @@
                 refreshBtn.onclick = null;
                 if (!refreshBtn.dataset.bound) {
                     refreshBtn.dataset.bound = 'true';
-                    refreshBtn.addEventListener('click', (e) => {
+                    refreshBtn.addEventListener('click', async (e) => {
                         e.preventDefault();
+                        if (refreshBtn.disabled || refreshBtn.dataset.refreshing === 'true') return;
+
+                        refreshBtn.dataset.refreshing = 'true';
+                        refreshBtn.disabled = true;
                         const icon = refreshBtn.querySelector('i');
                         if (icon) icon.classList.add('fa-spin');
 
                         const fnName = matchedConfig ? matchedConfig.refreshFn : null;
-                        if (fnName && typeof window[fnName] === 'function') {
-                            try {
-                                window[fnName]();
-                            } catch (err) {
-                                console.warn('Refresh error:', err);
+                        try {
+                            if (typeof window.refreshBookings === 'function') {
+                                await window.refreshBookings(refreshBtn);
+                            } else if (fnName && typeof window[fnName] === 'function') {
+                                await window[fnName]();
+                            } else if (typeof window.loadOverview === 'function') {
+                                await window.loadOverview();
+                            } else if (typeof window.loadBookings === 'function') {
+                                await window.loadBookings();
+                            } else if (typeof window.loadDashboardData === 'function') {
+                                await window.loadDashboardData();
+                            } else {
+                                window.location.reload();
+                                return;
                             }
-                            setTimeout(() => icon && icon.classList.remove('fa-spin'), 650);
-                        } else if (typeof window.loadOverview === 'function') {
-                            window.loadOverview();
-                            setTimeout(() => icon && icon.classList.remove('fa-spin'), 650);
-                        } else if (typeof window.loadBookings === 'function') {
-                            window.loadBookings();
-                            setTimeout(() => icon && icon.classList.remove('fa-spin'), 650);
-                        } else if (typeof window.loadDashboardData === 'function') {
-                            window.loadDashboardData();
-                            setTimeout(() => icon && icon.classList.remove('fa-spin'), 650);
-                        } else {
-                            window.location.reload();
+                        } catch (err) {
+                            console.warn('Refresh error:', err);
+                        } finally {
+                            setTimeout(() => {
+                                if (icon) icon.classList.remove('fa-spin');
+                                refreshBtn.disabled = false;
+                                refreshBtn.dataset.refreshing = 'false';
+                            }, 400);
                         }
                     });
                 }
