@@ -191,6 +191,13 @@ class API {
         });
     }
 
+    async updateBookingVenue(bookingId, venueData) {
+        return this.request(`/bookings/${bookingId}/venue`, {
+            method: 'PUT',
+            body: JSON.stringify(venueData)
+        });
+    }
+
     // User management endpoints
     async getUsers() {
         return this.request('/users');

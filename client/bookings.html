@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/assets/css/style.css?v=1.1.1">
     <link rel="stylesheet" href="/assets/css/responsive.css?v=1.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/vendor/leaflet/leaflet.css">
     <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.1.1">
     <style>
         .status-badge.payment-paid { background: #d1fae5; color: #065f46; }
@@ -971,9 +972,14 @@
                         <div style="font-size: 0.78rem; color: #1e40af; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.4rem;">
                             <i class="fas fa-map-location-dot" style="color: #2563eb; font-size: 0.95rem;"></i> On-Location Venue Details
                         </div>
-                        <span style="background: #2563eb; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px;">
-                            Team Travel Guide
-                        </span>
+                        <div style="display: flex; align-items: center; gap: 0.45rem;">
+                            <button id="modalVenueEditHeaderBtn" type="button" onclick="triggerEditVenueFromModal()" style="display: none; background: white; color: #2563eb; border: 1.5px solid #2563eb; font-weight: 700; border-radius: 50px; padding: 0.22rem 0.65rem; font-size: 0.72rem; align-items: center; gap: 0.35rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                                <i class="fas fa-edit"></i> Edit Venue
+                            </button>
+                            <span style="background: #2563eb; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px;">
+                                Team Travel Guide
+                            </span>
+                        </div>
                     </div>
                     <div id="modalVenueName" style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">
                         -
@@ -988,13 +994,16 @@
                     <div id="modalVenueNotesRow" style="display: none; background: rgba(255,255,255,0.85); border: 1px dashed #93c5fd; border-radius: 8px; padding: 0.5rem 0.75rem; margin-top: 0.6rem; font-size: 0.82rem; color: #1e40af;">
                         <strong><i class="fas fa-door-open"></i> Gate / Entry Notes:</strong> <span id="modalVenueNotesText"></span>
                     </div>
-                    <div style="margin-top: 0.85rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <div style="margin-top: 0.85rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
                         <a id="modalVenueMapsBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 700; border-radius: 6px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
                             <i class="fas fa-diamond-turn-right"></i> Open Navigation Guide
                         </a>
                         <a id="modalVenuePinBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 700; border-radius: 6px; text-decoration: none; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">
                             <i class="fas fa-map-pin"></i> View Pinned Location
                         </a>
+                        <button id="modalVenueEditBtn" type="button" onclick="triggerEditVenueFromModal()" class="btn btn-sm" style="display: none; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 700; border-radius: 6px; background: #2563eb; color: white; border: none; cursor: pointer; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                            <i class="fas fa-pen-to-square"></i> Edit Venue Location
+                        </button>
                     </div>
                 </div>
 
@@ -1110,6 +1119,112 @@
         </div>
     </div>
 
+    <!-- Edit Venue Location Modal -->
+    <div id="editVenueModalOverlay" class="modal-overlay" onclick="if(event.target === this) closeEditVenueModal()" style="z-index: 100000;">
+        <div class="modal-container" style="max-width: 620px; width: 92%; padding: 0; overflow: hidden; border-radius: 20px; background: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: white; padding: 1.35rem 1.75rem; position: relative;">
+                <button type="button" onclick="closeEditVenueModal()" aria-label="Close modal" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                    <span id="editVenueModalBookingIdTag" style="background: rgba(255,255,255,0.25); padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Booking #—</span>
+                    <span style="background: #fef3c7; color: #92400e; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 50px; text-transform: uppercase;">
+                        Pending Approval
+                    </span>
+                </div>
+                <h3 style="margin: 0.25rem 0 0; font-size: 1.25rem; font-weight: 700; color: white;">Edit Venue Location</h3>
+                <p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: #bfdbfe; line-height: 1.4;">
+                    Update your photoshoot location details. Changes sync in real-time with our photography crew.
+                </p>
+            </div>
+
+            <!-- Form Body -->
+            <form id="editVenueForm" onsubmit="submitEditVenueForm(event)" style="margin: 0;">
+                <input type="hidden" id="editVenueBookingId" value="">
+                
+                <div class="modal-body" style="padding: 1.25rem 1.75rem; max-height: calc(85vh - 140px); overflow-y: auto;">
+                    <!-- Alert Notice inside Form -->
+                    <div id="editVenueAlert" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.82rem; margin-bottom: 1rem;"></div>
+
+                    <!-- Search & GPS Controls -->
+                    <div style="margin-bottom: 0.85rem;">
+                        <label for="editVenueSearchInput" style="font-weight: 700; font-size: 0.82rem; color: #1e3a8a; display: block; margin-bottom: 0.35rem;">
+                            Search Map Location or Landmark
+                        </label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="editVenueSearchInput" class="form-control" placeholder="Search landmark, street, barangay, or city..." style="font-size: 0.85rem;" onkeydown="if(event.key==='Enter'){event.preventDefault();searchEditVenueLocation();}">
+                            <button type="button" class="btn btn-secondary" onclick="searchEditVenueLocation()" style="font-size: 0.82rem; font-weight: 600; padding: 0.45rem 0.85rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="locateClientCurrentPositionEdit()" title="Detect current GPS location" style="font-size: 0.82rem; font-weight: 600; padding: 0.45rem 0.85rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <i class="fas fa-location-crosshairs"></i> GPS
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Leaflet Map Container -->
+                    <div id="editVenueMapWrap" style="position: relative; width: 100%; height: 260px; border-radius: 12px; overflow: hidden; border: 1.5px solid #cbd5e1; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 0.65rem;">
+                        <div id="editVenueMap" style="width: 100%; height: 100%;"></div>
+                        <div style="position: absolute; top: 10px; right: 10px; z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.72rem; color: #334155; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.12); display: flex; align-items: center; gap: 0.35rem;">
+                            <i class="fas fa-hand-pointer" style="color: #2563eb;"></i> Click or drag pin to adjust
+                        </div>
+                    </div>
+
+                    <!-- Telemetry HUD -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.85rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; font-size: 0.76rem;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem; color: #475569;">
+                            <span style="font-weight: 700; color: #1e40af;"><i class="fas fa-crosshairs"></i> GPS Coordinates:</span>
+                            <span id="editVenueCoordsHud" style="font-family: monospace; font-weight: 600; color: #0f172a;">16.1457° N, 119.9757° E</span>
+                        </div>
+                        <a id="editVenueTestMapsBtn" href="#" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <i class="fas fa-arrow-up-right-from-square"></i> Test in Maps
+                        </a>
+                    </div>
+
+                    <!-- Input Fields -->
+                    <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1rem;">
+                        <div>
+                            <label for="editVenueNameInput" style="font-weight: 700; font-size: 0.82rem; color: #1e3a8a; display: block; margin-bottom: 0.3rem;">
+                                Venue / Location Name <span style="color: #dc2626;">*</span>
+                            </label>
+                            <input type="text" id="editVenueNameInput" required class="form-control" placeholder="e.g. Lucap Lighthouse / Sunset Pavilion" style="font-size: 0.85rem;">
+                        </div>
+
+                        <div>
+                            <label for="editVenueAddressInput" style="font-weight: 700; font-size: 0.82rem; color: #1e3a8a; display: block; margin-bottom: 0.3rem;">
+                                Complete Address &amp; Landmarks <span style="color: #dc2626;">*</span>
+                            </label>
+                            <input type="text" id="editVenueAddressInput" required class="form-control" placeholder="e.g. Brgy. Lucap, Alaminos City (near Tourism Wharf)" style="font-size: 0.85rem;">
+                        </div>
+
+                        <div>
+                            <label for="editVenueNotesInput" style="font-weight: 600; font-size: 0.8rem; color: #475569; display: block; margin-bottom: 0.3rem;">
+                                Gate / Entry &amp; Landmark Notes (Optional)
+                            </label>
+                            <textarea id="editVenueNotesInput" rows="2" class="form-control" placeholder="e.g. Meet crew at the main entrance gate; coordinator contact: 0917-xxx-xxxx" style="font-size: 0.83rem; resize: vertical;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Hidden lat/lng -->
+                    <input type="hidden" id="editVenueLatInput" value="16.1456869">
+                    <input type="hidden" id="editVenueLngInput" value="119.9756506">
+                </div>
+
+                <!-- Footer -->
+                <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 1rem 1.75rem; display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditVenueModal()" style="border-radius: 50px; font-weight: 600; padding: 0.5rem 1.25rem;">
+                        Cancel
+                    </button>
+                    <button type="submit" id="saveVenueBtn" class="btn btn-primary" style="border-radius: 50px; font-weight: 700; padding: 0.5rem 1.5rem; display: inline-flex; align-items: center; gap: 0.4rem; background: #2563eb; border: none; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/assets/vendor/leaflet/leaflet.js"></script>
     <script src="/assets/js/api.js"></script>
     <script src="/assets/js/auth.js"></script>
     <script src="/assets/js/main.js"></script>
@@ -1523,6 +1638,7 @@
         function openBookingModal(bookingId) {
             const booking = allClientBookings.find(b => b.id == bookingId);
             if (!booking) return;
+            window.currentActiveModalBookingId = booking.id;
 
             const fullDate = typeof formatAsiaManilaDate === 'function'
                 ? formatAsiaManilaDate(booking.booking_date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
@@ -1585,6 +1701,13 @@
                     document.getElementById('modalVenueMapsBtn').href = venue.dirUrl;
                     const pinBtn = document.getElementById('modalVenuePinBtn');
                     if (pinBtn) pinBtn.href = venue.pinUrl;
+
+                    // Venue editing: only permitted while booking status is strictly pending
+                    const isPending = status === 'pending';
+                    const editHeaderBtn = document.getElementById('modalVenueEditHeaderBtn');
+                    if (editHeaderBtn) editHeaderBtn.style.display = isPending ? 'inline-flex' : 'none';
+                    const editActionBtn = document.getElementById('modalVenueEditBtn');
+                    if (editActionBtn) editActionBtn.style.display = isPending ? 'inline-flex' : 'none';
                 } else {
                     venueSection.style.display = 'none';
                 }
@@ -1719,6 +1842,376 @@
             document.body.classList.remove('modal-open');
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
+        }
+
+        // ==========================================
+        // Edit Venue Location Controllers
+        // ==========================================
+        let editVenueMap = null;
+        let editVenueMarker = null;
+
+        function triggerEditVenueFromModal() {
+            if (window.currentActiveModalBookingId) {
+                openEditVenueModal(window.currentActiveModalBookingId);
+            }
+        }
+
+        function openEditVenueModal(bookingId) {
+            const booking = allClientBookings.find(b => b.id == bookingId);
+            if (!booking) {
+                showAlert('Booking not found.', 'error');
+                return;
+            }
+
+            const status = (booking.status || 'pending').toLowerCase();
+            if (status !== 'pending') {
+                showAlert('Venue location can only be updated while the booking is still pending approval.', 'warning');
+                return;
+            }
+
+            const venue = extractVenueDetails(booking);
+
+            document.getElementById('editVenueBookingId').value = booking.id;
+            document.getElementById('editVenueModalBookingIdTag').textContent = `Booking #${booking.id}`;
+            document.getElementById('editVenueNameInput').value = venue.name && !venue.name.includes('Designated Venue') ? venue.name : (venue.name || '');
+            document.getElementById('editVenueAddressInput').value = venue.address && !venue.address.includes('specified in booking') ? venue.address : (venue.address || '');
+            document.getElementById('editVenueNotesInput').value = venue.notes || '';
+            document.getElementById('editVenueSearchInput').value = '';
+
+            const alertEl = document.getElementById('editVenueAlert');
+            if (alertEl) alertEl.style.display = 'none';
+
+            const lat = venue.lat || 16.1456869;
+            const lng = venue.lng || 119.9756506;
+            document.getElementById('editVenueLatInput').value = lat;
+            document.getElementById('editVenueLngInput').value = lng;
+
+            const overlay = document.getElementById('editVenueModalOverlay');
+            overlay.classList.add('active');
+
+            initEditVenueMap(lat, lng);
+        }
+
+        function closeEditVenueModal() {
+            const overlay = document.getElementById('editVenueModalOverlay');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        function showEditVenueAlert(msg, type = 'info') {
+            const alertEl = document.getElementById('editVenueAlert');
+            if (!alertEl) return;
+            alertEl.style.display = 'block';
+            if (type === 'error') {
+                alertEl.style.background = '#fef2f2';
+                alertEl.style.color = '#991b1b';
+                alertEl.style.border = '1px solid #fecaca';
+                alertEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${escapeHtml(msg)}`;
+            } else if (type === 'warning') {
+                alertEl.style.background = '#fffbeb';
+                alertEl.style.color = '#92400e';
+                alertEl.style.border = '1px solid #fde68a';
+                alertEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${escapeHtml(msg)}`;
+            } else if (type === 'success') {
+                alertEl.style.background = '#f0fdf4';
+                alertEl.style.color = '#166534';
+                alertEl.style.border = '1px solid #bbf7d0';
+                alertEl.innerHTML = `<i class="fas fa-check-circle"></i> ${escapeHtml(msg)}`;
+            } else {
+                alertEl.style.background = '#eff6ff';
+                alertEl.style.color = '#1e40af';
+                alertEl.style.border = '1px solid #bfdbfe';
+                alertEl.innerHTML = `<i class="fas fa-info-circle"></i> ${escapeHtml(msg)}`;
+            }
+        }
+
+        function initEditVenueMap(lat, lng) {
+            if (typeof L === 'undefined') {
+                console.warn('Leaflet is not loaded yet.');
+                return;
+            }
+
+            const curLat = (lat !== undefined && lat !== null && !isNaN(lat) && lat !== 0) ? lat : 16.1456869;
+            const curLng = (lng !== undefined && lng !== null && !isNaN(lng) && lng !== 0) ? lng : 119.9756506;
+
+            const venueIcon = L.divIcon({
+                className: 'venue-map-pin',
+                html: `<div style="background:#ef4444;color:white;width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(239,68,68,0.5);border:2px solid white;font-size:15px;"><i class="fas fa-map-pin" style="transform:rotate(45deg);"></i></div>`,
+                iconSize: [38, 38],
+                iconAnchor: [19, 38],
+                popupAnchor: [0, -38]
+            });
+
+            if (!editVenueMap) {
+                editVenueMap = L.map('editVenueMap', {
+                    scrollWheelZoom: true
+                }).setView([curLat, curLng], 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(editVenueMap);
+
+                editVenueMarker = L.marker([curLat, curLng], {
+                    draggable: true,
+                    icon: venueIcon
+                }).addTo(editVenueMap);
+
+                editVenueMarker.on('dragend', function (e) {
+                    const pos = e.target.getLatLng();
+                    updateEditVenueTelemetry(pos.lat, pos.lng);
+                    reverseGeocodeEditCoords(pos.lat, pos.lng);
+                });
+
+                editVenueMap.on('click', function (e) {
+                    editVenueMarker.setLatLng(e.latlng);
+                    updateEditVenueTelemetry(e.latlng.lat, e.latlng.lng);
+                    reverseGeocodeEditCoords(e.latlng.lat, e.latlng.lng);
+                });
+            } else {
+                editVenueMap.setView([curLat, curLng], 15);
+                if (editVenueMarker) {
+                    editVenueMarker.setLatLng([curLat, curLng]);
+                }
+            }
+
+            setTimeout(() => {
+                if (editVenueMap) {
+                    editVenueMap.invalidateSize();
+                }
+            }, 200);
+
+            updateEditVenueTelemetry(curLat, curLng);
+        }
+
+        function updateEditVenueTelemetry(lat, lng) {
+            document.getElementById('editVenueLatInput').value = Number(lat).toFixed(7);
+            document.getElementById('editVenueLngInput').value = Number(lng).toFixed(7);
+            const hud = document.getElementById('editVenueCoordsHud');
+            if (hud) hud.textContent = `${Number(lat).toFixed(6)}° N, ${Number(lng).toFixed(6)}° E`;
+            const testBtn = document.getElementById('editVenueTestMapsBtn');
+            if (testBtn) testBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+        }
+
+        async function searchEditVenueLocation() {
+            const input = document.getElementById('editVenueSearchInput');
+            if (!input || !input.value.trim()) {
+                showEditVenueAlert('Please enter a location or venue name to search.', 'warning');
+                return;
+            }
+            const query = input.value.trim();
+            showEditVenueAlert('Searching location on map...', 'info');
+
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=ph&limit=1`;
+                const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+                const data = await res.json();
+
+                if (data && data.length > 0) {
+                    const item = data[0];
+                    const lat = parseFloat(item.lat);
+                    const lon = parseFloat(item.lon);
+
+                    if (editVenueMap && editVenueMarker) {
+                        editVenueMap.flyTo([lat, lon], 16);
+                        editVenueMarker.setLatLng([lat, lon]);
+                    }
+
+                    updateEditVenueTelemetry(lat, lon);
+
+                    const nameInput = document.getElementById('editVenueNameInput');
+                    if (nameInput && !nameInput.value.trim()) {
+                        nameInput.value = item.display_name.split(',')[0] || query;
+                    }
+
+                    const addrInput = document.getElementById('editVenueAddressInput');
+                    if (addrInput) {
+                        addrInput.value = item.display_name;
+                    }
+                    showEditVenueAlert(`Location pinned: ${item.display_name.split(',')[0]}`, 'success');
+                } else {
+                    showEditVenueAlert('Location not found. You can click or drag the pin directly on the map.', 'warning');
+                }
+            } catch (err) {
+                console.error('Geocoding search error:', err);
+                showEditVenueAlert('Search service unavailable. You can drag the pin directly on the map.', 'info');
+            }
+        }
+
+        async function reverseGeocodeEditCoords(lat, lng) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+                const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+                const data = await res.json();
+                if (data && data.display_name) {
+                    const addrInput = document.getElementById('editVenueAddressInput');
+                    if (addrInput) {
+                        addrInput.value = data.display_name;
+                    }
+                    const nameInput = document.getElementById('editVenueNameInput');
+                    if (nameInput && (!nameInput.value.trim() || nameInput.value.includes('Designated Venue'))) {
+                        nameInput.value = data.display_name.split(',')[0] || '';
+                    }
+                }
+            } catch (e) {
+                console.warn('Reverse geocode error:', e);
+            }
+        }
+
+        function locateClientCurrentPositionEdit() {
+            if (!navigator.geolocation) {
+                showEditVenueAlert('Geolocation is not supported by your browser.', 'warning');
+                return;
+            }
+            showEditVenueAlert('Detecting your GPS location...', 'info');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    if (editVenueMap && editVenueMarker) {
+                        editVenueMap.flyTo([lat, lng], 16);
+                        editVenueMarker.setLatLng([lat, lng]);
+                    }
+                    updateEditVenueTelemetry(lat, lng);
+                    reverseGeocodeEditCoords(lat, lng);
+                    showEditVenueAlert('Location detected from device GPS!', 'success');
+                },
+                (err) => {
+                    console.warn('GPS error:', err);
+                    showEditVenueAlert('Could not get device GPS location. You can search or drag the pin.', 'warning');
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        }
+
+        async function submitEditVenueForm(e) {
+            if (e && e.preventDefault) e.preventDefault();
+
+            const bookingId = document.getElementById('editVenueBookingId').value;
+            const name = document.getElementById('editVenueNameInput').value.trim();
+            const address = document.getElementById('editVenueAddressInput').value.trim();
+            const notes = document.getElementById('editVenueNotesInput').value.trim();
+            const lat = parseFloat(document.getElementById('editVenueLatInput').value) || null;
+            const lng = parseFloat(document.getElementById('editVenueLngInput').value) || null;
+
+            if (!name) {
+                showEditVenueAlert('Please enter the venue / location name.', 'error');
+                return;
+            }
+            if (!address) {
+                showEditVenueAlert('Please enter the complete venue address.', 'error');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveVenueBtn');
+            const origHtml = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                const res = await api.updateBookingVenue(bookingId, {
+                    venue_name: name,
+                    venue_address: address,
+                    venue_lat: lat,
+                    venue_lng: lng,
+                    venue_notes: notes
+                });
+
+                if (res.success) {
+                    // 1. Update in-memory allClientBookings immediately
+                    const booking = allClientBookings.find(b => b.id == bookingId);
+                    if (booking) {
+                        booking.venue_name = name;
+                        booking.venue_address = address;
+                        booking.venue_lat = lat;
+                        booking.venue_lng = lng;
+                        booking.venue_notes = notes;
+                        booking.venue_maps_url = (lat && lng)
+                            ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+                            : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+                    }
+
+                    // 2. Re-render bookings table immediately so row venue badge is updated live
+                    renderBookingsList();
+
+                    // 3. Update the open modal in place so client sees changes live without modal reload
+                    const modal = document.getElementById('bookingDetailsModal');
+                    if (modal && modal.classList.contains('active')) {
+                        openBookingModal(bookingId);
+                    }
+
+                    // 4. Close the edit venue modal
+                    closeEditVenueModal();
+
+                    // 5. Show prominent success feedback toast
+                    showAlert('Venue location updated successfully!', 'success');
+
+                    // 6. Broadcast across tabs for real-time multi-tab synchronization
+                    try {
+                        if (window.clientVenueBroadcast) {
+                            window.clientVenueBroadcast.postMessage({
+                                type: 'venue_updated',
+                                bookingId,
+                                venue: { venue_name: name, venue_address: address, venue_lat: lat, venue_lng: lng, venue_notes: notes }
+                            });
+                        }
+                        localStorage.setItem('snailshutter_venue_update_sync', JSON.stringify({
+                            bookingId,
+                            venue_name: name,
+                            venue_address: address,
+                            venue_lat: lat,
+                            venue_lng: lng,
+                            venue_notes: notes,
+                            timestamp: Date.now()
+                        }));
+                    } catch (_) {}
+                } else {
+                    showEditVenueAlert(res.error || 'Failed to update venue location.', 'error');
+                }
+            } catch (err) {
+                console.error('Submit venue error:', err);
+                showEditVenueAlert(err.message || 'An error occurred while saving changes.', 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = origHtml;
+            }
+        }
+
+        // Cross-tab real-time venue synchronization for clients
+        window.clientVenueBroadcast = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('snailshutter_venue_channel') : null;
+        if (window.clientVenueBroadcast) {
+            window.clientVenueBroadcast.onmessage = (e) => {
+                if (e.data && e.data.type === 'venue_updated') {
+                    handleClientCrossTabVenueUpdate(e.data);
+                }
+            };
+        }
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'snailshutter_venue_update_sync' && e.newValue) {
+                try {
+                    const data = JSON.parse(e.newValue);
+                    handleClientCrossTabVenueUpdate({ bookingId: data.bookingId, venue: data });
+                } catch (_) {}
+            }
+        });
+
+        function handleClientCrossTabVenueUpdate(data) {
+            if (!data || !data.bookingId || !data.venue) return;
+            const b = allClientBookings.find(item => item.id == data.bookingId);
+            if (b) {
+                b.venue_name = data.venue.venue_name;
+                b.venue_address = data.venue.venue_address;
+                b.venue_lat = data.venue.venue_lat;
+                b.venue_lng = data.venue.venue_lng;
+                b.venue_notes = data.venue.venue_notes;
+                b.venue_maps_url = (data.venue.venue_lat && data.venue.venue_lng)
+                    ? `https://www.google.com/maps/dir/?api=1&destination=${data.venue.venue_lat},${data.venue.venue_lng}`
+                    : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(data.venue.venue_address)}`;
+                renderBookingsList();
+                const modal = document.getElementById('bookingDetailsModal');
+                if (modal && modal.classList.contains('active') && window.currentActiveModalBookingId == data.bookingId) {
+                    openBookingModal(data.bookingId);
+                }
+            }
         }
 
         // ==========================================

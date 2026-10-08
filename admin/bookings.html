@@ -2366,6 +2366,29 @@
             // Call the existing updateStatus function
             await updateStatus(bookingId, action);
         }
+
+        // Real-time synchronization when a client updates the venue location
+        window.addEventListener('bookingVenueUpdated', function (e) {
+            const { bookingId, venue } = e.detail || {};
+            if (!bookingId || !venue) return;
+
+            if (typeof renderBookings === 'function') {
+                renderBookings();
+            }
+
+            const modal = document.getElementById('bookingDetailsModal');
+            if (modal) {
+                const headerText = modal.querySelector('h3')?.textContent || '';
+                if (headerText.includes(`#${bookingId}`)) {
+                    modal.remove();
+                    openBookingDetailsModal(bookingId);
+                }
+            }
+
+            if (typeof showToast === 'function') {
+                showToast(`Booking #${bookingId} venue updated to "${venue.venue_name}".`, 'info');
+            }
+        });
     </script>
 </body>
 

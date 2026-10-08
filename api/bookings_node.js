@@ -4,7 +4,7 @@ const pool = require('../config/db');
 const { authMiddleware } = require('../middleware/auth');
 const { sendEmail } = require('../utils/mailer');
 const { isMaintenanceModeActive, shouldSendEmailNotification } = require('../utils/reminders');
-const { notifyDate, notifyAdminBooking, notifyPopularServices } = require('./availability_sse');
+const { notifyDate, notifyAdminBooking, notifyPopularServices, notifyVenueUpdate } = require('./availability_sse');
 const { logSystemEvent } = require('../utils/logger');
 const multer = require('multer');
 const path = require('path');
@@ -997,6 +997,8 @@ router.put('/', authMiddleware, async (req, res) => {
                 details: `Booking #${bookingId} status changed back to confirmed by ${req.session.user_name || 'Staff'}.`,
                 status: 'info'
             });
+        } else if (action === 'update_venue') {
+            return handleVenueUpdate(req, res, bookingId, req.body);
         } else {
             return res.status(400).json({ success: false, error: 'Invalid action or insufficient permissions' });
         }
@@ -1039,6 +1041,12 @@ router.put('/', authMiddleware, async (req, res) => {
                     b.status = 'completed';
                 } else if (action === 'uncomplete' && userRole !== 'client') {
                     b.status = 'confirmed';
+                } else if (action === 'update_venue') {
+                    b.venue_name = req.body.venue_name || b.venue_name;
+                    b.venue_address = req.body.venue_address || b.venue_address;
+                    if (req.body.venue_lat) b.venue_lat = parseFloat(req.body.venue_lat);
+                    if (req.body.venue_lng) b.venue_lng = parseFloat(req.body.venue_lng);
+                    if (req.body.venue_notes) b.venue_notes = req.body.venue_notes;
                 }
                 return res.json({ success: true, message: 'Booking updated successfully (In-Memory Fallback Mode)' });
             } else {
@@ -1048,6 +1056,138 @@ router.put('/', authMiddleware, async (req, res) => {
         console.error('Update Booking Error:', error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
+});
+
+/**
+ * Common handler for updating booking venue location.
+ * Enforces rule: Clients can only update venue while booking is still pending approval.
+ */
+async function handleVenueUpdate(req, res, bookingId, payload) {
+    const id = parseInt(bookingId);
+    const userId = req.session.user_id;
+    const userRole = req.session.user_role;
+
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ success: false, error: 'Invalid booking ID' });
+    }
+
+    try {
+        const [rows] = await pool.execute('SELECT * FROM bookings WHERE id = ?', [id]);
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Booking not found' });
+        }
+
+        const booking = rows[0];
+
+        // Authorization check: client can only edit their own booking
+        if (userRole === 'client' && booking.client_id !== userId) {
+            return res.status(403).json({ success: false, error: 'You are not authorized to edit this booking.' });
+        }
+
+        // Strict status check: clients can ONLY edit venue while status is pending
+        const bookingStatus = (booking.status || 'pending').toLowerCase();
+        if (userRole === 'client' && bookingStatus !== 'pending') {
+            return res.status(400).json({
+                success: false,
+                error: 'Venue location can only be updated while your booking is pending approval.'
+            });
+        }
+
+        let venueName = (payload.venue_name || payload.venueName || '').trim();
+        let venueAddress = (payload.venue_address || payload.venueAddress || '').trim();
+        let venueLat = (payload.venue_lat !== undefined && payload.venue_lat !== null && payload.venue_lat !== '') ? parseFloat(payload.venue_lat) : null;
+        let venueLng = (payload.venue_lng !== undefined && payload.venue_lng !== null && payload.venue_lng !== '') ? parseFloat(payload.venue_lng) : null;
+        let venueNotes = (payload.venue_notes || payload.venueNotes || '').trim() || null;
+
+        if (!venueName) {
+            return res.status(400).json({ success: false, error: 'Venue / Location name is required.' });
+        }
+        if (!venueAddress) {
+            return res.status(400).json({ success: false, error: 'Complete venue address is required.' });
+        }
+
+        let venueMapsUrl = null;
+        if (venueLat && venueLng) {
+            venueMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${venueLat},${venueLng}`;
+        } else {
+            venueMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(venueAddress || venueName)}`;
+        }
+
+        // Clean any legacy venue block from notes to ensure no stale address remains
+        let updatedNotes = booking.notes || '';
+        if (updatedNotes.includes('📍 ON-LOCATION VENUE')) {
+            if (updatedNotes.includes('Client Additional Requests:')) {
+                const parts = updatedNotes.split(/Client Additional Requests:\s*/i);
+                updatedNotes = parts.length > 1 ? parts[1].trim() : '';
+            } else {
+                updatedNotes = updatedNotes.replace(/📍 ON-LOCATION VENUE & TEAM GUIDE:[\s\S]*?(?=\n\n|$)/i, '').trim();
+            }
+        }
+
+        await pool.execute(
+            `UPDATE bookings 
+             SET venue_name = ?, venue_address = ?, venue_lat = ?, venue_lng = ?, venue_maps_url = ?, venue_notes = ?, notes = ?
+             WHERE id = ?`,
+            [venueName, venueAddress, venueLat, venueLng, venueMapsUrl, venueNotes, updatedNotes || null, id]
+        );
+
+        logSystemEvent({
+            req,
+            action: 'BOOKING_VENUE_UPDATED',
+            module: 'Bookings',
+            details: `Booking #${id} venue updated by ${userRole} (${req.session.user_name || 'User'}) to "${venueName}".`,
+            status: 'info'
+        });
+
+        const venueData = {
+            bookingId: id,
+            venue_name: venueName,
+            venue_address: venueAddress,
+            venue_lat: venueLat,
+            venue_lng: venueLng,
+            venue_maps_url: venueMapsUrl,
+            venue_notes: venueNotes,
+            notes: updatedNotes || null
+        };
+
+        // Broadcast real-time SSE update to all connected admin & staff clients
+        if (typeof notifyVenueUpdate === 'function') {
+            notifyVenueUpdate(id, venueData);
+        }
+
+        return res.json({
+            success: true,
+            message: 'Venue location updated successfully',
+            data: venueData
+        });
+    } catch (error) {
+        if (error.code === 'ECONNREFUSED' || (error.message && error.message.includes('connect'))) {
+            console.warn('DB unavailable, updating fallback booking venue in-memory:', error.message);
+            const b = FALLBACK_BOOKINGS.find(item => item.id == id);
+            if (b) {
+                b.venue_name = payload.venue_name || b.venue_name;
+                b.venue_address = payload.venue_address || b.venue_address;
+                if (payload.venue_lat) b.venue_lat = parseFloat(payload.venue_lat);
+                if (payload.venue_lng) b.venue_lng = parseFloat(payload.venue_lng);
+                if (payload.venue_notes) b.venue_notes = payload.venue_notes;
+                return res.json({
+                    success: true,
+                    message: 'Venue location updated successfully (In-Memory Fallback Mode)',
+                    data: { bookingId: id, venue_name: b.venue_name, venue_address: b.venue_address }
+                });
+            }
+        }
+        console.error('Update venue location error:', error);
+        return res.status(500).json({ success: false, error: 'Failed to update venue location' });
+    }
+}
+
+/**
+ * PUT /api/bookings/:id/venue
+ * Dedicated REST endpoint for updating booking venue location
+ */
+router.put('/:id/venue', authMiddleware, async (req, res) => {
+    return handleVenueUpdate(req, res, req.params.id, req.body);
 });
 
 /**

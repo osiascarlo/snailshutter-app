@@ -427,6 +427,8 @@
                     const data = JSON.parse(event.data);
                     if (data.type === 'new_booking') {
                         handleNewBooking(data.booking);
+                    } else if (data.type === 'venue_updated') {
+                        handleVenueUpdated(data);
                     }
                 } catch (err) {
                     console.error('[Notifications] SSE parsing error:', err);
@@ -439,6 +441,40 @@
         } catch (e) {
             console.error('[Notifications] Failed to start EventSource:', e);
         }
+    }
+
+    function handleVenueUpdated(data) {
+        console.log('[Notifications] Venue updated via SSE:', data);
+        if (!data || !data.bookingId || !data.venue) return;
+
+        // 1. Update in-memory bookings cache if globally accessible
+        if (window.currentBookings && Array.isArray(window.currentBookings)) {
+            const b = window.currentBookings.find(item => item.id == data.bookingId);
+            if (b) {
+                b.venue_name = data.venue.venue_name;
+                b.venue_address = data.venue.venue_address;
+                b.venue_lat = data.venue.venue_lat;
+                b.venue_lng = data.venue.venue_lng;
+                b.venue_maps_url = data.venue.venue_maps_url;
+                b.venue_notes = data.venue.venue_notes;
+                if (data.venue.notes) b.notes = data.venue.notes;
+            }
+        }
+        if (window.allBookings && Array.isArray(window.allBookings)) {
+            const b = window.allBookings.find(item => item.id == data.bookingId);
+            if (b) {
+                b.venue_name = data.venue.venue_name;
+                b.venue_address = data.venue.venue_address;
+                b.venue_lat = data.venue.venue_lat;
+                b.venue_lng = data.venue.venue_lng;
+                b.venue_maps_url = data.venue.venue_maps_url;
+                b.venue_notes = data.venue.venue_notes;
+                if (data.venue.notes) b.notes = data.venue.notes;
+            }
+        }
+
+        // 2. Dispatch event for open views (modals, tables, grids)
+        window.dispatchEvent(new CustomEvent('bookingVenueUpdated', { detail: data }));
     }
 
     function handleNewBooking(booking) {

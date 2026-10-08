@@ -311,8 +311,34 @@ router.get('/popular-services-stream', async (req, res) => {
     });
 });
 
+/**
+ * Pushes updated venue details to all connected admin/staff clients in real-time.
+ */
+function notifyVenueUpdate(bookingId, venueData) {
+    if (adminClients.size === 0) {
+        return; // No admins/staff online
+    }
+
+    try {
+        const payload = JSON.stringify({
+            type: 'venue_updated',
+            bookingId: parseInt(bookingId),
+            venue: venueData,
+            updated_at: new Date().toISOString()
+        });
+
+        for (const res of adminClients) {
+            res.write(`data: ${payload}\n\n`);
+        }
+        console.log(`[SSE] Broadcasted venue_updated for booking #${bookingId} to ${adminClients.size} admin/staff clients.`);
+    } catch (err) {
+        console.error('[SSE] notifyVenueUpdate error:', err);
+    }
+}
+
 module.exports = router;
 module.exports.notifyDate = notifyDate;
 module.exports.notifyAdminBooking = notifyAdminBooking;
 module.exports.notifyPopularServices = notifyPopularServices;
+module.exports.notifyVenueUpdate = notifyVenueUpdate;
 
