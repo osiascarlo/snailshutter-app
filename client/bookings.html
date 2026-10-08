@@ -972,14 +972,9 @@
                         <div style="font-size: 0.78rem; color: #1e40af; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.4rem;">
                             <i class="fas fa-map-location-dot" style="color: #2563eb; font-size: 0.95rem;"></i> On-Location Venue Details
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.45rem;">
-                            <button id="modalVenueEditHeaderBtn" type="button" onclick="triggerEditVenueFromModal()" style="display: none; background: white; color: #2563eb; border: 1.5px solid #2563eb; font-weight: 700; border-radius: 50px; padding: 0.22rem 0.65rem; font-size: 0.72rem; align-items: center; gap: 0.35rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                                <i class="fas fa-edit"></i> Edit Venue
-                            </button>
-                            <span style="background: #2563eb; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px;">
-                                Team Travel Guide
-                            </span>
-                        </div>
+                        <span style="background: #2563eb; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px;">
+                            Team Travel Guide
+                        </span>
                     </div>
                     <div id="modalVenueName" style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">
                         -
@@ -1704,8 +1699,6 @@
 
                     // Venue editing: only permitted while booking status is strictly pending
                     const isPending = status === 'pending';
-                    const editHeaderBtn = document.getElementById('modalVenueEditHeaderBtn');
-                    if (editHeaderBtn) editHeaderBtn.style.display = isPending ? 'inline-flex' : 'none';
                     const editActionBtn = document.getElementById('modalVenueEditBtn');
                     if (editActionBtn) editActionBtn.style.display = isPending ? 'inline-flex' : 'none';
                 } else {
