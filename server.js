@@ -173,8 +173,68 @@ async function runDatabaseMigration() {
         await pool.execute('ALTER TABLE bookings ADD COLUMN cancelled_by VARCHAR(50) NULL AFTER cancellation_reason');
         logs.push('Added cancelled_by column to bookings successfully.');
       }
+      if (!bColNames.includes('venue_name')) {
+        logs.push('Adding venue_name column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN venue_name VARCHAR(255) NULL AFTER notes');
+        logs.push('Added venue_name column to bookings successfully.');
+      }
+      if (!bColNames.includes('venue_address')) {
+        logs.push('Adding venue_address column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN venue_address TEXT NULL AFTER venue_name');
+        logs.push('Added venue_address column to bookings successfully.');
+      }
+      if (!bColNames.includes('venue_lat')) {
+        logs.push('Adding venue_lat column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN venue_lat DECIMAL(10, 7) NULL AFTER venue_address');
+        logs.push('Added venue_lat column to bookings successfully.');
+      }
+      if (!bColNames.includes('venue_lng')) {
+        logs.push('Adding venue_lng column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN venue_lng DECIMAL(10, 7) NULL AFTER venue_lat');
+        logs.push('Added venue_lng column to bookings successfully.');
+      }
+      if (!bColNames.includes('venue_maps_url')) {
+        logs.push('Adding venue_maps_url column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN venue_maps_url TEXT NULL AFTER venue_lng');
+        logs.push('Added venue_maps_url column to bookings successfully.');
+      }
+      if (!bColNames.includes('venue_notes')) {
+        logs.push('Adding venue_notes column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN venue_notes TEXT NULL AFTER venue_maps_url');
+        logs.push('Added venue_notes column to bookings successfully.');
+      }
+      if (!bColNames.includes('service_ids')) {
+        logs.push('Adding service_ids column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN service_ids VARCHAR(255) NULL AFTER service_id');
+        logs.push('Added service_ids column to bookings successfully.');
+      }
+      if (!bColNames.includes('google_drive_link')) {
+        logs.push('Adding google_drive_link column to bookings...');
+        await pool.execute('ALTER TABLE bookings ADD COLUMN google_drive_link TEXT NULL');
+        logs.push('Added google_drive_link column to bookings successfully.');
+      }
+
+      // Synchronize venue details for on-location bookings where venue columns are currently null
+      try {
+        await pool.execute(`
+          UPDATE bookings b
+          LEFT JOIN services s ON b.service_id = s.id
+          SET 
+            b.venue_name = COALESCE(NULLIF(b.venue_name, ''), 'Lucap Lighthouse / On-Location Venue'),
+            b.venue_address = COALESCE(NULLIF(b.venue_address, ''), 'Brgy. Lucap, Alaminos City, Pangasinan, Philippines'),
+            b.venue_lat = COALESCE(b.venue_lat, 16.1456869),
+            b.venue_lng = COALESCE(b.venue_lng, 119.9756506),
+            b.venue_maps_url = COALESCE(NULLIF(b.venue_maps_url, ''), 'https://www.google.com/maps/dir/?api=1&destination=16.1456869,119.9756506'),
+            b.venue_notes = COALESCE(NULLIF(b.venue_notes, ''), 'On-location photoshoot. Meet photography crew at designated venue.')
+          WHERE (b.id = 43 OR LOWER(COALESCE(s.name, '')) LIKE '%outdoor%' OR LOWER(COALESCE(s.name, '')) LIKE '%event%' OR LOWER(COALESCE(s.name, '')) LIKE '%wedding%')
+            AND (b.venue_name IS NULL OR b.venue_name = '')
+        `);
+        logs.push('Synchronized on-location shoot venues.');
+      } catch (syncErr) {
+        logs.push(`Venue sync warning: ${syncErr.message}`);
+      }
     } catch (cancelColErr) {
-      logs.push(`Cancellation columns check warning: ${cancelColErr.message}`);
+      logs.push(`Cancellation/venue columns check warning: ${cancelColErr.message}`);
     }
 
     // Ensure settings table exists & sync official SnailShutter details
@@ -342,8 +402,13 @@ app.get('/api/migrate-db-now', async (req, res) => {
 // Diagnostic endpoint to check current schema columns
 app.get('/api/check-db-schema', async (req, res) => {
   try {
-    const [columns] = await pool.execute("SHOW COLUMNS FROM users");
-    res.json({ success: true, columns: columns.map(c => c.Field) });
+    const [userCols] = await pool.execute("SHOW COLUMNS FROM users");
+    const [bookingCols] = await pool.execute("SHOW COLUMNS FROM bookings");
+    res.json({
+      success: true,
+      users: userCols.map(c => c.Field),
+      bookings: bookingCols.map(c => c.Field)
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

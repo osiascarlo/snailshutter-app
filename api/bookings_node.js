@@ -191,6 +191,16 @@ router.get('/', authMiddleware, async (req, res) => {
                 if (!b.venue_notes && notesMatch) b.venue_notes = notesMatch[1].trim();
             }
 
+            // Fallback enrichment for on-location services where venue columns are null
+            const isLocationShoot = (b.service_name || '').toLowerCase().match(/outdoor|event\s*day|on\s*the\s*day|wedding/);
+            if (isLocationShoot && (!b.venue_name || !b.venue_name.trim())) {
+                b.venue_name = 'Lucap Lighthouse / On-Location Venue';
+                b.venue_address = b.venue_address || 'Brgy. Lucap, Alaminos City, Pangasinan, Philippines';
+                b.venue_lat = b.venue_lat || 16.1456869;
+                b.venue_lng = b.venue_lng || 119.9756506;
+                b.venue_maps_url = b.venue_maps_url || 'https://www.google.com/maps/dir/?api=1&destination=16.1456869,119.9756506';
+            }
+
             // Always strip raw venue guide block from notes returned to clients
             if (b.notes && typeof b.notes === 'string') {
                 b.notes = b.notes.replace(/📍 ON-LOCATION VENUE & TEAM GUIDE:[\s\S]*?(?=\n\n|$)/i, '').trim() || null;
@@ -687,11 +697,16 @@ router.post('/', authMiddleware, (req, res, next) => {
             );
         } catch (dbErr) {
             console.warn('Venue columns insert failed, falling back to standard insert:', dbErr.message);
+            let fallbackNotes = cleanNotes || '';
+            if (venueName || venueAddress) {
+                const venueBlock = `\n\n📍 ON-LOCATION VENUE & TEAM GUIDE:\n• Venue: ${venueName || 'Designated Venue'}\n• Address: ${venueAddress || 'Alaminos City, Pangasinan'}${venueLat && venueLng ? `\n• Coordinates: ${venueLat}, ${venueLng}` : ''}${venueMapsUrl ? `\n• Google Maps Directions: ${venueMapsUrl}` : ''}${venueNotes ? `\n• Team Access Notes: ${venueNotes}` : ''}`;
+                fallbackNotes = (fallbackNotes + venueBlock).trim();
+            }
             try {
                 [result] = await pool.execute(
                     `INSERT INTO bookings (client_id, service_id, service_ids, booking_date, start_time, end_time, status, notes, total_price, downpayment_amount, proof_of_payment, payment_status, created_at) 
                      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, 'pending', NOW())`,
-                    [userId, serviceId, serviceIds, bookingDate, startTime, endTime, cleanNotes || null, totalPrice, downpaymentAmount, proofPath]
+                    [userId, serviceId, serviceIds, bookingDate, startTime, endTime, fallbackNotes || null, totalPrice, downpaymentAmount, proofPath]
                 );
             } catch (fallbackErr) {
                 if (fallbackErr.message && fallbackErr.message.includes("Unknown column 'service_ids'")) {
@@ -699,7 +714,7 @@ router.post('/', authMiddleware, (req, res, next) => {
                     [result] = await pool.execute(
                         `INSERT INTO bookings (client_id, service_id, booking_date, start_time, end_time, status, notes, total_price, downpayment_amount, proof_of_payment, payment_status, created_at) 
                          VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, 'pending', NOW())`,
-                        [userId, serviceId, bookingDate, startTime, endTime, cleanNotes || null, totalPrice, downpaymentAmount, proofPath]
+                        [userId, serviceId, bookingDate, startTime, endTime, fallbackNotes || null, totalPrice, downpaymentAmount, proofPath]
                     );
                 } else {
                     throw fallbackErr;

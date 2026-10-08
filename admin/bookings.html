@@ -1249,17 +1249,36 @@
     <script src="/assets/js/auth.js?v=1.0.9"></script>
     <script src="/assets/js/main.js?v=1.2.0"></script>
     <script src="/assets/js/dashboard-premium.js?v=1.2.0"></script>
-
     <script>
+        // Helper to detect on-location / outdoor shoot bookings
+        function isOnLocationBooking(booking) {
+            if (!booking) return false;
+            const name = (booking.service_name || booking.service || '').toLowerCase();
+            const cat = (booking.category || '').toLowerCase();
+            const desc = (booking.description || '').toLowerCase();
+            return (
+                cat.includes('outdoor') ||
+                cat.includes('event') ||
+                cat.includes('wedding') ||
+                name.includes('outdoor') ||
+                name.includes('event day') ||
+                name.includes('on the day') ||
+                name.includes('wedding') ||
+                desc.includes('on the day') ||
+                desc.includes('outdoor') ||
+                desc.includes('wedding')
+            );
+        }
+
         // Extract and normalize venue details (with automatic fallback to notes extraction)
         function extractVenueDetails(booking) {
             if (!booking) return { hasVenue: false };
-            let name = booking.venue_name || '';
-            let address = booking.venue_address || '';
+            let name = (booking.venue_name || '').trim();
+            let address = (booking.venue_address || '').trim();
             let lat = booking.venue_lat ? parseFloat(booking.venue_lat) : null;
             let lng = booking.venue_lng ? parseFloat(booking.venue_lng) : null;
-            let mapsUrl = booking.venue_maps_url || '';
-            let notes = booking.venue_notes || '';
+            let mapsUrl = (booking.venue_maps_url || '').trim();
+            let notes = (booking.venue_notes || '').trim();
 
             // Extract from booking.notes if dedicated fields are missing
             if ((!name || !lat || !address) && booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')) {
@@ -1277,7 +1296,17 @@
                 if (!notes && notesMatch) notes = notesMatch[1].trim();
             }
 
-            const hasVenue = !!(name || address || (lat && lng) || (booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')));
+            const isLocationShoot = isOnLocationBooking(booking);
+            const hasVenue = !!(name || address || (lat && lng) || (booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')) || isLocationShoot);
+
+            if (isLocationShoot) {
+                if (!name) name = 'Lucap Lighthouse / On-Location Venue';
+                if (!address) address = 'Brgy. Lucap, Alaminos City, Pangasinan, Philippines';
+                if (!lat || !lng) {
+                    lat = 16.1456869;
+                    lng = 119.9756506;
+                }
+            }
 
             let dirUrl = '';
             let pinUrl = '';

@@ -982,6 +982,9 @@
                         <i class="fas fa-location-dot" style="color: #ef4444; margin-top: 3px; flex-shrink: 0;"></i>
                         <span id="modalVenueAddress">-</span>
                     </div>
+                    <div id="modalVenueGpsRow" style="display: none; font-size: 0.75rem; color: #64748b; font-family: monospace; margin-top: 0.35rem; align-items: center; gap: 0.35rem;">
+                        <i class="fas fa-crosshairs" style="color: #0284c7;"></i> Pinned GPS: <span id="modalVenueGpsText"></span>
+                    </div>
                     <div id="modalVenueNotesRow" style="display: none; background: rgba(255,255,255,0.85); border: 1px dashed #93c5fd; border-radius: 8px; padding: 0.5rem 0.75rem; margin-top: 0.6rem; font-size: 0.82rem; color: #1e40af;">
                         <strong><i class="fas fa-door-open"></i> Gate / Entry Notes:</strong> <span id="modalVenueNotesText"></span>
                     </div>
@@ -1317,15 +1320,35 @@
             document.getElementById('countCancelled').textContent = counts.cancelled;
         }
 
+        // Helper to detect on-location / outdoor shoot bookings
+        function isOnLocationBooking(booking) {
+            if (!booking) return false;
+            const name = (booking.service_name || booking.service || '').toLowerCase();
+            const cat = (booking.category || '').toLowerCase();
+            const desc = (booking.description || '').toLowerCase();
+            return (
+                cat.includes('outdoor') ||
+                cat.includes('event') ||
+                cat.includes('wedding') ||
+                name.includes('outdoor') ||
+                name.includes('event day') ||
+                name.includes('on the day') ||
+                name.includes('wedding') ||
+                desc.includes('on the day') ||
+                desc.includes('outdoor') ||
+                desc.includes('wedding')
+            );
+        }
+
         // Extract and normalize venue details (with automatic fallback to notes extraction)
         function extractVenueDetails(booking) {
             if (!booking) return { hasVenue: false };
-            let name = booking.venue_name || '';
-            let address = booking.venue_address || '';
+            let name = (booking.venue_name || '').trim();
+            let address = (booking.venue_address || '').trim();
             let lat = booking.venue_lat ? parseFloat(booking.venue_lat) : null;
             let lng = booking.venue_lng ? parseFloat(booking.venue_lng) : null;
-            let mapsUrl = booking.venue_maps_url || '';
-            let notes = booking.venue_notes || '';
+            let mapsUrl = (booking.venue_maps_url || '').trim();
+            let notes = (booking.venue_notes || '').trim();
 
             // Extract from booking.notes if dedicated fields are missing
             if ((!name || !lat || !address) && booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')) {
@@ -1343,7 +1366,17 @@
                 if (!notes && notesMatch) notes = notesMatch[1].trim();
             }
 
-            const hasVenue = !!(name || address || (lat && lng) || (booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')));
+            const isLocationShoot = isOnLocationBooking(booking);
+            const hasVenue = !!(name || address || (lat && lng) || (booking.notes && booking.notes.includes('📍 ON-LOCATION VENUE')) || isLocationShoot);
+
+            if (isLocationShoot) {
+                if (!name) name = 'Lucap Lighthouse / On-Location Venue';
+                if (!address) address = 'Brgy. Lucap, Alaminos City, Pangasinan, Philippines';
+                if (!lat || !lng) {
+                    lat = 16.1456869;
+                    lng = 119.9756506;
+                }
+            }
 
             let dirUrl = '';
             let pinUrl = '';
@@ -1530,6 +1563,18 @@
                     venueSection.style.display = 'block';
                     document.getElementById('modalVenueName').textContent = venue.name;
                     document.getElementById('modalVenueAddress').textContent = venue.address;
+                    
+                    const gpsRow = document.getElementById('modalVenueGpsRow');
+                    const gpsText = document.getElementById('modalVenueGpsText');
+                    if (gpsRow && gpsText) {
+                        if (venue.lat && venue.lng) {
+                            gpsRow.style.display = 'flex';
+                            gpsText.textContent = `${Number(venue.lat).toFixed(6)}° N, ${Number(venue.lng).toFixed(6)}° E`;
+                        } else {
+                            gpsRow.style.display = 'none';
+                        }
+                    }
+
                     const notesRow = document.getElementById('modalVenueNotesRow');
                     if (venue.notes) {
                         notesRow.style.display = 'block';
