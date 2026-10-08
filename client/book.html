@@ -3400,16 +3400,18 @@
                         ).join('');
                         const tags = r.tags ? r.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
                         const dateFormatted = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                        const clientName = (r.client_name || r.reviewer_name || '').trim() || 'Verified Client';
+                        const initial = clientName.charAt(0).toUpperCase();
 
                         return `
                             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:0.9rem 1rem;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
                                     <div style="display:flex; align-items:center; gap:0.45rem;">
                                         <div style="width:28px; height:28px; border-radius:50%; background:#d1fae5; color:#065f46; font-weight:700; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">
-                                            ${escapeHtml((r.client_name || 'C').charAt(0))}
+                                            ${escapeHtml(initial)}
                                         </div>
                                         <div>
-                                            <span style="font-weight:700; font-size:0.85rem; color:#1e293b;">${escapeHtml(r.client_name || 'Verified Client')}</span>
+                                            <span style="font-weight:700; font-size:0.85rem; color:#1e293b;">${escapeHtml(clientName)}</span>
                                             <span style="font-size:0.72rem; color:#10b981; font-weight:600; margin-left:0.35rem;"><i class="fas fa-check-circle"></i> Verified</span>
                                         </div>
                                     </div>

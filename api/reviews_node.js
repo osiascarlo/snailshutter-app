@@ -206,7 +206,8 @@ router.get('/service/:serviceId', async (req, res) => {
         const [reviews] = await pool.execute(`
             SELECT 
                 r.id, r.rating, r.comment, r.tags, r.created_at,
-                CONCAT(u.first_name, ' ', SUBSTRING(u.last_name, 1, 1), '.') as reviewer_name
+                TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) as client_name,
+                TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) as reviewer_name
             FROM reviews r
             JOIN users u ON r.client_id = u.id
             WHERE r.service_id = ? AND r.is_public = 1
@@ -245,7 +246,8 @@ router.get('/', async (req, res) => {
             SELECT 
                 r.id, r.booking_id, r.rating, r.comment, r.tags, r.created_at,
                 s.name as service_name, s.id as service_id,
-                CONCAT(u.first_name, ' ', SUBSTRING(u.last_name, 1, 1), '.') as reviewer_name
+                TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) as client_name,
+                TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) as reviewer_name
             FROM reviews r
             JOIN services s ON r.service_id = s.id
             JOIN users u ON r.client_id = u.id
