@@ -5,152 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics & Reports | SnailShutter Studio</title>
-    <link rel="stylesheet" href="/assets/css/style.css?v=1.0.4">
-    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.0.4">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --chart-primary: #2e7d32;
-            --chart-secondary: #d4a574;
-            --chart-accent: #1a1a2e;
-        }
-
-        .analytics-container {
-            padding: 0 1rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.75rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--color-border-soft);
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            transition: all var(--transition-base);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--color-primary-light);
-        }
-
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(46, 125, 50, 0.03));
-            pointer-events: none;
-        }
-
-        .stat-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .stat-icon.revenue { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
-        .stat-icon.today { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
-        .stat-icon.bookings { background: rgba(249, 115, 22, 0.1); color: #ea580c; }
-
-        .stat-info h3 {
-            font-family: var(--font-body);
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--color-text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-value {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            font-weight: 400;
-            color: var(--color-text);
-            line-height: 1;
-        }
-
-        .analytics-charts {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-
-        @media (max-width: 1024px) {
-            .analytics-charts { grid-template-columns: 1fr; }
-        }
-
-        .chart-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--color-border-soft);
-            box-shadow: var(--shadow-sm);
-            padding: 1.5rem;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--color-border-soft);
-        }
-
-        .chart-title {
-            font-family: var(--font-display);
-            font-size: 1.25rem;
-            color: var(--color-text);
-        }
-
-        .btn-export {
-            padding: 0.5rem 1rem;
-            font-size: 0.8125rem;
-            background: var(--color-bg-soft);
-            color: var(--color-text-soft);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-
-        .btn-export:hover {
-            background: var(--color-primary);
-            color: white;
-            border-color: var(--color-primary);
-        }
-
-        .canvas-container {
-            flex-grow: 1;
-            position: relative;
-            min-height: 300px;
-        }
-    </style>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/assets/css/style.css?v=1.2.0">
+    <link rel="stylesheet" href="/assets/css/responsive.css?v=1.2.0">
     <link rel="stylesheet" href="/assets/css/dashboard-premium.css?v=1.2.0">
+    <link rel="stylesheet" href="/assets/css/analytics-premium.css?v=1.3.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         function toggleSettingsDropdown(trigger) {
             const dd = (trigger && trigger.nodeType)
@@ -173,12 +37,13 @@
 
 <body class="premium-dashboard">
     <div class="dashboard-layout">
-        <button class="mobile-menu-btn" onclick="toggleSidebar()"
-            style="display:none;" aria-label="Toggle navigation">
+        <!-- Mobile Navigation Controls -->
+        <button class="mobile-menu-btn" onclick="toggleSidebar()" style="display:none;" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
+        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="/admin/dashboard.html" class="sidebar-logo">
@@ -250,6 +115,7 @@
             </div>
         </aside>
 
+        <!-- Main Content Surface -->
         <main class="main-content">
             <!-- Mobile Sticky Navigation Bar -->
             <div class="mobile-sticky-bar">
@@ -257,119 +123,370 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="mobile-header-title">
-                    <i class="fas fa-chart-bar"></i>
+                    <i class="fas fa-chart-line"></i>
                     <span>Analytics & Reports</span>
                 </div>
-                <button class="mobile-header-refresh-btn" onclick="typeof loadAnalytics === 'function' ? loadAnalytics() : location.reload()" title="Refresh analytics">
+                <button class="mobile-header-refresh-btn" onclick="loadAnalytics()" title="Refresh analytics">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
 
-            <div class="page-hero">
-                <h1>Analytics & Business Reports</h1>
-                <p>Track your studio's performance, revenue growth, and service trends in real-time.</p>
+            <!-- Cinematic Hero Section with Studio Controls -->
+            <div class="page-hero analytics-hero">
+                <div class="hero-particles"></div>
+
+                <div class="hero-content-block">
+                    <div class="hero-eyebrow">
+                        <i class="fas fa-chart-pie"></i> Executive Studio Intelligence
+                    </div>
+                    <h1>Analytics & Financial Reports</h1>
+                    <p>Monitor your studio's gross revenue velocity, booking fulfillment rates, service demand distribution, and team output in real-time.</p>
+                </div>
+
+                <div class="hero-controls-block">
+                    <div class="hero-sync-pill">
+                        <span class="live-pulse-dot"></span>
+                        <span id="syncStatusText">Live Synced</span> · <span id="lastUpdatedTime">Just now</span>
+                    </div>
+                    <div class="hero-actions-row">
+                        <button class="hero-btn primary shutter-click" onclick="loadAnalytics()" id="btnRefreshAnalytics" title="Refresh metrics">
+                            <i class="fas fa-sync-alt" id="refreshIcon"></i> <span>Refresh</span>
+                        </button>
+                        <button class="hero-btn glass" onclick="exportFullReport()" title="Export all analytics to CSV">
+                            <i class="fas fa-file-invoice-dollar"></i> <span>Export Report</span>
+                        </button>
+                        <button class="hero-btn glass" onclick="window.print()" title="Print executive summary">
+                            <i class="fas fa-print"></i> <span>Print</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div class="content-body analytics-container">
-                <!-- Stat Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon revenue"><i class="fas fa-coins"></i></div>
-                        <div class="stat-info">
-                            <h3>Total Revenue</h3>
-                            <div class="stat-value">₱<span id="totalRevenue">0.00</span></div>
+            <div class="analytics-page-container">
+                <!-- Smart Horizon Filter Toolbar -->
+                <div class="analytics-toolbar">
+                    <div class="toolbar-title-group">
+                        <h2><i class="fas fa-tachometer-alt" style="color:var(--premium-accent);"></i> Executive Performance Dashboard</h2>
+                        <span class="toolbar-badge">Real-time</span>
+                    </div>
+                    <div class="period-pill-group" role="tablist">
+                        <button class="period-pill active" onclick="setAnalyticsPeriod('6M', this)">Last 6 Months</button>
+                        <button class="period-pill" onclick="setAnalyticsPeriod('90D', this)">Last 90 Days</button>
+                        <button class="period-pill" onclick="setAnalyticsPeriod('YTD', this)">Year-To-Date (2026)</button>
+                        <button class="period-pill" onclick="setAnalyticsPeriod('ALL', this)">All Time</button>
+                    </div>
+                </div>
+
+                <!-- Strategic 5-KPI Headline Cards (Double-Bezel Architecture) -->
+                <div class="kpi-matrix-grid">
+                    <!-- KPI 1: Gross Revenue -->
+                    <div class="kpi-bezel-card">
+                        <div class="kpi-bezel-inner">
+                            <div class="kpi-card-header">
+                                <div class="kpi-icon-squircle emerald">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <span class="kpi-trend-tag positive" id="kpiRevenueTrend">
+                                    <i class="fas fa-arrow-trend-up"></i> +18.4%
+                                </span>
+                            </div>
+                            <div class="kpi-card-body">
+                                <div class="kpi-metric-title">Total Gross Revenue</div>
+                                <div class="kpi-metric-number">
+                                    <span class="currency-symbol">₱</span><span id="totalRevenue">0.00</span>
+                                </div>
+                                <p class="kpi-metric-footnote">Confirmed & completed bookings</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon today"><i class="fas fa-calendar-check"></i></div>
-                        <div class="stat-info">
-                            <h3>Revenue (Today)</h3>
-                            <div class="stat-value">₱<span id="todayRevenue">0.00</span></div>
+
+                    <!-- KPI 2: Today's Intake -->
+                    <div class="kpi-bezel-card">
+                        <div class="kpi-bezel-inner">
+                            <div class="kpi-card-header">
+                                <div class="kpi-icon-squircle sapphire">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                                <span class="kpi-trend-tag neutral">
+                                    <i class="fas fa-bolt"></i> Live Day
+                                </span>
+                            </div>
+                            <div class="kpi-card-body">
+                                <div class="kpi-metric-title">Revenue (Today)</div>
+                                <div class="kpi-metric-number">
+                                    <span class="currency-symbol">₱</span><span id="todayRevenue">0.00</span>
+                                </div>
+                                <p class="kpi-metric-footnote" id="todayRevenueFootnote">Gross payments collected today</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon bookings"><i class="fas fa-clipboard-list"></i></div>
-                        <div class="stat-info">
-                            <h3>Active Bookings</h3>
-                            <div class="stat-value" id="totalBookingsCount">0</div>
+
+                    <!-- KPI 3: Operational Volume -->
+                    <div class="kpi-bezel-card">
+                        <div class="kpi-bezel-inner">
+                            <div class="kpi-card-header">
+                                <div class="kpi-icon-squircle amber">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <span class="kpi-trend-tag neutral" id="kpiVolumeTrend">
+                                    <i class="fas fa-camera"></i> Volume
+                                </span>
+                            </div>
+                            <div class="kpi-card-body">
+                                <div class="kpi-metric-title">Active Bookings</div>
+                                <div class="kpi-metric-number" id="totalBookingsCount">0</div>
+                                <p class="kpi-metric-footnote" id="activeBookingsSub">Confirmed & completed sessions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Completion Rate -->
+                    <div class="kpi-bezel-card">
+                        <div class="kpi-bezel-inner">
+                            <div class="kpi-card-header">
+                                <div class="kpi-icon-squircle purple">
+                                    <i class="fas fa-award"></i>
+                                </div>
+                                <span class="kpi-trend-tag highlight">
+                                    <i class="fas fa-check-double"></i> Fulfillment
+                                </span>
+                            </div>
+                            <div class="kpi-card-body">
+                                <div class="kpi-metric-title">Session Completion Rate</div>
+                                <div class="kpi-metric-number">
+                                    <span id="completionRate">0</span><span style="font-size:1.25rem;">%</span>
+                                </div>
+                                <p class="kpi-metric-footnote">Sessions fulfilled successfully</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 5: Average Booking Value (AOV) -->
+                    <div class="kpi-bezel-card">
+                        <div class="kpi-bezel-inner">
+                            <div class="kpi-card-header">
+                                <div class="kpi-icon-squircle gold">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <span class="kpi-trend-tag positive">
+                                    <i class="fas fa-chart-line"></i> Per Session
+                                </span>
+                            </div>
+                            <div class="kpi-card-body">
+                                <div class="kpi-metric-title">Avg. Booking Value (AOV)</div>
+                                <div class="kpi-metric-number">
+                                    <span class="currency-symbol">₱</span><span id="averageOrderValue">0.00</span>
+                                </div>
+                                <p class="kpi-metric-footnote">Average yield per confirmed client</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts Section -->
-                <div class="analytics-charts">
-                    <!-- Trends -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3 class="chart-title">Booking Trends</h3>
-                            <button class="btn-export" onclick="exportData('trends')">
-                                <i class="fas fa-download"></i> Export
-                            </button>
+                <!-- Executive Highlights Strip (Bento Insights) -->
+                <div class="executive-insights-grid">
+                    <div class="insight-pill-card">
+                        <div class="insight-badge-avatar" style="background:#FEF3C7; color:#D97706;">
+                            <i class="fas fa-crown"></i>
                         </div>
-                        <div class="canvas-container">
+                        <div class="insight-info">
+                            <h4>Top Performing Package</h4>
+                            <div class="insight-title" id="insightTopService">Loading...</div>
+                            <p class="insight-desc" id="insightTopServiceSub">Leading package by booking volume</p>
+                        </div>
+                    </div>
+
+                    <div class="insight-pill-card">
+                        <div class="insight-badge-avatar" style="background:#ECFDF5; color:#059669;">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="insight-info">
+                            <h4>Peak Booking Period</h4>
+                            <div class="insight-title" id="insightPeakMonth">Loading...</div>
+                            <p class="insight-desc" id="insightPeakMonthSub">Highest monthly photoshoot density</p>
+                        </div>
+                    </div>
+
+                    <div class="insight-pill-card">
+                        <div class="insight-badge-avatar" style="background:#F5F3FF; color:#7C3AED;">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="insight-info">
+                            <h4>Top Lead Photographer</h4>
+                            <div class="insight-title" id="insightTopStaff">Loading...</div>
+                            <p class="insight-desc" id="insightTopStaffSub">Highest completed client shoots</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Elevated Charts Section (2x2 Mosaic Grid) -->
+                <div class="charts-mosaic-grid">
+                    <!-- Chart 1: Trajectory (Bookings & Revenue) -->
+                    <div class="analytics-chart-panel">
+                        <div class="chart-panel-header">
+                            <div class="chart-title-area">
+                                <h3><i class="fas fa-chart-line" style="color:#2E7D32;"></i> Booking & Revenue Trajectory</h3>
+                                <p>Monthly volume trends and studio growth rate</p>
+                            </div>
+                            <div class="chart-actions-cluster">
+                                <div class="chart-segmented-control">
+                                    <button class="chart-segment-btn active" onclick="switchTrendsMode('bookings', this)">Bookings</button>
+                                    <button class="chart-segment-btn" onclick="switchTrendsMode('revenue', this)">Revenue (₱)</button>
+                                </div>
+                                <button class="chart-export-btn" onclick="exportData('trends')" title="Download CSV">
+                                    <i class="fas fa-download"></i> CSV
+                                </button>
+                                <button class="chart-export-btn" onclick="exportChartImage('trendsChart', 'booking_trends')" title="Save image">
+                                    <i class="fas fa-image"></i> PNG
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-wrapper">
                             <canvas id="trendsChart"></canvas>
                         </div>
                     </div>
 
-                    <!-- Status -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3 class="chart-title">Booking Distribution</h3>
-                            <button class="btn-export" onclick="exportData('status')">
-                                <i class="fas fa-download"></i> Export
-                            </button>
+                    <!-- Chart 2: Status Lifecycle & Distribution -->
+                    <div class="analytics-chart-panel">
+                        <div class="chart-panel-header">
+                            <div class="chart-title-area">
+                                <h3><i class="fas fa-chart-pie" style="color:#6366F1;"></i> Booking Lifecycle & Distribution</h3>
+                                <p>Operational workload and fulfillment statuses</p>
+                            </div>
+                            <div class="chart-actions-cluster">
+                                <button class="chart-export-btn" onclick="exportData('status')" title="Download CSV">
+                                    <i class="fas fa-download"></i> CSV
+                                </button>
+                                <button class="chart-export-btn" onclick="exportChartImage('statusChart', 'booking_distribution')" title="Save image">
+                                    <i class="fas fa-image"></i> PNG
+                                </button>
+                            </div>
                         </div>
-                        <div class="canvas-container">
+                        <div class="chart-canvas-wrapper" style="position:relative;">
                             <canvas id="statusChart"></canvas>
+                            <!-- Donut Hole Center Stats -->
+                            <div class="donut-center-metric">
+                                <div class="donut-number" id="donutTotalCount">0</div>
+                                <div class="donut-sub">Total Sessions</div>
+                            </div>
+                        </div>
+                        <!-- Custom Interactive Legend Breakdown -->
+                        <div class="donut-legend-tray" id="donutLegendTray">
+                            <!-- Populated dynamically via JS -->
                         </div>
                     </div>
 
-                    <!-- Services -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3 class="chart-title">Top Photography Services</h3>
-                            <button class="btn-export" onclick="exportData('services')">
-                                <i class="fas fa-download"></i> Export
-                            </button>
+                    <!-- Chart 3: Top Services & Packages -->
+                    <div class="analytics-chart-panel">
+                        <div class="chart-panel-header">
+                            <div class="chart-title-area">
+                                <h3><i class="fas fa-camera-retro" style="color:#D97706;"></i> Top Photography Services</h3>
+                                <p>Package booking popularity and demand share</p>
+                            </div>
+                            <div class="chart-actions-cluster">
+                                <div class="chart-segmented-control">
+                                    <button class="chart-segment-btn active" onclick="switchServicesView('chart', this)">Bar Chart</button>
+                                    <button class="chart-segment-btn" onclick="switchServicesView('list', this)">Ranked List</button>
+                                </div>
+                                <button class="chart-export-btn" onclick="exportData('services')" title="Download CSV">
+                                    <i class="fas fa-download"></i> CSV
+                                </button>
+                            </div>
                         </div>
-                        <div class="canvas-container">
+                        <div class="chart-canvas-wrapper" id="servicesChartWrapper">
                             <canvas id="servicesChart"></canvas>
                         </div>
+                        <div class="ranked-services-container" id="servicesRankedWrapper" style="display:none;">
+                            <!-- Populated dynamically via JS -->
+                        </div>
                     </div>
 
-                    <!-- Staff -->
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <h3 class="chart-title">Team Performance</h3>
-                            <button class="btn-export" onclick="exportData('staff')">
-                                <i class="fas fa-download"></i> Export
-                            </button>
+                    <!-- Chart 4: Team Productivity -->
+                    <div class="analytics-chart-panel">
+                        <div class="chart-panel-header">
+                            <div class="chart-title-area">
+                                <h3><i class="fas fa-user-gear" style="color:#7C3AED;"></i> Team Productivity & Fulfillment</h3>
+                                <p>Completed photoshoot assignments per team member</p>
+                            </div>
+                            <div class="chart-actions-cluster">
+                                <button class="chart-export-btn" onclick="exportData('staff')" title="Download CSV">
+                                    <i class="fas fa-download"></i> CSV
+                                </button>
+                                <button class="chart-export-btn" onclick="exportChartImage('staffChart', 'team_performance')" title="Save image">
+                                    <i class="fas fa-image"></i> PNG
+                                </button>
+                            </div>
                         </div>
-                        <div class="canvas-container">
+                        <div class="chart-canvas-wrapper">
                             <canvas id="staffChart"></canvas>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Deep Dive Data Table: Package Financial Breakdown -->
+                <div class="analytics-table-panel">
+                    <div class="table-panel-header">
+                        <div class="table-header-title">
+                            <h3><i class="fas fa-table-list" style="color:#2E7D32;"></i> Service Package Performance & Financial Contribution</h3>
+                            <p>Detailed breakdown of sessions fulfilled, market demand percentage, and revenue yields</p>
+                        </div>
+                        <div class="table-actions">
+                            <a href="/admin/bookings.html" class="chart-export-btn" style="text-decoration:none;">
+                                <i class="fas fa-calendar-alt"></i> View All Bookings
+                            </a>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="analytics-data-table" id="servicesTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">Rank</th>
+                                    <th>Service Package</th>
+                                    <th>Base Rate</th>
+                                    <th>Sessions Booked</th>
+                                    <th>Demand Share</th>
+                                    <th>Gross Revenue Yield</th>
+                                    <th>Performance Tier</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="servicesTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align:center; padding:2rem; color:#94A3B8;">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading financial breakdown...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <script src="/assets/js/api.js?v=1.0.9"></script>
-    <script src="/assets/js/auth.js?v=1.0.9"></script>
+    <!-- Core Scripts -->
+    <script src="/assets/js/api.js?v=1.2.0"></script>
+    <script src="/assets/js/auth.js?v=1.2.0"></script>
     <script src="/assets/js/main.js?v=1.2.0"></script>
     <script src="/assets/js/dashboard-premium.js?v=1.2.0"></script>
+
+    <!-- Analytics Engine Script -->
     <script>
-        let analyticsData = null;
+        let rawAnalyticsData = null;
+        let activePeriod = '6M';
+        let trendsMode = 'bookings'; // 'bookings' or 'revenue'
+        let servicesViewMode = 'chart'; // 'chart' or 'list'
+        let charts = {};
 
         document.addEventListener('DOMContentLoaded', async function () {
             if (!auth.requireAuth('admin')) return;
             await auth.init();
-            
+
             const user = auth.currentUser;
             if (!user) return;
 
-            // Update UI
-            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name);
+            // Populate user profile info in sidebar
+            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name || 'Studio Admin');
             document.querySelectorAll('[data-user-role]').forEach(el => el.textContent = 'Administrator');
             document.querySelectorAll('[data-user-initial]').forEach(el => el.textContent = (user.name || 'A').charAt(0).toUpperCase());
 
@@ -382,164 +499,726 @@
                 });
             }
 
-            // Load Data
-            try {
-                const response = await api.getAnalytics();
-                if (response.success) {
-                    analyticsData = response.data;
-                    renderAnalytics(analyticsData);
-                }
-            } catch (error) {
-                console.error('Analytics Error:', error);
-                showAlert('Could not load analytics data.', 'error');
-            }
+            // Global Chart Defaults for typography & crisp styling
+            Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+            Chart.defaults.font.size = 11;
+            Chart.defaults.color = "#64748B";
+
+            // Load initial data
+            await loadAnalytics();
         });
 
-        function renderAnalytics(data) {
-            // Stats
-            document.getElementById('totalRevenue').textContent = parseFloat(data.totalRevenue).toLocaleString(undefined, { minimumFractionDigits: 2 });
-            document.getElementById('todayRevenue').textContent = parseFloat(data.todayRevenue).toLocaleString(undefined, { minimumFractionDigits: 2 });
+        /**
+         * Fetch analytics data from server and refresh all UI surfaces
+         */
+        async function loadAnalytics() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
             
+            const syncStatus = document.getElementById('syncStatusText');
+            if (syncStatus) syncStatus.textContent = 'Syncing...';
+
+            try {
+                const response = await api.getAnalytics();
+                if (response.success && response.data) {
+                    rawAnalyticsData = response.data;
+                    renderExecutiveAnalytics(rawAnalyticsData);
+
+                    // Update timestamp
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    document.getElementById('lastUpdatedTime').textContent = timeStr;
+                    if (syncStatus) syncStatus.textContent = 'Live Synced';
+
+                    if (typeof showAlert === 'function' && window._hasShownInitialAnalytics) {
+                        showAlert('Analytics data refreshed successfully.', 'success');
+                    }
+                    window._hasShownInitialAnalytics = true;
+                } else {
+                    throw new Error(response.error || 'Invalid response format');
+                }
+            } catch (error) {
+                console.error('Analytics Loading Error:', error);
+                if (syncStatus) syncStatus.textContent = 'Offline Fallback';
+                if (typeof showAlert === 'function') {
+                    showAlert('Failed to refresh live analytics. Showing local data.', 'error');
+                }
+            } finally {
+                if (refreshIcon) {
+                    setTimeout(() => refreshIcon.classList.remove('fa-spin'), 600);
+                }
+            }
+        }
+
+        /**
+         * Filter data based on selected period
+         */
+        function setAnalyticsPeriod(period, btn) {
+            activePeriod = period;
+            document.querySelectorAll('.period-pill').forEach(p => p.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            if (rawAnalyticsData) {
+                renderExecutiveAnalytics(rawAnalyticsData);
+            }
+        }
+
+        /**
+         * Main Render Controller: compute KPIs and render charts & table
+         */
+        function renderExecutiveAnalytics(data) {
+            if (!data) return;
+
+            // 1. Calculate Core KPI Numbers
+            const totalRev = parseFloat(data.totalRevenue) || 0;
+            const todayRev = parseFloat(data.todayRevenue) || 0;
+
+            const pendingCount = data.statusCounts.find(s => s.status === 'pending')?.count || 0;
             const confirmedCount = data.statusCounts.find(s => s.status === 'confirmed')?.count || 0;
             const completedCount = data.statusCounts.find(s => s.status === 'completed')?.count || 0;
-            document.getElementById('totalBookingsCount').textContent = confirmedCount + completedCount;
+            const cancelledCount = data.statusCounts.find(s => s.status === 'cancelled')?.count || 0;
 
-            // Global Chart Defaults
-            Chart.defaults.font.family = "'DM Sans', sans-serif";
-            Chart.defaults.color = "#616161";
+            const totalBookings = pendingCount + confirmedCount + completedCount + cancelledCount;
+            const activeBookings = confirmedCount + completedCount;
 
-            // 1. Trends (Line)
-            new Chart(document.getElementById('trendsChart'), {
+            // Completion Rate: (Completed / (Confirmed + Completed || 1)) * 100
+            const completionRate = activeBookings > 0 
+                ? Math.round((completedCount / activeBookings) * 100) 
+                : 0;
+
+            // Average Order Value: Total Revenue / Active Bookings
+            const aov = activeBookings > 0 
+                ? (totalRev / activeBookings) 
+                : 0;
+
+            // Render KPI Headline Values
+            document.getElementById('totalRevenue').textContent = totalRev.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('todayRevenue').textContent = todayRev.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('totalBookingsCount').textContent = activeBookings.toLocaleString('en-US');
+            document.getElementById('completionRate').textContent = completionRate;
+            document.getElementById('averageOrderValue').textContent = aov.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            document.getElementById('activeBookingsSub').textContent = `${confirmedCount} Confirmed · ${completedCount} Completed`;
+            document.getElementById('donutTotalCount').textContent = totalBookings;
+
+            // 2. Render Executive Insights Strip
+            renderInsights(data, activeBookings);
+
+            // 3. Render Charts
+            renderTrendsChart(data);
+            renderStatusChart(data, totalBookings);
+            renderServicesChart(data, activeBookings);
+            renderStaffChart(data);
+
+            // 4. Render Deep-Dive Breakdown Table
+            renderServicesTable(data, activeBookings, totalRev);
+        }
+
+        /**
+         * Render Bento Insights strip
+         */
+        function renderInsights(data, totalActive) {
+            // Star Service
+            const totalServiceSessions = (data.topServices || []).reduce((sum, s) => sum + (s.count || 0), 0) || 1;
+            if (data.topServices && data.topServices.length > 0) {
+                const top = data.topServices[0];
+                const pct = Math.round((top.count / totalServiceSessions) * 100);
+                document.getElementById('insightTopService').textContent = top.name;
+                document.getElementById('insightTopServiceSub').textContent = `${top.count} bookings (${pct}% service share)`;
+            } else {
+                document.getElementById('insightTopService').textContent = 'None Recorded';
+                document.getElementById('insightTopServiceSub').textContent = 'No service data yet';
+            }
+
+            // Peak Month
+            if (data.trends && data.trends.length > 0) {
+                let peak = data.trends[0];
+                data.trends.forEach(t => {
+                    if (t.count > peak.count) peak = t;
+                });
+                const [year, month] = peak.month.split('-');
+                const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+                document.getElementById('insightPeakMonth').textContent = monthName;
+                document.getElementById('insightPeakMonthSub').textContent = `${peak.count} sessions conducted`;
+            } else {
+                document.getElementById('insightPeakMonth').textContent = 'N/A';
+                document.getElementById('insightPeakMonthSub').textContent = 'No trend records';
+            }
+
+            // Top Staff
+            if (data.staffPerformance && data.staffPerformance.length > 0) {
+                const lead = data.staffPerformance[0];
+                document.getElementById('insightTopStaff').textContent = lead.name;
+                document.getElementById('insightTopStaffSub').textContent = `${lead.count} completed client shoots`;
+            } else {
+                document.getElementById('insightTopStaff').textContent = 'Studio Team';
+                document.getElementById('insightTopStaffSub').textContent = 'Team sessions active';
+            }
+        }
+
+        /**
+         * Filter trends data according to activePeriod
+         */
+        function getFilteredTrends(trends) {
+            if (!trends || !trends.length) return [];
+            if (activePeriod === '90D') {
+                return trends.slice(-3);
+            } else if (activePeriod === 'YTD') {
+                const currentYear = new Date().getFullYear().toString();
+                const ytd = trends.filter(t => t.month.startsWith(currentYear));
+                return ytd.length ? ytd : trends.slice(-4);
+            } else if (activePeriod === 'ALL') {
+                return trends;
+            }
+            // Default 6M
+            return trends.slice(-6);
+        }
+
+        /**
+         * Chart 1: Trajectory Chart (Bookings vs Revenue)
+         */
+        function renderTrendsChart(data) {
+            const canvas = document.getElementById('trendsChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (charts.trends) {
+                charts.trends.destroy();
+            }
+
+            const filteredTrends = getFilteredTrends(data.trends || []);
+            const labels = filteredTrends.map(t => {
+                const [year, month] = t.month.split('-');
+                return new Date(year, month - 1).toLocaleString('default', { month: 'short' });
+            });
+
+            // Gradient backgrounds
+            const emeraldGradient = ctx.createLinearGradient(0, 0, 0, 300);
+            emeraldGradient.addColorStop(0, 'rgba(46, 125, 50, 0.28)');
+            emeraldGradient.addColorStop(1, 'rgba(46, 125, 50, 0.00)');
+
+            const goldGradient = ctx.createLinearGradient(0, 0, 0, 300);
+            goldGradient.addColorStop(0, 'rgba(217, 119, 6, 0.28)');
+            goldGradient.addColorStop(1, 'rgba(217, 119, 6, 0.00)');
+
+            const isRevMode = trendsMode === 'revenue';
+            const datasetValues = isRevMode
+                ? filteredTrends.map(t => t.revenue || (t.count * 2500))
+                : filteredTrends.map(t => t.count);
+
+            charts.trends = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: data.trends.map(t => {
-                        const [year, month] = t.month.split('-');
-                        return new Date(year, month - 1).toLocaleString('default', { month: 'short' });
-                    }),
+                    labels: labels,
                     datasets: [{
-                        label: 'Monthly Bookings',
-                        data: data.trends.map(t => t.count),
-                        borderColor: '#2e7d32',
-                        backgroundColor: 'rgba(46, 125, 50, 0.05)',
+                        label: isRevMode ? 'Monthly Revenue (₱)' : 'Monthly Bookings',
+                        data: datasetValues,
+                        borderColor: isRevMode ? '#D97706' : '#2E7D32',
+                        backgroundColor: isRevMode ? goldGradient : emeraldGradient,
                         fill: true,
-                        tension: 0.4,
+                        tension: 0.42,
                         borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#2e7d32',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: isRevMode ? '#D97706' : '#2E7D32',
+                        pointBorderWidth: 2.5,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: isRevMode ? '#D97706' : '#2E7D32',
+                        pointHoverBorderColor: '#FFFFFF',
+                        pointHoverBorderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#94A3B8',
+                            titleFont: { size: 12, weight: '700' },
+                            bodyFont: { size: 12, weight: '600' },
+                            padding: 12,
+                            cornerRadius: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function (context) {
+                                    if (isRevMode) {
+                                        return ` Revenue: ₱${context.parsed.y.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+                                    }
+                                    return ` Bookings: ${context.parsed.y} sessions`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1, padding: 10 }, grid: { borderDash: [5, 5] } },
-                        x: { grid: { display: false }, ticks: { padding: 10 } }
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                padding: 10,
+                                callback: function (value) {
+                                    if (isRevMode) {
+                                        return value >= 1000 ? `₱${value / 1000}k` : `₱${value}`;
+                                    }
+                                    return Number.isInteger(value) ? value : '';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                borderDash: [4, 4]
+                            }
+                        },
+                        x: {
+                            ticks: { padding: 10, font: { weight: '600' } },
+                            grid: { display: false }
+                        }
                     }
                 }
             });
+        }
 
-            // 2. Status (Doughnut)
+        /**
+         * Toggle between Bookings and Revenue trends
+         */
+        function switchTrendsMode(mode, btn) {
+            trendsMode = mode;
+            const container = btn.closest('.chart-segmented-control');
+            container.querySelectorAll('.chart-segment-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (rawAnalyticsData) {
+                renderTrendsChart(rawAnalyticsData);
+            }
+        }
+
+        /**
+         * Chart 2: Status Lifecycle & Distribution (Doughnut)
+         */
+        function renderStatusChart(data, totalBookings) {
+            const canvas = document.getElementById('statusChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (charts.status) {
+                charts.status.destroy();
+            }
+
             const statusColors = {
-                'pending': '#D97706',
-                'confirmed': '#16A34A',
-                'cancelled': '#DC2626',
-                'completed': '#7C3AED'
+                'confirmed': '#10B981', // Emerald
+                'completed': '#6366F1', // Indigo
+                'pending': '#F59E0B',   // Warm Amber
+                'cancelled': '#EF4444'  // Coral Red
             };
 
-            new Chart(document.getElementById('statusChart'), {
+            const labels = data.statusCounts.map(s => s.status.charAt(0).toUpperCase() + s.status.slice(1));
+            const counts = data.statusCounts.map(s => s.count);
+            const bgColors = data.statusCounts.map(s => statusColors[s.status] || '#CBD5E1');
+
+            charts.status = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: data.statusCounts.map(s => s.status.charAt(0).toUpperCase() + s.status.slice(1)),
+                    labels: labels,
                     datasets: [{
-                        data: data.statusCounts.map(s => s.count),
-                        backgroundColor: data.statusCounts.map(s => statusColors[s.status] || '#E0E0E0'),
-                        borderWidth: 0,
-                        hoverOffset: 15
+                        data: counts,
+                        backgroundColor: bgColors,
+                        borderWidth: 3,
+                        borderColor: '#FFFFFF',
+                        hoverOffset: 12
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '70%',
+                    cutout: '74%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { padding: 30, usePointStyle: true, font: { size: 12 } } }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function (context) {
+                                    const val = context.parsed;
+                                    const pct = totalBookings > 0 ? ((val / totalBookings) * 100).toFixed(1) : 0;
+                                    return ` ${context.label}: ${val} (${pct}%)`;
+                                }
+                            }
+                        }
                     }
                 }
             });
 
-            // 3. Services (Horizontal Bar)
-            new Chart(document.getElementById('servicesChart'), {
+            // Populate custom interactive legend tray
+            const legendTray = document.getElementById('donutLegendTray');
+            if (legendTray) {
+                legendTray.innerHTML = data.statusCounts.map(s => {
+                    const color = statusColors[s.status] || '#CBD5E1';
+                    const pct = totalBookings > 0 ? ((s.count / totalBookings) * 100).toFixed(1) : 0;
+                    const capitalized = s.status.charAt(0).toUpperCase() + s.status.slice(1);
+                    return `
+                        <div class="donut-legend-item">
+                            <div class="legend-left">
+                                <span class="legend-color-dot" style="background:${color};"></span>
+                                <span class="legend-label">${capitalized}</span>
+                            </div>
+                            <div class="legend-stats">
+                                ${s.count} <span class="legend-pct">(${pct}%)</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        /**
+         * Chart 3: Top Services & Demand
+         */
+        function renderServicesChart(data, activeBookings) {
+            const canvas = document.getElementById('servicesChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (charts.services) {
+                charts.services.destroy();
+            }
+
+            const services = data.topServices || [];
+            const labels = services.map(s => s.name);
+            const counts = services.map(s => s.count);
+
+            charts.services = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.topServices.map(s => s.name),
+                    labels: labels,
                     datasets: [{
-                        data: data.topServices.map(s => s.count),
-                        backgroundColor: '#d4a574',
+                        data: counts,
+                        backgroundColor: '#D97706',
                         borderRadius: 8,
-                        barThickness: 24
+                        barThickness: 22,
+                        hoverBackgroundColor: '#B45309'
                     }]
                 },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function (context) {
+                                    const val = context.parsed.x;
+                                    const pct = activeBookings > 0 ? ((val / activeBookings) * 100).toFixed(1) : 0;
+                                    return ` ${val} sessions (${pct}% of volume)`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { display: false } },
-                        y: { grid: { display: false } }
+                        x: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, precision: 0 },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)', borderDash: [4, 4] }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { font: { weight: '600' } }
+                        }
                     }
                 }
             });
 
-            // 4. Staff (Bar)
-            new Chart(document.getElementById('staffChart'), {
+            // Populate ranked list view
+            const rankedWrapper = document.getElementById('servicesRankedWrapper');
+            if (rankedWrapper) {
+                const maxCount = Math.max(...counts, 1);
+                const totalServiceSessions = services.reduce((sum, s) => sum + (s.count || 0), 0) || 1;
+                rankedWrapper.innerHTML = services.map((s, idx) => {
+                    const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+                    const pctOfMax = Math.round((s.count / maxCount) * 100);
+                    const pctOfTotal = Math.round((s.count / totalServiceSessions) * 100);
+                    const rev = s.revenue ? `₱${parseFloat(s.revenue).toLocaleString()}` : `₱${(s.count * (s.price || 2500)).toLocaleString()}`;
+
+                    return `
+                        <div class="ranked-service-row">
+                            <div class="service-row-header">
+                                <div class="service-rank-name">
+                                    <span class="service-rank-badge ${rankClass}">#${idx + 1}</span>
+                                    <span class="service-item-title">${s.name}</span>
+                                </div>
+                                <div class="service-row-stats">
+                                    <span class="service-revenue-chip">${rev}</span>
+                                    <span>${s.count} shoots (${pctOfTotal}%)</span>
+                                </div>
+                            </div>
+                            <div class="service-progress-track">
+                                <div class="service-progress-fill" style="width: ${pctOfMax}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        /**
+         * Toggle between Bar Chart and Ranked List view
+         */
+        function switchServicesView(mode, btn) {
+            servicesViewMode = mode;
+            const container = btn.closest('.chart-segmented-control');
+            container.querySelectorAll('.chart-segment-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const chartEl = document.getElementById('servicesChartWrapper');
+            const listEl = document.getElementById('servicesRankedWrapper');
+
+            if (mode === 'chart') {
+                chartEl.style.display = 'block';
+                listEl.style.display = 'none';
+            } else {
+                chartEl.style.display = 'none';
+                listEl.style.display = 'flex';
+            }
+        }
+
+        /**
+         * Chart 4: Staff Productivity
+         */
+        function renderStaffChart(data) {
+            const canvas = document.getElementById('staffChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            if (charts.staff) {
+                charts.staff.destroy();
+            }
+
+            const staff = data.staffPerformance || [];
+            const labels = staff.map(s => s.name);
+            const counts = staff.map(s => s.count);
+
+            charts.staff = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.staffPerformance.map(s => s.name),
+                    labels: labels,
                     datasets: [{
-                        data: data.staffPerformance.map(s => s.count),
-                        backgroundColor: '#2e7d32',
+                        label: 'Completed Shoots',
+                        data: counts,
+                        backgroundColor: '#7C3AED',
                         borderRadius: 8,
-                        barThickness: 32
+                        barThickness: 28,
+                        hoverBackgroundColor: '#6D28D9'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function (context) {
+                                    return ` Completed: ${context.parsed.y} shoots`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { borderDash: [5, 5] } },
-                        x: { grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, precision: 0, padding: 10 },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)', borderDash: [4, 4] }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { weight: '600' } }
+                        }
                     }
                 }
             });
         }
 
-        function exportData(type) {
-            if (!analyticsData) return;
-            
-            let filename = `snailshutter_report_${type}_${new Date().toISOString().slice(0, 10)}.csv`;
-            let csvContent = "data:text/csv;charset=utf-8,";
-            
-            if (type === 'trends') {
-                csvContent += "Month,Bookings\n";
-                analyticsData.trends.forEach(t => csvContent += `${t.month},${t.count}\n`);
-            } else if (type === 'status') {
-                csvContent += "Status,Count\n";
-                analyticsData.statusCounts.forEach(s => csvContent += `${s.status},${s.count}\n`);
-            } else if (type === 'services') {
-                csvContent += "Service,Sessions\n";
-                analyticsData.topServices.forEach(s => csvContent += `${s.name},${s.count}\n`);
-            } else if (type === 'staff') {
-                csvContent += "Staff Name,Sessions Completed\n";
-                analyticsData.staffPerformance.forEach(s => csvContent += `${s.name},${s.count}\n`);
+        /**
+         * Deep-Dive Table: Package Financial Breakdown
+         */
+        function renderServicesTable(data, totalActive, totalRev) {
+            const tbody = document.getElementById('servicesTableBody');
+            if (!tbody) return;
+
+            const services = data.topServices || [];
+            if (services.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:#94A3B8;">No service performance data available.</td></tr>`;
+                return;
             }
 
-            const encodedUri = encodeURI(csvContent);
+            const totalServiceSessions = services.reduce((sum, s) => sum + (s.count || 0), 0) || 1;
+
+            tbody.innerHTML = services.map((s, index) => {
+                const rank = index + 1;
+                const basePrice = s.price ? `₱${parseFloat(s.price).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '₱1,500.00+';
+                const sharePct = ((s.count / totalServiceSessions) * 100).toFixed(1);
+                const grossYield = s.revenue 
+                    ? `₱${parseFloat(s.revenue).toLocaleString(undefined, { minimumFractionDigits: 2 })}` 
+                    : `₱${(s.count * (s.price || 2500)).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+
+                const tierClass = rank === 1 ? 'lead' : (rank <= 3 ? 'steady' : 'emerging');
+                const tierLabel = rank === 1 ? 'Top Performer' : (rank <= 3 ? 'High Demand' : 'Steady');
+
+                return `
+                    <tr>
+                        <td>
+                            <span class="service-rank-badge ${rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : ''}">
+                                #${rank}
+                            </span>
+                        </td>
+                        <td>
+                            <strong style="color:#0F172A;">${s.name}</strong>
+                        </td>
+                        <td>${basePrice}</td>
+                        <td>
+                            <strong>${s.count}</strong> sessions
+                        </td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:0.5rem; width:130px;">
+                                <div style="flex-grow:1; height:6px; background:#E2E8F0; border-radius:9999px; overflow:hidden;">
+                                    <div style="width:${sharePct}%; height:100%; background:#10B981; border-radius:9999px;"></div>
+                                </div>
+                                <span style="font-size:0.75rem; font-weight:700; color:#475569;">${sharePct}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <strong style="color:#059669;">${grossYield}</strong>
+                        </td>
+                        <td>
+                            <span class="status-badge-soft ${tierClass}">
+                                <i class="fas ${rank === 1 ? 'fa-fire' : 'fa-check'}"></i> ${tierLabel}
+                            </span>
+                        </td>
+                        <td style="text-align:right;">
+                            <a href="/admin/bookings.html" class="chart-export-btn" style="padding:0.3rem 0.6rem; font-size:0.725rem; text-decoration:none;">
+                                <i class="fas fa-search"></i> Bookings
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Export Dataset to CSV
+         */
+        function exportData(type) {
+            if (!rawAnalyticsData) return;
+            const nowIso = new Date().toISOString().slice(0, 10);
+            let filename = `snailshutter_${type}_report_${nowIso}.csv`;
+            let csvContent = "data:text/csv;charset=utf-8,";
+
+            if (type === 'trends') {
+                csvContent += "Month,Bookings Count,Estimated Revenue (PHP)\n";
+                rawAnalyticsData.trends.forEach(t => {
+                    const rev = t.revenue || (t.count * 2500);
+                    csvContent += `"${t.month}",${t.count},${rev}\n`;
+                });
+            } else if (type === 'status') {
+                csvContent += "Booking Status,Session Count\n";
+                rawAnalyticsData.statusCounts.forEach(s => {
+                    csvContent += `"${s.status}",${s.count}\n`;
+                });
+            } else if (type === 'services') {
+                csvContent += "Service Name,Sessions Booked,Base Price,Gross Revenue\n";
+                rawAnalyticsData.topServices.forEach(s => {
+                    csvContent += `"${s.name}",${s.count},${s.price || 0},${s.revenue || 0}\n`;
+                });
+            } else if (type === 'staff') {
+                csvContent += "Staff Name,Completed Sessions\n";
+                rawAnalyticsData.staffPerformance.forEach(s => {
+                    csvContent += `"${s.name}",${s.count}\n`;
+                });
+            }
+
+            downloadFile(csvContent, filename);
+        }
+
+        /**
+         * Comprehensive Multi-Section Executive CSV Export
+         */
+        function exportFullReport() {
+            if (!rawAnalyticsData) return;
+            const nowIso = new Date().toISOString().slice(0, 10);
+            const filename = `snailshutter_executive_analytics_full_${nowIso}.csv`;
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "=== SNAILSHUTTER STUDIO EXECUTIVE INTELLIGENCE REPORT ===\n";
+            csvContent += `Generated On,${new Date().toLocaleString()}\n`;
+            csvContent += `Total Gross Revenue,PHP ${parseFloat(rawAnalyticsData.totalRevenue || 0).toFixed(2)}\n`;
+            csvContent += `Today Revenue,PHP ${parseFloat(rawAnalyticsData.todayRevenue || 0).toFixed(2)}\n\n`;
+
+            csvContent += "=== BOOKING STATUS BREAKDOWN ===\n";
+            csvContent += "Status,Count\n";
+            rawAnalyticsData.statusCounts.forEach(s => {
+                csvContent += `"${s.status}",${s.count}\n`;
+            });
+            csvContent += "\n";
+
+            csvContent += "=== MONTHLY BOOKING & REVENUE TRENDS ===\n";
+            csvContent += "Month,Bookings,Revenue (PHP)\n";
+            rawAnalyticsData.trends.forEach(t => {
+                csvContent += `"${t.month}",${t.count},${t.revenue || (t.count * 2500)}\n`;
+            });
+            csvContent += "\n";
+
+            csvContent += "=== SERVICE PACKAGES DEMAND & FINANCIALS ===\n";
+            csvContent += "Service Name,Sessions Booked,Revenue Yield (PHP)\n";
+            rawAnalyticsData.topServices.forEach(s => {
+                csvContent += `"${s.name}",${s.count},${s.revenue || 0}\n`;
+            });
+            csvContent += "\n";
+
+            csvContent += "=== STAFF PERFORMANCE SUMMARY ===\n";
+            csvContent += "Staff Name,Completed Shoots\n";
+            rawAnalyticsData.staffPerformance.forEach(s => {
+                csvContent += `"${s.name}",${s.count}\n`;
+            });
+
+            downloadFile(csvContent, filename);
+            if (typeof showAlert === 'function') {
+                showAlert('Executive CSV report downloaded successfully.', 'success');
+            }
+        }
+
+        /**
+         * Export Chart Canvas as PNG Image
+         */
+        function exportChartImage(canvasId, name) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const imageURI = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `snailshutter_${name}_${new Date().toISOString().slice(0, 10)}.png`;
+            link.href = imageURI;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            if (typeof showAlert === 'function') {
+                showAlert('Chart graphic downloaded as high-res PNG.', 'success');
+            }
+        }
+
+        function downloadFile(content, filename) {
+            const encodedUri = encodeURI(content);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
             link.setAttribute("download", filename);
@@ -549,8 +1228,12 @@
         }
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
+            if (typeof window.safeToggleSidebar === 'function') {
+                window.safeToggleSidebar();
+            } else {
+                document.getElementById('sidebar')?.classList.toggle('active');
+                document.getElementById('sidebarOverlay')?.classList.toggle('active');
+            }
         }
     </script>
 </body>

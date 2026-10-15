@@ -35,7 +35,8 @@ router.get('/analytics', authMiddleware, roleMiddleware(['admin']), async (req, 
         const [trendsRows] = await pool.execute(`
             SELECT 
                 DATE_FORMAT(booking_date, '%Y-%m') as month,
-                COUNT(*) as count
+                COUNT(*) as count,
+                COALESCE(SUM(CASE WHEN status IN ('confirmed', 'completed') THEN total_price ELSE 0 END), 0) as revenue
             FROM bookings
             WHERE booking_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
             GROUP BY month
@@ -51,18 +52,19 @@ router.get('/analytics', authMiddleware, roleMiddleware(['admin']), async (req, 
             const existing = trendsRows.find(t => t.month === monthStr);
             trends.push({
                 month: monthStr,
-                count: existing ? existing.count : 0
+                count: existing ? existing.count : 0,
+                revenue: existing ? (parseFloat(existing.revenue) || 0) : 0
             });
         }
 
         // 4. Top Services (Most Booked)
         const [servicesResult] = await pool.execute(`
-            SELECT s.name, COUNT(b.id) as count
+            SELECT s.name, s.price, COUNT(b.id) as count, COALESCE(SUM(b.total_price), 0) as revenue
             FROM bookings b
             JOIN services s ON b.service_id = s.id
             GROUP BY s.id
             ORDER BY count DESC
-            LIMIT 5
+            LIMIT 6
         `);
 
         // 5. Staff Performance
@@ -118,23 +120,29 @@ router.get('/analytics', authMiddleware, roleMiddleware(['admin']), async (req, 
                 const d = new Date();
                 d.setMonth(d.getMonth() - i);
                 const monthStr = d.toISOString().slice(0, 7);
-                const count = fallbackBookings.filter(b => {
+                const matched = fallbackBookings.filter(b => {
                     const bMonth = new Date(b.booking_date).toISOString().slice(0, 7);
                     return bMonth === monthStr;
-                }).length;
-                trends.push({ month: monthStr, count });
+                });
+                const count = matched.length;
+                const revenue = matched
+                    .filter(b => ['confirmed', 'completed'].includes(b.status))
+                    .reduce((sum, b) => sum + Number(b.total_price || 0), 0);
+                trends.push({ month: monthStr, count, revenue });
             }
 
             // 4. Top Services
             const topServices = [
-                { name: 'Portrait Session', count: 12 },
-                { name: 'Wedding Coverage', count: 8 },
-                { name: 'Event Photography', count: 5 }
+                { name: 'Portrait Session', count: 12, price: 1500, revenue: 18000 },
+                { name: 'Wedding Coverage', count: 8, price: 15000, revenue: 120000 },
+                { name: 'Event Photography', count: 5, price: 5000, revenue: 25000 },
+                { name: 'Studio Rental', count: 3, price: 2000, revenue: 6000 }
             ];
 
             // 5. Staff Performance
             const staffPerformance = [
-                { name: 'Staff User', count: 4 }
+                { name: 'Staff User', count: 4, role: 'Senior Photographer' },
+                { name: 'Studio Lead', count: 3, role: 'Creative Director' }
             ];
 
             return res.json({
