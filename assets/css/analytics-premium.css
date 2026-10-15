@@ -25,10 +25,27 @@
 }
 
 /* -------------------------------------------------------------
-   CONTAINER & LAYOUT
+   CONTAINER & VIEWPORT CONTAINMENT (Strict responsive boundary)
    ------------------------------------------------------------- */
+.dashboard-layout {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+body.premium-dashboard .main-content {
+    margin-left: var(--sidebar-width, 260px);
+    flex: 1 1 0%;
+    min-width: 0 !important;
+    max-width: calc(100vw - var(--sidebar-width, 260px));
+    width: calc(100% - var(--sidebar-width, 260px));
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
 .analytics-page-container {
-    padding: 0 2rem 3rem;
+    padding: 0 1.75rem 2.5rem;
     max-width: 1440px;
     margin: 0 auto;
     width: 100%;
@@ -44,13 +61,24 @@ body.premium-dashboard .analytics-hero {
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
-    padding: 2.25rem 2.5rem;
-    margin: 1.5rem 2rem 1.75rem;
+    padding: 2rem 2.25rem;
+    margin: 1.25rem 1.75rem 1.5rem;
+    max-width: calc(100% - 3.5rem);
     border-radius: 24px;
     background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 45%, #0B3D11 100%);
     position: relative;
     overflow: hidden;
     box-shadow: 0 16px 40px rgba(27, 94, 32, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+}
+
+/* Ensure notification bell stays neatly inside hero without overlapping controls */
+body.premium-dashboard .analytics-hero .admin-notification-center.in-hero {
+    position: absolute !important;
+    top: 1.5rem !important;
+    right: 1.75rem !important;
+    transform: none !important;
+    z-index: 10 !important;
 }
 
 .hero-content-block {
@@ -106,6 +134,8 @@ body.premium-dashboard .analytics-hero p {
     flex-direction: column;
     align-items: flex-end;
     gap: 0.85rem;
+    padding-right: 3.5rem; /* Leaves room for docked notification bell on desktop */
+    box-sizing: border-box;
 }
 
 .hero-sync-pill {
@@ -265,14 +295,33 @@ body.premium-dashboard .analytics-hero p {
    ------------------------------------------------------------- */
 .kpi-matrix-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.25rem;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.15rem;
     margin-bottom: 2rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-@media (max-width: 1280px) {
+/* Laptops & Standard Desktops (1025px - 1439px): Symmetrical 3 + 2 layout */
+@media (max-width: 1439px) and (min-width: 1025px) {
     .kpi-matrix-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 1rem;
+    }
+    .kpi-matrix-grid .kpi-bezel-card:nth-child(1) { grid-column: span 2; }
+    .kpi-matrix-grid .kpi-bezel-card:nth-child(2) { grid-column: span 2; }
+    .kpi-matrix-grid .kpi-bezel-card:nth-child(3) { grid-column: span 2; }
+    .kpi-matrix-grid .kpi-bezel-card:nth-child(4) { grid-column: span 3; }
+    .kpi-matrix-grid .kpi-bezel-card:nth-child(5) { grid-column: span 3; }
+}
+
+@media (max-width: 1024px) {
+    .kpi-matrix-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+    }
+    .kpi-matrix-grid .kpi-bezel-card:nth-child(5) {
+        grid-column: span 2;
     }
 }
 
@@ -286,6 +335,8 @@ body.premium-dashboard .analytics-hero p {
     transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
     overflow: hidden;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .kpi-bezel-card:hover {
@@ -311,7 +362,7 @@ body.premium-dashboard .analytics-hero p {
 .kpi-bezel-inner {
     background: #FFFFFF;
     border-radius: var(--card-inner-radius);
-    padding: 1.35rem 1.25rem;
+    padding: 1.25rem 1.15rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -319,6 +370,8 @@ body.premium-dashboard .analytics-hero p {
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9);
     position: relative;
     z-index: 1;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .kpi-card-header {
@@ -408,18 +461,25 @@ body.premium-dashboard .analytics-hero p {
     letter-spacing: 0.07em;
     color: #64748B;
     margin: 0 0 0.35rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .kpi-metric-number {
-    font-size: 1.75rem;
+    font-size: clamp(1.35rem, 1.7vw, 1.75rem);
     font-weight: 800;
     letter-spacing: -0.03em;
     color: #0F172A;
-    line-height: 1.1;
+    line-height: 1.15;
     margin: 0 0 0.35rem;
     display: flex;
     align-items: baseline;
     gap: 0.15rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .kpi-metric-number .currency-symbol {
@@ -440,21 +500,32 @@ body.premium-dashboard .analytics-hero p {
    ------------------------------------------------------------- */
 .executive-insights-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.25rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.15rem;
     margin-bottom: 2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1100px) and (min-width: 769px) {
+    .executive-insights-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 0.85rem;
+    }
 }
 
 .insight-pill-card {
     background: #FFFFFF;
     border-radius: 16px;
     border: 1px solid var(--subtle-border);
-    padding: 1.15rem 1.35rem;
+    padding: 1.15rem 1.25rem;
     display: flex;
     align-items: center;
-    gap: 1.15rem;
+    gap: 1rem;
     box-shadow: var(--premium-shadow-sm);
     transition: all 0.25s ease;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .insight-pill-card:hover {
@@ -512,9 +583,11 @@ body.premium-dashboard .analytics-hero p {
    ------------------------------------------------------------- */
 .charts-mosaic-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
     margin-bottom: 2.25rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .analytics-chart-panel {
@@ -525,6 +598,8 @@ body.premium-dashboard .analytics-hero p {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 0;
+    box-sizing: border-box;
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
@@ -825,6 +900,16 @@ body.premium-dashboard .analytics-hero p {
     box-shadow: var(--premium-shadow-sm);
     overflow: hidden;
     margin-bottom: 2.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.analytics-table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
 }
 
 .table-panel-header {
@@ -835,6 +920,8 @@ body.premium-dashboard .analytics-hero p {
     border-bottom: 1px solid var(--subtle-border);
     flex-wrap: wrap;
     gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .table-header-title h3 {
@@ -921,9 +1008,16 @@ body.premium-dashboard .analytics-hero p {
 }
 
 @media (max-width: 900px) {
+    body.premium-dashboard .main-content {
+        margin-left: 0 !important;
+        max-width: 100vw !important;
+        width: 100% !important;
+    }
+
     body.premium-dashboard .analytics-hero {
-        margin: 1rem 1.25rem 1.25rem !important;
-        padding: 1.65rem 1.5rem !important;
+        margin: 0.85rem 1rem 1.25rem !important;
+        max-width: calc(100% - 2rem) !important;
+        padding: 1.5rem 1.25rem !important;
         border-radius: 20px;
         flex-direction: column;
         align-items: flex-start;
@@ -932,17 +1026,18 @@ body.premium-dashboard .analytics-hero p {
 
     .hero-content-block {
         max-width: 100%;
-        padding-right: 3rem;
+        padding-right: 3.5rem;
     }
 
     body.premium-dashboard .analytics-hero h1 {
-        font-size: 1.5rem;
+        font-size: 1.45rem;
     }
 
     .hero-controls-block {
         width: 100%;
         align-items: stretch;
         gap: 0.75rem;
+        padding-right: 0 !important;
     }
 
     .hero-sync-pill {
