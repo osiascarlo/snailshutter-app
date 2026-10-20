@@ -12,7 +12,15 @@
 /* ============================================================
    GLOBAL RESPONSIVE HELPERS
    ============================================================ */
-html { -webkit-text-size-adjust: 100%; }
+html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+body {
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
 img, video, iframe { max-width: 100%; height: auto; }
 
 /* ============================================================
@@ -351,6 +359,15 @@ img, video, iframe { max-width: 100%; height: auto; }
     .sidebar-link { min-height: 48px; }
     .filter-btn { min-height: 40px; }
     .service-card:hover, .stat-card:hover, .card:hover { transform: none; }
+
+    /* Hardware acceleration & smooth touch scrolling */
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+    .service-card, .card, .content-card {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
 }
 
 /* ============================================================

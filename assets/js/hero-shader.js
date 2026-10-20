@@ -300,23 +300,41 @@
 
     // Resize handler
     function resizeCanvas() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2 for performance
+        const isMobile = window.innerWidth <= 768;
+        // On mobile devices, keep DPR at 1 to save massive GPU fill-rate overhead
+        const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
         const width = heroSection.clientWidth;
         const height = heroSection.clientHeight;
         
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
         
         gl.viewport(0, 0, canvas.width, canvas.height);
     }
 
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', resizeCanvas, { passive: true });
     resizeCanvas();
 
-    // Render loop
+    // Render loop with IntersectionObserver to sleep when off-screen
     let startTime = Date.now();
+    let isHeroVisible = true;
+    let animFrameId = null;
+
+    if ('IntersectionObserver' in window) {
+        const heroObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                isHeroVisible = entry.isIntersecting;
+                if (isHeroVisible && !animFrameId && imageLoaded) {
+                    animFrameId = requestAnimationFrame(render);
+                }
+            });
+        }, { threshold: 0.05 });
+        heroObserver.observe(heroSection);
+    }
+
     function render() {
-        if (!imageLoaded) return;
+        animFrameId = null;
+        if (!imageLoaded || !isHeroVisible) return;
 
         // Smooth mouse dampening
         mouse.x += (mouse.targetX - mouse.x) * 0.08;
@@ -363,6 +381,6 @@
         // Draw quad
         gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-        requestAnimationFrame(render);
+        animFrameId = requestAnimationFrame(render);
     }
 })();

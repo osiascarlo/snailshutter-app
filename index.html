@@ -26,22 +26,23 @@
             padding: 0.6rem 1.5rem;
             border: 1px solid rgba(0, 0, 0, 0.06);
             border-radius: 50px;
-            background: rgba(255, 255, 255, 0.6);
+            background: #ffffff;
             color: #475569;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            backdrop-filter: blur(12px);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             white-space: nowrap;
             flex-shrink: 0;
             user-select: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
         .filter-btn:hover {
             border-color: var(--color-primary, #16a34a);
             color: var(--color-primary, #16a34a);
-            background: rgba(255, 255, 255, 0.9);
+            background: #ffffff;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.12);
         }
         .filter-btn.active {
             background: var(--color-primary, #16a34a);
@@ -66,20 +67,22 @@
         .service-card {
             display: flex;
             flex-direction: column;
-            background: rgba(255, 255, 255, 0.65);
+            background: #ffffff;
             border-radius: var(--radius-xl, 24px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.06);
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-            backdrop-filter: blur(20px);
-            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            transition: transform 0.35s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.35s ease;
             cursor: pointer;
             position: relative;
             z-index: 1;
+            transform: translateZ(0);
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 380px;
         }
         .service-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 30px 60px rgba(46, 125, 50, 0.08), 0 0 0 1px rgba(132, 232, 146, 0.2);
+            box-shadow: 0 24px 48px rgba(46, 125, 50, 0.1), 0 0 0 1px rgba(132, 232, 146, 0.3);
             border-color: rgba(132, 232, 146, 0.3);
         }
         .service-card-image {
@@ -362,19 +365,9 @@
             position: absolute;
             inset: 0;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
-            opacity: 0.35;
-            mix-blend-mode: overlay;
+            opacity: 0.18;
             pointer-events: none;
             z-index: 1;
-            animation: filmNoise 0.5s steps(10) infinite;
-        }
-        @keyframes filmNoise {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-1%, -1%); }
-            30% { transform: translate(1%, -2%); }
-            50% { transform: translate(-2%, 1%); }
-            70% { transform: translate(2%, 2%); }
-            90% { transform: translate(-1%, 3%); }
         }
 
         .landing-services {
@@ -392,13 +385,32 @@
             color: #64748b;
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 900px), (pointer: coarse) {
             .services-grid { grid-template-columns: 1fr; }
-            .services-filters { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.5rem; }
+            .services-filters { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
             .service-card-image { height: 200px; }
             .service-card-content { padding: 1.5rem; }
             .svc-modal-image { height: 200px; }
             .svc-modal-body { padding: 1.5rem; }
+            .services-vignette::after { display: none !important; }
+            .photo-hud-aperture,
+            .photo-hud-autofocus,
+            .photo-hud-telemetry { display: none !important; animation: none !important; }
+            .services-shader-canvas, #studioBokehCanvas { display: none !important; }
+            .service-card {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: #ffffff !important;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+                transform: none !important;
+            }
+            .service-card:hover {
+                transform: none !important;
+            }
+            .filter-btn, .category-badge, .svc-modal-badge {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
         }
 
         /* ── Photography Background HUD Elements ── */
@@ -903,34 +915,44 @@
             const section = document.getElementById('services');
             if (!canvas || !section) return;
 
+            // Disable heavy canvas shader on mobile/tablets to ensure butter-smooth 60fps scrolling
+            if (window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 900)) {
+                canvas.style.display = 'none';
+                return;
+            }
+
             const ctx = canvas.getContext('2d');
             let width = (canvas.width = section.clientWidth);
             let height = (canvas.height = section.clientHeight);
 
             window.addEventListener('resize', () => {
+                if (window.innerWidth <= 768) {
+                    canvas.style.display = 'none';
+                    return;
+                }
                 width = canvas.width = section.clientWidth;
                 height = canvas.height = section.clientHeight;
-            });
+            }, { passive: true });
 
             // Colorful floating lens flare elements
             const flares = [];
-            const flareCount = 6;
+            const flareCount = 5;
             const colors = [
-                'rgba(132, 232, 146, 0.08)', // soft mint green
-                'rgba(251, 191, 36, 0.06)',  // amber / warm sun leak
-                'rgba(14, 165, 233, 0.06)',  // light blue sky reflection
-                'rgba(244, 63, 94, 0.05)',   // rose pink flare
-                'rgba(168, 85, 247, 0.05)'   // violet prism flare
+                'rgba(132, 232, 146, 0.08)',
+                'rgba(251, 191, 36, 0.06)',
+                'rgba(14, 165, 233, 0.06)',
+                'rgba(244, 63, 94, 0.05)',
+                'rgba(168, 85, 247, 0.05)'
             ];
 
             for (let i = 0; i < flareCount; i++) {
                 flares.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
-                    radius: Math.random() * 250 + 150,
+                    radius: Math.random() * 220 + 130,
                     color: colors[i % colors.length],
-                    vx: (Math.random() - 0.5) * 0.4,
-                    vy: (Math.random() - 0.5) * 0.4
+                    vx: (Math.random() - 0.5) * 0.35,
+                    vy: (Math.random() - 0.5) * 0.35
                 });
             }
 
@@ -940,51 +962,40 @@
                 const rect = section.getBoundingClientRect();
                 mouse.x = e.clientX - rect.left;
                 mouse.y = e.clientY - rect.top;
-            });
+            }, { passive: true });
             section.addEventListener('mouseleave', () => {
                 mouse.x = -1000;
                 mouse.y = -1000;
-            });
+            }, { passive: true });
+
+            let isSectionVisible = true;
+            let animId = null;
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        isSectionVisible = entry.isIntersecting;
+                        if (isSectionVisible && !animId) {
+                            animId = requestAnimationFrame(draw);
+                        }
+                    });
+                }, { threshold: 0.05 });
+                observer.observe(section);
+            }
 
             function draw() {
-                ctx.clearRect(0, 0, width, height);
+                animId = null;
+                if (!isSectionVisible) return;
 
-                // Draw Grid overlay
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.015)';
-                ctx.lineWidth = 1;
-                const gridSize = 60;
-                for (let x = 0; x < width; x += gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, height);
-                    ctx.stroke();
-                }
-                for (let y = 0; y < height; y += gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(width, y);
-                    ctx.stroke();
-                }
+                ctx.clearRect(0, 0, width, height);
 
                 flares.forEach(f => {
                     f.x += f.vx;
                     f.y += f.vy;
 
-                    // Bounce boundaries
                     if (f.x < -100 || f.x > width + 100) f.vx *= -1;
                     if (f.y < -100 || f.y > height + 100) f.vy *= -1;
 
-                    // Subtle mouse push
-                    const dx = mouse.x - f.x;
-                    const dy = mouse.y - f.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 400) {
-                        const force = (400 - dist) / 400 * 0.15;
-                        f.x -= (dx / dist) * force;
-                        f.y -= (dy / dist) * force;
-                    }
-
-                    // Draw flare circle
                     ctx.beginPath();
                     const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius);
                     grad.addColorStop(0, f.color);
@@ -994,43 +1005,10 @@
                     ctx.fill();
                 });
 
-                // Draw Camera Lens flare ghosting elements along light source axis (mouse vector)
-                if (mouse.x !== -1000) {
-                    const centerX = width / 2;
-                    const centerY = height / 2;
-                    const dx = centerX - mouse.x;
-                    const dy = centerY - mouse.y;
-
-                    const ghostPositions = [0.35, 0.75, -0.2, -0.45, 1.15];
-                    const ghostColors = [
-                        'rgba(132, 232, 146, 0.05)', // Mint green ghost
-                        'rgba(251, 191, 36, 0.04)',  // Amber ghost
-                        'rgba(14, 165, 233, 0.04)',  // Cyan ghost
-                        'rgba(244, 63, 94, 0.03)',   // Rose pink ghost
-                        'rgba(168, 85, 247, 0.04)'   // Violet prism ghost
-                    ];
-
-                    ghostPositions.forEach((mult, index) => {
-                        const gx = centerX + dx * mult;
-                        const gy = centerY + dy * mult;
-                        const radius = Math.abs(50 + mult * 35);
-                        
-                        ctx.beginPath();
-                        ctx.arc(gx, gy, radius, 0, Math.PI * 2);
-                        ctx.fillStyle = ghostColors[index % ghostColors.length];
-                        ctx.fill();
-
-                        // Soft halo edge
-                        ctx.strokeStyle = ghostColors[index % ghostColors.length].replace('0.', '0.12');
-                        ctx.lineWidth = 1;
-                        ctx.stroke();
-                    });
-                }
-
-                requestAnimationFrame(draw);
+                animId = requestAnimationFrame(draw);
             }
 
-            draw();
+            animId = requestAnimationFrame(draw);
         }
 
         async function loadServices() {
@@ -1098,15 +1076,24 @@
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
 
-        // Navbar Scroll Handler
+        // Navbar Scroll Handler (throttled via requestAnimationFrame & passive)
+        let scrollTicking = false;
         window.addEventListener('scroll', () => {
-            const nav = document.getElementById('landingNav');
-            if (window.scrollY > 50) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
+            if (!scrollTicking) {
+                window.requestAnimationFrame(() => {
+                    const nav = document.getElementById('landingNav');
+                    if (nav) {
+                        if (window.scrollY > 50) {
+                            nav.classList.add('scrolled');
+                        } else {
+                            nav.classList.remove('scrolled');
+                        }
+                    }
+                    scrollTicking = false;
+                });
+                scrollTicking = true;
             }
-        });
+        }, { passive: true });
 
         // ── Hamburger Menu ──────────────────────────────────
         const navToggle  = document.getElementById('navToggle');
@@ -1168,6 +1155,12 @@
             const canvas = document.getElementById('studioBokehCanvas');
             if (!locationSec || !spotlight || !canvas) return;
 
+            // On mobile devices, hide bokeh canvas to keep touch scrolling light and responsive
+            if (window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 900)) {
+                canvas.style.display = 'none';
+                return;
+            }
+
             // 1. Mouse Spotlight Tracker
             locationSec.addEventListener('mousemove', function (e) {
                 const rect = locationSec.getBoundingClientRect();
@@ -1175,12 +1168,14 @@
                 const y = e.clientY - rect.top;
                 spotlight.style.left = x + 'px';
                 spotlight.style.top = y + 'px';
-            });
+            }, { passive: true });
 
-            // 2. Canvas Floating Bokeh Particles
+            // 2. Canvas Floating Bokeh Particles (optimized without expensive shadowBlur)
             const ctx = canvas.getContext('2d');
             let particles = [];
-            const particleCount = 20;
+            const particleCount = 15;
+            let isLocVisible = true;
+            let bokehAnimId = null;
 
             function resizeCanvas() {
                 canvas.width = locationSec.clientWidth;
@@ -1188,28 +1183,41 @@
             }
 
             resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+            window.addEventListener('resize', resizeCanvas, { passive: true });
 
-            // Initialize particles
+            if ('IntersectionObserver' in window) {
+                const locObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        isLocVisible = entry.isIntersecting;
+                        if (isLocVisible && !bokehAnimId) {
+                            bokehAnimId = requestAnimationFrame(animateBokeh);
+                        }
+                    });
+                }, { threshold: 0.05 });
+                locObserver.observe(locationSec);
+            }
+
             for (let i = 0; i < particleCount; i++) {
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height + canvas.height,
-                    radius: Math.random() * 6 + 2,
-                    opacity: Math.random() * 0.25 + 0.08,
-                    speed: Math.random() * 0.5 + 0.15,
+                    radius: Math.random() * 5 + 2,
+                    opacity: Math.random() * 0.2 + 0.08,
+                    speed: Math.random() * 0.4 + 0.15,
                     wobbleSpeed: Math.random() * 0.01 + 0.005
                 });
             }
 
-            function animate() {
+            function animateBokeh() {
+                bokehAnimId = null;
+                if (!isLocVisible) return;
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 particles.forEach(p => {
                     p.y -= p.speed;
-                    p.x += Math.sin(p.y * p.wobbleSpeed) * 0.3;
+                    p.x += Math.sin(p.y * p.wobbleSpeed) * 0.25;
 
-                    // Reset particle when it leaves top
                     if (p.y < -20) {
                         p.y = canvas.height + 20;
                         p.x = Math.random() * canvas.width;
@@ -1218,15 +1226,13 @@
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                     ctx.fillStyle = `rgba(132, 232, 146, ${p.opacity})`;
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = 'rgba(132, 232, 146, 0.3)';
                     ctx.fill();
                 });
 
-                requestAnimationFrame(animate);
+                bokehAnimId = requestAnimationFrame(animateBokeh);
             }
 
-            animate();
+            bokehAnimId = requestAnimationFrame(animateBokeh);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
