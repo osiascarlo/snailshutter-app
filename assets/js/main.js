@@ -189,15 +189,14 @@ function showCancellationModal(options = {}) {
         { value: 'Invalid or unverified payment receipt', label: 'Invalid or unverified payment receipt' },
         { value: 'Client requested cancellation via phone / chat', label: 'Client requested cancellation via phone / chat' },
         { value: 'Studio maintenance / Equipment emergency', label: 'Studio maintenance / Equipment emergency' },
-        { value: 'Other', label: 'Other / Custom reason (specify below)' }
+        { value: 'Other', label: 'Other (specify below)' }
     ];
 
     const clientOptions = [
         { value: 'Schedule conflict / Change of plans', label: 'Schedule conflict / Change of plans' },
         { value: 'Personal emergency', label: 'Personal emergency' },
-        { value: 'Need to reschedule to another date', label: 'Need to reschedule to another date' },
         { value: 'Financial / Budget reasons', label: 'Financial / Budget reasons' },
-        { value: 'Other', label: 'Other / Custom reason (specify below)' }
+        { value: 'Other', label: 'Other (specify below)' }
     ];
 
     const presetList = isClient ? clientOptions : adminOptions;
@@ -324,7 +323,7 @@ function showCancellationModal(options = {}) {
             const preset = selectedRadio ? selectedRadio.value : '';
 
             if (preset === 'Other' && !customNote) {
-                errorMsg.textContent = 'Please specify the custom cancellation reason in the note field.';
+                errorMsg.textContent = 'Please specify the cancellation reason in the note field.';
                 errorMsg.style.display = 'block';
                 noteArea.focus();
                 return;
