@@ -2396,7 +2396,11 @@ body:has(.auth-container) #alertContainer {
     position: fixed;
     top: 0; left: 0;
     height: 100vh;
+    height: 100dvh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
     display: flex;
     flex-direction: column;
     z-index: 1000;
@@ -3237,26 +3241,49 @@ select.table-filters .form-control {
    SIDEBAR MOBILE OVERLAY
 =========================== */
 .sidebar-overlay {
-    display: none;
+    display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(15, 23, 42, 0.55);
     z-index: 999;
-    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: opacity;
+    touch-action: manipulation;
 }
 
 @media (max-width: 900px) {
     .sidebar {
-        transform: translateX(-100%);
+        transform: translate3d(-100%, 0, 0);
+        -webkit-transform: translate3d(-100%, 0, 0);
+        will-change: transform;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        contain: paint layout;
+        transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+        width: 275px;
+        max-width: 84vw;
+        height: 100vh;
+        height: 100dvh;
+        max-height: 100dvh;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+        touch-action: manipulation;
     }
 
     .sidebar.active {
-        transform: translateX(0);
-        box-shadow: var(--shadow-xl);
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+        box-shadow: 6px 0 30px rgba(0, 0, 0, 0.18);
     }
 
     .sidebar-overlay.active {
-        display: block;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
     }
 
     .main-content {
@@ -3809,6 +3836,9 @@ select.table-filters .form-control {
     }
 
     /* Transform hamburger icon into a close (X) icon when sidebar is active */
+    body.sidebar-open .mobile-header-menu-btn i::before,
+    body.sidebar-open .mobile-menu-btn i::before,
+    body:has(.sidebar.active) .mobile-header-menu-btn i::before,
     body:has(.sidebar.active) .mobile-menu-btn i::before {
         content: "\f00d" !important;
     }

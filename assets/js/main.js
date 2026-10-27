@@ -493,8 +493,11 @@ function getGallerySkeletonHTML(count = 6) {
 // Navigation and UI helpers
 let lastMainSidebarToggleTime = 0;
 function toggleSidebar(forceState) {
+    if (typeof window.safeToggleSidebar === 'function') {
+        return window.safeToggleSidebar(forceState);
+    }
     const now = Date.now();
-    if (typeof forceState !== 'boolean' && (now - lastMainSidebarToggleTime < 280)) {
+    if (typeof forceState !== 'boolean' && (now - lastMainSidebarToggleTime < 160)) {
         return;
     }
     lastMainSidebarToggleTime = now;
@@ -507,25 +510,32 @@ function toggleSidebar(forceState) {
             ? forceState
             : !sidebar.classList.contains('active');
 
-        if (shouldOpen) {
-            sidebar.classList.add('active');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'sidebarOverlay';
-                overlay.className = 'sidebar-overlay';
-                document.body.appendChild(overlay);
-                overlay.addEventListener('click', () => toggleSidebar(false));
-            }
-            overlay.classList.add('active');
-            document.body.classList.add('sidebar-open');
-        } else {
-            sidebar.classList.remove('active');
-            if (overlay) overlay.classList.remove('active');
-            document.body.classList.remove('sidebar-open');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'sidebarOverlay';
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', () => toggleSidebar(false));
         }
+
+        requestAnimationFrame(() => {
+            if (shouldOpen) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                document.body.classList.add('sidebar-open');
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            }
+        });
     }
 }
-window.toggleSidebar = toggleSidebar;
+try {
+    if (!window.safeToggleSidebar) {
+        window.toggleSidebar = toggleSidebar;
+    }
+} catch (_) {}
 
 // Initialize common functionality
 document.addEventListener('DOMContentLoaded', function() {

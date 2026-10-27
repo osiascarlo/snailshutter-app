@@ -2461,9 +2461,14 @@
             return s.charAt(0).toUpperCase() + s.slice(1); 
         }
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
+        function toggleSidebar(forceState) {
+            if (typeof window.safeToggleSidebar === 'function') {
+                window.safeToggleSidebar(forceState);
+            } else {
+                document.getElementById('sidebar')?.classList.toggle('active');
+                document.getElementById('sidebarOverlay')?.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            }
         }
     </script>
 </body>

@@ -9,12 +9,12 @@
     let lastToggleTimestamp = 0;
 
     /**
-     * Debounced, race-condition immune sidebar toggle
+     * Debounced, 60fps/120fps hardware-synced sidebar toggle
      */
     function safeToggleSidebar(forceState) {
         const now = Date.now();
-        // If no explicit boolean state is provided, enforce a 280ms debounce
-        if (typeof forceState !== 'boolean' && (now - lastToggleTimestamp < 280)) {
+        // Prevent accidental rapid double-taps (snappy 160ms window)
+        if (typeof forceState !== 'boolean' && (now - lastToggleTimestamp < 160)) {
             return;
         }
         lastToggleTimestamp = now;
@@ -27,25 +27,45 @@
             ? forceState
             : !sidebar.classList.contains('active');
 
-        if (shouldOpen) {
-            sidebar.classList.add('active');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'sidebarOverlay';
-                overlay.className = 'sidebar-overlay';
-                document.body.appendChild(overlay);
-            }
-            overlay.classList.add('active');
-            document.body.classList.add('sidebar-open');
-        } else {
-            sidebar.classList.remove('active');
-            if (overlay) overlay.classList.remove('active');
-            document.body.classList.remove('sidebar-open');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'sidebarOverlay';
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            const closeHandler = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                safeToggleSidebar(false);
+            };
+            overlay.addEventListener('click', closeHandler);
+            overlay.addEventListener('touchstart', closeHandler, { passive: false });
         }
+
+        // Frame-synced execution via requestAnimationFrame for zero-jank animation
+        requestAnimationFrame(() => {
+            if (shouldOpen) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                document.body.classList.add('sidebar-open');
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            }
+        });
     }
 
-    // Expose universally on window immediately
-    window.toggleSidebar = safeToggleSidebar;
+    // Expose universally on window immediately and protect from legacy overwrites
+    window.safeToggleSidebar = safeToggleSidebar;
+    try {
+        Object.defineProperty(window, 'toggleSidebar', {
+            get() { return safeToggleSidebar; },
+            set() { /* protect against legacy inline scripts overwriting */ },
+            configurable: true
+        });
+    } catch (_) {
+        window.toggleSidebar = safeToggleSidebar;
+    }
 
     const DashboardPremium = {
 
@@ -450,8 +470,17 @@
          * Setup robust global sidebar listeners, overlay close, and mobile ergonomics
          */
         initSidebarListeners() {
-            // Re-assign window.toggleSidebar in case an inline script overwrote it
-            window.toggleSidebar = safeToggleSidebar;
+            // Re-assign window.safeToggleSidebar in case an inline script overwrote it
+            window.safeToggleSidebar = safeToggleSidebar;
+            try {
+                Object.defineProperty(window, 'toggleSidebar', {
+                    get() { return safeToggleSidebar; },
+                    set() {},
+                    configurable: true
+                });
+            } catch (_) {
+                window.toggleSidebar = safeToggleSidebar;
+            }
 
             // Strip inline onclick handlers from all mobile menu buttons and bind them cleanly
             const allMenuBtns = document.querySelectorAll('.mobile-header-menu-btn, .mobile-menu-btn');
@@ -468,18 +497,20 @@
                 }
             });
 
-            // Clean up and bind overlay
+            // Clean up and bind overlay with both click and touchstart for instant response
             const overlay = document.getElementById('sidebarOverlay');
             if (overlay) {
                 overlay.removeAttribute('onclick');
                 overlay.onclick = null;
                 if (!overlay.dataset.bound) {
                     overlay.dataset.bound = 'true';
-                    overlay.addEventListener('click', (e) => {
+                    const closeHandler = (e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         safeToggleSidebar(false);
-                    });
+                    };
+                    overlay.addEventListener('click', closeHandler);
+                    overlay.addEventListener('touchstart', closeHandler, { passive: false });
                 }
             }
 
@@ -508,6 +539,19 @@
                     }
                 });
             }
+
+            // Auto-close sidebar if viewport resized to desktop width
+            if (!window.__sidebarResizeBound) {
+                window.__sidebarResizeBound = true;
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 900) {
+                        const sb = document.getElementById('sidebar');
+                        if (sb && sb.classList.contains('active')) {
+                            safeToggleSidebar(false);
+                        }
+                    }
+                }, { passive: true });
+            }
         }
     };
 
@@ -530,9 +574,16 @@
         }
     };
 
-    // Auto-init when DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
-        // Delay slightly to let other scripts render data first
-        setTimeout(() => DashboardPremium.init(), 100);
-    });
+    // Auto-init immediately when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Bind navigation listeners immediately for 0ms tap delay
+            DashboardPremium.initSidebarListeners();
+            // Stagger other visual/data features slightly for smooth initial page paint
+            setTimeout(() => DashboardPremium.init(), 60);
+        });
+    } else {
+        DashboardPremium.initSidebarListeners();
+        setTimeout(() => DashboardPremium.init(), 60);
+    }
 })();

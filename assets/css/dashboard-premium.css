@@ -1506,36 +1506,73 @@ body.premium-dashboard .mobile-sticky-bar {
     }
 
     body.premium-dashboard .sidebar {
-        transform: translateX(-100%) !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        width: 275px !important;
+        max-width: 84vw !important;
+        transform: translate3d(-100%, 0, 0) !important;
+        -webkit-transform: translate3d(-100%, 0, 0) !important;
         z-index: 100010 !important;
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        will-change: transform;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        perspective: 1000px;
+        -webkit-perspective: 1000px;
+        transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12) !important;
+        contain: paint layout;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: manipulation;
     }
 
     body.premium-dashboard .sidebar.active {
-        transform: translateX(0) !important;
-        box-shadow: 8px 0 32px rgba(0,0,0,0.18) !important;
+        transform: translate3d(0, 0, 0) !important;
+        -webkit-transform: translate3d(0, 0, 0) !important;
+        box-shadow: 6px 0 30px rgba(0, 0, 0, 0.18) !important;
         z-index: 100010 !important;
     }
 
+    /* Ultra-smooth mobile overlay with hardware-accelerated opacity fade (no laggy backdrop blur) */
     body.premium-dashboard .sidebar-overlay {
-        display: none !important;
+        display: block !important;
         position: fixed !important;
         inset: 0 !important;
-        background: rgba(0, 0, 0, 0.45) !important;
-        backdrop-filter: blur(3px) !important;
-        -webkit-backdrop-filter: blur(3px) !important;
+        background: rgba(15, 23, 42, 0.58) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
         z-index: 100008 !important;
         cursor: pointer !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
         pointer-events: none !important;
+        will-change: opacity;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        transition: opacity 0.26s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        touch-action: manipulation !important;
     }
 
     body.premium-dashboard .sidebar-overlay.active {
-        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
         pointer-events: auto !important;
     }
 
     body.sidebar-open {
         overflow: hidden !important;
+        touch-action: pan-x;
+    }
+
+    /* Pause background particle & pulsating animations while drawer is open to prioritize 100% GPU for the menu */
+    body.sidebar-open .hero-particle,
+    body.sidebar-open .session-countdown {
+        animation-play-state: paused !important;
     }
 
     body.premium-dashboard .main-content {
@@ -1557,14 +1594,15 @@ body.premium-dashboard .mobile-sticky-bar {
         width: 100% !important;
         box-sizing: border-box !important;
         height: 52px !important;
-        background: rgba(255, 255, 255, 0.96) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
         border-bottom: 1px solid var(--premium-border, #e2e8f0) !important;
         padding: 0 0.85rem !important;
         z-index: 1000 !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
         margin: 0 0 0.75rem 0 !important;
+        touch-action: manipulation !important;
     }
 
     .mobile-header-menu-btn,
@@ -1703,6 +1741,9 @@ body.premium-dashboard .mobile-sticky-bar {
     }
 
     /* Transform hamburger icon into a close (X) icon when sidebar is active */
+    body.sidebar-open .mobile-header-menu-btn i::before,
+    body.sidebar-open .mobile-menu-btn i::before,
+    body:has(.sidebar.active) .mobile-header-menu-btn i::before,
     body:has(.sidebar.active) .mobile-menu-btn i::before {
         content: "\f00d" !important;
     }
